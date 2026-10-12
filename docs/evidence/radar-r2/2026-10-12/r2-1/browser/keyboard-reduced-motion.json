@@ -1,0 +1,49 @@
+{
+  "source_sha": "00d847379a1530848a8789f33cc075bd0a25095e",
+  "keyboard": [
+    {
+      "tag": "A",
+      "text": "Skip to content",
+      "outline": "solid"
+    },
+    {
+      "tag": "A",
+      "text": "InfopunksRadar",
+      "outline": "solid"
+    },
+    {
+      "tag": "A",
+      "text": "Radar",
+      "outline": "solid"
+    },
+    {
+      "tag": "A",
+      "text": "Solana",
+      "outline": "solid"
+    },
+    {
+      "tag": "A",
+      "text": "Robinhood Chain",
+      "outline": "solid"
+    },
+    {
+      "tag": "A",
+      "text": "Proof",
+      "outline": "solid"
+    },
+    {
+      "tag": "A",
+      "text": "Developers",
+      "outline": "solid"
+    },
+    {
+      "tag": "A",
+      "text": "Run a Check ↗",
+      "outline": "solid"
+    }
+  ],
+  "reduced_motion": {
+    "requested": true,
+    "scrollBehavior": "auto"
+  }
+}

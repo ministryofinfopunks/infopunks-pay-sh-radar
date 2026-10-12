@@ -1,6 +1,7 @@
 # Radar R2 independent security and migration review
 
 **Candidate:** `codex/radar-release-integration-r2` (PR #11)
+**Candidate source SHA:** `00d847379a1530848a8789f33cc075bd0a25095e`
 **Review state:** PENDING — no independent review is represented by this packet.
 **Scope:** review the combined implementation and its exact final source SHA. Do not treat test results as approval.
 
@@ -25,7 +26,7 @@ For each item, record PASS, FAIL, or BLOCKED with the reviewed SHA, files/lines,
 ## Reviewer conclusion
 
 - Reviewer: **PENDING**
-- Reviewed source SHA: **PENDING**
+- Reviewed source SHA: **PENDING — request review against `00d847379a1530848a8789f33cc075bd0a25095e`**
 - Security outcome: **PENDING**
 - Migration outcome: **PENDING**
 - Required changes: **PENDING**

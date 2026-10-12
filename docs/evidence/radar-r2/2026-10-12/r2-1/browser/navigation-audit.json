@@ -1,0 +1,6874 @@
+{
+  "source_sha": "00d847379a1530848a8789f33cc075bd0a25095e",
+  "links": [
+    {
+      "from": "/",
+      "href": "#radar-home-content",
+      "label": "Skip to content",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/",
+      "href": "/",
+      "label": "InfopunksRadar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/",
+      "href": "/",
+      "label": "Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/",
+      "href": "/solana",
+      "label": "Solana",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood Chain",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/",
+      "href": "/#proof",
+      "label": "Proof",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/",
+      "href": "/developers",
+      "label": "Developers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/",
+      "href": "/spend-terminal",
+      "label": "Run a Check ↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/",
+      "href": "#economies",
+      "label": "Explore the Radar ↓",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/",
+      "href": "/spend-terminal",
+      "label": "Check a Spend Route↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/",
+      "href": "/rh-chain-signal-desk/market",
+      "label": "Inspect a Market↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/",
+      "href": "/receipts",
+      "label": "Inspect receipt evidence ↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/",
+      "href": "/developers",
+      "label": "Integration documentation ↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/",
+      "href": "/",
+      "label": "Infopunks Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/",
+      "href": "/openapi.json",
+      "label": "API contract ↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "#terminal-content",
+      "label": "Skip to content",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/",
+      "label": "Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/solana",
+      "label": "Solana",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood Chain",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/#proof",
+      "label": "Proof",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/developers",
+      "label": "Developers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/",
+      "label": "InfopunksRadar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/solana",
+      "label": "SolanaAgent routes, Pay.sh and project intelligenceActive",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood ChainTokens, memes and ecosystem signalsOpen",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/solana",
+      "label": "Overview",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/providers",
+      "label": "Providers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/routes",
+      "label": "Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/benchmarks",
+      "label": "Benchmarks",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/benchmarks",
+      "label": "Benchmarks",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/signal-hunt",
+      "label": "Signal Hunt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/narratives",
+      "label": "Narratives",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/unicorn-radar",
+      "label": "Unicorn Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/graph",
+      "label": "Signal Graph",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/narratives/attention-markets",
+      "label": "Attention Markets",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/narratives/attention-market-watch",
+      "label": "Attention Market Watch",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/abundance",
+      "label": "Abundance Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/signals/ansem",
+      "label": "Ansem",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/signals/black-bull",
+      "label": "Black Bull",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/signals/troll",
+      "label": "TROLL",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/check",
+      "label": "Check",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/loops",
+      "label": "Loops",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes",
+      "label": "Hermes Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/solana#agent-benchmark-api",
+      "label": "Agent Benchmarks",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/cards",
+      "label": "Preflight Cards",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/claim",
+      "label": "Claims",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/solana#route-mapping-registry",
+      "label": "Route Mappings",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/solana#preflight",
+      "label": "Preflight",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/solana#compare",
+      "label": "Compare",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/solana#dossier",
+      "label": "Provider Dossier",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/spend-terminal",
+      "label": "Pre-Spend Terminal",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/memory-loop",
+      "label": "Memory Loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/pre-spend-decision",
+      "label": "Pre-Spend Decision",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/spend-policy",
+      "label": "Spend Policy",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/decision-feedback",
+      "label": "Decision Feedback",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/wallet-audit-trail",
+      "label": "Wallet Audit Trail",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/wallet-risk-score",
+      "label": "Wallet Risk Score",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/wallet-safety",
+      "label": "Wallet Safety API",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/reputation-ledger",
+      "label": "Reputation Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/skill-pack",
+      "label": "Skill Pack",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/narratives/hermes-desk",
+      "label": "Narrative",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/evaluation-request",
+      "label": "Evaluation Request",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/revenue-receipts",
+      "label": "Revenue Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-market",
+      "label": "Machine Market",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-rail-coverage",
+      "label": "Rail Coverage",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-route-risk-matrix",
+      "label": "Route Risk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-first-safe-routes",
+      "label": "First Safe Queue",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-benchmark-readiness",
+      "label": "Benchmark Readiness",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-benchmark-methodology",
+      "label": "Benchmark Methodology",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-comparable-routes",
+      "label": "Comparable Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-translation-evidence",
+      "label": "Translation Evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-proof-ladder",
+      "label": "Proof Ladder",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-execution-shortlist",
+      "label": "Proof Plans",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-execution-blockers",
+      "label": "Execution Blockers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-market-changelog",
+      "label": "Changelog",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-no-claim-ledger",
+      "label": "No-Claim Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-readiness-matrix",
+      "label": "Readiness Matrix",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-market-map",
+      "label": "Market Map",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-receipts",
+      "label": "Machine Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-economy-snapshot",
+      "label": "Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/openapi.json",
+      "label": "API↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/developers",
+      "label": "Developer Documentation",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/v1/hermes",
+      "label": "Hermes JSON↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/v1/hermes/health",
+      "label": "Hermes Health↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/#proof",
+      "label": "Methodology",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/solana#events",
+      "label": "Events",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/solana",
+      "label": "Overview",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/providers",
+      "label": "Providers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/routes",
+      "label": "Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/benchmarks",
+      "label": "Benchmarks",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/signal-hunt",
+      "label": "Signal Hunt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/narratives",
+      "label": "Narratives",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/unicorn-radar",
+      "label": "Unicorn Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/graph",
+      "label": "Signal Graph",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/narratives/attention-markets",
+      "label": "Attention Markets",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/narratives/attention-market-watch",
+      "label": "Attention Market Watch",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/abundance",
+      "label": "Abundance Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/signals/ansem",
+      "label": "Ansem",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/signals/black-bull",
+      "label": "Black Bull",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/signals/troll",
+      "label": "TROLL",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/check",
+      "label": "Check",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/loops",
+      "label": "Loops",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes",
+      "label": "Hermes Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/solana#agent-benchmark-api",
+      "label": "Agent Benchmarks",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/cards",
+      "label": "Preflight Cards",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/claim",
+      "label": "Claims",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/solana#route-mapping-registry",
+      "label": "Route Mappings",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/solana#preflight",
+      "label": "Preflight",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/solana#compare",
+      "label": "Compare",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/solana#dossier",
+      "label": "Provider Dossier",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/spend-terminal",
+      "label": "Pre-Spend Terminal",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/memory-loop",
+      "label": "Memory Loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/pre-spend-decision",
+      "label": "Pre-Spend Decision",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/spend-policy",
+      "label": "Spend Policy",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/decision-feedback",
+      "label": "Decision Feedback",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/wallet-audit-trail",
+      "label": "Wallet Audit Trail",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/wallet-risk-score",
+      "label": "Wallet Risk Score",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/wallet-safety",
+      "label": "Wallet Safety API",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/reputation-ledger",
+      "label": "Reputation Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/skill-pack",
+      "label": "Skill Pack",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/narratives/hermes-desk",
+      "label": "Narrative",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/evaluation-request",
+      "label": "Evaluation Request",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/revenue-receipts",
+      "label": "Revenue Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-market",
+      "label": "Machine Market",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-rail-coverage",
+      "label": "Rail Coverage",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-route-risk-matrix",
+      "label": "Route Risk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-first-safe-routes",
+      "label": "First Safe Queue",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-benchmark-readiness",
+      "label": "Benchmark Readiness",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-benchmark-methodology",
+      "label": "Benchmark Methodology",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-comparable-routes",
+      "label": "Comparable Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-translation-evidence",
+      "label": "Translation Evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-proof-ladder",
+      "label": "Proof Ladder",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-execution-shortlist",
+      "label": "Proof Plans",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-execution-blockers",
+      "label": "Execution Blockers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-market-changelog",
+      "label": "Changelog",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-no-claim-ledger",
+      "label": "No-Claim Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-readiness-matrix",
+      "label": "Readiness Matrix",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-market-map",
+      "label": "Market Map",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-receipts",
+      "label": "Machine Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-economy-snapshot",
+      "label": "Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/openapi.json",
+      "label": "API↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/developers",
+      "label": "Developer Documentation",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/v1/hermes",
+      "label": "Hermes JSON↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/v1/hermes/health",
+      "label": "Hermes Health↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/#proof",
+      "label": "Methodology",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/solana#events",
+      "label": "Events",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/spend-terminal",
+      "label": "Check a Spend Route",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "#explore-solana-radar",
+      "label": "Explore the Radar",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/signal-hunt",
+      "label": "Signal HuntEmerging signals with evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/narratives",
+      "label": "NarrativesCultural intelligence desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/unicorn-radar",
+      "label": "Unicorn RadarEarly company and project watch",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/graph",
+      "label": "Signal GraphClaims, receipts and relationships",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/signal-hunt",
+      "label": "Explore intelligence →",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/check",
+      "label": "CheckVerify a claim before action",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/loops",
+      "label": "LoopsRun and inspect proof loops",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes",
+      "label": "Hermes DeskAgentic investigations before spend",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/solana#agent-benchmark-api",
+      "label": "Agent BenchmarksBenchmark agent readiness",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/check",
+      "label": "Explore agent tools →",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/memory-loop",
+      "label": "Memory LoopOutcomes that change future action",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/pre-spend-decision",
+      "label": "Pre-Spend DecisionCheck the ledger before spend",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/spend-policy",
+      "label": "Spend PolicyBound wallet authority",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/decision-feedback",
+      "label": "Decision FeedbackRecord what happened next",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/hermes/memory-loop",
+      "label": "Explore hermes →",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/evaluation-request",
+      "label": "Evaluation RequestRequest a commercial evaluation",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/revenue-receipts",
+      "label": "Revenue ReceiptsEvidence of commercial outcomes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/evaluation-request",
+      "label": "Explore commercial →",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-market",
+      "label": "Machine MarketMachine-service market map",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-rail-coverage",
+      "label": "Rail CoveragePayment rail availability",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-route-risk-matrix",
+      "label": "Route RiskRisk across machine routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-first-safe-routes",
+      "label": "First Safe QueueSafest candidates to test first",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-benchmark-readiness",
+      "label": "Benchmark ReadinessEvidence readiness by service",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-market",
+      "label": "Explore machine economy →",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/openapi.json",
+      "label": "APIOpenAPI specification↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/developers",
+      "label": "Developer DocumentationIntegration guides and examples",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/v1/hermes",
+      "label": "Hermes JSONMachine-readable Hermes state↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/v1/hermes/health",
+      "label": "Hermes HealthService health endpoint↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/#proof",
+      "label": "MethodologyHow Radar forms judgment",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/openapi.json",
+      "label": "Explore developers →",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/cards",
+      "label": "Browse Preflight Cards",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "#preflight",
+      "label": "Run a pre-spend check →",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "#compare",
+      "label": "Compare ProvidersCost and performance",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "#benchmark-readiness",
+      "label": "View BenchmarksReadiness scores",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "#route-mapping-registry",
+      "label": "Check MappingsRoute intelligence",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/claim",
+      "label": "Browse ClaimsEvidence trails",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "#agent-benchmark-api",
+      "label": "Agent Benchmark APIAccess API docs",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/solana",
+      "href": "/machine-market",
+      "label": "Open Machine Market",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/graph",
+      "label": "Open Signal Graph",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/benchmarks/finance-data-sol-price",
+      "label": "finance/dataSOL Price3 runs / route2 proven paid routesevidence ledger recorded",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/benchmarks/finance-data-token-search",
+      "label": "finance/dataToken Search3 runs / route2 proven paid routesevidence ledger recorded",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/benchmarks/finance-data-token-metadata",
+      "label": "finance/dataToken Metadata10 recorded route-runs2 proven paid routesevidence ledger recorded",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/benchmarks/document-ocr-text-extraction",
+      "label": "document-aiDocument OCR Text Extraction10 recorded route-runs2 proven paid routesevidence ledger recorded",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/benchmarks/data-web-search-results",
+      "label": "web-searchWeb Search Results10 recorded route-runs2 proven paid routesevidence ledger recorded",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/cards",
+      "label": "Browse public Preflight Cards",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/paysponge-coingecko",
+      "label": "Open readiness card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/paysponge-coingecko",
+      "label": "Share card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/perplexity-search",
+      "label": "Open readiness card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/perplexity-search",
+      "label": "Share card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/merit-systems-stablecrypto-market-data",
+      "label": "Open readiness card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/merit-systems-stablecrypto-market-data",
+      "label": "Share card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/stableenrich-exa-search",
+      "label": "Open readiness card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/stableenrich-exa-search",
+      "label": "Share card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/google-vision",
+      "label": "Open readiness card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/google-vision",
+      "label": "Share card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/paysponge-reducto",
+      "label": "Open readiness card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/paysponge-reducto",
+      "label": "Share card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/google-places-searchtext",
+      "label": "Open readiness card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/google-places-searchtext",
+      "label": "Share card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/stableenrich-google-maps-text-search",
+      "label": "Open readiness card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/stableenrich-google-maps-text-search",
+      "label": "Share card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/agentmail",
+      "label": "Open readiness card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/agentmail",
+      "label": "Share card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/alibaba-speech",
+      "label": "Open readiness card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/alibaba-speech",
+      "label": "Share card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/google-speech",
+      "label": "Open readiness card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/google-speech",
+      "label": "Share card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/quicknode",
+      "label": "Open readiness card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/radar/readiness/quicknode",
+      "label": "Share card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/openapi.json",
+      "label": "API Docs",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/interpretations/interpretation-04dabcf23e96b6590fd1d5e9",
+      "label": "view full receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/openapi.json",
+      "label": "API Docs",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/openapi.json",
+      "label": "API Docs",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/solana",
+      "href": "/propagation/prop-b8e990713dd2d55b",
+      "label": "view full receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "#now",
+      "label": "Skip to now",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/4663",
+      "href": "/4663",
+      "label": "INFOPUNKS RADAR4663",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "#call",
+      "label": "Call",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/4663",
+      "href": "/",
+      "label": "Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/solana",
+      "label": "Solana",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood Chain",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/#proof",
+      "label": "Proof",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/4663",
+      "href": "/developers",
+      "label": "Developers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "#now",
+      "label": "Now",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/4663",
+      "href": "#watch",
+      "label": "Watch",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/4663",
+      "href": "#call",
+      "label": "Call",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/4663",
+      "href": "#proof",
+      "label": "Proof",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/4663",
+      "href": "/4663/reflexive/watch",
+      "label": "All cases↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/4663/reflexive/watch/RH_STOCK_MEME_MAP_20260903",
+      "label": "Case↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW",
+      "label": "Case↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/4663/reflexive/watch/BONER_HIMS_FLOAT_STRESS",
+      "label": "Case↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/4663/reflexive/watch/LONGX_NVDA3L",
+      "label": "Case↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/v1/4663/reflexive/watch/cases/AI_NVDA_CAPITAL_VS_FLOW",
+      "label": "AI_NVDA_CAPITAL_VS_FLOW ↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW",
+      "label": "Research↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/v1/4663/reflexive/watch/cases/BONER_HIMS_FLOAT_STRESS",
+      "label": "BONER_HIMS_FLOAT_STRESS ↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/4663/reflexive/watch/BONER_HIMS_FLOAT_STRESS",
+      "label": "Research↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/v1/4663/pulse/windows/rh4663%3A2026-10-12",
+      "label": "PULSE ↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/4663/pulse/windows/rh4663%3A2026-10-12",
+      "label": "Research↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/4663/pulse",
+      "label": "Make the call →",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/4663/receipts",
+      "label": "Receipts↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/4663/reflexive",
+      "label": "Reflexive Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/4663/reflexive/watch",
+      "label": "Watch cases",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/4663/reflexive/census",
+      "label": "Category Census",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/4663/reflexive/preflight/ipx-pltr",
+      "label": "PLTR Preflight",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/4663/receipts",
+      "label": "CALL + RESOLUTION receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/4663",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood Chain desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "#rh-chain-content",
+      "label": "Skip to content",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/",
+      "label": "Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/solana",
+      "label": "Solana",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood Chain",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/#proof",
+      "label": "Proof",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/developers",
+      "label": "Developers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/",
+      "label": "InfopunksRadar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/solana",
+      "label": "SolanaAgent routes, Pay.sh and project intelligenceOpen",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood ChainTokens, memes and ecosystem signalsActive",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk",
+      "label": "Signal Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/market",
+      "label": "Market",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/meme-pulse",
+      "label": "Meme Pulse",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/4663-index",
+      "label": "4663 Index",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/daily-receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/submit",
+      "label": "Submit",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/4663-index",
+      "label": "4663 Index",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/submit",
+      "label": "Submit",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/clone-radar",
+      "label": "Risk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/risk-patterns",
+      "label": "Patterns",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/launchpad-observatory",
+      "label": "Observatory",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/market-structure",
+      "label": "Market Structure",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/live-snapshot",
+      "label": "Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/scouts",
+      "label": "Scout Network",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/scout",
+      "label": "Scout Agent",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/100-receipts",
+      "label": "100 Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/review-pipeline",
+      "label": "Review Pipeline",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/review-queue",
+      "label": "Review Queue",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/internal/rh-chain/review-console",
+      "label": "Review Console",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/launch-surfaces",
+      "label": "Surface Watch",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/distribution-pack",
+      "label": "Distribution Packs",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/openapi.json",
+      "label": "API↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk",
+      "label": "Signal Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/market",
+      "label": "Market",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/meme-pulse",
+      "label": "Meme Pulse",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/4663-index",
+      "label": "4663 Index",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/daily-receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/submit",
+      "label": "Submit",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/clone-radar",
+      "label": "Risk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/risk-patterns",
+      "label": "Patterns",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/launchpad-observatory",
+      "label": "Observatory",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/market-structure",
+      "label": "Market Structure",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/live-snapshot",
+      "label": "Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/scouts",
+      "label": "Scout Network",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/scout",
+      "label": "Scout Agent",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/100-receipts",
+      "label": "100 Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/review-pipeline",
+      "label": "Review Pipeline",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/review-queue",
+      "label": "Review Queue",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/internal/rh-chain/review-console",
+      "label": "Review Console",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/launch-surfaces",
+      "label": "Surface Watch",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/distribution-pack",
+      "label": "Distribution Packs",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/openapi.json",
+      "label": "API↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/tokens/0x020bfC650A365f8BB26819deAAbF3E21291018b4",
+      "label": "Open Top Signal ↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/meme-pulse",
+      "label": "Open Attention Shift ↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/clone-radar",
+      "label": "Open Risk Alert ↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/daily-receipts/rh_daily_006",
+      "label": "Open Receipt Update ↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/daily-receipts/rh_daily_006",
+      "label": "Read full receipt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/4663-index",
+      "label": "View Full 4663 Index",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/4663-index",
+      "label": "Open index record",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/4663-index",
+      "label": "Open index record",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/4663-index",
+      "label": "Open index record",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/clone-radar",
+      "label": "Open Risk Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/clone-radar",
+      "label": "Open Risk Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/clone-radar",
+      "label": "Open Risk Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/meme-pulse",
+      "label": "Open Meme Pulse",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/submit",
+      "label": "Submit evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/submit",
+      "label": "Submit evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/submit",
+      "label": "Submit evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/submit",
+      "label": "Submit evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/submit",
+      "label": "Submit evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/submit",
+      "label": "Submit evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/launch-surfaces",
+      "label": "Open Launch Surface Watch",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/review-queue",
+      "label": "View Review Queue",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/review-queue",
+      "label": "Open review",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/review-queue",
+      "label": "Open review",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/review-queue",
+      "label": "Open review",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/live-snapshot",
+      "label": "Open Live Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/methodology",
+      "label": "Methodology",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/daily-receipts",
+      "label": "Source policy",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/rh-chain-signal-desk/distribution-pack",
+      "label": "Distribution pack",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk",
+      "href": "/v1/rh-chain",
+      "label": "API",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/spend-terminal",
+      "href": "#spend-content",
+      "label": "Skip to check",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/spend-terminal",
+      "href": "/",
+      "label": "Infopunks Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/spend-terminal",
+      "href": "/",
+      "label": "Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/spend-terminal",
+      "href": "/solana",
+      "label": "Solana",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/spend-terminal",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood Chain",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/spend-terminal",
+      "href": "/#proof",
+      "label": "Proof",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/spend-terminal",
+      "href": "/developers",
+      "label": "Developers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/spend-terminal",
+      "href": "/routes",
+      "label": "Inspect route evidence ↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/spend-terminal",
+      "href": "/receipts",
+      "label": "Receipt evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/spend-terminal",
+      "href": "/developers",
+      "label": "Developer contract",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "#market-pulse-content",
+      "label": "Skip to Market Pulse",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/",
+      "label": "Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/solana",
+      "label": "Solana",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood Chain",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/#proof",
+      "label": "Proof",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/developers",
+      "label": "Developers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/",
+      "label": "InfopunksRadar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/solana",
+      "label": "SolanaAgent routes, Pay.sh and project intelligenceOpen",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood ChainTokens, memes and ecosystem signalsActive",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk",
+      "label": "Signal Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/market",
+      "label": "Market",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/meme-pulse",
+      "label": "Meme Pulse",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/4663-index",
+      "label": "4663 Index",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/daily-receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/submit",
+      "label": "Submit",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/4663-index",
+      "label": "4663 Index",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/submit",
+      "label": "Submit",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/clone-radar",
+      "label": "Risk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/risk-patterns",
+      "label": "Patterns",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/launchpad-observatory",
+      "label": "Observatory",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/market-structure",
+      "label": "Market Structure",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/live-snapshot",
+      "label": "Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/scouts",
+      "label": "Scout Network",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/scout",
+      "label": "Scout Agent",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/100-receipts",
+      "label": "100 Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/review-pipeline",
+      "label": "Review Pipeline",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/review-queue",
+      "label": "Review Queue",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/internal/rh-chain/review-console",
+      "label": "Review Console",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/launch-surfaces",
+      "label": "Surface Watch",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/distribution-pack",
+      "label": "Distribution Packs",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/openapi.json",
+      "label": "API↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk",
+      "label": "Signal Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/market",
+      "label": "Market",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/meme-pulse",
+      "label": "Meme Pulse",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/4663-index",
+      "label": "4663 Index",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/daily-receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/submit",
+      "label": "Submit",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/clone-radar",
+      "label": "Risk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/risk-patterns",
+      "label": "Patterns",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/launchpad-observatory",
+      "label": "Observatory",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/market-structure",
+      "label": "Market Structure",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/live-snapshot",
+      "label": "Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/scouts",
+      "label": "Scout Network",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/scout",
+      "label": "Scout Agent",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/100-receipts",
+      "label": "100 Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/review-pipeline",
+      "label": "Review Pipeline",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/review-queue",
+      "label": "Review Queue",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/internal/rh-chain/review-console",
+      "label": "Review Console",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/launch-surfaces",
+      "label": "Surface Watch",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/distribution-pack",
+      "label": "Distribution Packs",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/openapi.json",
+      "label": "API↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/live-snapshot",
+      "label": "Live Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/market",
+      "label": "https://radar.infopunks.fun/rh-chain-signal-desk/market",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/v1/rh-chain/market",
+      "label": "Open Market Pulse JSON",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/live-snapshot",
+      "label": "Open Live Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/rh-chain-signal-desk/market",
+      "href": "/rh-chain-signal-desk/market-structure",
+      "label": "Open 4663 Market Structure",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/radar/cards",
+      "href": "/radar/cards/route/sol-price",
+      "label": "Open Card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/radar/cards",
+      "href": "/radar/cards/benchmark/web-search",
+      "label": "Open Card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/radar/cards",
+      "href": "/radar/cards/benchmark/finance-data-sol-price",
+      "label": "Open Card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/radar/cards",
+      "href": "/machine-market/cards/cloud-translation",
+      "label": "Open Card",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/",
+      "label": "Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/solana",
+      "label": "Solana",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood Chain",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/#proof",
+      "label": "Proof",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts",
+      "href": "/developers",
+      "label": "Developers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/",
+      "label": "InfopunksRadar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/solana",
+      "label": "SolanaAgent routes, Pay.sh and project intelligenceActive",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood ChainTokens, memes and ecosystem signalsOpen",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/solana",
+      "label": "Overview",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/providers",
+      "label": "Providers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/routes",
+      "label": "Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/benchmarks",
+      "label": "Benchmarks",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/benchmarks",
+      "label": "Benchmarks",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/signal-hunt",
+      "label": "Signal Hunt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/narratives",
+      "label": "Narratives",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/unicorn-radar",
+      "label": "Unicorn Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/graph",
+      "label": "Signal Graph",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/narratives/attention-markets",
+      "label": "Attention Markets",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/narratives/attention-market-watch",
+      "label": "Attention Market Watch",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/abundance",
+      "label": "Abundance Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/signals/ansem",
+      "label": "Ansem",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/signals/black-bull",
+      "label": "Black Bull",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/signals/troll",
+      "label": "TROLL",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/check",
+      "label": "Check",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/loops",
+      "label": "Loops",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes",
+      "label": "Hermes Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/solana#agent-benchmark-api",
+      "label": "Agent Benchmarks",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts",
+      "href": "/radar/cards",
+      "label": "Preflight Cards",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/claim",
+      "label": "Claims",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/solana#route-mapping-registry",
+      "label": "Route Mappings",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts",
+      "href": "/solana#preflight",
+      "label": "Preflight",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts",
+      "href": "/solana#compare",
+      "label": "Compare",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts",
+      "href": "/solana#dossier",
+      "label": "Provider Dossier",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts",
+      "href": "/spend-terminal",
+      "label": "Pre-Spend Terminal",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/memory-loop",
+      "label": "Memory Loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/pre-spend-decision",
+      "label": "Pre-Spend Decision",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/spend-policy",
+      "label": "Spend Policy",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/decision-feedback",
+      "label": "Decision Feedback",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/wallet-audit-trail",
+      "label": "Wallet Audit Trail",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/wallet-risk-score",
+      "label": "Wallet Risk Score",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/wallet-safety",
+      "label": "Wallet Safety API",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/reputation-ledger",
+      "label": "Reputation Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/skill-pack",
+      "label": "Skill Pack",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/narratives/hermes-desk",
+      "label": "Narrative",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/evaluation-request",
+      "label": "Evaluation Request",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/revenue-receipts",
+      "label": "Revenue Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-market",
+      "label": "Machine Market",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-rail-coverage",
+      "label": "Rail Coverage",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-route-risk-matrix",
+      "label": "Route Risk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-first-safe-routes",
+      "label": "First Safe Queue",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-benchmark-readiness",
+      "label": "Benchmark Readiness",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-benchmark-methodology",
+      "label": "Benchmark Methodology",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-comparable-routes",
+      "label": "Comparable Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-translation-evidence",
+      "label": "Translation Evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-proof-ladder",
+      "label": "Proof Ladder",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-execution-shortlist",
+      "label": "Proof Plans",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-execution-blockers",
+      "label": "Execution Blockers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-market-changelog",
+      "label": "Changelog",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-no-claim-ledger",
+      "label": "No-Claim Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-readiness-matrix",
+      "label": "Readiness Matrix",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-market-map",
+      "label": "Market Map",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-receipts",
+      "label": "Machine Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-economy-snapshot",
+      "label": "Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/openapi.json",
+      "label": "API↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/developers",
+      "label": "Developer Documentation",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/v1/hermes",
+      "label": "Hermes JSON↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/v1/hermes/health",
+      "label": "Hermes Health↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/#proof",
+      "label": "Methodology",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts",
+      "href": "/solana#events",
+      "label": "Events",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts",
+      "href": "/solana",
+      "label": "Overview",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/providers",
+      "label": "Providers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/routes",
+      "label": "Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/benchmarks",
+      "label": "Benchmarks",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/signal-hunt",
+      "label": "Signal Hunt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/narratives",
+      "label": "Narratives",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/unicorn-radar",
+      "label": "Unicorn Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/graph",
+      "label": "Signal Graph",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/narratives/attention-markets",
+      "label": "Attention Markets",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/narratives/attention-market-watch",
+      "label": "Attention Market Watch",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/abundance",
+      "label": "Abundance Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/signals/ansem",
+      "label": "Ansem",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/signals/black-bull",
+      "label": "Black Bull",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/signals/troll",
+      "label": "TROLL",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/check",
+      "label": "Check",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/loops",
+      "label": "Loops",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes",
+      "label": "Hermes Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/solana#agent-benchmark-api",
+      "label": "Agent Benchmarks",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts",
+      "href": "/radar/cards",
+      "label": "Preflight Cards",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/claim",
+      "label": "Claims",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/solana#route-mapping-registry",
+      "label": "Route Mappings",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts",
+      "href": "/solana#preflight",
+      "label": "Preflight",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts",
+      "href": "/solana#compare",
+      "label": "Compare",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts",
+      "href": "/solana#dossier",
+      "label": "Provider Dossier",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts",
+      "href": "/spend-terminal",
+      "label": "Pre-Spend Terminal",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/memory-loop",
+      "label": "Memory Loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/pre-spend-decision",
+      "label": "Pre-Spend Decision",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/spend-policy",
+      "label": "Spend Policy",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/decision-feedback",
+      "label": "Decision Feedback",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/wallet-audit-trail",
+      "label": "Wallet Audit Trail",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/wallet-risk-score",
+      "label": "Wallet Risk Score",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/wallet-safety",
+      "label": "Wallet Safety API",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/reputation-ledger",
+      "label": "Reputation Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/hermes/skill-pack",
+      "label": "Skill Pack",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/narratives/hermes-desk",
+      "label": "Narrative",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/evaluation-request",
+      "label": "Evaluation Request",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/revenue-receipts",
+      "label": "Revenue Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-market",
+      "label": "Machine Market",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-rail-coverage",
+      "label": "Rail Coverage",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-route-risk-matrix",
+      "label": "Route Risk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-first-safe-routes",
+      "label": "First Safe Queue",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-benchmark-readiness",
+      "label": "Benchmark Readiness",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-benchmark-methodology",
+      "label": "Benchmark Methodology",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-comparable-routes",
+      "label": "Comparable Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-translation-evidence",
+      "label": "Translation Evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-proof-ladder",
+      "label": "Proof Ladder",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-execution-shortlist",
+      "label": "Proof Plans",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-execution-blockers",
+      "label": "Execution Blockers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-market-changelog",
+      "label": "Changelog",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-no-claim-ledger",
+      "label": "No-Claim Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-readiness-matrix",
+      "label": "Readiness Matrix",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-market-map",
+      "label": "Market Map",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-receipts",
+      "label": "Machine Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/machine-economy-snapshot",
+      "label": "Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/openapi.json",
+      "label": "API↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/developers",
+      "label": "Developer Documentation",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/v1/hermes",
+      "label": "Hermes JSON↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/v1/hermes/health",
+      "label": "Hermes Health↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/#proof",
+      "label": "Methodology",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts",
+      "href": "/solana#events",
+      "label": "Events",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts",
+      "href": "/receipts/receipt_005",
+      "label": "price_token_quotereceipt_005status succeededcost 0.07 USDClatency 240 msvalidation state human_validatedlinked route rou",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/receipts/receipt_010",
+      "label": "run_compliance_scanreceipt_010status succeededcost 1.80 USDClatency 1680 msvalidation state machine_checkedlinked route ",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/receipts/receipt_003",
+      "label": "buy_market_researchreceipt_003status succeededcost 0.31 USDClatency 810 msvalidation state human_validatedlinked route r",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/receipts/receipt_006",
+      "label": "price_token_quotereceipt_006status succeededcost 0.07 USDClatency 250 msvalidation state human_validatedlinked route rou",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/receipts/receipt_001",
+      "label": "buy_market_researchreceipt_001status succeededcost 0.25 USDClatency 980 msvalidation state human_validatedlinked route r",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/receipts/receipt_002",
+      "label": "buy_market_researchreceipt_002status succeededcost 0.25 USDClatency 1180 msvalidation state machine_checkedlinked route ",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/receipts/receipt_004",
+      "label": "buy_market_researchreceipt_004status succeededcost 0.31 USDClatency 860 msvalidation state human_validatedlinked route r",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/receipts/receipt_011",
+      "label": "scrape_private_profilereceipt_011status failedcost 0.90 USDClatency 3900 msvalidation state disputedlinked route route_p",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/receipts/receipt_009",
+      "label": "extract_receipt_fieldsreceipt_009status failedcost 0.12 USDClatency 1260 msvalidation state machine_checkedlinked route ",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/receipts/receipt_007",
+      "label": "price_token_quotereceipt_007status succeededcost 0.07 USDClatency 290 msvalidation state machine_checkedlinked route rou",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts",
+      "href": "/receipts/receipt_008",
+      "label": "extract_receipt_fieldsreceipt_008status succeededcost 0.12 USDClatency 740 msvalidation state stalelinked route route_pa",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/",
+      "label": "Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/solana",
+      "label": "Solana",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood Chain",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/#proof",
+      "label": "Proof",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/developers",
+      "label": "Developers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/",
+      "label": "InfopunksRadar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/solana",
+      "label": "SolanaAgent routes, Pay.sh and project intelligenceActive",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood ChainTokens, memes and ecosystem signalsOpen",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/solana",
+      "label": "Overview",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/providers",
+      "label": "Providers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/routes",
+      "label": "Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/benchmarks",
+      "label": "Benchmarks",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/benchmarks",
+      "label": "Benchmarks",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/signal-hunt",
+      "label": "Signal Hunt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/narratives",
+      "label": "Narratives",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/unicorn-radar",
+      "label": "Unicorn Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/graph",
+      "label": "Signal Graph",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/narratives/attention-markets",
+      "label": "Attention Markets",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/narratives/attention-market-watch",
+      "label": "Attention Market Watch",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/abundance",
+      "label": "Abundance Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/signals/ansem",
+      "label": "Ansem",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/signals/black-bull",
+      "label": "Black Bull",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/signals/troll",
+      "label": "TROLL",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/check",
+      "label": "Check",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/loops",
+      "label": "Loops",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes",
+      "label": "Hermes Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/solana#agent-benchmark-api",
+      "label": "Agent Benchmarks",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/radar/cards",
+      "label": "Preflight Cards",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/claim",
+      "label": "Claims",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/solana#route-mapping-registry",
+      "label": "Route Mappings",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/solana#preflight",
+      "label": "Preflight",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/solana#compare",
+      "label": "Compare",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/solana#dossier",
+      "label": "Provider Dossier",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/spend-terminal",
+      "label": "Pre-Spend Terminal",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/memory-loop",
+      "label": "Memory Loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/pre-spend-decision",
+      "label": "Pre-Spend Decision",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/spend-policy",
+      "label": "Spend Policy",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/decision-feedback",
+      "label": "Decision Feedback",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/wallet-audit-trail",
+      "label": "Wallet Audit Trail",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/wallet-risk-score",
+      "label": "Wallet Risk Score",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/wallet-safety",
+      "label": "Wallet Safety API",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/reputation-ledger",
+      "label": "Reputation Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/skill-pack",
+      "label": "Skill Pack",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/narratives/hermes-desk",
+      "label": "Narrative",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/evaluation-request",
+      "label": "Evaluation Request",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/revenue-receipts",
+      "label": "Revenue Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-market",
+      "label": "Machine Market",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-rail-coverage",
+      "label": "Rail Coverage",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-route-risk-matrix",
+      "label": "Route Risk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-first-safe-routes",
+      "label": "First Safe Queue",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-benchmark-readiness",
+      "label": "Benchmark Readiness",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-benchmark-methodology",
+      "label": "Benchmark Methodology",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-comparable-routes",
+      "label": "Comparable Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-translation-evidence",
+      "label": "Translation Evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-proof-ladder",
+      "label": "Proof Ladder",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-execution-shortlist",
+      "label": "Proof Plans",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-execution-blockers",
+      "label": "Execution Blockers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-market-changelog",
+      "label": "Changelog",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-no-claim-ledger",
+      "label": "No-Claim Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-readiness-matrix",
+      "label": "Readiness Matrix",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-market-map",
+      "label": "Market Map",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-receipts",
+      "label": "Machine Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-economy-snapshot",
+      "label": "Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/openapi.json",
+      "label": "API↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/developers",
+      "label": "Developer Documentation",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/v1/hermes",
+      "label": "Hermes JSON↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/v1/hermes/health",
+      "label": "Hermes Health↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/#proof",
+      "label": "Methodology",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/solana#events",
+      "label": "Events",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/solana",
+      "label": "Overview",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/providers",
+      "label": "Providers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/routes",
+      "label": "Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/benchmarks",
+      "label": "Benchmarks",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/signal-hunt",
+      "label": "Signal Hunt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/narratives",
+      "label": "Narratives",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/unicorn-radar",
+      "label": "Unicorn Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/graph",
+      "label": "Signal Graph",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/narratives/attention-markets",
+      "label": "Attention Markets",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/narratives/attention-market-watch",
+      "label": "Attention Market Watch",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/abundance",
+      "label": "Abundance Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/signals/ansem",
+      "label": "Ansem",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/signals/black-bull",
+      "label": "Black Bull",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/signals/troll",
+      "label": "TROLL",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/check",
+      "label": "Check",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/loops",
+      "label": "Loops",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes",
+      "label": "Hermes Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/solana#agent-benchmark-api",
+      "label": "Agent Benchmarks",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/radar/cards",
+      "label": "Preflight Cards",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/claim",
+      "label": "Claims",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/solana#route-mapping-registry",
+      "label": "Route Mappings",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/solana#preflight",
+      "label": "Preflight",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/solana#compare",
+      "label": "Compare",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/solana#dossier",
+      "label": "Provider Dossier",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/spend-terminal",
+      "label": "Pre-Spend Terminal",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/memory-loop",
+      "label": "Memory Loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/pre-spend-decision",
+      "label": "Pre-Spend Decision",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/spend-policy",
+      "label": "Spend Policy",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/decision-feedback",
+      "label": "Decision Feedback",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/wallet-audit-trail",
+      "label": "Wallet Audit Trail",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/wallet-risk-score",
+      "label": "Wallet Risk Score",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/wallet-safety",
+      "label": "Wallet Safety API",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/reputation-ledger",
+      "label": "Reputation Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/hermes/skill-pack",
+      "label": "Skill Pack",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/narratives/hermes-desk",
+      "label": "Narrative",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/evaluation-request",
+      "label": "Evaluation Request",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/revenue-receipts",
+      "label": "Revenue Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-market",
+      "label": "Machine Market",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-rail-coverage",
+      "label": "Rail Coverage",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-route-risk-matrix",
+      "label": "Route Risk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-first-safe-routes",
+      "label": "First Safe Queue",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-benchmark-readiness",
+      "label": "Benchmark Readiness",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-benchmark-methodology",
+      "label": "Benchmark Methodology",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-comparable-routes",
+      "label": "Comparable Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-translation-evidence",
+      "label": "Translation Evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-proof-ladder",
+      "label": "Proof Ladder",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-execution-shortlist",
+      "label": "Proof Plans",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-execution-blockers",
+      "label": "Execution Blockers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-market-changelog",
+      "label": "Changelog",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-no-claim-ledger",
+      "label": "No-Claim Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-readiness-matrix",
+      "label": "Readiness Matrix",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-market-map",
+      "label": "Market Map",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-receipts",
+      "label": "Machine Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/machine-economy-snapshot",
+      "label": "Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/openapi.json",
+      "label": "API↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/developers",
+      "label": "Developer Documentation",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/v1/hermes",
+      "label": "Hermes JSON↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/v1/hermes/health",
+      "label": "Hermes Health↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/#proof",
+      "label": "Methodology",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/solana#events",
+      "label": "Events",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/graph?node=claim_no_receipt_no_trust",
+      "label": "View in Signal Graph",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/routes/route_pay_sh_market_research_01",
+      "label": "route_pay_sh_market_research_01",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/providers/provider_pay_sh_lattice",
+      "label": "provider_pay_sh_lattice",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/services/service_market_research",
+      "label": "service_market_research",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/routes/route_pay_sh_market_research_01",
+      "label": "route_pay_sh_market_research_01",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/providers/provider_pay_sh_lattice",
+      "label": "provider_pay_sh_lattice",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/receipts/receipt_001",
+      "href": "/services/service_market_research",
+      "label": "service_market_research",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/",
+      "label": "Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/solana",
+      "label": "Solana",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood Chain",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/#proof",
+      "label": "Proof",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/loops",
+      "href": "/developers",
+      "label": "Developers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/",
+      "label": "InfopunksRadar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/solana",
+      "label": "SolanaAgent routes, Pay.sh and project intelligenceActive",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood ChainTokens, memes and ecosystem signalsOpen",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/solana",
+      "label": "Overview",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/providers",
+      "label": "Providers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/routes",
+      "label": "Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/benchmarks",
+      "label": "Benchmarks",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/benchmarks",
+      "label": "Benchmarks",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/signal-hunt",
+      "label": "Signal Hunt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/narratives",
+      "label": "Narratives",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/unicorn-radar",
+      "label": "Unicorn Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/graph",
+      "label": "Signal Graph",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/narratives/attention-markets",
+      "label": "Attention Markets",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/narratives/attention-market-watch",
+      "label": "Attention Market Watch",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/abundance",
+      "label": "Abundance Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/signals/ansem",
+      "label": "Ansem",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/signals/black-bull",
+      "label": "Black Bull",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/signals/troll",
+      "label": "TROLL",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/check",
+      "label": "Check",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/loops",
+      "label": "Loops",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes",
+      "label": "Hermes Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/solana#agent-benchmark-api",
+      "label": "Agent Benchmarks",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/loops",
+      "href": "/radar/cards",
+      "label": "Preflight Cards",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/claim",
+      "label": "Claims",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/solana#route-mapping-registry",
+      "label": "Route Mappings",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/loops",
+      "href": "/solana#preflight",
+      "label": "Preflight",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/loops",
+      "href": "/solana#compare",
+      "label": "Compare",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/loops",
+      "href": "/solana#dossier",
+      "label": "Provider Dossier",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/loops",
+      "href": "/spend-terminal",
+      "label": "Pre-Spend Terminal",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/memory-loop",
+      "label": "Memory Loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/pre-spend-decision",
+      "label": "Pre-Spend Decision",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/spend-policy",
+      "label": "Spend Policy",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/decision-feedback",
+      "label": "Decision Feedback",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/wallet-audit-trail",
+      "label": "Wallet Audit Trail",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/wallet-risk-score",
+      "label": "Wallet Risk Score",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/wallet-safety",
+      "label": "Wallet Safety API",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/reputation-ledger",
+      "label": "Reputation Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/skill-pack",
+      "label": "Skill Pack",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/narratives/hermes-desk",
+      "label": "Narrative",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/evaluation-request",
+      "label": "Evaluation Request",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/revenue-receipts",
+      "label": "Revenue Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-market",
+      "label": "Machine Market",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-rail-coverage",
+      "label": "Rail Coverage",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-route-risk-matrix",
+      "label": "Route Risk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-first-safe-routes",
+      "label": "First Safe Queue",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-benchmark-readiness",
+      "label": "Benchmark Readiness",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-benchmark-methodology",
+      "label": "Benchmark Methodology",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-comparable-routes",
+      "label": "Comparable Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-translation-evidence",
+      "label": "Translation Evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-proof-ladder",
+      "label": "Proof Ladder",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-execution-shortlist",
+      "label": "Proof Plans",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-execution-blockers",
+      "label": "Execution Blockers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-market-changelog",
+      "label": "Changelog",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-no-claim-ledger",
+      "label": "No-Claim Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-readiness-matrix",
+      "label": "Readiness Matrix",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-market-map",
+      "label": "Market Map",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-receipts",
+      "label": "Machine Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-economy-snapshot",
+      "label": "Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/openapi.json",
+      "label": "API↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/developers",
+      "label": "Developer Documentation",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/v1/hermes",
+      "label": "Hermes JSON↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/v1/hermes/health",
+      "label": "Hermes Health↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/#proof",
+      "label": "Methodology",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/loops",
+      "href": "/solana#events",
+      "label": "Events",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/loops",
+      "href": "/solana",
+      "label": "Overview",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/providers",
+      "label": "Providers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/routes",
+      "label": "Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/benchmarks",
+      "label": "Benchmarks",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/signal-hunt",
+      "label": "Signal Hunt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/narratives",
+      "label": "Narratives",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/unicorn-radar",
+      "label": "Unicorn Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/graph",
+      "label": "Signal Graph",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/narratives/attention-markets",
+      "label": "Attention Markets",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/narratives/attention-market-watch",
+      "label": "Attention Market Watch",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/abundance",
+      "label": "Abundance Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/signals/ansem",
+      "label": "Ansem",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/signals/black-bull",
+      "label": "Black Bull",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/signals/troll",
+      "label": "TROLL",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/check",
+      "label": "Check",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/loops",
+      "label": "Loops",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes",
+      "label": "Hermes Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/solana#agent-benchmark-api",
+      "label": "Agent Benchmarks",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/loops",
+      "href": "/radar/cards",
+      "label": "Preflight Cards",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/claim",
+      "label": "Claims",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/solana#route-mapping-registry",
+      "label": "Route Mappings",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/loops",
+      "href": "/solana#preflight",
+      "label": "Preflight",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/loops",
+      "href": "/solana#compare",
+      "label": "Compare",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/loops",
+      "href": "/solana#dossier",
+      "label": "Provider Dossier",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/loops",
+      "href": "/spend-terminal",
+      "label": "Pre-Spend Terminal",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/memory-loop",
+      "label": "Memory Loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/pre-spend-decision",
+      "label": "Pre-Spend Decision",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/spend-policy",
+      "label": "Spend Policy",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/decision-feedback",
+      "label": "Decision Feedback",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/wallet-audit-trail",
+      "label": "Wallet Audit Trail",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/wallet-risk-score",
+      "label": "Wallet Risk Score",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/wallet-safety",
+      "label": "Wallet Safety API",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/reputation-ledger",
+      "label": "Reputation Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/hermes/skill-pack",
+      "label": "Skill Pack",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/narratives/hermes-desk",
+      "label": "Narrative",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/evaluation-request",
+      "label": "Evaluation Request",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/revenue-receipts",
+      "label": "Revenue Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-market",
+      "label": "Machine Market",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-rail-coverage",
+      "label": "Rail Coverage",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-route-risk-matrix",
+      "label": "Route Risk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-first-safe-routes",
+      "label": "First Safe Queue",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-benchmark-readiness",
+      "label": "Benchmark Readiness",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-benchmark-methodology",
+      "label": "Benchmark Methodology",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-comparable-routes",
+      "label": "Comparable Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-translation-evidence",
+      "label": "Translation Evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-proof-ladder",
+      "label": "Proof Ladder",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-execution-shortlist",
+      "label": "Proof Plans",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-execution-blockers",
+      "label": "Execution Blockers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-market-changelog",
+      "label": "Changelog",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-no-claim-ledger",
+      "label": "No-Claim Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-readiness-matrix",
+      "label": "Readiness Matrix",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-market-map",
+      "label": "Market Map",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-receipts",
+      "label": "Machine Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/machine-economy-snapshot",
+      "label": "Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/openapi.json",
+      "label": "API↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/developers",
+      "label": "Developer Documentation",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/v1/hermes",
+      "label": "Hermes JSON↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/v1/hermes/health",
+      "label": "Hermes Health↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/#proof",
+      "label": "Methodology",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/loops",
+      "href": "/solana#events",
+      "label": "Events",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/loops",
+      "href": "/check",
+      "label": "Open Proof Feed",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/loops/loop_pre_spend_route",
+      "label": "Inspect first loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/loops/loop_pre_spend_route",
+      "label": "Inspect loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/check/check_route_pay_sh_seed",
+      "label": "Open proof receipt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/loops/loop_provider_trust",
+      "label": "Inspect loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/check/check_provider_reliability_seed",
+      "label": "Open proof receipt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/loops/loop_failure_memory",
+      "label": "Inspect loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/check/check_agent_autonomy_seed",
+      "label": "Open proof receipt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/loops/loop_machine_service_route",
+      "label": "Inspect loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/check/check_machine_market_seed",
+      "label": "Open proof receipt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/loops/loop_carbon_claim_integrity",
+      "label": "Inspect loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/check/check_token_narrative_seed",
+      "label": "Open proof receipt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/loops/monitor-narrative-pre-spend",
+      "label": "Inspect loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/check/check_monitor",
+      "label": "Open proof receipt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/loops/loop_failure_memory",
+      "label": "Inspect failure memory",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/loops/loop_machine_service_route",
+      "label": "Inspect failure memory",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/loops/loop_carbon_claim_integrity",
+      "label": "Inspect failure memory",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/loops",
+      "href": "/loops/monitor-narrative-pre-spend",
+      "label": "Inspect failure memory",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/",
+      "label": "Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/solana",
+      "label": "Solana",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood Chain",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/#proof",
+      "label": "Proof",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/developers",
+      "href": "/developers",
+      "label": "Developers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/",
+      "label": "InfopunksRadar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/solana",
+      "label": "SolanaAgent routes, Pay.sh and project intelligenceActive",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/rh-chain-signal-desk",
+      "label": "Robinhood ChainTokens, memes and ecosystem signalsOpen",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/solana",
+      "label": "Overview",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/providers",
+      "label": "Providers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/routes",
+      "label": "Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/benchmarks",
+      "label": "Benchmarks",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/benchmarks",
+      "label": "Benchmarks",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/signal-hunt",
+      "label": "Signal Hunt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/narratives",
+      "label": "Narratives",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/unicorn-radar",
+      "label": "Unicorn Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/graph",
+      "label": "Signal Graph",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/narratives/attention-markets",
+      "label": "Attention Markets",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/narratives/attention-market-watch",
+      "label": "Attention Market Watch",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/abundance",
+      "label": "Abundance Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/signals/ansem",
+      "label": "Ansem",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/signals/black-bull",
+      "label": "Black Bull",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/signals/troll",
+      "label": "TROLL",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/check",
+      "label": "Check",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/loops",
+      "label": "Loops",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes",
+      "label": "Hermes Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/solana#agent-benchmark-api",
+      "label": "Agent Benchmarks",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/developers",
+      "href": "/radar/cards",
+      "label": "Preflight Cards",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/claim",
+      "label": "Claims",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/solana#route-mapping-registry",
+      "label": "Route Mappings",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/developers",
+      "href": "/solana#preflight",
+      "label": "Preflight",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/developers",
+      "href": "/solana#compare",
+      "label": "Compare",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/developers",
+      "href": "/solana#dossier",
+      "label": "Provider Dossier",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/developers",
+      "href": "/spend-terminal",
+      "label": "Pre-Spend Terminal",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/memory-loop",
+      "label": "Memory Loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/pre-spend-decision",
+      "label": "Pre-Spend Decision",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/spend-policy",
+      "label": "Spend Policy",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/decision-feedback",
+      "label": "Decision Feedback",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/wallet-audit-trail",
+      "label": "Wallet Audit Trail",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/wallet-risk-score",
+      "label": "Wallet Risk Score",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/wallet-safety",
+      "label": "Wallet Safety API",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/reputation-ledger",
+      "label": "Reputation Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/skill-pack",
+      "label": "Skill Pack",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/narratives/hermes-desk",
+      "label": "Narrative",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/evaluation-request",
+      "label": "Evaluation Request",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/revenue-receipts",
+      "label": "Revenue Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-market",
+      "label": "Machine Market",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-rail-coverage",
+      "label": "Rail Coverage",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-route-risk-matrix",
+      "label": "Route Risk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-first-safe-routes",
+      "label": "First Safe Queue",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-benchmark-readiness",
+      "label": "Benchmark Readiness",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-benchmark-methodology",
+      "label": "Benchmark Methodology",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-comparable-routes",
+      "label": "Comparable Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-translation-evidence",
+      "label": "Translation Evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-proof-ladder",
+      "label": "Proof Ladder",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-execution-shortlist",
+      "label": "Proof Plans",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-execution-blockers",
+      "label": "Execution Blockers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-market-changelog",
+      "label": "Changelog",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-no-claim-ledger",
+      "label": "No-Claim Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-readiness-matrix",
+      "label": "Readiness Matrix",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-market-map",
+      "label": "Market Map",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-receipts",
+      "label": "Machine Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-economy-snapshot",
+      "label": "Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/openapi.json",
+      "label": "API↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/developers",
+      "label": "Developer Documentation",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/v1/hermes",
+      "label": "Hermes JSON↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/v1/hermes/health",
+      "label": "Hermes Health↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/#proof",
+      "label": "Methodology",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/developers",
+      "href": "/solana#events",
+      "label": "Events",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/developers",
+      "href": "/solana",
+      "label": "Overview",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/providers",
+      "label": "Providers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/routes",
+      "label": "Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/receipts",
+      "label": "Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/benchmarks",
+      "label": "Benchmarks",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/signal-hunt",
+      "label": "Signal Hunt",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/narratives",
+      "label": "Narratives",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/unicorn-radar",
+      "label": "Unicorn Radar",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/graph",
+      "label": "Signal Graph",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/narratives/attention-markets",
+      "label": "Attention Markets",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/narratives/attention-market-watch",
+      "label": "Attention Market Watch",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/abundance",
+      "label": "Abundance Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/signals/ansem",
+      "label": "Ansem",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/signals/black-bull",
+      "label": "Black Bull",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/signals/troll",
+      "label": "TROLL",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/check",
+      "label": "Check",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/loops",
+      "label": "Loops",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes",
+      "label": "Hermes Desk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/solana#agent-benchmark-api",
+      "label": "Agent Benchmarks",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/developers",
+      "href": "/radar/cards",
+      "label": "Preflight Cards",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/claim",
+      "label": "Claims",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/solana#route-mapping-registry",
+      "label": "Route Mappings",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/developers",
+      "href": "/solana#preflight",
+      "label": "Preflight",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/developers",
+      "href": "/solana#compare",
+      "label": "Compare",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/developers",
+      "href": "/solana#dossier",
+      "label": "Provider Dossier",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/developers",
+      "href": "/spend-terminal",
+      "label": "Pre-Spend Terminal",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/memory-loop",
+      "label": "Memory Loop",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/pre-spend-decision",
+      "label": "Pre-Spend Decision",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/spend-policy",
+      "label": "Spend Policy",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/decision-feedback",
+      "label": "Decision Feedback",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/wallet-audit-trail",
+      "label": "Wallet Audit Trail",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/wallet-risk-score",
+      "label": "Wallet Risk Score",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/wallet-safety",
+      "label": "Wallet Safety API",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/reputation-ledger",
+      "label": "Reputation Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/hermes/skill-pack",
+      "label": "Skill Pack",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/narratives/hermes-desk",
+      "label": "Narrative",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/evaluation-request",
+      "label": "Evaluation Request",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/revenue-receipts",
+      "label": "Revenue Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-market",
+      "label": "Machine Market",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-rail-coverage",
+      "label": "Rail Coverage",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-route-risk-matrix",
+      "label": "Route Risk",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-first-safe-routes",
+      "label": "First Safe Queue",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-benchmark-readiness",
+      "label": "Benchmark Readiness",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-benchmark-methodology",
+      "label": "Benchmark Methodology",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-comparable-routes",
+      "label": "Comparable Routes",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-translation-evidence",
+      "label": "Translation Evidence",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-proof-ladder",
+      "label": "Proof Ladder",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-execution-shortlist",
+      "label": "Proof Plans",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-execution-blockers",
+      "label": "Execution Blockers",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-market-changelog",
+      "label": "Changelog",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-no-claim-ledger",
+      "label": "No-Claim Ledger",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-readiness-matrix",
+      "label": "Readiness Matrix",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-market-map",
+      "label": "Market Map",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-receipts",
+      "label": "Machine Receipts",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/machine-economy-snapshot",
+      "label": "Snapshot",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/openapi.json",
+      "label": "API↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/developers",
+      "label": "Developer Documentation",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/v1/hermes",
+      "label": "Hermes JSON↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/v1/hermes/health",
+      "label": "Hermes Health↗",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/#proof",
+      "label": "Methodology",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/developers",
+      "href": "/solana#events",
+      "label": "Events",
+      "external": false,
+      "checked_fragment": true
+    },
+    {
+      "from": "/developers",
+      "href": "/developers/wallet-safety/integrations",
+      "label": "Open Integration Registry",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/developers/wallet-safety",
+      "label": "Public linkWallet Safety APIAsk once before spend. Get decision, policy, audit trail, risk score, final recommendation, ",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/spend-terminal",
+      "label": "Public linkSpend TerminalRun the receipt-backed pre-spend check UI.Open",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/check",
+      "label": "Public linkCheckTurn claims, routes, providers, wallets, and links into public receipt checks.Open",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/loops",
+      "label": "Public linkLoopsInspect autonomous loops as proof-linked public memory objects.Open",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/routes",
+      "label": "Public linkRoutesInspect route-level intelligence before autonomous spend.Open",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/providers",
+      "label": "Public linkProvidersReview provider reliability, disputes, and coverage.Open",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/services",
+      "label": "Public linkServicesCompare best route, safest first attempt, and blockers.Open",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/receipts",
+      "label": "Public linkReceiptsTrace every decision back to recorded route evidence.Open",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/claim",
+      "label": "Public linkClaimsTurn receipts into reusable signal objects with evidence and challenge placeholders.Open",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/openapi.json",
+      "label": "Public linkOpenAPIPull the public OpenAPI spec from the live endpoint.Open",
+      "external": false,
+      "checked_fragment": null
+    },
+    {
+      "from": "/developers",
+      "href": "/developers#agent-example",
+      "label": "Public linkAgent ExampleSee the minimal example and repo path for examples/pre-spend-agent.Open",
+      "external": false,
+      "checked_fragment": true
+    }
+  ],
+  "broken_known_fragments": [],
+  "unvisited_destination_policy": "Deep routes outside this viewport matrix remain inventoried; no operation or external action is inferred from a link."
+}
