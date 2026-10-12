@@ -123,6 +123,7 @@ for (const width of [720, 360]) {
       await codeRegion.focus();
       const before = await codeRegion.evaluate(el => el.scrollLeft);
       await zoomPage.keyboard.press('ArrowRight');
+      await zoomPage.waitForTimeout(100);
       const after = await codeRegion.evaluate(el => el.scrollLeft);
       keyboardScroll = { focused: await codeRegion.evaluate(el => document.activeElement === el), before, after, advanced: after > before };
     }
