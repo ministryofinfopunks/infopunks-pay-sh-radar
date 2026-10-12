@@ -134,7 +134,7 @@ for (const width of [720, 360]) {
 await fs.writeFile(path.join(output, 'zoom-and-code-scroll.json'), JSON.stringify({ source_sha: sourceSha, method: 'Equivalent CSS viewport widths at 100% browser zoom: 720px (200% of 1440 CSS px) and 360px (400% of 1440 CSS px). This is reflow coverage, not browser zoom UI automation.', reports: zoomReports }, null, 2));
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
 await page.goto(base);
-await page.waitForSelector('a.radar-home-skip', { state: 'attached', timeout: 15000 });
+await page.waitForSelector('a.radar-app-skip', { state: 'attached', timeout: 15000 });
 const keyboard=[];
 for(let i=0;i<8;i++){
   let probe = null;

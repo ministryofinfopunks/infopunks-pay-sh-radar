@@ -5183,7 +5183,7 @@ function MachineRouteRiskMatrixPage() {
             </div>
             <small>Rows are derived from current registry metadata only. Missing route metadata is not fabricated into concrete callable paths.</small>
           </div>
-          <div className="machine-service-table" role="table" aria-label="Machine route risk matrix table">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine route risk matrix table">
             <div className="machine-service-row machine-route-risk-row head" role="row">
               {['service', 'route', 'method / path', 'risk', 'first-safe candidate', 'avoid-first', 'credential requirement', 'expected output', 'proof condition', 'execution status', 'CTA'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -5341,7 +5341,7 @@ function MachineRailCoveragePage() {
             </div>
             <small>Catalog presence is separated from callable rail readiness. No service is execution-ready on this page without a service-specific receipt.</small>
           </div>
-          <div className="machine-service-table" role="table" aria-label="Machine rail coverage table">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine rail coverage table">
             <div className="machine-service-row machine-rail-row head" role="row">
               {['service', 'category', 'access rail', 'route surface status', 'endpoints', 'pricing model', 'credential requirement', 'rail status', 'first safe route', 'execution status', 'source attribution'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -5490,7 +5490,7 @@ function MachineFirstSafeRoutesPage() {
             </div>
             <small>Rank means suggested planning order for future proof attempts. It is not a winner claim.</small>
           </div>
-          <div className="machine-service-table" role="table" aria-label="Machine first safe route queue table">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine first safe route queue table">
             <div className="machine-service-row machine-first-safe-route-row head" role="row">
               {['rank', 'service', 'first safe route', 'why safe first', 'blocked by', 'required evidence', 'execution status', 'proof plan'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -5671,7 +5671,7 @@ function MachineExecutionBlockersPage() {
             <div><p className="section-kicker">Blockers</p><h2>{rows.length} blockers recorded</h2></div>
             <small>Rows are derived from current registry and receipt metadata. Missing data is kept visible.</small>
           </div>
-          <div className="machine-service-table" role="table" aria-label="Machine execution blocker table">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine execution blocker table">
             <div className="machine-service-row machine-blocker-row head" role="row">
               {['service', 'blocker class', 'blocker', 'evidence needed', 'next safe action', 'source attribution', 'CTA'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -5785,7 +5785,7 @@ function MachineBenchmarkReadinessPage() {
         </section>
         <section className="panel machine-service-table-panel" aria-label="Benchmark readiness lanes">
           <div className="panel-head"><div><p className="section-kicker">Candidate lanes</p><h2>{report.lanes.length} benchmark readiness lanes</h2></div></div>
-          <div className="machine-service-table" role="table" aria-label="Machine benchmark readiness lane table">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine benchmark readiness lane table">
             <div className="machine-service-row machine-blocker-row head" role="row">
               {['lane_id', 'task class', 'candidate routes', 'comparable route count', 'repeatability state', 'missing requirements', 'readiness status', 'next action', 'caveats'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -5873,7 +5873,7 @@ function MachineComparableRoutesPage() {
         </section>
         <section className="panel machine-service-table-panel" aria-label="Machine comparable route lanes">
           <div className="panel-head"><div><p className="section-kicker">Methodology contracts</p><h2>{report.lanes.length} comparable-route lanes</h2></div></div>
-          <div className="machine-service-table" role="table" aria-label="Machine comparable route table">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine comparable route table">
             <div className="machine-service-row machine-blocker-row head" role="row">
               {['lane', 'current candidate route(s)', 'comparable second route exists', 'what is missing', 'methodology contract needed', 'next action'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -5974,7 +5974,7 @@ function MachineTranslationEvidencePage() {
         </section>
         <section className="panel machine-service-table-panel" aria-label="Machine translation evidence route table">
           <div className="panel-head"><div><p className="section-kicker">Candidate routes</p><h2>{plan.routes.length} route evidence tracks</h2></div></div>
-          <div className="machine-service-table" role="table" aria-label="Machine translation evidence routes">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine translation evidence routes">
             <div className="machine-service-row machine-blocker-row head" role="row">
               {['service', 'service identity', 'route surface', 'proof profile match', 'receipt', 'repeatability', 'comparable-route eligible', 'evidence state', 'missing evidence', 'next action'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -6134,7 +6134,7 @@ function MachineProofLadderPage() {
       {gate && <MachineBenchmarkGatePanel gate={gate} />}
       <section className="panel machine-service-table-panel" aria-label="Machine proof ladder stages">
         <div className="panel-head"><div><p className="section-kicker">Evidence progression</p><h2>8 ladder stages</h2></div></div>
-        <div className="machine-service-table" role="table" aria-label="Machine proof ladder stage table">
+        <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine proof ladder stage table">
           <div className="machine-service-row machine-blocker-row head" role="row">
             {['stage', 'what it means', 'current machine market state', 'what it proves', 'what it does not prove', 'surface'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
           </div>
@@ -6235,7 +6235,7 @@ function MachineBenchmarkMethodologyPage() {
         </section>
         <section className="panel machine-service-table-panel" aria-label="Lane methodology scaffolds">
           <div className="panel-head"><div><p className="section-kicker">Lane methodology scaffolds</p><h2>{report.methodology_artifacts.length} lane artifacts</h2></div></div>
-          <div className="machine-service-table" role="table" aria-label="Machine benchmark methodology artifact table">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine benchmark methodology artifact table">
             <div className="machine-service-row machine-blocker-row head" role="row">
               {['lane', 'task class', 'routes compared', 'comparable routes', 'methodology status', 'artifact status', 'missing requirements', 'benchmark allowed', 'claims', 'caveats'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -6342,7 +6342,7 @@ function MachineMarketChangelogPage() {
             <div><p className="section-kicker">Changelog</p><h2>{rows.length} market-memory entries</h2></div>
             <small>Changelog entries are product intelligence memory, not new live market data.</small>
           </div>
-          <div className="machine-service-table" role="table" aria-label="Machine market changelog table">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine market changelog table">
             <div className="machine-service-row machine-changelog-row head" role="row">
               {['date', 'change', 'scope', 'source', 'source type', 'claim boundary'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -6519,7 +6519,7 @@ function MachineReadinessMatrixPage() {
             <div><p className="section-kicker">Readiness Matrix</p><h2>{rows.length} robotic.sh-visible services</h2></div>
             <small>Execution and repeatability stay missing for services without a service-specific receipt.</small>
           </div>
-          <div className="machine-service-table machine-readiness-table" role="table" aria-label="Machine readiness matrix">
+          <div className="machine-service-table machine-readiness-table" tabIndex={0} role="table" aria-label="Machine readiness matrix">
             <div className="machine-service-row machine-readiness-row head" role="row">
               {['service', 'provider', 'policy', ...columns].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -7128,7 +7128,7 @@ function MachineServiceTable({ services, selectedId, onSelect }: { services: Mac
       <small>Agentic.Market/Base rows are source metadata from robotic.sh, not the Phase 2 build priority.</small>
     </div>
     {!services.length && <EmptyState title="No services match these filters." body="Adjust filters to view the robotic.sh service mirror." />}
-    {!!services.length && <div className="machine-service-table" role="table" aria-label="Machine Market service table">
+    {!!services.length && <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine Market service table">
       <div className="machine-service-row head" role="row">
         {['service', 'category', 'market', 'chain', 'status', 'evidence', 'risk', 'price', 'dossier'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
       </div>
@@ -7301,7 +7301,7 @@ function MachineExecutionShortlistPage() {
             <small>Sorted by deterministic candidate score, then service_id.</small>
           </div>
           {!candidates.length && <EmptyState title="No services found." body="The machine-market registry returned no visible robotic.sh services." />}
-          {!!candidates.length && <div className="machine-service-table machine-shortlist-table" role="table" aria-label="Robotic.sh execution candidate table">
+          {!!candidates.length && <div className="machine-service-table machine-shortlist-table" tabIndex={0} role="table" aria-label="Robotic.sh execution candidate table">
             <div className="machine-service-row machine-shortlist-row head" role="row">
               {['service', 'provider', 'category', 'market', 'chain', 'latest policy', 'evidence', 'execution', 'tier', 'score', 'recommendation', 'reasons', 'dossier'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -14221,7 +14221,7 @@ function SignalGraphPage() {
             ? <p className="route-state">Loading graph memory...</p>
             : visibleNodes.length === 0
               ? <p className="route-state warn">No nodes match this cluster filter.</p>
-              : <svg className="signal-graph-svg" viewBox={`0 0 ${layout.width} ${layout.height}`} role="img" aria-label="Signal Graph cluster and node map">
+              : <svg className="signal-graph-svg" viewBox={`0 0 ${layout.width} ${layout.height}`} role="group" aria-label="Signal Graph cluster and node map">
                 <rect x="1" y="1" width={layout.width - 2} height={layout.height - 2} rx="26" className="signal-graph-svg-frame" />
                 {layout.clusterIds.map((clusterId) => {
                   const center = layout.clusterCenters.get(clusterId);
