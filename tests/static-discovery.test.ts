@@ -99,7 +99,7 @@ describe('static public discovery metadata', () => {
     expect(image.readUInt32BE(20)).toBe(630);
     expect(faviconIco.subarray(0, 4)).toEqual(Buffer.from([0x00, 0x00, 0x01, 0x00]));
     expect(faviconSvg).toContain('<svg');
-    expect(faviconSvg).toContain('#06140f');
+    expect(faviconSvg).toContain('#050b0c');
     expect(appleTouchIcon.subarray(0, 8)).toEqual(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
     expect(appleTouchIcon.readUInt32BE(16)).toBe(180);
     expect(appleTouchIcon.readUInt32BE(20)).toBe(180);
@@ -111,8 +111,8 @@ describe('static public discovery metadata', () => {
     expect(icon512.readUInt32BE(20)).toBe(512);
     expect(manifest.name).toBe('Infopunks Pay.sh Radar');
     expect(manifest.short_name).toBe('Radar');
-    expect(manifest.theme_color).toBe('#06140f');
-    expect(manifest.background_color).toBe('#06140f');
+    expect(manifest.theme_color).toBe('#050b0c');
+    expect(manifest.background_color).toBe('#050b0c');
     expect(manifest.display).toBe('standalone');
     expect(manifest.icons).toEqual([
       { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },

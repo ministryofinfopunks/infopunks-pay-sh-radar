@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CanonicalJudgmentResponse } from '../schemas/preSpend';
-import { ProductWayfinding, EvidenceScope } from './productPrimitives';
+import { EvidenceScope } from './productPrimitives';
+import { RadarReceiptLifecycle } from './radarDesignSystem';
 import { requestJudgment } from './judgmentCheckClient';
 import './spendTerminal.css';
 
@@ -32,8 +33,6 @@ export function SpendTerminalPage() {
   }
   const judgment = result?.judgment;
   return <div className="spend-check">
-    <a className="radar-home-skip" href="#spend-content">Skip to check</a>
-    <header className="spend-header"><a href="/" className="spend-brand">Infopunks <strong>Radar</strong></a><ProductWayfinding current="/solana" /></header>
     <main id="spend-content" tabIndex={-1}>
       <section className="spend-intro"><p className="spend-kicker">Solana Radar · Pre-Spend Intelligence</p><h1>Should this agent spend?</h1><p>Describe the intent. Inspect the evidence-bound decision before committing funds.</p><EvidenceScope kind="service" /></section>
       <div className="spend-grid">
@@ -63,12 +62,18 @@ export function SpendTerminalPage() {
             <ul className="spend-reasons">{judgment.reasons.map((reason, i) => <li key={i}>{reason.replaceAll('_', ' ')}</li>)}</ul>
             <dl><div><dt>Confidence</dt><dd>{judgment.confidence}/100</dd></div><div><dt>Judgment fee</dt><dd>{judgment.cost.amount} {judgment.cost.asset}</dd></div><div><dt>Evidence accepted</dt><dd>{judgment.cited_observations.length}</dd></div><div><dt>Receipt</dt><dd>{judgment.receipt?.judgment_id ?? 'Not issued'}</dd></div><div><dt>Expiry</dt><dd>{judgment.decision === 'insufficient_evidence' ? 'No actionable validity window' : judgment.valid_until}</dd></div></dl>
             {result.quoted && <p className="spend-form-note">No payment was submitted. An authorized integration must complete the payment boundary before a canonical receipt exists.</p>}
+            <RadarReceiptLifecycle records={{
+              observation: { state: judgment.cited_observations.length ? 'recorded' : 'missing', detail: `${judgment.cited_observations.length} cited observations; inspect provenance separately.` },
+              judgment: { state: judgment.receipt ? 'judgment' : 'missing', detail: judgment.receipt ? judgment.decision : result.quoted ? 'Quote only; no canonical receipt issued.' : 'Free assessment; no canonical receipt issued.' },
+              execution: { state: 'missing', detail: 'No separately authorized execution record supplied.' },
+              evaluation: { state: 'missing', detail: 'No independently verified outcome supplied.' }
+            }} />
             <details><summary>Inspect the canonical response</summary><pre>{JSON.stringify(judgment, null, 2)}</pre></details>
+            {judgment.receipt && <a className="spend-next" href={`/proof/judgment/${encodeURIComponent(judgment.judgment_id)}`}>Inspect authenticated Judgment ↗</a>}
             <a className="spend-next" href="/routes">Inspect route evidence ↗</a>
           </>}
         </section>
       </div>
-      <footer><a href="/receipts">Receipt evidence</a><a href="/developers">Developer contract</a><span>No receipt, no trust.</span></footer>
     </main>
   </div>;
 }

@@ -15,3 +15,7 @@ When generating a launch video:
   - "Infopunks finds signal."
   - "Before agents spend, they remember."
   - "radar.infopunks.fun"
+
+## Canonical cyan terminal / secure forward integration
+
+Follow docs/design-system/constitution.md and ui-int2/baselines.md. Use RadarAppShell, radarTokens.css and shared primitives. Preserve the current tenant-aware SpendTerminalPage, requestJudgment, private receipt/authorization boundaries, payment recovery and canonical contracts. Do not copy recovery's older behavioral components. Human visual approval is required before merge. No automatic snapshot approval, merge or deployment.
