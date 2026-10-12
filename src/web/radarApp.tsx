@@ -40,6 +40,7 @@ import { EvaluationRequestPage } from './evaluationRequestPages';
 import { RevenueReceiptDetailPage, RevenueReceiptsPage } from './revenueReceiptPages';
 import { UnicornRadarDetailPage, UnicornRadarPage } from './unicornRadarPages';
 import { MachineMarketPreflightCardPage, PreflightCardIndexPage, RadarPreflightCardPage } from './preflightCardPages';
+import { IntelligentDecisionPage } from './intelligentDecisionPage';
 import { AbundanceDeskPage, AttentionMarketWatchPage, AttentionMarketWatchProfilePage, AttentionMarketsPage, NarrativeSignalReportPage, NarrativesIndexPage, SignalSourcePage, SignalUpdatePermalinkPage } from './narrativePages';
 import { RhChainSignalDeskPage } from './rhChainSignalDeskPages';
 import { HermesDeskPage } from './hermesDeskPages';
@@ -14386,6 +14387,13 @@ export function App() {
   if (/^\/4663\/reflexive\/preflight\/ipx-pltr\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyIpxPltrPreflightLabPage /></LazyRhChainFeature>;
   if (/^\/4663\/reflexive(?:\/(?:pair\/[^/]+|stock\/[^/]+|watch(?:\/[^/]+)?|census))?\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyReflexiveRadarPage /></LazyRhChainFeature>;
   if (/^\/4663(?:\/(?:pulse|today|signals|receipts)|\/(?:print|call|resolution|consensus|signals|proof|campaign)\/[^/]+)?\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRh4663Page /></LazyRhChainFeature>;
+  if (/^\/radar\/intelligent-ui\/?$/.test(window.location.pathname)) return <IntelligentDecisionPage id={null} />;
+  const decisionMatch = window.location.pathname.match(/^\/radar\/decisions\/([^/]+)\/?$/);
+  if (decisionMatch) {
+    let decisionId = '';
+    try { decisionId = decodeURIComponent(decisionMatch[1]); } catch { /* invalid ID remains non-authoritative */ }
+    return <IntelligentDecisionPage id={decisionId} />;
+  }
   if (isRadarCardIndexRoute(window.location.pathname)) return <PreflightCardIndexPage />;
   const radarCard = routeRadarCard(window.location.pathname);
   if (radarCard) return <RadarPreflightCardPage type={radarCard.type} id={radarCard.id} />;
