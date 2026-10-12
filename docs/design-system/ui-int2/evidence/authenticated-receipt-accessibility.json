@@ -1,0 +1,121 @@
+{
+  "reports": [
+    {
+      "kind": "judgment",
+      "width": 320,
+      "document_width": 320,
+      "viewport_width": 320,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 6
+        }
+      ]
+    },
+    {
+      "kind": "judgment",
+      "width": 390,
+      "document_width": 390,
+      "viewport_width": 390,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 6
+        }
+      ]
+    },
+    {
+      "kind": "judgment",
+      "width": 1440,
+      "document_width": 1440,
+      "viewport_width": 1440,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 6
+        }
+      ]
+    },
+    {
+      "kind": "execution",
+      "width": 320,
+      "document_width": 320,
+      "viewport_width": 320,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 6
+        }
+      ]
+    },
+    {
+      "kind": "execution",
+      "width": 390,
+      "document_width": 390,
+      "viewport_width": 390,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 6
+        }
+      ]
+    },
+    {
+      "kind": "execution",
+      "width": 1440,
+      "document_width": 1440,
+      "viewport_width": 1440,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 6
+        }
+      ]
+    },
+    {
+      "kind": "evaluation",
+      "width": 320,
+      "document_width": 320,
+      "viewport_width": 320,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 6
+        }
+      ]
+    },
+    {
+      "kind": "evaluation",
+      "width": 390,
+      "document_width": 390,
+      "viewport_width": 390,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 6
+        }
+      ]
+    },
+    {
+      "kind": "evaluation",
+      "width": 1440,
+      "document_width": 1440,
+      "viewport_width": 1440,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 6
+        }
+      ]
+    }
+  ]
+}

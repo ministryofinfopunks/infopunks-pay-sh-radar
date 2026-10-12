@@ -1,0 +1,656 @@
+{
+  "source_sha": "35f2e54a288311d1df0f8820dacb216c27175791",
+  "note": "Overlapping categories; every file is included in the full suite. No category count is a distinct total.",
+  "categories": {
+    "security": [
+      {
+        "name": "tests/security/controlled-staging.test.ts",
+        "status": "passed",
+        "tests": 43
+      },
+      {
+        "name": "tests/security/execution-proof-validation.test.ts",
+        "status": "passed",
+        "tests": 13
+      },
+      {
+        "name": "tests/security/private-proof-reads.test.ts",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "name": "tests/security/score-authority.test.ts",
+        "status": "passed",
+        "tests": 2
+      }
+    ],
+    "judgment_contract": [
+      {
+        "name": "tests/economic-judgment-engine.test.ts",
+        "status": "passed",
+        "tests": 39
+      },
+      {
+        "name": "tests/judgment-domain.test.ts",
+        "status": "passed",
+        "tests": 15
+      },
+      {
+        "name": "tests/judgment-dx-sdk.test.ts",
+        "status": "passed",
+        "tests": 24
+      },
+      {
+        "name": "tests/judgment-issuer.test.ts",
+        "status": "passed",
+        "tests": 6
+      },
+      {
+        "name": "tests/judgment-private-access.test.ts",
+        "status": "passed",
+        "tests": 11
+      },
+      {
+        "name": "tests/judgment-reconciliation.test.ts",
+        "status": "passed",
+        "tests": 9
+      },
+      {
+        "name": "tests/unit/judgment-performance.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/unit/judgment-service.test.ts",
+        "status": "passed",
+        "tests": 37
+      },
+      {
+        "name": "tests/unit/x402-judgment.test.ts",
+        "status": "passed",
+        "tests": 15
+      },
+      {
+        "name": "tests/integration/evaluation-judgment-feedback.test.ts",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "name": "tests/integration/judgment-dx-postgres.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "name": "tests/integration/judgment-issuer-durability.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/integration/judgment-payment-durability.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/integration/pre-spend-judgment.test.ts",
+        "status": "passed",
+        "tests": 4
+      }
+    ],
+    "receipt_proof": [
+      {
+        "name": "tests/benchmark-proof-page.test.tsx",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "name": "tests/hermes-policy-receipt.test.ts",
+        "status": "passed",
+        "tests": 10
+      },
+      {
+        "name": "tests/machine-execution-proof-plan-page.test.tsx",
+        "status": "passed",
+        "tests": 9
+      },
+      {
+        "name": "tests/machine-proof-ladder-page.test.tsx",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/machine-receipt-storage-readiness.test.ts",
+        "status": "passed",
+        "tests": 5
+      },
+      {
+        "name": "tests/machine-receipts-page.test.tsx",
+        "status": "passed",
+        "tests": 17
+      },
+      {
+        "name": "tests/proof-check-api.test.ts",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "name": "tests/proof-check-page.test.tsx",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "name": "tests/proof-check-repository.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/proof-check-service.test.ts",
+        "status": "passed",
+        "tests": 6
+      },
+      {
+        "name": "tests/receipt-authority.test.ts",
+        "status": "passed",
+        "tests": 19
+      },
+      {
+        "name": "tests/receipt-integrity.test.ts",
+        "status": "passed",
+        "tests": 10
+      },
+      {
+        "name": "tests/receipt-page.test.tsx",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "name": "tests/receipt-spine.test.ts",
+        "status": "passed",
+        "tests": 9
+      },
+      {
+        "name": "tests/receipts-route.test.ts",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "name": "tests/revenue-receipt-api.test.ts",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "name": "tests/revenue-receipt-pages.test.tsx",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "name": "tests/revenue-receipt-service.test.ts",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "name": "tests/rh-4663-proof-profile-ui.test.tsx",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/rh-4663-proof-profile.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "name": "tests/rh-chain-100-receipts-campaign.test.tsx",
+        "status": "passed",
+        "tests": 12
+      },
+      {
+        "name": "tests/rh-chain-daily-receipt-drafts.test.ts",
+        "status": "passed",
+        "tests": 7
+      },
+      {
+        "name": "tests/rh-chain-daily-receipt-ops.test.ts",
+        "status": "passed",
+        "tests": 5
+      },
+      {
+        "name": "tests/rh-chain-review-cycle-receipt.test.ts",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "name": "tests/ui-int2-receipt-inspection.test.tsx",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "name": "tests/unit/execution-proof-service.test.ts",
+        "status": "passed",
+        "tests": 11
+      },
+      {
+        "name": "tests/integration/execute-proof.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "name": "tests/integration/execution-proof-durability.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/integration/legacy-receipt-upgrade.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/security/execution-proof-validation.test.ts",
+        "status": "passed",
+        "tests": 13
+      },
+      {
+        "name": "tests/security/private-proof-reads.test.ts",
+        "status": "passed",
+        "tests": 3
+      }
+    ],
+    "postgres_and_migration": [
+      {
+        "name": "tests/ipx-launch-postgres.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "name": "tests/migration-inventory.test.ts",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "name": "tests/postgres-resilience-failure-matrix.test.ts",
+        "status": "passed",
+        "tests": 16
+      },
+      {
+        "name": "tests/postgres-resilience.test.ts",
+        "status": "passed",
+        "tests": 14
+      },
+      {
+        "name": "tests/rh-chain-postgres-recovery.test.ts",
+        "status": "passed",
+        "tests": 5
+      },
+      {
+        "name": "tests/integration/acceptance-history-durability.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/integration/causal-context-durability.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/integration/economic-engine-durability.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/integration/execution-proof-durability.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/integration/free-assessment-attempts-durability.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/integration/judgment-dx-postgres.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "name": "tests/integration/judgment-issuer-durability.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/integration/judgment-payment-durability.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/integration/migration-014.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/integration/postgres-migration-runner.test.ts",
+        "status": "passed",
+        "tests": 7
+      },
+      {
+        "name": "tests/integration/rh-usdg-accounting-durability.test.ts",
+        "status": "passed",
+        "tests": 1
+      }
+    ],
+    "frontend": [
+      {
+        "name": "tests/abundance-desk-page.test.tsx",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "name": "tests/agent-mode-command-palette.test.tsx",
+        "status": "passed",
+        "tests": 8
+      },
+      {
+        "name": "tests/agent-readiness-page.test.tsx",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "name": "tests/app-error-boundary.test.tsx",
+        "status": "passed",
+        "tests": 5
+      },
+      {
+        "name": "tests/benchmark-proof-page.test.tsx",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "name": "tests/comparison-panel-copy.test.tsx",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/dashboard-interpretation-card.test.tsx",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/evaluation-request-pages.test.tsx",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "name": "tests/frontdoor-4663.test.tsx",
+        "status": "passed",
+        "tests": 5
+      },
+      {
+        "name": "tests/frontend-evidence.test.tsx",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/graph-page.test.tsx",
+        "status": "passed",
+        "tests": 7
+      },
+      {
+        "name": "tests/hermes-desk-page.test.tsx",
+        "status": "passed",
+        "tests": 11
+      },
+      {
+        "name": "tests/homepage-performance.test.tsx",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "name": "tests/ipx-pltr-preflight-page.test.tsx",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/loop-page.test.tsx",
+        "status": "passed",
+        "tests": 5
+      },
+      {
+        "name": "tests/machine-benchmark-methodology-page.test.tsx",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/machine-benchmark-readiness-page.test.tsx",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/machine-comparable-routes-page.test.tsx",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/machine-dossier-page.test.tsx",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "name": "tests/machine-economy-snapshot-page.test.tsx",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "name": "tests/machine-execution-detail-page.test.tsx",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "name": "tests/machine-execution-proof-plan-page.test.tsx",
+        "status": "passed",
+        "tests": 9
+      },
+      {
+        "name": "tests/machine-execution-shortlist-page.test.tsx",
+        "status": "passed",
+        "tests": 5
+      },
+      {
+        "name": "tests/machine-first-safe-routes-page.test.tsx",
+        "status": "passed",
+        "tests": 5
+      },
+      {
+        "name": "tests/machine-market-control-plane-pages.test.tsx",
+        "status": "passed",
+        "tests": 6
+      },
+      {
+        "name": "tests/machine-market-map-page.test.tsx",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "name": "tests/machine-market-page.test.tsx",
+        "status": "passed",
+        "tests": 11
+      },
+      {
+        "name": "tests/machine-preflight-page.test.tsx",
+        "status": "passed",
+        "tests": 8
+      },
+      {
+        "name": "tests/machine-proof-ladder-page.test.tsx",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/machine-rail-coverage-page.test.tsx",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "name": "tests/machine-readiness-matrix-page.test.tsx",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "name": "tests/machine-receipts-page.test.tsx",
+        "status": "passed",
+        "tests": 17
+      },
+      {
+        "name": "tests/machine-route-risk-matrix-page.test.tsx",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "name": "tests/machine-service-dossier-page.test.tsx",
+        "status": "passed",
+        "tests": 7
+      },
+      {
+        "name": "tests/machine-translation-evidence-page.test.tsx",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/methodology-drawer.test.tsx",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "name": "tests/narrative-pages.test.tsx",
+        "status": "passed",
+        "tests": 15
+      },
+      {
+        "name": "tests/pre-spend-builder-pages.test.tsx",
+        "status": "passed",
+        "tests": 18
+      },
+      {
+        "name": "tests/preflight-cards-page.test.tsx",
+        "status": "passed",
+        "tests": 13
+      },
+      {
+        "name": "tests/proof-check-page.test.tsx",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "name": "tests/propagation-page.test.tsx",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "name": "tests/provider-public-page.test.tsx",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "name": "tests/radar-delayed-malformed-range.test.tsx",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/radar-endpoint-intelligence.test.tsx",
+        "status": "passed",
+        "tests": 27
+      },
+      {
+        "name": "tests/radar-network-navigation.test.tsx",
+        "status": "passed",
+        "tests": 14
+      },
+      {
+        "name": "tests/receipt-page.test.tsx",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "name": "tests/reflexive-markets-watch-page.test.tsx",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "name": "tests/reflexive-radar-page.test.tsx",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/revenue-receipt-pages.test.tsx",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "name": "tests/rh-4663-mobile.test.tsx",
+        "status": "passed",
+        "tests": 8
+      },
+      {
+        "name": "tests/rh-4663-proof-profile-ui.test.tsx",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/rh-chain-100-receipts-campaign.test.tsx",
+        "status": "passed",
+        "tests": 12
+      },
+      {
+        "name": "tests/rh-chain-cross-layer-page.test.tsx",
+        "status": "passed",
+        "tests": 5
+      },
+      {
+        "name": "tests/rh-chain-market-pulse-page.test.tsx",
+        "status": "passed",
+        "tests": 5
+      },
+      {
+        "name": "tests/rh-chain-pages.test.tsx",
+        "status": "passed",
+        "tests": 28
+      },
+      {
+        "name": "tests/rh-chain-portable-card.test.tsx",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/signal-graph-context-pages.test.tsx",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "name": "tests/signal-hunt-pages.test.tsx",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "name": "tests/spend-terminal-canonical.test.tsx",
+        "status": "passed",
+        "tests": 10
+      },
+      {
+        "name": "tests/ui-int2-receipt-inspection.test.tsx",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "name": "tests/unicorn-radar-pages.test.tsx",
+        "status": "passed",
+        "tests": 6
+      },
+      {
+        "name": "tests/web-accessibility.test.tsx",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "name": "tests/web-boot-loading.test.tsx",
+        "status": "passed",
+        "tests": 17
+      }
+    ]
+  }
+}

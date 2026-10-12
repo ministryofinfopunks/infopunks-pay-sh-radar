@@ -1,0 +1,11 @@
+{
+  "scope": "Fresh disposable PostgreSQL16 cluster created for this task, localhost:55433 only",
+  "removed_failed_first_run_databases": [
+    "unified_radar_0f8c1ef735b0",
+    "unified_radar_0f8c1ef735b0_resilience",
+    "unified_radar_0f8c1ef735b0_migration",
+    "unified_radar_0f8c1ef735b0_restore"
+  ],
+  "preserved": "ui_int2_browser and maintenance databases",
+  "qualified_run": "35f2e54a288311d1df0f8820dacb216c27175791 removed only its four created databases after success"
+}

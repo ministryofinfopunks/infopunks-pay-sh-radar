@@ -1,0 +1,36 @@
+{
+  "portrait_disk_bytes": 74906,
+  "reports": [
+    {
+      "width": 390,
+      "portrait": [],
+      "api_requests": 0,
+      "img": [
+        {
+          "width": "533",
+          "height": "800",
+          "naturalWidth": 1,
+          "priority": "high"
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "portrait": [
+        {
+          "path": "/artwork/signal-punk.webp",
+          "bytes": 75206
+        }
+      ],
+      "api_requests": 0,
+      "img": [
+        {
+          "width": "533",
+          "height": "800",
+          "naturalWidth": 533,
+          "priority": "high"
+        }
+      ]
+    }
+  ]
+}

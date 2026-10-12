@@ -1,0 +1,69 @@
+# UI-INT2 changed-file inventory
+
+Compared with qualified R2.2 2c2fe64db173c63048e70353ae926aa199792d1b. Code boundary: only presentation, local qualification and documentation. No non-web backend or migration bytes changed. Final report/evidence additions are recorded in the final evidence commit.
+
+```text
+M	AGENTS.md
+A	docs/design-system/component-inventory.md
+A	docs/design-system/constitution.md
+A	docs/design-system/references/infopunks-radar-canonical-cyan-terminal.png
+A	docs/design-system/route-inventory.md
+A	docs/design-system/route-patterns.json
+A	docs/design-system/ui-int2/baselines.md
+A	docs/design-system/ui-int2/conflicts.md
+A	docs/design-system/ui-int2/recovery-changed-files.md
+A	docs/design-system/ui-int2/recovery-route-samples.json
+M	index.html
+M	package.json
+A	public/artwork/signal-punk.webp
+M	public/favicon.svg
+M	public/site.webmanifest
+A	scripts/capture-radar-visuals.cjs
+A	scripts/compare-radar-visuals.cjs
+A	scripts/compare-ui-int2-visuals.cjs
+A	scripts/qualify-ui-int2-journeys.cjs
+A	scripts/qualify-ui-int2-performance.py
+A	scripts/qualify-ui-int2-routes.cjs
+A	scripts/qualify-ui-int2-text-scaling.cjs
+M	scripts/qualify-unified-radar-browser.mjs
+M	scripts/qualify-unified-radar-local.py
+M	scripts/qualify-unified-radar-recovery.mjs
+A	scripts/radar-design-inventory.mjs
+A	scripts/ui-int2-local-server.mjs
+A	scripts/ui-int2-seed-fixtures.ts
+M	src/web/appErrorBoundary.css
+A	src/web/canonicalReceiptPage.tsx
+D	src/web/designTokens.css
+M	src/web/hermesDeskPages.tsx
+M	src/web/homepage.css
+M	src/web/homepage.tsx
+M	src/web/ipxPltrPreflightLab.css
+M	src/web/ipxPltrShadowLab.css
+M	src/web/judgmentCheck.css
+M	src/web/main.tsx
+M	src/web/productCatalog.ts
+M	src/web/productPrimitives.tsx
+M	src/web/radarApp.tsx
+A	src/web/radarAppShell.tsx
+A	src/web/radarDesignSystem.css
+A	src/web/radarDesignSystem.tsx
+M	src/web/radarNavigationCatalog.ts
+M	src/web/radarNetworks.tsx
+A	src/web/radarPageIdentity.ts
+A	src/web/radarShellContext.ts
+A	src/web/radarTokens.css
+M	src/web/rh4663.css
+M	src/web/rhChainLaunchpadObservatoryPage.tsx
+M	src/web/rhChainReflexiveRadar.css
+M	src/web/rhChainReflexiveRadarPage.tsx
+M	src/web/rhChainReflexiveWatch.css
+M	src/web/spendTerminal.css
+M	src/web/spendTerminalPage.tsx
+M	src/web/styles.css
+A	src/web/terminalIcon.tsx
+M	tests/homepage-performance.test.tsx
+M	tests/pre-spend-builder-pages.test.tsx
+M	tests/static-discovery.test.ts
+A	tests/ui-int2-receipt-inspection.test.tsx
+M	tests/web-accessibility.test.tsx
+```

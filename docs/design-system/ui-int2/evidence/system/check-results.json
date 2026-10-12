@@ -1,0 +1,199 @@
+{
+  "source_sha": "35f2e54a288311d1df0f8820dacb216c27175791",
+  "platform": "macOS-14.4.1-arm64-arm-64bit",
+  "databases": [
+    "unified_radar_b13a500ef491",
+    "unified_radar_b13a500ef491_resilience",
+    "unified_radar_b13a500ef491_migration",
+    "unified_radar_b13a500ef491_restore"
+  ],
+  "scope": "disposable localhost only; no external payment or production data",
+  "checks": [
+    {
+      "name": "runtime",
+      "command": [
+        "node",
+        "--version"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.072,
+      "raw_log": "output/ui-int2/system/runtime.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 21.754,
+      "raw_log": "output/ui-int2/system/typecheck.log"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 19.733,
+      "raw_log": "output/ui-int2/system/lint.log"
+    },
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 14.881,
+      "raw_log": "output/ui-int2/system/build.log"
+    },
+    {
+      "name": "migration-inventory",
+      "command": [
+        "npm",
+        "run",
+        "migrations:validate"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.587,
+      "raw_log": "output/ui-int2/system/migration-inventory.log"
+    },
+    {
+      "name": "full-tests",
+      "command": [
+        "npm",
+        "test",
+        "--",
+        "--maxWorkers=1",
+        "--testTimeout=30000",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=/Users/ahdilm/.codex/worktrees/radar-terminal-secure-integration/Infopunks Pay.sh Intelligence Terminal/output/ui-int2/system/full-tests.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 495.797,
+      "raw_log": "output/ui-int2/system/full-tests.log"
+    },
+    {
+      "name": "audit-production",
+      "command": [
+        "npm",
+        "audit",
+        "--omit=dev",
+        "--json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.836,
+      "raw_log": "output/ui-int2/system/audit-production.log"
+    },
+    {
+      "name": "audit-all",
+      "command": [
+        "npm",
+        "audit",
+        "--json"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 1.333,
+      "raw_log": "output/ui-int2/system/audit-all.log"
+    },
+    {
+      "name": "migration-first",
+      "command": [
+        "node",
+        "dist/server/cli/runPostgresMigrations.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.196,
+      "raw_log": "output/ui-int2/system/migration-first.log"
+    },
+    {
+      "name": "migration-check",
+      "command": [
+        "node",
+        "dist/server/cli/runPostgresMigrations.js",
+        "--validate"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.071,
+      "raw_log": "output/ui-int2/system/migration-check.log"
+    },
+    {
+      "name": "migration-repeat",
+      "command": [
+        "node",
+        "dist/server/cli/runPostgresMigrations.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.079,
+      "raw_log": "output/ui-int2/system/migration-repeat.log"
+    },
+    {
+      "name": "recovery-seed",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "scripts/qualify-unified-radar-recovery.mjs",
+        "seed"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.517,
+      "raw_log": "output/ui-int2/system/recovery-seed.log"
+    },
+    {
+      "name": "backup",
+      "command": [
+        "pg_dump",
+        "--format=custom",
+        "--no-owner",
+        "--file=/Users/ahdilm/.codex/worktrees/radar-terminal-secure-integration/Infopunks Pay.sh Intelligence Terminal/output/ui-int2/system/local-recovery.dump",
+        "unified_radar_b13a500ef491_migration"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.195,
+      "raw_log": "output/ui-int2/system/backup.log"
+    },
+    {
+      "name": "restore",
+      "command": [
+        "pg_restore",
+        "--no-owner",
+        "--dbname=unified_radar_b13a500ef491_restore",
+        "/Users/ahdilm/.codex/worktrees/radar-terminal-secure-integration/Infopunks Pay.sh Intelligence Terminal/output/ui-int2/system/local-recovery.dump"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.16,
+      "raw_log": "output/ui-int2/system/restore.log"
+    },
+    {
+      "name": "recovery-verify",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "scripts/qualify-unified-radar-recovery.mjs",
+        "verify"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.367,
+      "raw_log": "output/ui-int2/system/recovery-verify.log"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.012,
+      "raw_log": "output/ui-int2/system/diff-check.log"
+    }
+  ]
+}

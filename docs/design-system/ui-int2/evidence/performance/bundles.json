@@ -1,0 +1,286 @@
+{
+  "target": [
+    {
+      "file": "index-BbLz6bJ8.css",
+      "bytes": 8922,
+      "gzip_bytes": 2375
+    },
+    {
+      "file": "index-DK3iRzoY.js",
+      "bytes": 203832,
+      "gzip_bytes": 63686
+    },
+    {
+      "file": "ipxPltrPreflightLabPage-CIka50pK.js",
+      "bytes": 15240,
+      "gzip_bytes": 4909
+    },
+    {
+      "file": "ipxPltrPreflightLabPage-D6Mcd-GJ.css",
+      "bytes": 12875,
+      "gzip_bytes": 3055
+    },
+    {
+      "file": "radarApp-BEOH4O8I.js",
+      "bytes": 1552691,
+      "gzip_bytes": 307821
+    },
+    {
+      "file": "radarApp-CCr_LrOe.css",
+      "bytes": 421004,
+      "gzip_bytes": 74364
+    },
+    {
+      "file": "rh4663Pages-B3dOJB5k.css",
+      "bytes": 62868,
+      "gzip_bytes": 11063
+    },
+    {
+      "file": "rh4663Pages-BUvWUyJY.js",
+      "bytes": 90622,
+      "gzip_bytes": 22328
+    },
+    {
+      "file": "rhChain100ReceiptsCampaignPage-DugTFwue.js",
+      "bytes": 14032,
+      "gzip_bytes": 4284
+    },
+    {
+      "file": "rhChainCloneRadarPage-C7S0qwH-.js",
+      "bytes": 7631,
+      "gzip_bytes": 2184
+    },
+    {
+      "file": "rhChainDiscoveryQueuePage-CWkcnq34.js",
+      "bytes": 5259,
+      "gzip_bytes": 2002
+    },
+    {
+      "file": "rhChainDistributionPackPage-Q_PSrHE5.js",
+      "bytes": 4734,
+      "gzip_bytes": 1641
+    },
+    {
+      "file": "rhChainLaunchpadObservatoryPage-YkjmADlt.js",
+      "bytes": 5706,
+      "gzip_bytes": 1750
+    },
+    {
+      "file": "rhChainMarketPulsePage-D6cinicQ.js",
+      "bytes": 14039,
+      "gzip_bytes": 4174
+    },
+    {
+      "file": "rhChainMarketStructurePage-BX2k09rY.js",
+      "bytes": 29084,
+      "gzip_bytes": 7310
+    },
+    {
+      "file": "rhChainMemePulsePage-BC9qgWOI.js",
+      "bytes": 6963,
+      "gzip_bytes": 2006
+    },
+    {
+      "file": "rhChainProjectClaimsPage-mKG1WJEz.js",
+      "bytes": 9659,
+      "gzip_bytes": 2876
+    },
+    {
+      "file": "rhChainReflexiveRadarPage-C-ODyXbY.css",
+      "bytes": 9706,
+      "gzip_bytes": 2145
+    },
+    {
+      "file": "rhChainReflexiveRadarPage-DFXU-qf0.js",
+      "bytes": 39036,
+      "gzip_bytes": 8899
+    },
+    {
+      "file": "rhChainReviewConsolePage-DK7fLYi7.js",
+      "bytes": 18102,
+      "gzip_bytes": 4568
+    },
+    {
+      "file": "rhChainReviewPipelinePage-C1uu5ChQ.js",
+      "bytes": 7934,
+      "gzip_bytes": 2581
+    },
+    {
+      "file": "rhChainScoutsPage-_prL5bTo.js",
+      "bytes": 4522,
+      "gzip_bytes": 1584
+    },
+    {
+      "file": "rhChainShareControls-Busy6oAC.js",
+      "bytes": 14300,
+      "gzip_bytes": 4018
+    },
+    {
+      "file": "rhChainTokenDossierPage-CQebgiy8.js",
+      "bytes": 12285,
+      "gzip_bytes": 3266
+    },
+    {
+      "file": "rhChainUi-CQnVMcfk.js",
+      "bytes": 33060,
+      "gzip_bytes": 9340
+    },
+    {
+      "file": "spendTerminalPage-BQ6OijuC.js",
+      "bytes": 87955,
+      "gzip_bytes": 24057
+    },
+    {
+      "file": "spendTerminalPage-O-i4CxJW.css",
+      "bytes": 3726,
+      "gzip_bytes": 1154
+    }
+  ],
+  "candidate": [
+    {
+      "file": "apiBaseUrl-CygU1sGw.js",
+      "bytes": 78012,
+      "gzip_bytes": 21041
+    },
+    {
+      "file": "canonicalReceiptPage-CMYWjpJw.js",
+      "bytes": 3626,
+      "gzip_bytes": 1707
+    },
+    {
+      "file": "index-1Y9inwGK.js",
+      "bytes": 233449,
+      "gzip_bytes": 70888
+    },
+    {
+      "file": "index-CIeUw9ei.css",
+      "bytes": 44134,
+      "gzip_bytes": 8945
+    },
+    {
+      "file": "ipxPltrPreflightLabPage-CXFfG7RS.js",
+      "bytes": 15246,
+      "gzip_bytes": 4915
+    },
+    {
+      "file": "ipxPltrPreflightLabPage-DHNhDfyF.css",
+      "bytes": 12841,
+      "gzip_bytes": 2930
+    },
+    {
+      "file": "jsx-runtime-C7oxC63R.js",
+      "bytes": 8557,
+      "gzip_bytes": 3274
+    },
+    {
+      "file": "radarApp-DRC1A8WE.css",
+      "bytes": 406690,
+      "gzip_bytes": 67244
+    },
+    {
+      "file": "radarApp-Dncpw608.js",
+      "bytes": 1562518,
+      "gzip_bytes": 310646
+    },
+    {
+      "file": "rh4663Pages-BKZDsexB.js",
+      "bytes": 90654,
+      "gzip_bytes": 22339
+    },
+    {
+      "file": "rh4663Pages-DuVVrgZg.css",
+      "bytes": 61589,
+      "gzip_bytes": 10592
+    },
+    {
+      "file": "rhChain100ReceiptsCampaignPage-C0Y5Yy5W.js",
+      "bytes": 14011,
+      "gzip_bytes": 4275
+    },
+    {
+      "file": "rhChainCloneRadarPage-qvwSKTHX.js",
+      "bytes": 7600,
+      "gzip_bytes": 2169
+    },
+    {
+      "file": "rhChainDiscoveryQueuePage-CZjSYyxC.js",
+      "bytes": 5223,
+      "gzip_bytes": 1986
+    },
+    {
+      "file": "rhChainDistributionPackPage-CNvvtuEz.js",
+      "bytes": 4739,
+      "gzip_bytes": 1650
+    },
+    {
+      "file": "rhChainLaunchpadObservatoryPage-DGGa6khF.js",
+      "bytes": 5774,
+      "gzip_bytes": 1789
+    },
+    {
+      "file": "rhChainMarketPulsePage-H4zIkzyv.js",
+      "bytes": 14041,
+      "gzip_bytes": 4176
+    },
+    {
+      "file": "rhChainMarketStructurePage-D90kZejW.js",
+      "bytes": 29058,
+      "gzip_bytes": 7296
+    },
+    {
+      "file": "rhChainMemePulsePage-CYjnnyFe.js",
+      "bytes": 6932,
+      "gzip_bytes": 1992
+    },
+    {
+      "file": "rhChainProjectClaimsPage-DvHQsfsf.js",
+      "bytes": 9659,
+      "gzip_bytes": 2879
+    },
+    {
+      "file": "rhChainReflexiveRadarPage-C0_SslAO.css",
+      "bytes": 10191,
+      "gzip_bytes": 2170
+    },
+    {
+      "file": "rhChainReflexiveRadarPage-FGcG5uV8.js",
+      "bytes": 39166,
+      "gzip_bytes": 8932
+    },
+    {
+      "file": "rhChainReviewConsolePage-BUCkKZhZ.js",
+      "bytes": 18100,
+      "gzip_bytes": 4563
+    },
+    {
+      "file": "rhChainReviewPipelinePage-CaM7FP8N.js",
+      "bytes": 7939,
+      "gzip_bytes": 2588
+    },
+    {
+      "file": "rhChainScoutsPage-C178lgb7.js",
+      "bytes": 4527,
+      "gzip_bytes": 1590
+    },
+    {
+      "file": "rhChainShareControls-BxFsjcwJ.js",
+      "bytes": 14299,
+      "gzip_bytes": 4016
+    },
+    {
+      "file": "rhChainTokenDossierPage-eqoFwNO9.js",
+      "bytes": 12254,
+      "gzip_bytes": 3253
+    },
+    {
+      "file": "spendTerminalPage-CuyUsoRy.js",
+      "bytes": 10282,
+      "gzip_bytes": 3755
+    },
+    {
+      "file": "spendTerminalPage-DiciUYUU.css",
+      "bytes": 3829,
+      "gzip_bytes": 1180
+    }
+  ]
+}
