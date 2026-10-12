@@ -7,7 +7,7 @@
   {
     "pattern": "/^\\/$/",
     "file": "src/web/main.tsx",
-    "line": 15
+    "line": 14
   },
   {
     "pattern": "/^\\/4663(?:\\/(?:pulse|today|signals|receipts)|\\/(?:print|call|resolution|consensus|signals|proof|campaign|share)\\/[^/]+)?\\/?$/",

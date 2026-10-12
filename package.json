@@ -28,7 +28,8 @@
     "check:design": "node scripts/radar-design-inventory.mjs --check",
     "inventory:design": "node scripts/radar-design-inventory.mjs",
     "test:ui": "node scripts/qualify-radar-ui.cjs",
-    "test:ui:journeys": "node scripts/qualify-radar-journeys.cjs"
+    "test:ui:journeys": "node scripts/qualify-radar-journeys.cjs",
+    "test:ui:visuals": "node scripts/capture-radar-visuals.cjs && node scripts/compare-radar-visuals.cjs"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",

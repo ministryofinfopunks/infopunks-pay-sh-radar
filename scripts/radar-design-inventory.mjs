@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import ts from 'typescript';
-const sources = ['src/web/main.tsx','src/web/radarApp.tsx','src/web/rh4663Pages.tsx','src/web/rhChainReflexiveRadarPage.tsx'];
+const sources = readdirSync('src/web').filter(name => name.endsWith('.tsx')).map(name => `src/web/${name}`);
 export function discoverRoutePatterns() {
  const patterns = new Map();
  for (const file of sources) {
@@ -25,6 +25,16 @@ if(process.argv.includes('--check')) {
  }
  const css = readFileSync('src/web/styles.css','utf8');
  if(/:root\s*\{/.test(css)) throw Error('Global tokens belong in radarTokens.css.');
+ const tokens = readFileSync('src/web/radarTokens.css','utf8');
+ for (const required of ['--signal-action: #00eee4;', '--bg: #050b0c;', '--text: #f1f0e5;', '--signal-judgment: #dc91ff;', '--green: var(--signal-action);']) {
+  if (!tokens.includes(required)) throw Error(`Canonical palette changed without reference review: ${required}`);
+ }
+ const main = readFileSync('src/web/main.tsx','utf8');
+ if (!main.includes('<RadarAppShell>')) throw Error('Every entry must inherit RadarAppShell.');
+ const home = readFileSync('src/web/homepage.tsx','utf8');
+ if (!home.includes('Before your agent spends, check the evidence.') || /After attention|radar-category-sequence/.test(home)) throw Error('Retired editorial homepage reintroduced.');
+ if (/<ProductHeader|<footer/.test(home)) throw Error('Homepage must inherit shared header/footer.');
+ for (const required of ['NO CHECK RUN','AWAITING EVIDENCE','NOT CHECKED','NOT ISSUED']) if (!home.includes(required)) throw Error(`Missing truthful preview: ${required}`);
  console.log(`Design drift check passed: ${patterns.length} router patterns; no workflow root tokens.`);
 } else {
  writeFileSync('docs/design-system/route-patterns.json',JSON.stringify(patterns,null,2)+'\n');
