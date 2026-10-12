@@ -6,6 +6,7 @@ import pg from 'pg';
 import { describe, expect, it } from 'vitest';
 import { runPostgresMigrations } from '../../src/services/postgresMigrationRunner';
 import { inspectMigrationDirectory } from '../../src/services/migrationInventory';
+import { inspectRhChainMigrationLedger } from '../../src/services/rhChainProductionReadiness';
 
 const url = process.env.CANONICAL_RECEIPT_TEST_URL;
 async function isolatedSchema() {
@@ -14,6 +15,14 @@ async function isolatedSchema() {
   await admin.query(`create schema ${schema}`);
   const pool = new pg.Pool({ connectionString: url, max: 2, options: `-c search_path=${schema}` });
   return { schema, pool, close: async () => { await pool.end(); await admin.query(`drop schema ${schema} cascade`); await admin.end(); } };
+}
+
+async function legacyVocabularySchema() {
+  const schema = 'migration_runner_legacy_' + randomUUID().replaceAll('-', '');
+  const admin = new pg.Pool({ connectionString: url, max: 2 });
+  await admin.query(`create schema ${schema}`);
+  await admin.query(`create table ${schema}.rh_chain_reviewed_classifications (primary_layer text constraint rh_chain_reviewed_classifications_primary_layer_check check (primary_layer in ('meme','rwa','agent','infrastructure','defi','unknown')))`);
+  return { close: async () => { await admin.query(`drop schema ${schema} cascade`); await admin.end(); } };
 }
 
 describe.skipIf(!url)('PostgreSQL migration runner', () => {
@@ -56,16 +65,21 @@ describe.skipIf(!url)('PostgreSQL migration runner', () => {
   }, 30_000);
 
   it('supports the verified 020 baseline and applies migrations 021–022', async () => {
+    // Put an older same-named constraint in another schema first. Baseline
+    // validation must inspect the active schema, not whichever catalog row wins.
+    const legacy = await legacyVocabularySchema();
     const db = await isolatedSchema();
     try {
       const client = await db.pool.connect();
       try { for (const entry of inspectMigrationDirectory().entries.slice(0,20)) await client.query(readFileSync(join(process.cwd(),'migrations',entry.file),'utf8')); }
       finally { client.release(); }
+      const ledger = await inspectRhChainMigrationLedger(db.pool);
+      expect(ledger.migrations.find((migration) => migration.id === '20260719_003')?.state).toBe('applied');
       const result = await runPostgresMigrations(db.pool, { adoptBaseline: '020' });
       expect(result.valid).toBe(true); expect(result.baseline_adopted).toBe('020'); expect(result.applied).toHaveLength(22);
       expect(result.history.filter((row) => row.outcome === 'adopted')).toHaveLength(20);
       expect(result.history.filter((row) => row.outcome === 'applied').map((row) => row.migration_id)).toEqual(['20261008_021', '20261008_022']);
-    } finally { await db.close(); }
+    } finally { await db.close(); await legacy.close(); }
   }, 30_000);
 
   it('records failure, leaves failed DDL unapplied, and retries from the failed migration', async () => {

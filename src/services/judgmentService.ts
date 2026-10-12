@@ -11,7 +11,8 @@ import { type CanonicalJudgmentResponse } from '../schemas/preSpend';
 import { hashCanonical, canonicalSerialize } from './receiptIntegrityService';
 import { assessFrozenDecision, sealDecisionContext } from './decisionContextService';
 import { createReceiptAuthorityService, type ReceiptAppendStore } from './receiptAuthorityService';
-import type { JudgmentRequestRepository, JudgmentRequestRecord } from '../repositories/judgmentRequestRepository';
+import { judgmentRequestKey, type JudgmentRequestRepository, type JudgmentRequestRecord, type PaymentAuthorizationBinding } from '../repositories/judgmentRequestRepository';
+import type { JudgmentOwner } from '../security/judgmentIdentity';
 import { encodePaymentRequiredHeader, encodePaymentResponseHeader, type JudgmentPaymentGateway } from '../middleware/x402JudgmentMiddleware';
 
 export class JudgmentError extends Error {
@@ -54,7 +55,7 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
     const rail = ECONOMIC_RAILS[network];
     if (!requirement || requirement.asset.toLowerCase() !== rail.token || result.cost.asset !== rail.asset) throw new JudgmentError(409, 'settlement_asset_mismatch');
     // Legacy receipts replay unchanged; new receipts commit the exact billing rail.
-    const payment = existing ? existing.payment : { network, asset: rail.asset, token: rail.token, amount_atomic: requirement.amount, pay_to: requirement.payTo, payer: record.settlement!.payer ?? null, verification: 'facilitator_attested' as const };
+    const payment = existing ? existing.payment : record.reconciliation ? undefined : { network, asset: rail.asset, token: rail.token, amount_atomic: requirement.amount, pay_to: requirement.payTo, payer: record.settlement!.payer ?? null, verification: 'facilitator_attested' as const };
     const receipt = await authority.appendJudgment({
       judgment_id: result.judgment_id, subject_type: record.subject_type, subject_id: record.subject_id,
       intent_hash: record.intent_hash, decision: result.decision, confidence: result.confidence,
@@ -78,7 +79,7 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
     } catch { throw new JudgmentError(403, 'paid_judgment_replay_proof_invalid'); }
   }
   return {
-    async check(raw: unknown, suppliedKey?: string, signature?: string): Promise<JudgmentCheckResult> {
+    async check(raw: unknown, suppliedKey?: string, signature?: string, owner?: JudgmentOwner): Promise<JudgmentCheckResult> {
       const started = performance.now();
       let paymentMs = 0;
       async function paymentCall<T>(run: () => Promise<T>) {
@@ -88,10 +89,11 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
       try {
       // Do not silently discard an unsupported chain, policy or settlement selector.
       const input = PreSpendCheckRequestSchema.strict().parse(raw);
+      if (owner && owner.agent_id !== input.agent_id) throw new JudgmentError(403, 'judgment_agent_mismatch');
       if (suppliedKey !== undefined && !/^[A-Za-z0-9_.:-]{1,128}$/.test(suppliedKey)) throw new JudgmentError(400, 'invalid_idempotency_key');
       if (signature !== undefined && (signature.length === 0 || signature.length > 16384)) throw new JudgmentError(400, 'invalid_payment_signature_length');
       const requestHash = hashCanonical(input);
-      const key = hashCanonical({ agent: input.agent_id, key: suppliedKey ?? requestHash });
+      const key = judgmentRequestKey(input.agent_id, suppliedKey ?? requestHash, owner);
       const priorFree = await options.journal.getFreeAttempt?.(key);
       if (priorFree) {
         if (priorFree.request_hash !== requestHash) throw new JudgmentError(409, 'idempotency_conflict');
@@ -118,8 +120,12 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
         const railMismatch = input.judgment_context && input.judgment_context.settlement_network !== options.gateway?.requirements[0]?.network;
         const market = input.judgment_context?.policy.id === 'rh.market-inspection'
           ? normalizeRhMarketEvidence(input.judgment_context, await options.marketEvidence?.(input).catch(() => null) ?? null, at) : null;
-        const preliminary = market
-          ? { decision: 'insufficient_evidence' as const, confidence: 0, reasons: [...market.blockers, ...(railMismatch ? ['requested_settlement_network_unavailable'] : [])], valid_until: at.toISOString() }
+        // Robinhood/token observations are read-only market intelligence. They
+        // cannot be converted into a paid spending Judgment by generic service
+        // facts or a caller-selected settlement preference.
+        const tokenMarket = observations[0]?.subject_type === 'token' || input.preferred_settlement === 'tokenized_pltr';
+        const preliminary = market || tokenMarket
+          ? { decision: 'insufficient_evidence' as const, confidence: 0, reasons: [...(market?.blockers ?? ['token_market_policy_unqualified']), ...(railMismatch ? ['requested_settlement_network_unavailable'] : [])], valid_until: at.toISOString() }
           : railMismatch
           ? { decision: 'insufficient_evidence' as const, confidence: 0, reasons: ['requested_settlement_network_unavailable'], valid_until: at.toISOString() }
           : assessFrozenDecision(input, legacy, observations, null, at, policy);
@@ -138,7 +144,7 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
         };
         if (output.decision === 'insufficient_evidence') {
           const attempt = await options.journal.recordFreeAttempt?.({ request_key: key, request_hash: requestHash,
-            assessed_at: response.issued_at, response, legacy });
+            assessed_at: response.issued_at, response, legacy, ...(owner ? { owner } : {}) });
           return { status: 200, headers: {}, response: attempt?.response ?? response, legacy };
         }
         if (options.store.judgmentTrust?.requireSigned && !options.issuer) throw new JudgmentError(503, 'judgment_signing_unavailable');
@@ -161,7 +167,7 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
           policy, policy_hash: hashCanonical(policy), output });
         response.decision_context_hash = context.context_hash;
         paymentEvent('challenge');
-        record = await options.journal.quote(key, { request_hash: requestHash, state: 'quoted', response, legacy,
+        record = await options.journal.quote(key, { request_hash: requestHash, state: 'quoted', response, legacy, ...(owner ? { owner } : {}),
           subject_type: observations[0].subject_type, subject_id: subject, intent_hash: intentHash,
           decision_context: context, challenge: await options.gateway.challenge() });
         if (record.request_hash !== requestHash) throw new JudgmentError(409, 'idempotency_conflict');
@@ -197,14 +203,28 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
       if (options.store.judgmentTrust?.requireSigned && !options.issuer) throw new JudgmentError(503, 'judgment_signing_unavailable');
       if (options.issuer) { try { options.issuer.assertCanSign(record.response.issued_at, record.response.valid_until); } catch { throw new JudgmentError(503, 'judgment_signing_unavailable'); } }
       paymentEvent('verified');
-      if (!await options.journal.claim(key, paymentHash)) {
+      const authorization = payment.payload?.authorization as Record<string, unknown> | undefined;
+      let binding: PaymentAuthorizationBinding | undefined;
+      if (authorization && /^0x[a-fA-F0-9]{40}$/.test(String(authorization.from)) &&
+        /^0x[a-fA-F0-9]{64}$/.test(String(authorization.nonce)) &&
+        String(authorization.to).toLowerCase() === requirement.payTo.toLowerCase() && String(authorization.value) === requirement.amount &&
+        /^\d+$/.test(String(authorization.validAfter)) && /^\d+$/.test(String(authorization.validBefore))) {
+        binding = { network: requirement.network, token: requirement.asset.toLowerCase(), payer: String(authorization.from).toLowerCase(),
+          pay_to: requirement.payTo.toLowerCase(), amount_atomic: requirement.amount, nonce: String(authorization.nonce).toLowerCase(),
+          valid_after: String(authorization.validAfter), valid_before: String(authorization.validBefore) };
+      }
+      if (!await options.journal.claim(key, paymentHash, binding)) {
         paymentEvent('duplicate_prevented');
         throw new JudgmentError(409, 'payment_already_claimed');
       }
       record.state = 'settling'; record.payment_hash = paymentHash;
+      if (binding) record.payment_authorization = binding;
       // An ambiguous failure stays settling: a retry must never re-submit settlement.
       const settlement = await paymentCall(() => options.gateway!.settle(signature, requirement));
-      if (!settlement.success || !settlement.transaction || settlement.network !== requirement.network) throw new JudgmentError(402, 'payment_settlement_failed');
+      if (settlement.success !== true || !/^0x[a-fA-F0-9]{64}$/.test(settlement.transaction) || settlement.network !== requirement.network ||
+        (binding && settlement.payer && settlement.payer.toLowerCase() !== binding.payer)) throw new JudgmentError(402, 'payment_settlement_failed');
+      settlement.transaction = settlement.transaction.toLowerCase();
+      if (binding && !settlement.payer) settlement.payer = binding.payer;
       paymentEvent('settled');
       record.settlement = settlement; record.state = 'settled'; await options.journal.save(key, record);
       return await complete(key, record);

@@ -17,6 +17,11 @@ import { createEvaluationService } from '../services/evaluationService';
 import { createCausalTapeService } from '../services/causalTapeService';
 import { createCausalWitnessService, CausalWitnessError } from '../services/causalWitnessService';
 import { createJudgmentService, JudgmentError } from '../services/judgmentService';
+import { createJudgmentIdentity } from '../security/judgmentIdentity';
+import { registerJudgmentPrivateAccess } from './judgmentPrivateAccess';
+import { judgmentPresentation } from '../services/judgmentPresentation';
+import { judgmentRequestKey } from '../repositories/judgmentRequestRepository';
+import { createJudgmentReconciliationService, JudgmentReconciliationError } from '../services/judgmentReconciliationService';
 import { verifyDecisionContext } from '../services/decisionContextService';
 import { hashCanonical } from '../services/receiptIntegrityService';
 import { createExecutionProofService, ExecutionProofError } from '../services/executionProofService';
@@ -676,6 +681,8 @@ const CORS_MAX_AGE_SECONDS = 86_400;
 export type CreateAppOptions = {
   economicEngine?: EconomicEngineOverrides;
   judgmentGateway?: JudgmentPaymentGateway;
+  judgmentReceiptStore?: import('../services/receiptAuthorityService').ReceiptAppendStore;
+  judgmentRequestJournal?: import('../repositories/judgmentRequestRepository').JudgmentRequestRepository;
   executionProofVerifier?: SettlementProofVerifier;
   clientDistDir?: string | null;
   rhChainSubmissionStore?: RhChainSubmissionStore;
@@ -746,7 +753,10 @@ export async function createApp(
   options: CreateAppOptions = {}
 ) {
   const config = loadRuntimeConfig();
-  const app = Fastify({ logger: config.isProduction, disableRequestLogging: true });
+  const identity = createJudgmentIdentity(process.env.JUDGMENT_API_KEYS_JSON);
+  if (config.adminToken && identity.authenticate('Bearer ' + config.adminToken)) throw new Error('judgment_operator_credential_reused');
+  if (config.isProduction && config.judgmentPaymentEnabled && !identity.configured) throw new Error('judgment_identity_unavailable');
+  const app = Fastify({ logger: config.isProduction ? { redact: ['req.headers.authorization', 'req.headers.payment-signature'] } : false, disableRequestLogging: true });
   app.addHook('onRequest', async (req, reply) => {
     if (!config.controlledStaging) return;
     const error = controlledStagingRequestError(req.method, req.routeOptions.url ?? '');
@@ -1380,8 +1390,20 @@ export async function createApp(
     strictPreflight: true
   });
   const requestStartedAt = new WeakMap<FastifyRequest, number>();
+  const tenantReceiptRoutes = new Set([
+    '/v1/receipt-spine/:kind/:id',
+    '/v1/receipt-spine/judgment/:id/context',
+    '/v1/receipt-spine/judgment/:id/verify'
+  ]);
   app.addHook('onRequest', async (req, reply) => {
-    if ((requiresOperatorProofRead(req.routeOptions.url ?? '') || requiresOperatorProofRead(safeRequestPath(req.url)))) {
+    // These exact matched templates are delegated to the credential-bound owner
+    // policy below. Encoded lookalikes still match here only after routing and
+    // must pass the same ownership check before any receipt lookup.
+    const rawPath = req.url.split('?')[0];
+    const canonicalOwnerPath = /^\/v1\/receipt-spine\/(?:observation|judgment|execution|evaluation)\/[A-Za-z0-9_.:-]{1,200}$/.test(rawPath) ||
+      /^\/v1\/receipt-spine\/judgment\/[A-Za-z0-9_.:-]{1,200}\/(?:context|verify)$/.test(rawPath);
+    const ownerRoute = tenantReceiptRoutes.has(req.routeOptions.url ?? '') || canonicalOwnerPath;
+    if (!ownerRoute && (requiresOperatorProofRead(req.routeOptions.url ?? '') || requiresOperatorProofRead(safeRequestPath(req.url)))) {
       reply.header('Cache-Control', 'private, no-store');
       if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'proof_read_authorization_required' });
     }
@@ -1819,8 +1841,9 @@ export async function createApp(
   const handleJudgmentAssessment = async (req: FastifyRequest, reply: FastifyReply) => {
     const started = performance.now();
     reply.header('Cache-Control', 'private, no-store');
-    // Authenticated tenant-bound payment authority is not implemented. Only the operator may use the enabled paid boundary.
-    if ((config.isProduction && config.judgmentPaymentEnabled || req.headers['payment-signature']) && !isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'judgment_authentication_required' });
+    const owner = identity.authenticate(req.headers.authorization);
+    const tenantRequired = config.isProduction || config.controlledStaging || config.judgmentPaymentEnabled || Boolean(judgmentGateway) || identity.configured || req.headers.authorization !== undefined;
+    if (tenantRequired && !owner) return reply.code(identity.configured ? 401 : 503).send({ error: identity.configured ? 'judgment_authentication_required' : 'judgment_identity_unavailable' });
     const rate = judgmentRateLimiter.consume(req.ip);
     if (!rate.allowed) return reply.code(429).header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).send({ error: 'judgment_rate_limited' });
     // A typed extension is strict; misspelled policy/subject fields cannot silently become legacy approval.
@@ -1838,8 +1861,10 @@ export async function createApp(
       if (key !== undefined && !/^[A-Za-z0-9_.:-]{1,128}$/.test(key)) return reply.code(400).send({ error: 'invalid_idempotency_key' });
       if (signature !== undefined && (signature.length === 0 || signature.length > 16_384)) return reply.code(400).send({ error: 'invalid_payment_signature_length' });
       const stableKey = key ?? hashCanonical(parsed.data);
-      const result = await judgments.check(parsed.data, stableKey, signature);
-      if (result.response.payment_required && !isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'judgment_authentication_required' });
+      const result = await judgments.check(parsed.data, stableKey, signature, owner ?? undefined);
+      const completedRecord = result.response.receipt ? await judgmentJournal.get('sha256:' + result.response.judgment_id.slice(9)) : null;
+      const paymentConfirmation = completedRecord?.reconciliation ? { version: 'judgment-payment-confirmation.v1', authoritative: false,
+        provenance: 'rpc_finalized_eip3009_transfer', evidence: completedRecord.reconciliation } : undefined;
       reply.header('Idempotency-Key', stableKey);
       req.log.info({ event: 'judgment_assessed', request_id: req.id, decision: result.response.decision,
         policy: parsed.data.judgment_context?.policy.id ?? 'legacy.service-spend',
@@ -1848,7 +1873,7 @@ export async function createApp(
       for (const [name, value] of Object.entries(result.headers)) if (value) reply.header(name, value);
       reply.header('Server-Timing', `judgment;dur=${(performance.now() - started).toFixed(2)}`);
       // Preserve the original SDK envelope; canonical fields are also available at the top level.
-      return reply.code(result.status).send(safeJsonExport({ ...result.response,
+      return reply.code(result.status).send(safeJsonExport({ ...result.response, presentation: judgmentPresentation(result.response), ...(paymentConfirmation ? { payment_confirmation: paymentConfirmation } : {}),
         execution_authorization: null, execution_authorized: false,
         data: { ...result.legacy, canonical_judgment: result.response } }));
     } catch (error) {
@@ -4503,12 +4528,15 @@ export async function createApp(
     if (!judgmentIssuer) throw new Error('judgment_signing_unavailable');
     judgmentIssuer.assertCanSign(new Date().toISOString(), new Date(Date.now() + config.judgmentTtlMs).toISOString());
   }
-  const canonicalReceiptStore = rhChainPostgresPool
+  const canonicalReceiptStore = options.judgmentReceiptStore ?? (rhChainPostgresPool
     ? new PostgresCanonicalReceiptStore(rhChainPostgresPool, config.receiptProceedConfidenceThreshold, judgmentTrust)
-    : new MemoryCanonicalReceiptStore(config.receiptProceedConfidenceThreshold, judgmentTrust);
+    : new MemoryCanonicalReceiptStore(config.receiptProceedConfidenceThreshold, judgmentTrust));
   if (rhChainPostgresPool && config.judgmentPaymentEnabled) {
+    await rhChainPostgresPool.query('select assessment_id from decision_contexts limit 0');
     await rhChainPostgresPool.query('select acceptance_sequence from canonical_receipt_acceptances limit 0');
     await rhChainPostgresPool.query('select request_key from free_assessment_attempts limit 0');
+    await rhChainPostgresPool.query('select publication_sequence from free_assessment_attempts limit 0');
+    await rhChainPostgresPool.query('select publication_sequence from canonical_receipt_quarantine limit 0');
   }
   const receiptAuthority = createReceiptAuthorityService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold, judgmentIssuer);
   const evaluationService = createEvaluationService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold);
@@ -4517,7 +4545,37 @@ export async function createApp(
     facilitatorUrl: config.judgmentFacilitatorUrl!, payTo: config.judgmentPayTo!, amount: config.judgmentPriceUsdc, resourceUrl: config.judgmentResourceUrl!, network: config.judgmentNetwork,
     usdGDomain: config.judgmentNetwork === 'eip155:4663' ? await verifyUsdGMetadata(config.judgmentRhRpcUrl!) : undefined
   }) : null);
-  const judgmentJournal = rhChainPostgresPool ? new PostgresJudgmentRequestRepository(rhChainPostgresPool) : new MemoryJudgmentRequestRepository();
+  const judgmentJournal = options.judgmentRequestJournal ?? (rhChainPostgresPool ? new PostgresJudgmentRequestRepository(rhChainPostgresPool) : new MemoryJudgmentRequestRepository());
+  registerJudgmentPrivateAccess(app, identity, judgmentJournal, canonicalReceiptStore,
+    authorization => isAdmin(config.adminToken, authorization), config.isProduction);
+  const requireOwner = (req: FastifyRequest, reply: FastifyReply) => {
+    reply.header('Cache-Control', 'private, no-store');
+    const owner = identity.authenticate(req.headers.authorization);
+    if (!owner) reply.code(identity.configured ? 401 : 503).send({ error: identity.configured ? 'judgment_authentication_required' : 'judgment_identity_unavailable' });
+    return owner;
+  };
+  app.get('/v1/judgment/session', async (req, reply) => {
+    const owner = requireOwner(req, reply); if (!owner) return reply;
+    return { data: { ...owner, version: 'judgment-session.v1' } };
+  });
+  app.get<{ Params: { key: string } }>('/v1/judgments/requests/:key', async (req, reply) => {
+    const owner = requireOwner(req, reply); if (!owner) return reply;
+    if (!/^[A-Za-z0-9_.:-]{1,128}$/.test(req.params.key)) return reply.code(400).send({ error: 'invalid_idempotency_key' });
+    const key = judgmentRequestKey(owner.agent_id, req.params.key, owner);
+    const [record, free] = await Promise.all([judgmentJournal.get(key), judgmentJournal.getFreeAttempt?.(key) ?? Promise.resolve(null)]);
+    if (!record && !free) return reply.code(404).send({ error: 'judgment_request_not_found' });
+    if (free && free.owner?.tenant_id === owner.tenant_id && free.owner.agent_id === owner.agent_id)
+      return { data: { state: 'assessed_free', result: free.response, presentation: judgmentPresentation(free.response) } };
+    if (!record || record.owner?.tenant_id !== owner.tenant_id || record.owner.agent_id !== owner.agent_id) return reply.code(404).send({ error: 'judgment_request_not_found' });
+    return { data: { state: record.state, judgment_id: record.response.judgment_id } };
+  });
+  app.get('/v1/judgments/history', async (req, reply) => {
+    const owner = requireOwner(req, reply); if (!owner) return reply;
+    if (!judgmentJournal.listOwned) return reply.code(503).send({ error: 'judgment_history_unavailable' });
+    const history = await judgmentJournal.listOwned(owner);
+    return { data: { paid: history.paid.map(r => ({ judgment_id: r.response.judgment_id, state: r.state, decision: r.response.decision })),
+      free: history.free.map(r => ({ judgment_id: r.response.judgment_id, decision: r.response.decision, assessed_at: r.assessed_at })), limit: 100 } };
+  });
   const causalTape = createCausalTapeService(canonicalReceiptStore, judgmentJournal);
   const causalWitness = createCausalWitnessService(canonicalReceiptStore, judgmentIssuer);
   if (config.judgmentPaymentEnabled) {
@@ -4552,6 +4610,13 @@ export async function createApp(
   });
   const rhClient = config.judgmentRhRpcUrl ? await rhProofClient(config.judgmentRhRpcUrl) : null;
   if (rhClient && await rhClient.getChainId() !== 4663) throw new Error('execution_proof_rh_rpc_network_mismatch');
+  const reconciliation = createJudgmentReconciliationService(judgmentJournal, { ...(executionClient ? { 'eip155:8453': executionClient } : {}), ...(rhClient ? { 'eip155:4663': rhClient } : {}) });
+  app.post<{ Params: { id: string } }>('/internal/judgments/:id/reconcile', { bodyLimit: 1024 }, async (req, reply) => {
+    reply.header('Cache-Control', 'private, no-store');
+    if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'unauthorized' });
+    try { return { data: await reconciliation.reconcile(req.params.id, req.body) }; }
+    catch (error) { return reply.code(error instanceof JudgmentReconciliationError ? error.statusCode : 503).send({ error: error instanceof JudgmentReconciliationError ? error.code : 'reconciliation_unavailable' }); }
+  });
   if (rhClient && rhChainPostgresPool) {
     const indexes = await rhChainPostgresPool.query("select indexdef from pg_indexes where schemaname=current_schema() and indexname in ('execution_proof_one_authorization_idx','execution_proof_one_settlement_idx')");
     if (indexes.rows.length !== 2 || indexes.rows.some(row => !row.indexdef.includes('rh_usdg_external.v1'))) throw new Error('rh_usdg_accounting_migration_required');
@@ -4664,7 +4729,7 @@ export async function createApp(
     const receipt = await canonicalReceiptStore.get('judgment', req.params.id);
     if (!receipt || !('judgment_id' in receipt)) return reply.code(404).send({ error: 'canonical_receipt_not_found' });
     if (receipt.schema_version !== 'canonical-receipts.v2') return reply.code(404).send({ error: 'decision_context_not_available_for_v1' });
-    const context = await canonicalReceiptStore.getDecisionContext(receipt.judgment_id);
+    const context = await canonicalReceiptStore.getDecisionContext?.(receipt.judgment_id);
     if (!context) return reply.code(503).send({ error: 'decision_context_missing' });
     return { data: safeJsonExport({ context, replay_valid: await verifyDecisionContext(context, receipt, canonicalReceiptStore) }) };
   });

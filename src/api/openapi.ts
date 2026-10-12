@@ -1564,8 +1564,13 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       rationale: ['Confidence score is 69 against required confidence 75.', 'Linked Proof Check check_monitor is caution.', 'Autonomous approval is blocked until the linked proof state is stronger.']
     })
   });
-  const canonicalEnvelopeSchema = z.toJSONSchema(CanonicalJudgmentResponseSchema.extend({ data: z.record(z.string(), z.json()) }), { target: 'draft-2020-12' });
+  const canonicalEnvelopeSchema = z.toJSONSchema(CanonicalJudgmentResponseSchema.extend({
+    data: z.record(z.string(), z.json()),
+    payment_confirmation: z.object({ version: z.literal('judgment-payment-confirmation.v1'), authoritative: z.literal(false), provenance: z.literal('rpc_finalized_eip3009_transfer'), evidence: z.record(z.string(), z.json()) }).optional(),
+    presentation: z.object({ version: z.literal('judgment-presentation.v1'), authoritative: z.literal(false), summary: z.string(), next_action: z.string(), blocking_reasons: z.array(z.string()), payment_required: z.boolean(), execution_occurred: z.literal(false), outcome_verified: z.literal(false) }).optional()
+  }), { target: 'draft-2020-12' });
   const preSpendOperation = (paths['/v1/pre-spend/check'] as { post: Record<string, unknown> }).post;
+  preSpendOperation.security = [{ JudgmentTenantKey: [] }];
   preSpendOperation.parameters = [
     { name: 'Idempotency-Key', in: 'header', required: false, schema: { type: 'string', minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9_.:-]{1,128}$' } },
     { name: 'PAYMENT-SIGNATURE', in: 'header', required: false, description: 'Official base64 x402 V2 payment payload. Retain and resend the original proof for every paid retry, including receipt recovery after a timeout.', schema: { type: 'string', minLength: 1, maxLength: 16384 } }
@@ -1578,6 +1583,21 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     '403': errorResponse('paid_judgment_replay_proof_invalid'),
     '409': errorResponse('idempotency_conflict'), '429': errorResponse('judgment_rate_limited'), '503': errorResponse('judgment_payment_unavailable')
   };
+  for (const [path, summary] of [
+    ['/v1/judgment/session', 'Get the authenticated tenant and agent binding'],
+    ['/v1/judgments/history', 'Get bounded tenant-owned request history'],
+    ['/v1/judgments/requests/{key}', 'Inspect durable request state before recovery']
+  ]) add('get', path, { tags: ['Pre-Spend Intelligence'], summary, security: [{ JudgmentTenantKey: [] }],
+    ...(path.includes('{key}') ? { parameters: [pathParam('key', 'Original idempotency key; tenant and agent come from authentication.')] } : {}),
+    description: 'Private, no-store. Request-state discovery never returns payment proof, a private receipt, or payment reference. Settling state requires independent operator reconciliation.',
+    responses: { '200': { description: 'Credential-bound data only.' }, '401': errorResponse('judgment_authentication_required'), '404': errorResponse('judgment_request_not_found'), '503': errorResponse('judgment_identity_unavailable') }
+  });
+  add('post', '/internal/judgments/{id}/reconcile', { tags: ['Pre-Spend Intelligence'], summary: 'Independently confirm ambiguous Judgment settlement', security: [{ AdminBearerAuth: [] }],
+    parameters: [pathParam('id', 'Judgment ID from the durable journal.')],
+    description: 'Operator-only read-only RPC verification of a finalized transfer and exact EIP-3009 payer/nonce. The transaction hash is a hint, never trusted evidence. Compare-and-set preserves the original payment hash. Never re-settles; unconfirmed evidence remains settling.',
+    requestBody: jsonRequest({ type: 'object', additionalProperties: false, required: ['transaction_hash'], properties: { transaction_hash: { type: 'string', pattern: '^0x[a-fA-F0-9]{64}$' } } }, { transaction_hash: '0x' + 'a'.repeat(64) }),
+    responses: { '200': { description: 'Confirmed state; original proof is still required to recover the receipt.' }, '401': errorResponse('unauthorized'), '409': errorResponse('settlement_not_independently_confirmed'), '503': errorResponse('settlement_rpc_unavailable') }
+  });
   add('post', '/v1/decide', {
     ...preSpendOperation, summary: 'Purchase a canonical economic assessment',
     description: 'Shares the paid pre-spend Judge and payment journal, including idempotent settlement replay and free insufficient evidence. A judgment receipt records assessment only. This public facade accepts no caller-authored menus, policies, witnesses or capabilities. Execution authority is separately issued through the authenticated economic engine.',
@@ -3679,7 +3699,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('post', '/internal/rh-chain/projects/{project_id}/intelligence-receipts/{receipt_id}/reject', reviewConsole('Reject intelligence receipt draft', 'Retains the private receipt draft, but permanently prevents publication. Published receipts are never editable or rejectable.', 'RhChainIntelligenceReceiptPayload', { receipt_id: 'rhir_example', reviewer_publication_state: 'rejected' }, receiptParams, jsonRequest(objectSchema({ expected_version: { type: 'integer', minimum: 1 }, rejection_reason: stringSchema() }, ['expected_version', 'rejection_reason']), { expected_version: 1, rejection_reason: 'The draft needs stronger source support.' })));
 
   for (const [path, operations] of Object.entries(paths)) {
-    if (!requiresOperatorProofRead(path)) continue;
+    if (!requiresOperatorProofRead(path) || ['/v1/receipt-spine/{kind}/{id}', '/v1/receipt-spine/judgment/{id}/context', '/v1/receipt-spine/judgment/{id}/verify'].includes(path)) continue;
     if (!operations || typeof operations !== 'object') continue;
     for (const operation of Object.values(operations)) {
       if (!operation || typeof operation !== 'object') continue;
@@ -3688,6 +3708,10 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       privateOperation.description = 'Authorized operator only; private, no-store. No tenant or general public publication authority is inferred. ' + String(privateOperation.description ?? '');
       privateOperation.responses = { ...(privateOperation.responses as Record<string, unknown>), '401': errorResponse('proof_read_authorization_required') };
     }
+  }
+  for (const path of ['/v1/receipt-spine/{kind}/{id}', '/v1/receipt-spine/judgment/{id}/context', '/v1/receipt-spine/judgment/{id}/verify']) {
+    const operations = paths[path] as Record<string, Record<string, unknown>> | undefined;
+    for (const operation of Object.values(operations ?? {})) operation.security = [{ JudgmentTenantKey: [] }];
   }
   return {
     openapi: '3.1.0',
@@ -3724,6 +3748,8 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     paths,
     components: {
       securitySchemes: {
+        JudgmentTenantKey: { type: 'http', scheme: 'bearer', bearerFormat: 'opaque tenant key', description: 'Operator-issued key bound to one tenant and agent. Caller agent_id and wallet do not establish ownership.' },
+        AdminBearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'operator secret', description: 'Operator authority; never issue it as a tenant credential.' },
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',

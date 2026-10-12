@@ -4,9 +4,16 @@ dist
 .env
 .env.*
 !.env.example
-docs/evidence
-launch
+.data
+.runtime
 output
+artifacts
+coverage
+*.log
+brag-output-*
+launch-assets
+launch
+docs/evidence
 .npmrc
 secrets/
 **/secrets/
@@ -22,3 +29,4 @@ secrets/
 **/*.key
 **/*.p12
 **/*.pfx
+.DS_Store

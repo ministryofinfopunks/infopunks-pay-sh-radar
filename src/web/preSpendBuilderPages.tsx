@@ -1,4 +1,5 @@
 import { SpendTerminalPage as CanonicalSpendTerminalPage } from './spendTerminalPage';
+import { JudgmentCheckPanel } from './judgmentCheckPanel';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { SignalGraphContextPanel, type SignalGraphContextNode } from './signalGraphContextPanel';
@@ -543,26 +544,28 @@ export function DevelopersPage() {
     document.title = 'Developers | Infopunks Radar';
   }, []);
 
-  const sdkExample = `import { createInfopunksPreSpendClient } from "infopunks-pay-sh-radar/sdk";
+  const sdkExample = `import { createInfopunksClient, createX402WalletPayment } from "infopunks-pay-sh-radar/sdk";
 
-const client = createInfopunksPreSpendClient({
-  baseUrl: "https://radar.infopunks.fun"
+const client = createInfopunksClient({
+  baseUrl: "https://radar.infopunks.fun",
+  apiKey: process.env.INFOPUNKS_TENANT_KEY!,
+  payment: createX402WalletPayment({
+    signer: walletSigner,
+    policy: { network: "eip155:8453", asset: "USDC", payTo: operatorPayTo, maxAmountAtomic: "25000000" },
+    approve: async ({ judgment }) => confirm(` + '`Pay ${judgment.cost.amount} ${judgment.cost.asset} for this Judgment?`' + `)
+  })
 });
 
-const decision = await client.checkPreSpend({
-  agent_id: "agent_001",
+const result = await client.judge({
   intent: "buy_market_research",
+  subject: "service:market_research",
   budget: 25,
-  risk_tolerance: "low",
-  preferred_settlement: "stablecoin",
-  required_confidence: 80
+  risk: "low",
+  requiredConfidence: 80
 });
 
-const judgment = decision.canonical_judgment;
-// Legacy labels are diagnostic. This code never executes.
-if (!judgment?.receipt) {
-  console.log("No issued canonical receipt. Do not act.");
-}`;
+// Returns only after the canonical receipt is verified. This never executes the spend.
+console.log(result.state, result.canonical_judgment);`;
 
   const apiRequest = `POST /v1/pre-spend/check
 Content-Type: application/json
@@ -666,7 +669,7 @@ Content-Type: application/json
               <h2 id="sdk-usage-heading">Use the pre-spend client</h2>
             </div>
           </div>
-          <p className="panel-caption">Import the SDK, create a client, and ask Infopunks whether the agent should spend before payment execution happens somewhere else.</p>
+          <p className="panel-caption">One call returns a verified Judgment. Tenant credentials bind agent identity; wallet signing requires a bounded policy and an explicit approval callback. Judgment never executes the proposed spend.</p>
           <pre className="builder-code-block" tabIndex={0} role="region" aria-label="Integration code example"><code>{sdkExample}</code></pre>
         </section>
 
@@ -681,6 +684,12 @@ Content-Type: application/json
           <pre className="builder-code-block" tabIndex={0} role="region" aria-label="Integration code example"><code>{apiRequest}</code></pre>
           <pre className="builder-code-block" tabIndex={0} role="region" aria-label="Integration code example"><code>{apiResponse}</code></pre>
         </section>
+      </section>
+
+      <section className="panel builder-detail-panel" aria-label="Tenant-owned Judgment check">
+        <div className="panel-head"><div><p className="section-kicker">Private Judgment</p><h2>Inspect a tenant-bound decision</h2></div></div>
+        <p className="panel-caption">This browser check has no payment adapter. A quoted fee stops for explicit authorization by an SDK integration; it never triggers browser payment by default.</p>
+        <JudgmentCheckPanel />
       </section>
 
       <section className="panel builder-detail-panel" aria-label="Decision states">
