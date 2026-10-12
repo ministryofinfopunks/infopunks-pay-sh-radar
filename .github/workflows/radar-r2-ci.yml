@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 45
     services:
       postgres:
-        image: postgres:16.10@sha256:21f6013073bc6b92830a2129570e2f5ec42a6c734b5a985a41e83aa58f54c3c1
+        image: postgres@sha256:21f6013073bc6b92830a2129570e2f5ec42a6c734b5a985a41e83aa58f54c3c1
         env:
           POSTGRES_USER: radar
           POSTGRES_PASSWORD: radar-local-only
@@ -65,7 +65,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: postgres:16.10@sha256:21f6013073bc6b92830a2129570e2f5ec42a6c734b5a985a41e83aa58f54c3c1
+        image: postgres@sha256:21f6013073bc6b92830a2129570e2f5ec42a6c734b5a985a41e83aa58f54c3c1
         env:
           POSTGRES_USER: radar
           POSTGRES_PASSWORD: radar-local-only
