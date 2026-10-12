@@ -135,7 +135,17 @@ await fs.writeFile(path.join(output, 'zoom-and-code-scroll.json'), JSON.stringif
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
 await page.goto(base);
 const keyboard=[];
-for(let i=0;i<8;i++){await page.keyboard.press('Tab');keyboard.push(await page.evaluate(()=>({tag:document.activeElement.tagName,text:document.activeElement.textContent,outline:getComputedStyle(document.activeElement).outlineStyle})));}
+for(let i=0;i<8;i++){
+  await page.keyboard.press('Tab');
+  keyboard.push(await page.evaluate(()=>{
+    const active = document.activeElement;
+    const style = getComputedStyle(active);
+    const outlineVisible = style.outlineStyle !== 'none' && style.outlineWidth !== '0px';
+    const shadowAlphas = [...style.boxShadow.matchAll(/rgba\([^)]*,\s*([0-9.]+)\s*\)/g)].map(([, alpha]) => Number(alpha));
+    const shadowVisible = style.boxShadow !== 'none' && (shadowAlphas.length === 0 || shadowAlphas.some(alpha => alpha > 0));
+    return { tag:active.tagName,text:active.textContent,focusVisible:active.matches(':focus-visible'),outline:style.outlineStyle,outlineWidth:style.outlineWidth,boxShadow:style.boxShadow,visibleIndicator:outlineVisible || shadowVisible };
+  }));
+}
 const keyboardReducedMotion = { source_sha: sourceSha, keyboard, reduced_motion: await page.evaluate(() => ({ requested: matchMedia('(prefers-reduced-motion: reduce)').matches, scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior })) };
 await fs.writeFile(path.join(output,'keyboard-reduced-motion.json'),JSON.stringify(keyboardReducedMotion,null,2));
 let authenticatedBrowser = null;
@@ -179,7 +189,7 @@ for (const report of zoomReports) {
   if (report.http_status !== 200 || report.overflowing || report.code_regions.some(region => !region.bounded || (region.requiresScroll && !region.scrollable) || !region.label || region.tabIndex !== '0')) failures.push(`${report.zoom_equivalent}:${report.route}:reflow_or_code_scroll_failure`);
   if (report.route === '/developers' && report.code_regions.some(region => region.requiresScroll) && (!report.keyboard_scroll?.focused || !report.keyboard_scroll.advanced)) failures.push(`${report.zoom_equivalent}:/developers:keyboard_code_scroll_failure`);
 }
-if (!keyboardReducedMotion.reduced_motion.requested || keyboard.some(item => item.tag === 'BODY' || item.outline === 'none')) failures.push('keyboard_or_reduced_motion_failure');
+if (!keyboardReducedMotion.reduced_motion.requested || keyboard.some(item => item.tag === 'BODY' || !item.focusVisible || !item.visibleIndicator)) failures.push('keyboard_or_reduced_motion_failure');
 if (process.env.RADAR_QA_TENANT_KEY && reports.filter(r => r.route === '/spend-terminal').some(r => r.check_request_count !== 1 || !r.credential_exposure?.password_input || r.credential_exposure.url_contains_key || r.credential_exposure.local_storage_contains_key)) failures.push('authenticated_check_request_or_credential_exposure');
 if (authenticatedBrowser && (authenticatedBrowser.tenant_a_own_request.status !== 200 || authenticatedBrowser.tenant_a_own_request.state !== 'assessed_free' || authenticatedBrowser.tenant_b_denied_tenant_a.status !== 404 || authenticatedBrowser.same_tenant_wrong_agent.status !== 404 || authenticatedBrowser.invalid_credential.status !== 401 || authenticatedBrowser.expired_credential.status !== 401 || authenticatedBrowser.missing_credential.status !== 401 || authenticatedBrowser.credential_exposure.url_contains_credential || authenticatedBrowser.credential_exposure.local_storage_contains_credential)) failures.push('authenticated_tenant_browser_failure');
 const summary = { source_sha: sourceSha, route_count: reports.length, viewport_count: new Set(reports.map(r => r.viewportName)).size, http_failures: reports.filter(r => r.http_status !== 200).length, document_overflow_failures: reports.filter(r => r.dom.scrollWidth > r.viewport.width || r.dom.overflowing.length).length, axe_violation_count: reports.reduce((sum, r) => sum + r.accessibility.violations.length, 0), axe_incomplete_node_count: reports.reduce((sum, r) => sum + r.accessibility.incomplete.reduce((n, item) => n + item.nodes, 0), 0), private_request_failures: failures.filter(f => f.includes('anonymous_private_request')).length, reflow_reports: zoomReports.length, keyboard_reduced_motion_recorded: true, failures };
