@@ -4,12 +4,16 @@ import { UniversalHomepage } from './homepage';
 import { AppErrorBoundary } from './appErrorBoundary';
 import { installDevelopmentPerformanceSummary, markHtmlShellReady } from './performanceSummary';
 import './homepage.css';
+import './radarTokens.css';
+import './radarDesignSystem.css';
+import { RadarAppShell } from './radarAppShell';
+import { RadarAsyncState } from './radarDesignSystem';
 
 const LazyRadarApp = lazy(() => import('./radarApp'));
 
 export function App() {
-  if (typeof window !== 'undefined' && /^\/$/.test(window.location.pathname)) return <UniversalHomepage />;
-  return <Suspense fallback={<main className="radar-route-loading" role="status" aria-live="polite">Opening Radar surface…</main>}><LazyRadarApp /></Suspense>;
+  if (typeof window !== 'undefined' && /^\/$/.test(window.location.pathname)) return <RadarAppShell><UniversalHomepage /></RadarAppShell>;
+  return <RadarAppShell><Suspense fallback={<main><RadarAsyncState kind="loading" title="Opening Radar surface…" /></main>}><LazyRadarApp /></Suspense></RadarAppShell>;
 }
 
 markHtmlShellReady();

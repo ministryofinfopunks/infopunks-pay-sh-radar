@@ -1,0 +1,647 @@
+[
+  {
+    "pattern": "/^\\/(?:rh-chain-signal-desk\\/meme-pulse|rh-chain-meme-pulse)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14427
+  },
+  {
+    "pattern": "/^\\/$/",
+    "file": "src/web/main.tsx",
+    "line": 15
+  },
+  {
+    "pattern": "/^\\/4663(?:\\/(?:pulse|today|signals|receipts)|\\/(?:print|call|resolution|consensus|signals|proof|campaign|share)\\/[^/]+)?\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14402
+  },
+  {
+    "pattern": "/^\\/4663\\/call\\/([^/]+)$/",
+    "file": "src/web/rh4663Pages.tsx",
+    "line": 64
+  },
+  {
+    "pattern": "/^\\/4663\\/campaign\\/([^/]+)$/",
+    "file": "src/web/rh4663Pages.tsx",
+    "line": 69
+  },
+  {
+    "pattern": "/^\\/4663\\/consensus\\/([^/]+)$/",
+    "file": "src/web/rh4663Pages.tsx",
+    "line": 66
+  },
+  {
+    "pattern": "/^\\/4663\\/print\\/([^/]+)$/",
+    "file": "src/web/rh4663Pages.tsx",
+    "line": 68
+  },
+  {
+    "pattern": "/^\\/4663\\/proof\\/([^/]+)$/",
+    "file": "src/web/rh4663Pages.tsx",
+    "line": 62
+  },
+  {
+    "pattern": "/^\\/4663\\/proof\\/(0x[0-9a-fA-F]{40})$/",
+    "file": "src/web/rh4663Pages.tsx",
+    "line": 63
+  },
+  {
+    "pattern": "/^\\/4663\\/reflexive(?:\\/(?:pair\\/[^/]+|stock\\/[^/]+|watch(?:\\/[^/]+)?|census))?\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14401
+  },
+  {
+    "pattern": "/^\\/4663\\/reflexive\\/census\\/?$/",
+    "file": "src/web/rhChainReflexiveRadarPage.tsx",
+    "line": 24
+  },
+  {
+    "pattern": "/^\\/4663\\/reflexive\\/pair\\/([^/]+)/",
+    "file": "src/web/rhChainReflexiveRadarPage.tsx",
+    "line": 23
+  },
+  {
+    "pattern": "/^\\/4663\\/reflexive\\/preflight\\/ipx-pltr\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14400
+  },
+  {
+    "pattern": "/^\\/4663\\/reflexive\\/stock\\/([^/]+)/",
+    "file": "src/web/rhChainReflexiveRadarPage.tsx",
+    "line": 23
+  },
+  {
+    "pattern": "/^\\/4663\\/reflexive\\/watch\\/?$/",
+    "file": "src/web/rhChainReflexiveRadarPage.tsx",
+    "line": 25
+  },
+  {
+    "pattern": "/^\\/4663\\/reflexive\\/watch\\/([^/]+)/",
+    "file": "src/web/rhChainReflexiveRadarPage.tsx",
+    "line": 23
+  },
+  {
+    "pattern": "/^\\/4663\\/resolution\\/([^/]+)$/",
+    "file": "src/web/rh4663Pages.tsx",
+    "line": 65
+  },
+  {
+    "pattern": "/^\\/4663\\/share\\/([^/]+)$/",
+    "file": "src/web/rh4663Pages.tsx",
+    "line": 61
+  },
+  {
+    "pattern": "/^\\/4663\\/signals\\/([^/]+)$/",
+    "file": "src/web/rh4663Pages.tsx",
+    "line": 67
+  },
+  {
+    "pattern": "/^\\/abundance\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2116
+  },
+  {
+    "pattern": "/^\\/attention-market-watch\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2112
+  },
+  {
+    "pattern": "/^\\/attention-market-watch\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2128
+  },
+  {
+    "pattern": "/^\\/benchmarks\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 1996
+  },
+  {
+    "pattern": "/^\\/benchmarks\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 1962
+  },
+  {
+    "pattern": "/^\\/check\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2046
+  },
+  {
+    "pattern": "/^\\/check\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 1931
+  },
+  {
+    "pattern": "/^\\/claim\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2042
+  },
+  {
+    "pattern": "/^\\/claims\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 1921
+  },
+  {
+    "pattern": "/^\\/developers\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2004
+  },
+  {
+    "pattern": "/^\\/developers\\/wallet-safety\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2008
+  },
+  {
+    "pattern": "/^\\/developers\\/wallet-safety\\/integrations\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2012
+  },
+  {
+    "pattern": "/^\\/developers\\/wallet-safety\\/integrations\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2016
+  },
+  {
+    "pattern": "/^\\/evaluation-request\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2072
+  },
+  {
+    "pattern": "/^\\/graph\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2100
+  },
+  {
+    "pattern": "/^\\/hermes\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2124
+  },
+  {
+    "pattern": "/^\\/hermes\\/decision-feedback\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2124
+  },
+  {
+    "pattern": "/^\\/hermes\\/memory-loop\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2124
+  },
+  {
+    "pattern": "/^\\/hermes\\/pre-spend-decision\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2124
+  },
+  {
+    "pattern": "/^\\/hermes\\/reputation-ledger\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2124
+  },
+  {
+    "pattern": "/^\\/hermes\\/skill-pack\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2124
+  },
+  {
+    "pattern": "/^\\/hermes\\/spend-policy\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2124
+  },
+  {
+    "pattern": "/^\\/hermes\\/wallet-audit-trail\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2124
+  },
+  {
+    "pattern": "/^\\/hermes\\/wallet-risk-score\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2124
+  },
+  {
+    "pattern": "/^\\/hermes\\/wallet-safety\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2124
+  },
+  {
+    "pattern": "/^\\/internal\\/rh-chain\\/review-console\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14441
+  },
+  {
+    "pattern": "/^\\/loops\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2050
+  },
+  {
+    "pattern": "/^\\/loops\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 1942
+  },
+  {
+    "pattern": "/^\\/machine-benchmark-methodology\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2199
+  },
+  {
+    "pattern": "/^\\/machine-benchmark-readiness\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2187
+  },
+  {
+    "pattern": "/^\\/machine-comparable-routes\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2190
+  },
+  {
+    "pattern": "/^\\/machine-dossier\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2235
+  },
+  {
+    "pattern": "/^\\/machine-economy-snapshot\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2176
+  },
+  {
+    "pattern": "/^\\/machine-execution-blockers\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2203
+  },
+  {
+    "pattern": "/^\\/machine-execution-plan\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2255
+  },
+  {
+    "pattern": "/^\\/machine-execution-shortlist\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2219
+  },
+  {
+    "pattern": "/^\\/machine-execution\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2265
+  },
+  {
+    "pattern": "/^\\/machine-execution\\/alibaba-machine-translation-general\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2231
+  },
+  {
+    "pattern": "/^\\/machine-first-safe-routes\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2184
+  },
+  {
+    "pattern": "/^\\/machine-market-changelog\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2207
+  },
+  {
+    "pattern": "/^\\/machine-market-map\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2172
+  },
+  {
+    "pattern": "/^\\/machine-market\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2164
+  },
+  {
+    "pattern": "/^\\/machine-market\\/cards\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 1986
+  },
+  {
+    "pattern": "/^\\/machine-no-claim-ledger\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2211
+  },
+  {
+    "pattern": "/^\\/machine-preflight\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2223
+  },
+  {
+    "pattern": "/^\\/machine-proof-ladder\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2196
+  },
+  {
+    "pattern": "/^\\/machine-rail-coverage\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2215
+  },
+  {
+    "pattern": "/^\\/machine-readiness-matrix\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2168
+  },
+  {
+    "pattern": "/^\\/machine-receipts\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2227
+  },
+  {
+    "pattern": "/^\\/machine-route-risk-matrix\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2180
+  },
+  {
+    "pattern": "/^\\/machine-service\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2245
+  },
+  {
+    "pattern": "/^\\/machine-translation-evidence\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2193
+  },
+  {
+    "pattern": "/^\\/narratives\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2104
+  },
+  {
+    "pattern": "/^\\/narratives\\/abundance-desk\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2116
+  },
+  {
+    "pattern": "/^\\/narratives\\/attention-market-watch\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2112
+  },
+  {
+    "pattern": "/^\\/narratives\\/attention-markets\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2108
+  },
+  {
+    "pattern": "/^\\/narratives\\/hermes-desk\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2124
+  },
+  {
+    "pattern": "/^\\/narratives\\/robinhood-chain\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2120
+  },
+  {
+    "pattern": "/^\\/propagation\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 1952
+  },
+  {
+    "pattern": "/^\\/providers\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2030
+  },
+  {
+    "pattern": "/^\\/providers\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 1871
+  },
+  {
+    "pattern": "/^\\/radar\\/cards\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 1982
+  },
+  {
+    "pattern": "/^\\/radar\\/cards\\/(provider|route|benchmark|artifact)\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 1972
+  },
+  {
+    "pattern": "/^\\/radar\\/readiness\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 1881
+  },
+  {
+    "pattern": "/^\\/receipts\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2038
+  },
+  {
+    "pattern": "/^\\/receipts\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 1891
+  },
+  {
+    "pattern": "/^\\/revenue-receipts\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2076
+  },
+  {
+    "pattern": "/^\\/revenue-receipts\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2080
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2120
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/(?:submit|review-queue|4663-index|100-receipts|launch-surfaces|launchpad-observatory|risk-patterns|scout|scouts|live-snapshot|market|meme-pulse|clone-radar|distribution-pack|discovery-queue|review-pipeline(?:\\/day\\/\\d{4}-\\d{2}-\\d{2})?|market-structure(?:\\/(?:cross-layer|attention-quality))?)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2120
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/100-receipts\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14433
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/4663-index\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14451
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/clone-radar\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14428
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/daily-receipts(?:\\/[^/]+(?:\\/card)?)?\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2120
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/daily-receipts\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14451
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/daily-receipts\\/([^/]+)(\\/card)?\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14450
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/discovery-queue\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14434
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/distribution-pack\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14432
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/intelligence-receipts\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14443
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/launch-surfaces\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14451
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/launchpad-observatory\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14430
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/live-snapshot\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14451
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/market-structure\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14440
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/market-structure\\/attention-quality\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14439
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/market-structure\\/cross-layer\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14438
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/market\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14437
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/projects\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14447
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/projects\\/([^/]+)(?:\\/(claims|receipts))?\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14445
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/projects\\/claim\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14442
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/review-pipeline\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14436
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/review-pipeline\\/day\\/(\\d{4}-\\d{2}-\\d{2})\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14435
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/review-queue\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14451
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/risk-patterns\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14429
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/scout\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14451
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/scouts\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14431
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/submit\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14451
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/tokens\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 14448
+  },
+  {
+    "pattern": "/^\\/rh-chain-signal-desk\\/tokens\\/[^/]+\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2120
+  },
+  {
+    "pattern": "/^\\/routes\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2026
+  },
+  {
+    "pattern": "/^\\/routes\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 1901
+  },
+  {
+    "pattern": "/^\\/services\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2034
+  },
+  {
+    "pattern": "/^\\/services\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 1911
+  },
+  {
+    "pattern": "/^\\/signal-hunt\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2054
+  },
+  {
+    "pattern": "/^\\/signal-hunt\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2058
+  },
+  {
+    "pattern": "/^\\/signals\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2138
+  },
+  {
+    "pattern": "/^\\/signals\\/([^/]+)\\/updates\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2148
+  },
+  {
+    "pattern": "/^\\/solana\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 9052
+  },
+  {
+    "pattern": "/^\\/spend-terminal\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2000
+  },
+  {
+    "pattern": "/^\\/unicorn-radar\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2068
+  },
+  {
+    "pattern": "/^\\/unicorn-radar\\/([^/]+)\\/?$/",
+    "file": "src/web/radarApp.tsx",
+    "line": 2090
+  }
+]

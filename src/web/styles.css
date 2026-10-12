@@ -1,16 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap');
 
-:root {
-  --bg: #050806;
-  --panel: rgba(9, 18, 14, 0.82);
-  --line: rgba(126, 255, 176, 0.2);
-  --green: #7effb0;
-  --amber: #f6d06f;
-  --red: #ff6b6b;
-  --blue: #7cc7ff;
-  --text: #e8fff0;
-  --muted: #87a393;
-}
+
 
 /* RH Chain Signal Desk */
 .rh-chain-shell {
@@ -2394,13 +2384,7 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 }
 
 /* UI polish pass: terminal depth, hierarchy, status clarity, and responsive feed behavior. */
-:root {
-  --panel-strong: rgba(13, 29, 22, .92);
-  --radius: 16px;
-  --radius-sm: 12px;
-  --shadow-panel: 0 20px 70px rgba(0,0,0,.28), 0 0 42px rgba(126,255,176,.055), inset 0 1px rgba(255,255,255,.035);
-  --transition: 160ms ease;
-}
+
 
 body {
   background:
@@ -4611,38 +4595,7 @@ select:hover {
 }
 
 /* Premium control-room pass: calm hierarchy, precise rhythm, subdued telemetry. */
-:root {
-  --surface-0: rgba(4, 8, 6, .94);
-  --surface-1: rgba(9, 18, 14, .78);
-  --surface-2: rgba(14, 25, 20, .66);
-  --hairline: rgba(203, 255, 221, .115);
-  --hairline-strong: rgba(203, 255, 221, .18);
-  --text-strong: #f1fff5;
-  --text-soft: #c8dccf;
-  --text-dim: #8fa799;
-  --ok: #9dffc2;
-  --watch: #f2cf7a;
-  --danger: #ff7d7d;
-  --info: #9bd3ff;
-  --premium-radius: 18px;
-  --premium-radius-sm: 12px;
-  --premium-shadow: 0 18px 60px rgba(0,0,0,.26), inset 0 1px rgba(255,255,255,.025);
-  --section-gap: 24px;
-  --space-xs: 6px;
-  --space-sm: 10px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 36px;
-  --radius-group: 12px;
-  --radius-section: 18px;
-  --border-subtle: rgba(203, 255, 221, .1);
-  --border-network-solana: rgba(126, 255, 176, .28);
-  --border-network-rh: rgba(159, 200, 255, .26);
-  --accent-solana: #7effb0;
-  --accent-rh: #9fc8ff;
-  --focus-ring: 0 0 0 5px rgba(246, 208, 111, .12);
-  --warning-surface: rgba(246, 208, 111, .045);
-}
+
 
 html {
   scroll-behavior: smooth;
@@ -7204,14 +7157,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 }
 
 /* Phase 9.6 visual/layout polish: full-width dossier, calmer hierarchy, consistent actions. */
-:root {
-  --hairline: rgba(203, 255, 221, .088);
-  --hairline-strong: rgba(203, 255, 221, .155);
-  --action-primary: #8effb9;
-  --action-secondary: rgba(203,255,221,.06);
-  --action-utility: rgba(203,255,221,.035);
-  --action-detail: rgba(203,255,221,.025);
-}
+
 
 .global-toolbar {
   grid-template-columns: auto minmax(500px, 1fr) auto;
@@ -8782,23 +8728,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 }
 
 /* Machine Market Radar launch polish: scoped product surface refinements. */
-:root {
-  --machine-page-max: 1320px;
-  --machine-card-radius: 22px;
-  --machine-card-padding: clamp(18px, 2.1vw, 28px);
-  --machine-section-gap: clamp(18px, 2.4vw, 30px);
-  --machine-hairline: rgba(210, 255, 226, .14);
-  --machine-text-primary: #f2fff6;
-  --machine-text-muted: rgba(199, 224, 207, .72);
-  --machine-accent-green: #8dffbd;
-  --machine-warning: #f4ce74;
-  --machine-deny: #ff7b7b;
-  --machine-review: #9fd4ff;
-  --machine-table-cell-padding: 16px;
-  --machine-nav-height: 44px;
-  --machine-focus-ring: 0 0 0 4px rgba(141, 255, 189, .18), 0 0 0 1px rgba(141, 255, 189, .9);
-  --machine-depth: 0 24px 70px rgba(0,0,0,.34), inset 0 1px rgba(255,255,255,.045);
-}
+
 
 .machine-market-shell {
   width: min(var(--machine-page-max), calc(100% - 32px));
@@ -12720,32 +12650,7 @@ summary:focus-visible {
 }
 
 /* Cohesive intelligence-terminal polish: shared tokens, density, and component rhythm. */
-:root {
-  --radar-bg-deep: #020403;
-  --radar-surface: rgba(7, 14, 10, .86);
-  --radar-surface-raised: rgba(11, 22, 16, .9);
-  --radar-surface-recessed: rgba(0, 0, 0, .22);
-  --radar-line: rgba(203, 255, 221, .105);
-  --radar-line-strong: rgba(126, 255, 176, .22);
-  --radar-line-blue: rgba(124, 199, 255, .18);
-  --radar-text: #effff4;
-  --radar-text-secondary: #c5ddcd;
-  --radar-text-muted: #91aa9a;
-  --radar-green: #8effb9;
-  --radar-blue: #8fd2ff;
-  --radar-amber: #f4cf79;
-  --radar-red: #ff8080;
-  --radar-radius: 12px;
-  --radar-radius-sm: 9px;
-  --radar-space-1: 6px;
-  --radar-space-2: 8px;
-  --radar-space-3: 10px;
-  --radar-space-4: 12px;
-  --radar-space-5: 16px;
-  --radar-space-6: 20px;
-  --radar-shadow-card: 0 14px 42px rgba(0, 0, 0, .24), inset 0 1px rgba(255, 255, 255, .022);
-  --radar-shadow-active: 0 0 0 1px rgba(126, 255, 176, .16), 0 18px 54px rgba(0, 0, 0, .3), 0 0 30px rgba(126, 255, 176, .055);
-}
+
 
 body {
   background:
@@ -17879,77 +17784,7 @@ select:focus {
 }
 
 /* Radar design foundations: Apple precision, Infopunks intelligence. */
-:root {
-  color-scheme: dark;
 
-  /* Typography roles: human-facing UI stays sans; machine truth stays mono. */
-  --font-ui: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
-  --type-display-tracking: -.045em;
-  --type-heading-tracking: -.025em;
-  --type-body-leading: 1.55;
-  --type-label-tracking: .06em;
-
-  /* One spatial scale, expressed in rem so layout follows text sizing. */
-  --space-1: .25rem;
-  --space-2: .5rem;
-  --space-3: .75rem;
-  --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-  --space-7: 3rem;
-
-  /* Three radii: controls, surfaces, and large structural panels. */
-  --radius-control: .625rem;
-  --radius-surface: .875rem;
-  --radius-panel: 1.25rem;
-  --radius-pill: 999px;
-
-  /* Canvas → surface → raised chrome → inset evidence. */
-  --surface-canvas: #020503;
-  --surface-primary: rgba(7, 14, 10, .9);
-  --surface-secondary: rgba(12, 22, 16, .82);
-  --surface-raised: rgba(8, 16, 12, .78);
-  --surface-overlay: rgba(4, 9, 7, .985);
-  --surface-inset: rgba(0, 0, 0, .22);
-  --border-subtle: rgba(203, 255, 221, .1);
-  --border-emphasis: rgba(126, 255, 176, .24);
-  --shadow-surface: 0 14px 42px rgba(0, 0, 0, .22), inset 0 1px rgba(255, 255, 255, .022);
-  --shadow-floating: 0 20px 64px rgba(0, 0, 0, .4), inset 0 1px rgba(255, 255, 255, .035);
-
-  /* Crisp, critically damped-feeling UI motion. */
-  --ease-out: cubic-bezier(.23, 1, .32, 1);
-  --motion-press: 120ms;
-  --motion-menu: 160ms;
-
-  /* Backward-compatible aliases keep every product surface on this system. */
-  --radius: var(--radius-panel);
-  --radius-sm: var(--radius-surface);
-  --premium-radius: var(--radius-panel);
-  --premium-radius-sm: var(--radius-surface);
-  --radius-section: var(--radius-panel);
-  --radius-group: var(--radius-surface);
-  --radar-radius: var(--radius-surface);
-  --radar-radius-sm: var(--radius-control);
-  --radar-space-1: var(--space-1);
-  --radar-space-2: var(--space-2);
-  --radar-space-3: var(--space-3);
-  --radar-space-4: var(--space-4);
-  --radar-space-5: var(--space-5);
-  --radar-space-6: var(--space-6);
-  --space-xs: var(--space-1);
-  --space-sm: var(--space-2);
-  --space-md: var(--space-4);
-  --space-lg: var(--space-5);
-  --space-xl: var(--space-6);
-  --radar-bg-deep: var(--surface-canvas);
-  --radar-surface: var(--surface-primary);
-  --radar-surface-raised: var(--surface-secondary);
-  --radar-surface-recessed: var(--surface-inset);
-  --radar-line: var(--border-subtle);
-  --radar-line-strong: var(--border-emphasis);
-  --radar-shadow-card: var(--shadow-surface);
-}
 
 body {
   background:
@@ -18292,15 +18127,7 @@ samp,
 }
 
 @media (prefers-contrast: more) {
-  :root {
-    --border-subtle: rgba(239, 255, 244, .36);
-    --border-emphasis: rgba(142, 255, 185, .64);
-    --radar-line: var(--border-subtle);
-    --radar-line-strong: var(--border-emphasis);
-    --radar-text-muted: #c2d8c9;
-    --text-dim: #c2d8c9;
-    --muted: #c2d8c9;
-  }
+  
 
   .site-header .global-toolbar,
   .radar-grouped-menu,

@@ -1,4 +1,5 @@
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useContext, useEffect, useId, useRef, useState } from 'react';
+import { RadarShellContext } from './radarShellContext';
 import { radarNetworkForPath, type RadarNavigationContext, type RadarNetworkId } from './bootContext';
 import {
   RADAR_NAVIGATION,
@@ -254,6 +255,8 @@ export function SolanaRadarDirectory({ current = currentLocation() }: { current?
 }
 
 export function RadarHeaderIdentity({ active, context = active ?? 'universal', homeHref = '/' }: { active?: RadarNetworkId; context?: RadarNavigationContext; homeHref?: string }) {
+  const inheritedShell = useContext(RadarShellContext);
+  if (inheritedShell) return null;
   const selectedNetwork = context === 'universal' ? null : context;
   return <div className="radar-network-identity">
     <a className="nav-brand" href={homeHref} aria-label="Infopunks Radar home">
@@ -276,14 +279,17 @@ export function RadarProductNavigation({
   current = currentLocation(),
   onOpenCommandPalette,
   viewSettings,
-  className = ''
+  className = '',
+  shellOwner = false
 }: {
   context: RadarNavigationContext;
   current?: string;
   onOpenCommandPalette?: () => void;
   viewSettings?: RadarViewSettings;
   className?: string;
+  shellOwner?: boolean;
 }) {
+  const inheritedShell = useContext(RadarShellContext);
   const navigation = RADAR_NAVIGATION[context];
   const contextLabel = context === 'universal' ? 'Radar' : context === 'solana' ? 'Solana' : 'Robinhood Chain';
   const overflowActive = navigation.overflowGroups.some((group) => group.items.some((item) => navigationItemIsActive(item, current)));
@@ -295,8 +301,12 @@ export function RadarProductNavigation({
     ...navigation.overflowGroups
   ];
 
+  if (inheritedShell && !shellOwner) return (onOpenCommandPalette || viewSettings) ? <div className="radar-local-controls" aria-label="Terminal view controls">
+    {onOpenCommandPalette && <button className="execute secondary" onClick={onOpenCommandPalette} type="button">Commands ⌘K</button>}
+    {viewSettings && <><button className="execute secondary" type="button" aria-pressed={viewSettings.agentMode} onClick={viewSettings.onToggleAgentMode}>Agent mode</button><button className="execute secondary" type="button" aria-pressed={viewSettings.densityMode === 'dense'} onClick={viewSettings.onToggleDensity}>Dense view</button></>}
+  </div> : null;
   return <nav className={`global-toolbar radar-product-navigation context-${context} ${className}`.trim()} aria-label={`${context === 'universal' ? 'Infopunks Radar' : RADAR_NETWORKS[context].contextLabel} navigation`}>
-    <RadarHeaderIdentity context={context} />
+    <RadarShellContext.Provider value={false}><RadarHeaderIdentity context={context} /></RadarShellContext.Provider>
     <div className="terminal-nav radar-primary-navigation" aria-label="Primary destinations">
       {navigation.primaryItems.map((item) => <span className={item.compactPriority ? 'radar-primary-priority' : 'radar-primary-collapsible'} key={item.href}><NavigationLink item={item} current={current} /></span>)}
     </div>
@@ -366,6 +376,8 @@ export function RadarProductNavigation({
 }
 
 export function RadarContextHeader({ active = 'solana', current }: { active?: RadarNetworkId; current?: string }) {
+  const inheritedShell = useContext(RadarShellContext);
+  if (inheritedShell) return null;
   return <header className="site-header radar-context-header">
     <RadarProductNavigation context={active} current={current} />
   </header>;

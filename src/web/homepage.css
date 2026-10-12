@@ -11,14 +11,6 @@ html {
 }
 
 .radar-homepage {
-  --home-bg: #020403;
-  --home-surface: #06100b;
-  --home-surface-strong: #08150e;
-  --home-line: rgba(126, 255, 176, 0.18);
-  --home-line-strong: rgba(126, 255, 176, 0.42);
-  --home-green: #7effb0;
-  --home-text: #e6ffef;
-  --home-muted: #8ea498;
   position: relative;
   min-height: 100vh;
   overflow: hidden;
@@ -608,7 +600,5 @@ html {
 
 @media (prefers-contrast: more) {
   .radar-homepage {
-    --home-line: rgba(126, 255, 176, 0.55);
-    --home-muted: #b7c9be;
-  }
+      }
 }
