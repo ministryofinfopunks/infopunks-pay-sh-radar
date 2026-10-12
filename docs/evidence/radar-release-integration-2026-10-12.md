@@ -41,6 +41,38 @@ The selected authorization model is operator-only for paid Judgment and private 
 
 The UI checks the canonical endpoint and never sends a payment signature or signs automatically. A 402 quote is shown as unpaid. A customer-authorized wallet/payment adapter and tenant identity are not yet present, so the full customer-facing authorize-with-limits/recover-after-timeout journey remains a release blocker rather than an inferred feature.
 
-## Qualification record
+## Combined-revision qualification
 
-This section is finalized only after the integration-source rerun. It must record exact source SHA, commands, counts, failures, skipped suites, migration/restore outcomes, audit results, browser evidence and external blockers. Source-tree qualification is separate from staging/production readiness.
+The qualification runner and browser harness tested source revision `2559c69d0bccdec2e5ceac80a2e929026d45829c`. The final candidate commit adds this report and source-bound evidence only; `src/`, `tests/`, `migrations/`, package files and qualification scripts are unchanged from the tested revision. The full check inventory, raw logs, browser captures and hashes are in [the candidate evidence packet](radar-release-integration/2026-10-12/README.md).
+
+| Gate | Result |
+|---|---|
+| Typecheck / lint / build | PASS on Node 24.21.0. |
+| Complete PostgreSQL-backed suite | PASS: 277 files, 1,997 tests, 0 failures, 0 pending/skips. Fresh disposable local databases; mock facilitators only. |
+| Integration regressions | PASS for paid replay through both POST aliases, strict malformed requests/payment, stable replay after restart/publication failure, idempotent concurrent requests, ambiguous settlement lockout, canonical UI verdict despite legacy diagnostic `ALLOW`, encoded private-path handling, frozen context replay, RH read-only abstention, unsupported policy/network, and free insufficient evidence. |
+| Cross-tenant private-read isolation | **NOT QUALIFIED.** Tests deny anonymous and wrong-operator tokens before lookup, but the codebase has no tenant identity/owner model, so a real cross-tenant case cannot be expressed or tested. |
+| Migration history | PASS locally: 22 selected migrations applied, validated and repeated. SHA-256 comparison against `f6b5de6` found 42 original files unchanged and only the two 022 direction files added. No migration renumbering or edit. Competing E1 `018` remains excluded. |
+| PostgreSQL restore/replay | PASS on disposable localhost PostgreSQL 14.20: backup restored into a separate database; signed receipt, ancestry, score projection, causal manifest and 22-row ledger matched exactly. Fixtures were synthetic local only. |
+| Dependency audits | Production tree: 0 vulnerabilities. Complete tree: 1 low severity `esbuild` advisory for its Windows development server; no moderate/high/critical issue. See raw audit JSON and package source. |
+| Browser / accessibility | PASS: compiled candidate in fixture-only mode, 11 routes × 3 viewports (33 HTTP 200 views), 0 axe violations, 0 console errors, 0 horizontal overflows, 0 broken audited fragments. Injected 503 and timeout both expose retry. Browser evidence uses Playwright 1.62.1, Chrome 154.0.8037.98 and axe-core 4.14.0. |
+| Linux runtime / image | **NOT RUN.** Host is macOS; Docker CLI exists but no daemon socket was available. Exact Linux image/runtime/SBOM/container scan remains a staging gate. |
+| Staging / production | NOT RUN. No staging or production connection, payment, signing, execution, migration or deployment operation occurred. |
+
+The first full-suite attempt found a missing test-only operator credential in the malformed-header probe. The API correctly rejected that probe with 401 before parsing the header. After the probe used the configured test operator, the focused suite passed 74/74 and the complete rerun passed 1,997/1,997.
+
+## Payment and user journey review
+
+The combined code preserves PR #7's full decoded-proof replay binding, but paid use remains operator-authenticated. The Spend Terminal displays canonical free abstention and an unpaid 402 quote, never sends payment/signature headers, and retries a timed-out request with its stable key. The SDK has no tenant-bound authorization or payment adapter that can authorize a quote within a caller's explicit limit, retain the original proof for safe receipt recovery, or verify the resulting receipt. The UI also does not yet provide state-specific next actions for every unsupported/expired/pending/provider-unavailable error. These are **implementation blockers**, not staging-only assumptions. Do not weaken the operator gate to hide them.
+
+## Staging checklist (not executed)
+
+1. Resolve and security-review a tenant identity, owner-scoped receipt access, approved public-proof projection and cross-tenant negative-test contract. Do not permit customer paid access before this exists.
+2. Add a payment authorization adapter that enforces a caller-specified fee ceiling and asset/network, stores the original proof securely for same-key recovery, and never submits a second settlement after an ambiguous response. Keep live paid configuration disabled until separately approved.
+3. Build the exact candidate in Linux with the pinned Node 24 runtime; record immutable image digest, non-root runtime, SBOM and image/OS/application scans. Host macOS build does not clear this gate.
+4. Use an approved isolated staging environment with private PostgreSQL, separate migration/runtime roles, restricted origin/ingress and staging-only credentials. Verify the applied migration IDs/checksums match this 22-migration history; do not combine either competing 018 lineage.
+5. Verify approved catalog freshness, provider outage behavior, edge-wide limits, private/no-store responses, authenticated owner access, RH market abstention and canonical receipt verification. Keep Evaluation, execution, publication and payment activation closed unless independently qualified.
+6. Rehearse backup/restore into a new staging database, pending-settlement reconciliation, alerts, ownership and rollback while preserving append-only receipt history. No destructive down migration or payment resubmission.
+
+## Verdict
+
+**HOLD** as a release candidate for any customer-facing paid Judgment or staging deployment. The combined source has strong local qualification evidence, but tenant/owner authorization, cross-tenant tests, a safe explicit-limit payment adapter, state-specific user recovery guidance and Linux runtime evidence are still missing. Do not enable live paid Judgment or deploy production infrastructure.
