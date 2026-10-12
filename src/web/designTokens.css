@@ -47,3 +47,6 @@
   .product-header.is-open .product-wayfinding { display: flex; }
 }
 @media (prefers-contrast: more) { :root { --radar-line: #a0c2d0; --radar-muted: #d4e9ef; } }
+@media (max-width: 680px) {
+  .product-header .product-brand small { font-size: 9px; letter-spacing: .06em; }
+}
