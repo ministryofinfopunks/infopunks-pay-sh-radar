@@ -27,28 +27,29 @@ describe('POST /v1/execute-proof', () => {
       expect(judgment.statusCode).toBe(200); expect(judgment.json().data.receipt_hash).toBe(reviewedParent.receipt_hash);
       const paidBefore = vi.mocked(f.facilitator.settle).mock.calls.length;
       const externalRequests = vi.spyOn(globalThis, 'fetch');
-      const result = await app.inject({ method: 'POST', url: '/v1/execute-proof', payload: submittedProof });
+      const result = await app.inject({ method: 'POST', url: '/v1/execute-proof', headers:{ authorization:'Bearer reviewer' }, payload: submittedProof });
       expect(result.statusCode).toBe(200); expect(result.headers['payment-required']).toBeUndefined(); expect(result.headers['payment-response']).toBeUndefined();
       expect(result.json().data.parent_hash).toBe(reviewedParent.receipt_hash);
       expect(result.json().data.verification.settlement.verified).toBe(true);
-      const duplicate = await app.inject({ method: 'POST', url: '/v1/execute-proof', payload: submittedProof });
+      const duplicate = await app.inject({ method: 'POST', url: '/v1/execute-proof', headers:{ authorization:'Bearer reviewer' }, payload: submittedProof });
       expect(duplicate.json()).toEqual(result.json());
-      const conflict = await app.inject({ method: 'POST', url: '/v1/execute-proof', payload: { ...submittedProof, latency_ms: 99 } }); expect(conflict.statusCode).toBe(409);
+      const conflict = await app.inject({ method: 'POST', url: '/v1/execute-proof', headers:{ authorization:'Bearer reviewer' }, payload: { ...submittedProof, latency_ms: 99 } }); expect(conflict.statusCode).toBe(409);
       expect(vi.mocked(f.facilitator.settle).mock.calls.length).toBe(paidBefore);
       expect(externalRequests).not.toHaveBeenCalled();
-      expect((await app.inject({ url: '/v1/receipt-spine/scores/provider/provider_test', headers: { authorization: 'Bearer reviewer' } })).json().data.score).toBe(0);
-      // Proof reads require operator authorization; no wallet signature is required.
-      expect((await app.inject({ url: '/v1/receipt-spine/execution/' + result.json().data.execution_id, headers: { authorization: 'Bearer reviewer' } })).statusCode).toBe(200);
+      expect((await app.inject({ url:'/v1/receipt-spine/scores/provider/provider_test',headers:{ authorization:'Bearer reviewer' } })).json().data.score).toBe(0);
+      // Private reads require authenticated authority in addition to the original payload proof.
+      expect((await app.inject({ url:'/v1/receipt-spine/execution/' + result.json().data.execution_id,headers:{ authorization:'Bearer reviewer' } })).statusCode).toBe(200);
     } finally { await app.close(); }
   });
-  it('rejects malformed free write requests and enforces the write rate limit', async () => {
+  it('rejects malformed authenticated free write requests and enforces the write rate limit', async () => {
+    vi.stubEnv('ADMIN_TOKEN','reviewer');
     const app = await createApp();
     try {
       for (let i=0;i<20;i++) {
-        const response = await app.inject({ method: 'POST', url: '/v1/execute-proof', payload: { request_hash: 'bad', raw_secret: 'not accepted' } });
+        const response = await app.inject({ method: 'POST', url: '/v1/execute-proof', headers:{ authorization:'Bearer reviewer' }, payload: { request_hash: 'bad', raw_secret: 'not accepted' } });
         expect(response.statusCode).toBe(400); expect(response.headers['payment-required']).toBeUndefined();
       }
-      expect((await app.inject({ method: 'POST', url: '/v1/execute-proof', payload: {} })).statusCode).toBe(429);
+      expect((await app.inject({ method: 'POST', url: '/v1/execute-proof', headers:{ authorization:'Bearer reviewer' }, payload: {} })).statusCode).toBe(429);
     } finally { await app.close(); }
   });
 });

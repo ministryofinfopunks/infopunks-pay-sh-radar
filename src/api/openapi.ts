@@ -5,6 +5,7 @@ import { IpxCostsSchema } from '../services/ipxRevenueLedger';
 import { JudgmentIssuerKeySchema } from '../security/judgmentIssuer';
 import { EconomicJobSchema, ExecutionAuthorizationSchema, EconomicOperationSchema, HarnessEventSchema } from '../schemas/economicEngine';
 import { z } from 'zod';
+import { judgmentAccessPolicy } from '../security/judgmentAccessPolicy';
 import { CanonicalJudgmentResponseSchema } from '../schemas/preSpend';
 import { PreSpendCheckRequestSchema } from '../schemas/entities';
 import { DecisionContextSchema } from '../schemas/decisionContext';
@@ -1532,7 +1533,8 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('post', '/v1/pre-spend/check', {
     tags: ['Pre-Spend Intelligence'],
     summary: 'Run pre-spend decision check',
-    description: 'Canonical paid judgment boundary. Top-level decision is proceed, test_spend_first, do_not_spend or insufficient_evidence. The legacy data envelope is preserved with additive canonical_judgment. Insufficient evidence returns 200 with zero cost and no receipt or challenge. Sufficient judgments require x402 V2 PAYMENT-REQUIRED / PAYMENT-SIGNATURE / PAYMENT-RESPONSE. Accepts Idempotency-Key; paid retries replay one receipt. Typed radar-judgment-context.v1 requests bind namespaced subject type/network, versioned domain policy, evidence references, fee settlement network and expiry. Subject network is independent of the fee rail and service payment preference. RH inspection always abstains until its action policy is qualified. Native Solana fee settlement is unsupported. Paid production checks require an authenticated operator; no transaction is signed or authorized.', Unknown fields are rejected; paid retries require the original verified PAYMENT-SIGNATURE and replay one receipt without another settlement. Missing replay proof returns 401 and a different proof returns 403. All responses are private, no-store.    requestBody: jsonRequest({ $ref: '#/components/schemas/PreSpendCheckRequest' }, {
+    description: 'Canonical paid judgment boundary. Top-level decision is proceed, test_spend_first, do_not_spend or insufficient_evidence. The legacy data envelope is preserved with additive canonical_judgment. Insufficient evidence returns 200 with zero cost and no receipt or challenge. Sufficient judgments require x402 V2 PAYMENT-REQUIRED / PAYMENT-SIGNATURE / PAYMENT-RESPONSE. Unknown request fields are rejected. Authenticated deployments require an operator-issued tenant bearer credential; its server-bound agent must match agent_id. Credentials namespace the request journal. Private receipt reads require owner authentication; historical unowned records remain operator-only. Accepts Idempotency-Key; paid retries require the original verified PAYMENT-SIGNATURE and replay one receipt without another verification or settlement. Missing replay proof returns 401; a different or malformed proof returns 403. Billing uses the operator-configured Base USDC or Robinhood USDG rail, independently of preferred_settlement. Solana billing is unsupported. All responses are private, no-store.',
+    requestBody: jsonRequest({ $ref: '#/components/schemas/PreSpendCheckRequest' }, {
       agent_id: 'infopunks_launch_surface',
       intent: 'allocate_to_pltr_paired_narrative_token',
       budget: 25,
@@ -1563,8 +1565,9 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       rationale: ['Confidence score is 69 against required confidence 75.', 'Linked Proof Check check_monitor is caution.', 'Autonomous approval is blocked until the linked proof state is stronger.']
     })
   });
-  const canonicalEnvelopeSchema = z.toJSONSchema(CanonicalJudgmentResponseSchema.extend({ data: z.record(z.string(), z.json()) }), { target: 'draft-2020-12' });
+  const canonicalEnvelopeSchema = z.toJSONSchema(CanonicalJudgmentResponseSchema.extend({ data: z.record(z.string(), z.json()), payment_confirmation: z.object({ version: z.literal('judgment-payment-confirmation.v1'), authoritative: z.literal(false), provenance: z.literal('rpc_finalized_eip3009_transfer'), evidence: z.record(z.string(), z.json()) }).optional(), presentation: z.object({ version: z.literal('judgment-presentation.v1'), authoritative: z.literal(false), summary: z.string(), next_action: z.string(), blocking_reasons: z.array(z.string()), payment_required: z.boolean(), execution_occurred: z.literal(false), outcome_verified: z.literal(false) }).optional() }), { target: 'draft-2020-12' });
   const preSpendOperation = (paths['/v1/pre-spend/check'] as { post: Record<string, unknown> }).post;
+  preSpendOperation.security = [{ JudgmentTenantKey: [] }];
   preSpendOperation.parameters = [
     { name: 'Idempotency-Key', in: 'header', required: false, schema: { type: 'string', minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9_.:-]{1,128}$' } },
     { name: 'PAYMENT-SIGNATURE', in: 'header', required: false, description: 'Official base64 x402 V2 payment payload. Retain and resend the original proof for every paid retry, including receipt recovery after a timeout.', schema: { type: 'string', minLength: 1, maxLength: 16384 } }
@@ -1576,6 +1579,21 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     '401': errorResponse('paid_judgment_replay_proof_required'), '403': errorResponse('paid_judgment_replay_proof_invalid'),
     '409': errorResponse('idempotency_conflict'), '429': errorResponse('judgment_rate_limited'), '503': errorResponse('judgment_payment_unavailable')
   };
+  for (const [path, summary] of [
+    ['/v1/judgment/session', 'Get the authenticated tenant and agent binding'],
+    ['/v1/judgments/history', 'Get a bounded owner-only request history'],
+    ['/v1/judgments/requests/{key}', 'Inspect a durable request state before recovery']
+  ]) add('get', path, { tags: ['Pre-Spend Intelligence'], summary, security: [{ JudgmentTenantKey: [] }],
+    ...(path.includes('{key}') ? { parameters: [pathParam('key', 'Original idempotency key; tenant and agent come from authentication.')] } : {}),
+    description: 'Private, no-store. Request-state discovery never returns a payment proof, paid receipt or payment reference. A settling state requires operator reconciliation; do not resubmit payment.',
+    responses: { '200': { description: 'Credential-bound data only.', content: { 'application/json': { schema: { type: 'object' } } } }, '401': errorResponse('judgment_authentication_required'), '404': errorResponse('judgment_request_not_found'), '503': errorResponse('judgment_identity_unavailable') }
+  });
+  add('post', '/internal/judgments/{id}/reconcile', { tags: ['Pre-Spend Intelligence'], summary: 'Independently confirm ambiguous judgment settlement', security: [{ AdminBearerAuth: [] }],
+    parameters: [pathParam('id', 'Judgment ID from the durable journal.')],
+    description: 'Operator-only read-only RPC verification of a finalized transfer and exact EIP-3009 payer/nonce. The transaction hash is a hint, never trusted evidence. Compare-and-set preserves payment_hash. Never re-settles; unconfirmed evidence remains settling.',
+    requestBody: jsonRequest({ type: 'object', additionalProperties: false, required: ['transaction_hash'], properties: { transaction_hash: { type: 'string', pattern: '^0x[a-fA-F0-9]{64}$' } } }, { transaction_hash: '0x' + 'a'.repeat(64) }),
+    responses: { '200': { description: 'Confirmed state; original proof is still required to recover the receipt.' }, '401': errorResponse('unauthorized'), '409': errorResponse('settlement_not_independently_confirmed'), '503': errorResponse('settlement_rpc_unavailable') }
+  });
   add('post', '/v1/decide', {
     ...preSpendOperation, summary: 'Purchase a canonical economic assessment',
     description: 'Shares the paid pre-spend Judge and payment journal, including idempotent settlement replay and free insufficient evidence. A judgment receipt records assessment only. This public facade accepts no caller-authored menus, policies, witnesses or capabilities. Execution authority is separately issued through the authenticated economic engine.',
@@ -3676,16 +3694,16 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('post', '/internal/rh-chain/projects/{project_id}/verdicts/{verdict_id}/reject', reviewConsole('Reject verdict draft', 'Retains the private draft and attached evidence, but makes it permanently unpublishable.', 'RhChainProjectVerdictPayload', { verdict_id: 'rhverdict_example', verdict_state: 'rejected' }, verdictParams, jsonRequest(objectSchema({ expected_version: { type: 'integer', minimum: 1 }, rejection_reason: stringSchema() }, ['expected_version', 'rejection_reason']), { expected_version: 1, rejection_reason: 'Required evidence is incomplete.' })));
   add('post', '/internal/rh-chain/projects/{project_id}/intelligence-receipts/{receipt_id}/reject', reviewConsole('Reject intelligence receipt draft', 'Retains the private receipt draft, but permanently prevents publication. Published receipts are never editable or rejectable.', 'RhChainIntelligenceReceiptPayload', { receipt_id: 'rhir_example', reviewer_publication_state: 'rejected' }, receiptParams, jsonRequest(objectSchema({ expected_version: { type: 'integer', minimum: 1 }, rejection_reason: stringSchema() }, ['expected_version', 'rejection_reason']), { expected_version: 1, rejection_reason: 'The draft needs stronger source support.' })));
 
-  for (const [path, operations] of Object.entries(paths)) {
-    if (!requiresOperatorProofRead(path)) continue;
-    if (!operations || typeof operations !== 'object') continue;
-    for (const operation of Object.values(operations)) {
-      if (!operation || typeof operation !== 'object') continue;
-      const privateOperation = operation as Record<string, unknown>;
-      privateOperation.security = [{ bearerAuth: [] }];
-      privateOperation.description = 'Authorized operator only; private, no-store. No tenant or general public publication authority is inferred. ' + String(privateOperation.description ?? '');
-      privateOperation.responses = { ...(privateOperation.responses as Record<string, unknown>), '401': errorResponse('proof_read_authorization_required') };
-    }
+  for (const [path, entry] of Object.entries(paths)) {
+    const operation = (entry as { get?: Record<string, unknown> }).get;
+    if (!operation) continue;
+    const access = judgmentAccessPolicy(path,'GET',true);
+    const operatorOnly = access === 'operator';
+    if (access === 'public') continue;
+    operation.security = operatorOnly ? [{ AdminBearerAuth: [] }] : [{ JudgmentTenantKey: [] }, { AdminBearerAuth: [] }];
+    operation.description = String(operation.description ?? '') + (operatorOnly ? ' Production access is operator-only; no public proof projection is approved.' : ' Private owner access is authenticated and tenant-scoped. Unowned historical records are operator-only.');
+    const responses = operation.responses as Record<string, unknown>;
+    operation.responses = { ...responses, '401': errorResponse('judgment_authentication_required'), ...(!responses['404'] ? { '404': errorResponse('private_receipt_not_found') } : {}), '503': errorResponse('judgment_identity_unavailable') };
   }
   return {
     openapi: '3.1.0',
@@ -3722,6 +3740,8 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     paths,
     components: {
       securitySchemes: {
+        JudgmentTenantKey: { type: 'http', scheme: 'bearer', bearerFormat: 'opaque tenant key', description: 'Operator-issued key bound to one tenant and agent. Not an agent_id or payment proof.' },
+        AdminBearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'operator secret', description: 'Operator authority; never issue it as a tenant credential.' },
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',

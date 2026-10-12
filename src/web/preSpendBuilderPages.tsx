@@ -1,4 +1,4 @@
-import { SpendTerminalPage as CanonicalSpendTerminalPage } from './spendTerminalPage';
+import { JudgmentCheckPanel } from './judgmentCheckPanel';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { SignalGraphContextPanel, type SignalGraphContextNode } from './signalGraphContextPanel';
@@ -535,7 +535,8 @@ function PlaceholderMarketPanel() {
 }
 
 export function SpendTerminalPage() {
-  return <CanonicalSpendTerminalPage />;
+  useEffect(() => { document.title = 'Check | Infopunks Radar'; }, []);
+  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page spend-terminal-page" aria-label="Pre-Spend Intelligence Terminal"><JudgmentCheckPanel /></main></div>;
 }
 
 export function DevelopersPage() {
@@ -543,26 +544,23 @@ export function DevelopersPage() {
     document.title = 'Developers | Infopunks Radar';
   }, []);
 
-  const sdkExample = `import { createInfopunksPreSpendClient } from "infopunks-pay-sh-radar/sdk";
+  const sdkExample = `import { createInfopunksClient } from "infopunks-pay-sh-radar/sdk";
 
-const client = createInfopunksPreSpendClient({
-  baseUrl: "https://radar.infopunks.fun"
+// wallet supplies a bounded policy and an explicit authorize callback.
+const radar = createInfopunksClient({
+  apiKey: process.env.INFOPUNKS_API_KEY,
+  payment: wallet
 });
 
-const decision = await client.checkPreSpend({
-  agent_id: "agent_001",
-  intent: "buy_market_research",
-  budget: 25,
-  risk_tolerance: "low",
-  preferred_settlement: "stablecoin",
-  required_confidence: 80
+const decision = await radar.judge({
+  intent: "buy market research",
+  budget: 0.20,
+  subject: "route:market-research"
 });
 
-const judgment = decision.canonical_judgment;
-// Legacy labels are diagnostic. This code never executes.
-if (!judgment?.receipt) {
-  console.log("No issued canonical receipt. Do not act.");
-}`;
+// After a timeout, retain the session and inspect durable state.
+// await radar.resume(error.sessionId);
+// Legacy createInfopunksPreSpendClient/checkPreSpend remains available.`;
 
   const apiRequest = `POST /v1/pre-spend/check
 Content-Type: application/json
@@ -579,11 +577,18 @@ Content-Type: application/json
   const apiResponse = `{
   "decision": "insufficient_evidence",
   "confidence": 0,
-  "reasons": ["Required fresh, scoped evidence is missing."],
-  "cost": { "amount": "0", "asset": "USDC" },
+  "reasons": ["Required fresh, scoped, live evidence is missing."],
+  "cited_observations": [],
   "payment_required": false,
+  "cost": { "amount": "0", "asset": "USDC" },
   "receipt": null,
-  "execution_authorized": false
+  "presentation": {
+    "version": "judgment-presentation.v1",
+    "authoritative": false,
+    "summary": "Evidence is insufficient to approve this spend.",
+    "next_action": "collect_evidence"
+  },
+  "data": { "canonical_judgment": "same canonical assessment" }
 }`;
 
   const decisionStates = [
@@ -620,7 +625,7 @@ Content-Type: application/json
           <p className="eyebrow">Developer Surface</p>
           <h1>Before your agent pays, it checks Infopunks.</h1>
           <p className="copy">Infopunks is the pre-spend intelligence layer before payment. It returns receipt-backed route intelligence, known blockers, safer alternatives, and validation context before economic action.</p>
-          <p className="copy">Infopunks is not executing payment. The SDK calls POST /v1/pre-spend/check against https://radar.infopunks.fun.</p>
+          <p className="copy">The SDK handles an explicitly authorized Judgment fee and safe recovery. It never executes the requested task or trade. Legacy createInfopunksPreSpendClient remains available. The boundary is POST /v1/pre-spend/check at https://radar.infopunks.fun.</p>
         </div>
         <div className="ticker" aria-label="Developer page signals">
           <span>pre-spend intelligence</span>

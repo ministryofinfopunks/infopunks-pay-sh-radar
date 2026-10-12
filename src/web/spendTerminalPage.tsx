@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CanonicalJudgmentResponse } from '../schemas/preSpend';
-import { ProductWayfinding, EvidenceScope } from './productPrimitives';
+import { ProductHeader, EvidenceScope } from './productPrimitives';
 import { requestJudgment } from './judgmentCheckClient';
 import './spendTerminal.css';
 
@@ -32,7 +32,7 @@ export function SpendTerminalPage() {
   const judgment = result?.judgment;
   return <div className="spend-check">
     <a className="radar-home-skip" href="#spend-content">Skip to check</a>
-    <header className="spend-header"><a href="/" className="spend-brand">Infopunks <strong>Radar</strong></a><ProductWayfinding current="/solana" /></header>
+    <div className="spend-header"><ProductHeader current="/solana" /></div>
     <main id="spend-content" tabIndex={-1}>
       <section className="spend-intro"><p className="spend-kicker">Solana Radar · Pre-Spend Intelligence</p><h1>Should this agent spend?</h1><p>Describe the intent. Inspect the evidence-bound decision before committing funds.</p><EvidenceScope kind="service" /></section>
       <div className="spend-grid">

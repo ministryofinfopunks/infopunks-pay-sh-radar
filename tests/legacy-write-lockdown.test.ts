@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/api/app';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 import { createInMemoryPreSpendRepository } from '../src/repositories/preSpendRepository';
@@ -15,6 +15,7 @@ const claim = {
 };
 afterEach(() => vi.unstubAllEnvs());
 describe('legacy write authority lockdown', () => {
+  beforeEach(() => vi.stubEnv('ADMIN_TOKEN', 'legacy-auditor'));
   it.each([-100, 1, 100])('rejects nonzero legacy confidence_delta %s before intake', async (delta) => {
     vi.stubEnv('ADMIN_TOKEN', 'test-legacy-proof');
     const app = await createApp(emptyIntelligenceStore());
@@ -23,7 +24,7 @@ describe('legacy write authority lockdown', () => {
       const response = await app.inject({ method: 'POST', url: '/v1/receipts', payload: { ...legacyReceipt, confidence_delta: delta } });
       expect(response.statusCode).toBe(400); expect(response.json()).toEqual({ error: 'legacy_score_mutation_forbidden' });
       expect((await app.inject('/v1/receipts')).json().data.receipts).toHaveLength(before);
-      expect((await app.inject({ url: '/v1/receipt-spine/scores/provider/provider_pay_sh_quartz', headers: { authorization: 'Bearer test-legacy-proof' } })).json().data.score).toBe(0);
+      expect((await app.inject({ url:'/v1/receipt-spine/scores/provider/provider_pay_sh_quartz',headers:{ authorization:'Bearer legacy-auditor' } })).json().data.score).toBe(0);
     } finally { await app.close(); }
   });
   it('preserves public receipt, claim, challenge, validation, Proof Check, and Loop Check intake with zero reputation authority', async () => {
@@ -43,7 +44,7 @@ describe('legacy write authority lockdown', () => {
       ] as const) {
         const response = await app.inject({ method: 'POST', url, payload });
         expect(response.statusCode, response.body).toBe(200);
-        expect((await app.inject({ url: '/v1/receipt-spine/scores/provider/provider_pay_sh_quartz', headers: { authorization: 'Bearer test-legacy-proof' } })).json().data.score).toBe(0);
+        expect((await app.inject({ url:'/v1/receipt-spine/scores/provider/provider_pay_sh_quartz',headers:{ authorization:'Bearer legacy-auditor' } })).json().data.score).toBe(0);
       }
       expect((await app.inject('/v1/receipts')).json().data.receipts.find((r: typeof legacyReceipt & { receipt_id: string }) => r.receipt_id === receipt.json().data.receipt_id)).toEqual(receipt.json().data);
     } finally { await app.close(); }
