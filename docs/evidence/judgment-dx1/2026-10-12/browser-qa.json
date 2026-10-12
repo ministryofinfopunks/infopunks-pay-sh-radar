@@ -1,0 +1,23 @@
+{
+  "browser": "154.0.8037.98",
+  "scenarios": [
+    {
+      "viewport": "desktop",
+      "free_assessment": true,
+      "explicit_check_posts": 1,
+      "automatic_posts": 0,
+      "local_storage_credentials": false,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "free_assessment": true,
+      "explicit_check_posts": 1,
+      "automatic_posts": 0,
+      "local_storage_credentials": false,
+      "overflow": false,
+      "errors": []
+    }
+  ]
+}

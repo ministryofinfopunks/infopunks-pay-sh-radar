@@ -1,0 +1,174 @@
+{
+  "version": "judgment-runtime-qualification.v1",
+  "platform": {
+    "node": "v24.21.0",
+    "platform": "linux",
+    "arch": "arm64",
+    "uid": 1000
+  },
+  "images": [
+    {
+      "id": "sha256:66fe9d3ba3cee708f719ef7076d8dd281ce36ed0ee57fa0bf6b343e9431fbb65",
+      "tags": [
+        "infopunks-judgment-dx1-build:local"
+      ],
+      "repo_digests": [
+        "infopunks-judgment-dx1-build@sha256:66fe9d3ba3cee708f719ef7076d8dd281ce36ed0ee57fa0bf6b343e9431fbb65"
+      ],
+      "architecture": "arm64",
+      "os": "linux"
+    },
+    {
+      "id": "sha256:ee288347dbc06748c826fa346de7602ac72019d4d21fc3bf2afb7071cdcf78dd",
+      "tags": [
+        "infopunks-judgment-dx1-runtime:local"
+      ],
+      "repo_digests": [
+        "infopunks-judgment-dx1-runtime@sha256:ee288347dbc06748c826fa346de7602ac72019d4d21fc3bf2afb7071cdcf78dd"
+      ],
+      "architecture": "arm64",
+      "os": "linux"
+    },
+    {
+      "id": "sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d",
+      "tags": [
+        "postgres:16"
+      ],
+      "repo_digests": [
+        "postgres@sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d"
+      ],
+      "architecture": "arm64",
+      "os": "linux"
+    }
+  ],
+  "source_hashes_match": true,
+  "native_amd64_qualified": false,
+  "production_payments_enabled": false,
+  "deployed": false,
+  "http_checks": [
+    {
+      "path": "/health",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "service": "infopunks-pay-sh-radar",
+        "role": "Cognitive Coordination Layer above Pay.sh",
+        "persistence": "postgres",
+        "persistence_mode": "postgres",
+        "dbStatus": "ok",
+        "db_status": "ok",
+        "dbMode": "postgres",
+        "dbCircuitState": "healthy",
+        "dbLastSuccessAt": "2026-10-12T10:32:34.174Z",
+        "dbLastFailureAt": null,
+        "databasePoolMax": 10,
+        "catalogSource": "live",
+        "ingestionEnabled": false,
+        "lastIngestedAt": "2026-10-12T08:20:24.182Z",
+        "providerCount": 0,
+        "endpointCount": 0,
+        "rh_chain_storage": {
+          "adapter": "postgres",
+          "durable": true,
+          "readiness": "idle",
+          "failure_kind": null,
+          "error_code": null,
+          "missing_tables": []
+        },
+        "machine_receipts_storage": {
+          "adapter": "postgres",
+          "mode": "durable",
+          "durable": true,
+          "demo_seed_enabled": false,
+          "receipt_count": 0,
+          "warning": null
+        }
+      },
+      "cache_control": null
+    },
+    {
+      "path": "/readyz",
+      "status": 503,
+      "body": {
+        "ok": false,
+        "status": "unavailable",
+        "service": "infopunks-pay-sh-radar",
+        "persistence": "postgres",
+        "db_status": "ok",
+        "dbMode": "postgres",
+        "dbCircuitState": "healthy",
+        "dbLastSuccessAt": "2026-10-12T10:32:34.305Z",
+        "dbLastFailureAt": null,
+        "databasePoolMax": 10,
+        "disabled_features": [
+          "admin_routes"
+        ],
+        "reasons": [
+          {
+            "code": "live_catalog_degraded"
+          },
+          {
+            "code": "dependency_not_configured:admin_routes"
+          }
+        ]
+      },
+      "cache_control": null
+    },
+    {
+      "path": "/v1/judgment/session",
+      "status": 503,
+      "body": {
+        "error": "judgment_identity_unavailable"
+      },
+      "cache_control": "private, no-store"
+    },
+    {
+      "path": "/v1/receipt-spine/judgment/example",
+      "status": 503,
+      "body": {
+        "error": "judgment_identity_unavailable"
+      },
+      "cache_control": "private, no-store"
+    },
+    {
+      "path": "/v1/judgments/history",
+      "status": 503,
+      "body": {
+        "error": "judgment_identity_unavailable"
+      },
+      "cache_control": "private, no-store"
+    },
+    {
+      "path": "/v1/4663/me/call?wallet=0x1111111111111111111111111111111111111111",
+      "status": 503,
+      "body": {
+        "error": "judgment_identity_unavailable"
+      },
+      "cache_control": "private, no-store"
+    },
+    {
+      "path": "/v1/4663/proof/0x1111111111111111111111111111111111111111",
+      "status": 503,
+      "body": {
+        "error": "judgment_identity_unavailable"
+      },
+      "cache_control": "private, no-store"
+    },
+    {
+      "path": "/og/4663/proof/0x1111111111111111111111111111111111111111.png",
+      "status": 503,
+      "body": {
+        "error": "judgment_identity_unavailable"
+      },
+      "cache_control": "private, no-store"
+    },
+    {
+      "path": "/4663/proof/0x1111111111111111111111111111111111111111",
+      "status": 503,
+      "body": {
+        "error": "judgment_identity_unavailable"
+      },
+      "cache_control": "private, no-store"
+    }
+  ]
+}
