@@ -18,4 +18,5 @@ COPY --from=build /app/dist ./dist
 COPY --from=build /app/migrations ./migrations
 
 EXPOSE 10000
-CMD ["npm", "start"]
+USER node
+CMD ["node", "dist/server/server.js"]

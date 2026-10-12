@@ -6,3 +6,11 @@ dist
 !.env.example
 docs/evidence
 launch
+output
+.npmrc
+secrets/
+**/secrets/
+*.pem
+*.key
+*.p12
+*.pfx
