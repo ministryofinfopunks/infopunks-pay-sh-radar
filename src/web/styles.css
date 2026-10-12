@@ -4635,7 +4635,7 @@ select:hover {
   --space-xl: 36px;
   --radius-group: 12px;
   --radius-section: 18px;
-  --border-subtle: rgba(203, 255, 221, .1);
+  --border-subtle: var(--radar-line-soft);
   --border-network-solana: rgba(126, 255, 176, .28);
   --border-network-rh: rgba(159, 200, 255, .26);
   --accent-solana: #7effb0;
@@ -17883,8 +17883,8 @@ select:focus {
   color-scheme: dark;
 
   /* Typography roles: human-facing UI stays sans; machine truth stays mono. */
-  --font-ui: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  --font-ui: var(--radar-mono);
+  --font-mono: var(--radar-mono);
   --type-display-tracking: -.045em;
   --type-heading-tracking: -.025em;
   --type-body-leading: 1.55;
@@ -17900,20 +17900,20 @@ select:focus {
   --space-7: 3rem;
 
   /* Three radii: controls, surfaces, and large structural panels. */
-  --radius-control: .625rem;
-  --radius-surface: .875rem;
-  --radius-panel: 1.25rem;
+  --radius-control: var(--radar-radius);
+  --radius-surface: var(--radar-radius);
+  --radius-panel: var(--radar-radius);
   --radius-pill: 999px;
 
   /* Canvas → surface → raised chrome → inset evidence. */
-  --surface-canvas: #020503;
-  --surface-primary: rgba(7, 14, 10, .9);
-  --surface-secondary: rgba(12, 22, 16, .82);
-  --surface-raised: rgba(8, 16, 12, .78);
-  --surface-overlay: rgba(4, 9, 7, .985);
+  --surface-canvas: var(--radar-bg);
+  --surface-primary: var(--radar-surface);
+  --surface-secondary: var(--radar-raised);
+  --surface-raised: var(--radar-raised);
+  --surface-overlay: var(--radar-bg);
   --surface-inset: rgba(0, 0, 0, .22);
-  --border-subtle: rgba(203, 255, 221, .1);
-  --border-emphasis: rgba(126, 255, 176, .24);
+  --border-subtle: var(--radar-line-soft);
+  --border-emphasis: var(--radar-line);
   --shadow-surface: 0 14px 42px rgba(0, 0, 0, .22), inset 0 1px rgba(255, 255, 255, .022);
   --shadow-floating: 0 20px 64px rgba(0, 0, 0, .4), inset 0 1px rgba(255, 255, 255, .035);
 
@@ -17929,7 +17929,6 @@ select:focus {
   --premium-radius-sm: var(--radius-surface);
   --radius-section: var(--radius-panel);
   --radius-group: var(--radius-surface);
-  --radar-radius: var(--radius-surface);
   --radar-radius-sm: var(--radius-control);
   --radar-space-1: var(--space-1);
   --radar-space-2: var(--space-2);
@@ -17943,10 +17942,8 @@ select:focus {
   --space-lg: var(--space-5);
   --space-xl: var(--space-6);
   --radar-bg-deep: var(--surface-canvas);
-  --radar-surface: var(--surface-primary);
   --radar-surface-raised: var(--surface-secondary);
   --radar-surface-recessed: var(--surface-inset);
-  --radar-line: var(--border-subtle);
   --radar-line-strong: var(--border-emphasis);
   --radar-shadow-card: var(--shadow-surface);
 }
@@ -18293,10 +18290,9 @@ samp,
 
 @media (prefers-contrast: more) {
   :root {
-    --border-subtle: rgba(239, 255, 244, .36);
-    --border-emphasis: rgba(142, 255, 185, .64);
-    --radar-line: var(--border-subtle);
-    --radar-line-strong: var(--border-emphasis);
+    --border-subtle: var(--radar-line-soft);
+    --border-emphasis: var(--radar-line);
+      --radar-line-strong: var(--border-emphasis);
     --radar-text-muted: #c2d8c9;
     --text-dim: #c2d8c9;
     --muted: #c2d8c9;
@@ -18616,3 +18612,28 @@ samp,
 }
 
 .site-header > .product-wayfinding, .rh-chain-shell .product-wayfinding { padding: 8px 20px; border-bottom: 1px solid var(--radar-line); }
+
+/* Universal terminal presentation: scoped to existing structural components. */
+body { background: var(--radar-bg); }
+body::before, body::after { display: none; }
+.rh-chain-shell, .radar-universal-hero, .rh-chain-hero, .solana-evidence-brief, .solana-radar-directory { background: var(--radar-bg); }
+.site-header .product-header { margin-bottom: 12px; }
+.site-header .product-header .product-wayfinding { padding: 0; border: 0; }
+.site-header .product-brand { color: var(--radar-text); font-family: var(--radar-mono); }
+.site-header .product-header .product-wayfinding a { font: 11px/1.4 var(--radar-mono); }
+.site-header .global-toolbar { border-radius: var(--radar-radius); border-color: var(--radar-line); background: var(--radar-surface); box-shadow: none; backdrop-filter: none; }
+.radar-product-navigation .nav-brand { display: none; }
+.radar-product-navigation :is(a,button) { border-radius: var(--radar-radius); font-family: var(--radar-mono); }
+:is(.radar-universal-hero,.rh-chain-hero,.solana-evidence-brief) h1 { font-family: var(--radar-mono); font-size: clamp(30px, 3.8vw, 54px); font-weight: 750; line-height: 1.1; letter-spacing: -.05em; }
+:is(.radar-universal-hero,.rh-chain-hero,.solana-evidence-brief) :is(h2,h3,.copy,.mission-subtitle,.radar-universal-lede) { font-family: var(--radar-mono); }
+:is(.radar-universal-hero,.rh-chain-hero,.solana-evidence-brief) :is(.copy,.mission-subtitle,.radar-universal-lede) { color: var(--radar-muted); font-size: 15px; line-height: 1.65; }
+:is(.radar-universal-hero,.rh-chain-hero,.solana-evidence-brief,.solana-radar-directory) { border: 1px solid var(--radar-line); border-radius: var(--radar-radius); padding: clamp(20px, 3vw, 36px); box-shadow: var(--radar-shadow); }
+.rh-chain-hero h1 { max-width: 20ch; }
+.rh-chain-hero h1 span { color: var(--radar-signal); }
+:is(.radar-universal-hero,.rh-chain-hero,.solana-evidence-brief) :is(.execute,button[type="submit"]) { background: var(--radar-signal); color: var(--radar-bg); border-radius: var(--radar-radius); box-shadow: none; font-family: var(--radar-mono); min-height: 44px; }
+.rh-chain-hero-rail { background: var(--radar-surface); border-color: var(--radar-line-soft); border-radius: var(--radar-radius); }
+@media (max-width: 680px) {
+  .site-header .product-header .product-wayfinding { padding-top: 12px; }
+  .site-header .product-header .product-menu-toggle { padding: 0; min-width: 44px; }
+  .site-header .product-header .product-brand { font-size: 20px; }
+}

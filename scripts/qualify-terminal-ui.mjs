@@ -58,7 +58,16 @@ const realResult = await page.locator('.spend-result').textContent();
 await page.goto(base);
 await page.keyboard.press('Tab');
 const keyboardFocus = await page.evaluate(()=>({tag:document.activeElement.tagName,text:document.activeElement.textContent,outline:getComputedStyle(document.activeElement).outlineStyle,scrollBehavior:getComputedStyle(document.documentElement).scrollBehavior}));
-const report = { source_sha: execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(), working_tree_diff: execFileSync('git',['diff','--stat'],{encoding:'utf8'}), environment: 'Local compiled API with development fixtures; payment/execution disabled. No external proof or readiness asserted.', reports, interactions: { mobileNav, menuAxe, menuDismiss, evidenceExpanded, preservedSubject, realResult, keyboardFocus } };
+const chainMenus = [];
+for (const route of ['/solana', '/rh-chain-signal-desk', '/4663']) {
+  await page.goto(base + route, { waitUntil: 'networkidle' });
+  const menu = page.getByRole('button', { name: 'Open navigation', exact: true });
+  await menu.click();
+  const destinations = await page.getByRole('navigation', { name: 'Infopunks product navigation' }).getByRole('link').count();
+  await page.keyboard.press('Escape');
+  chainMenus.push({ route, destinations, dismissed: await menu.getAttribute('aria-expanded') === 'false' });
+}
+const report = { source_sha: execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(), working_tree_diff: execFileSync('git',['diff','--stat'],{encoding:'utf8'}), environment: 'Local compiled API with development fixtures; payment/execution disabled. No external proof or readiness asserted.', reports, interactions: { chainMenus, mobileNav, menuAxe, menuDismiss, evidenceExpanded, preservedSubject, realResult, keyboardFocus } };
 await fs.writeFile(path.join(out, 'results.json'), JSON.stringify(report,null,2));
 await browser.close();
-if(reports.some(r=>r.axe.violations.length || r.errors.length || r.failures.length || r.dom.scrollWidth>r.viewport.width) || menuAxe.length || !menuDismiss || !evidenceExpanded || mobileNav!==5 || preservedSubject!=='solana:mainnet:service_route:route/a?b=c&d=1')process.exitCode=1;
+if(chainMenus.some(menu => menu.destinations !== 5 || !menu.dismissed) || reports.some(r=>r.axe.violations.length || r.errors.length || r.failures.length || r.dom.scrollWidth>r.viewport.width) || menuAxe.length || !menuDismiss || !evidenceExpanded || mobileNav!==5 || preservedSubject!=='solana:mainnet:service_route:route/a?b=c&d=1')process.exitCode=1;
