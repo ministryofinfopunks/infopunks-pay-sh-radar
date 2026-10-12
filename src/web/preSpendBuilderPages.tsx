@@ -554,7 +554,7 @@ export function SpendTerminalPage() {
       intent: params.get('intent') || 'buy_market_research',
       budget: 25,
       risk_tolerance: 'low' as RiskLevel,
-      preferred_settlement: subject ? 'tokenized_pltr' : 'stablecoin',
+      preferred_settlement: params.get('settlement') === 'tokenized_pltr' ? 'tokenized_pltr' : 'stablecoin',
       required_confidence: 75,
       subject_id: subject,
       linked_check_id: subject
