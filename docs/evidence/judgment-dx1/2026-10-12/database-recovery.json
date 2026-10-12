@@ -1,0 +1,39 @@
+{
+  "version": "judgment-local-recovery-evidence.v1",
+  "postgres_version": "16.15",
+  "physical_restart": true,
+  "pg_dump_restore_to_separate_database": true,
+  "mock_settlement_only": true,
+  "results": [
+    {
+      "mode": "prepare",
+      "database": "original",
+      "receipt_hash": "sha256:d784fbfa1c93b42e8488089c292f1b0454a55aa2277b1a48be29985cf004e078",
+      "issuer_verified": true,
+      "identical_historical_receipt": false,
+      "missing_proof_rejected": true,
+      "settlements": 1,
+      "verifications": 1
+    },
+    {
+      "mode": "verify",
+      "database": "original-after-restart",
+      "receipt_hash": "sha256:d784fbfa1c93b42e8488089c292f1b0454a55aa2277b1a48be29985cf004e078",
+      "issuer_verified": true,
+      "identical_historical_receipt": true,
+      "missing_proof_rejected": true,
+      "settlements": 0,
+      "verifications": 0
+    },
+    {
+      "mode": "verify",
+      "database": "restored-database",
+      "receipt_hash": "sha256:d784fbfa1c93b42e8488089c292f1b0454a55aa2277b1a48be29985cf004e078",
+      "issuer_verified": true,
+      "identical_historical_receipt": true,
+      "missing_proof_rejected": true,
+      "settlements": 0,
+      "verifications": 0
+    }
+  ]
+}

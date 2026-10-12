@@ -147,7 +147,7 @@ describe('pre-spend builder pages', () => {
       if (path === '/v1/claims/claim_001') return json({ ...claim, challenges: [] });
       if (path === '/v1/claims/missing-claim') return Promise.resolve(new Response(JSON.stringify({ error: 'claim_not_found' }), { status: 404 }));
       if (path === '/v1/claims/claim_001/challenges') return json({ claim_id: 'claim_001', challenges: [] });
-      if (path === '/v1/pre-spend/check') return json(decision);
+      if (path === '/v1/pre-spend/check') return Promise.resolve(new Response(JSON.stringify({ judgment_id: 'test-check', decision: 'insufficient_evidence', confidence: 0, issued_at: '2026-10-07T00:00:02Z', valid_until: '2026-10-07T00:00:02Z', reasons: ['Required fresh evidence is missing.'], cited_observations: [], cost: { amount: '0', asset: 'USDC' }, payment_required: false, receipt: null, data: decision }), { status: 200 }));
       return Promise.resolve(new Response('{}', { status: 404 }));
     });
   });
@@ -158,46 +158,23 @@ describe('pre-spend builder pages', () => {
     window.history.replaceState({}, '', '/');
   });
 
-  it('renders spend terminal and links result routes and receipts', async () => {
+  it('presents one explicit Check action and keeps it closed without a tenant credential', async () => {
     const { root, container } = await render('/spend-terminal');
     expect(container.textContent).toContain('Should this agent spend?');
-    const form = container.querySelector('form')!;
-    await act(async () => {
-      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    });
-    await act(async () => {
-      await Promise.resolve();
-    });
-    expect(container.textContent).toContain('approved_with_warning');
-    expect(container.querySelector('a[href="/routes/route_pay_sh_market_research_01"]')).toBeTruthy();
-    expect(container.querySelector('a[href="/receipts/receipt_001"]')).toBeTruthy();
+    expect(container.textContent).toContain('Checking does not authorize payment or execute an action.');
+    const button = Array.from(container.querySelectorAll('button')).find(button => button.textContent === 'Check')!;
+    expect(button.disabled).toBe(true);
+    expect(container.querySelector('input[aria-label="Subject or route"]')).toBeTruthy();
+    expect(vi.mocked(globalThis.fetch).mock.calls.some(call => (call[1] as RequestInit)?.method === 'POST')).toBe(false);
     root.unmount();
   });
 
-  it('preloads MONITOR from the public spend-terminal query surface', async () => {
+  it('preloads a market subject without automatically invoking provider policy', async () => {
     const { root, container } = await render('/spend-terminal?intent=allocate_to_pltr_paired_narrative_token&subject=monitor');
-    expect((container.querySelector('input[aria-label="intent"]') as HTMLInputElement).value).toBe('allocate_to_pltr_paired_narrative_token');
-    expect((container.querySelector('input[aria-label="preferred settlement"]') as HTMLInputElement).value).toBe('tokenized_pltr');
-
-    const form = container.querySelector('form')!;
-    await act(async () => {
-      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    });
-    await act(async () => {
-      await Promise.resolve();
-    });
-
-    const request = vi.mocked(globalThis.fetch).mock.calls
-      .map((call) => call[1])
-      .find((init) => init && typeof init === 'object' && (init as RequestInit).method === 'POST') as RequestInit | undefined;
-    expect(request).toBeTruthy();
-    expect(JSON.parse(String(request?.body))).toMatchObject({
-      intent: 'allocate_to_pltr_paired_narrative_token',
-      subject_id: 'monitor',
-      linked_check_id: 'monitor',
-      preferred_settlement: 'tokenized_pltr',
-      required_confidence: 75
-    });
+    expect((container.querySelector('input[aria-label="Intent"]') as HTMLInputElement).value).toBe('allocate_to_pltr_paired_narrative_token');
+    expect((container.querySelector('input[aria-label="Subject or route"]') as HTMLInputElement).value).toBe('market:monitor');
+    expect(vi.mocked(globalThis.fetch).mock.calls.some(call => (call[1] as RequestInit)?.method === 'POST')).toBe(false);
+    expect(container.textContent).not.toContain('approved_with_warning');
     root.unmount();
   });
 
@@ -208,11 +185,8 @@ describe('pre-spend builder pages', () => {
     expect(text).toContain('createInfopunksPreSpendClient');
     expect(text).toContain('POST /v1/pre-spend/check');
     expect(text).toContain('https://radar.infopunks.fun');
-    expect(text).toContain('approved');
-    expect(text).toContain('approved_with_warning');
-    expect(text).toContain('use_with_caution');
-    expect(text).toContain('requires_human_approval');
-    expect(text).toContain('do_not_use');
+    for (const state of ['proceed', 'test_spend_first', 'do_not_spend', 'insufficient_evidence']) expect(text).toContain(state);
+    expect(text).toContain('No issued canonical receipt. Do not act.');
     expect(text).toContain('No receipt, no trust.');
     expect(text).toContain('Every decision should point back to receipts.');
     expect(text).toContain('Receipts capture route runs, cost, latency, status, validation, confidence delta, and evidence artifacts.');

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-const EXPECTED_IDS = Array.from({ length: 21 }, (_, index) => String(index + 1).padStart(3, '0'));
+const EXPECTED_IDS = Array.from({ length: 22 }, (_, index) => String(index + 1).padStart(3, '0'));
 const MIGRATION_FILE = /^(\d{8})_(\d{3})_([a-z0-9_]+)\.up\.sql$/;
 
 export type MigrationFileEntry = { file: string; id: string; down_file: string | null; sha256: string | null };

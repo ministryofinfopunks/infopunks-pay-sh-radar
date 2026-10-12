@@ -1,3 +1,4 @@
+import { JudgmentCheckPanel } from './judgmentCheckPanel';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { SignalGraphContextPanel, type SignalGraphContextNode } from './signalGraphContextPanel';
@@ -504,7 +505,7 @@ function useSignalGraphContext(entityType: SignalGraphEntityType, entityId: stri
 function MetricsBand({ metrics }: { metrics: Metrics | null }) {
   if (!metrics) return null;
   const rows: Array<[string, string | number]> = [
-    ['Verified Pre-Spend Decisions', metrics.verified_pre_spend_decisions],
+    ['Legacy diagnostic records', metrics.verified_pre_spend_decisions],
     ['routes indexed', metrics.routes_indexed],
     ['providers scored', metrics.providers_scored],
     ['receipts generated', metrics.receipts_generated],
@@ -513,8 +514,6 @@ function MetricsBand({ metrics }: { metrics: Metrics | null }) {
     ['failed routes avoided', metrics.failed_routes_avoided],
     ['claims challenged', metrics.claims_challenged],
     ['repeatable routes discovered', metrics.repeatable_routes_discovered],
-    ['agent builders using the API', metrics.agent_builders_using_the_api],
-    ['amount of spend protected or intelligently routed', metrics.amount_of_spend_protected_or_intelligently_routed]
   ];
   return <section className="grid four builder-metrics" aria-label="Pre-spend intelligence metrics">
     {rows.map(([label, value]) => <article className="panel metric" key={label}><span>{label}</span><strong>{value}</strong></article>)}
@@ -536,175 +535,32 @@ function PlaceholderMarketPanel() {
 }
 
 export function SpendTerminalPage() {
-  const [metrics, setMetrics] = useState<Metrics | null>(null);
-  const [result, setResult] = useState<PreSpendCheckResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState(() => {
-    const params = new URLSearchParams(window.location.search);
-    const subject = params.get('subject') || undefined;
-    return {
-      agent_id: subject ? 'infopunks_launch_surface' : 'agent_001',
-      intent: params.get('intent') || 'buy_market_research',
-      budget: 25,
-      risk_tolerance: 'low' as RiskLevel,
-      preferred_settlement: subject ? 'tokenized_pltr' : 'stablecoin',
-      required_confidence: 75,
-      subject_id: subject,
-      linked_check_id: subject
-    };
-  });
-
-  useEffect(() => {
-    document.title = 'Pre-Spend Intelligence | Infopunks Builder';
-    api<{ data: { metrics: Metrics } }>('/v1/routes').then((response) => setMetrics(response.data.metrics)).catch(() => undefined);
-  }, []);
-
-  async function requestDecision() {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await api<{ data: PreSpendCheckResponse }>('/v1/pre-spend/check', {
-        method: 'POST',
-        body: JSON.stringify(form)
-      });
-      setResult(response.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'pre-spend check failed');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    if (form.subject_id !== 'monitor') return;
-    void requestDecision();
-  }, [form.subject_id]);
-
-  async function runCheck(event: React.FormEvent) {
-    event.preventDefault();
-    await requestDecision();
-  }
-
-  const resultTone = result ? decisionTone(result.decision) : 'warn';
-  const hasReceipts = Boolean(result?.receipt_references.length);
-  const hasWarnings = Boolean(result && (result.known_blockers.length || result.do_not_use.length || result.requires_human_approval || result.decision !== 'approved'));
-  const isMonitorSurface = form.subject_id === 'monitor';
-
-  return <div className="shell builder-shell">
-    <RadarContextHeader />
-    <main className="builder-page spend-terminal-page" aria-label="Pre-Spend Intelligence Terminal">
-      {!isMonitorSurface && <section className="panel hero builder-hero">
-        <div>
-          <p className="eyebrow">Pre-Spend Intelligence</p>
-          <h1>Should this agent spend?</h1>
-          <p className="copy">Decision Terminal for agentic finance preflight. Interrogate route evidence, inspect blockers, and decide whether this agent should spend here, now, on this route, with this provider, under these conditions.</p>
-        </div>
-        <div className="ticker" aria-label="Decision terminal copy">
-          <span>Should this agent spend?</span>
-          <span>Receipt-backed route intelligence</span>
-          <span>Verified Pre-Spend Decisions</span>
-          <span>No receipt, no trust</span>
-        </div>
-      </section>}
-      {!isMonitorSurface && <MetricsBand metrics={metrics} />}
-      <section className={`grid two builder-terminal-grid ${isMonitorSurface ? 'monitor-terminal-grid' : ''}`}>
-        <form className="panel builder-form-panel" onSubmit={runCheck}>
-          <div className="panel-head"><div><p className="section-kicker">Agent Intent</p><h2>Pre-spend input flow</h2></div></div>
-          <p className="panel-caption">Run a receipt-backed preflight before any paid route call. No receipt, no trust.</p>
-          <label><span>intent</span><input aria-label="intent" value={form.intent} onChange={(event) => setForm({ ...form, intent: event.target.value })} /></label>
-          <label><span>budget</span><input aria-label="budget" type="number" value={form.budget} onChange={(event) => setForm({ ...form, budget: Number(event.target.value) })} /></label>
-          <label><span>risk tolerance</span><select aria-label="risk tolerance" value={form.risk_tolerance} onChange={(event) => setForm({ ...form, risk_tolerance: event.target.value as RiskLevel })}><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="critical">critical</option></select></label>
-          <label><span>preferred settlement</span><input aria-label="preferred settlement" value={form.preferred_settlement} onChange={(event) => setForm({ ...form, preferred_settlement: event.target.value })} /></label>
-          <label><span>required confidence</span><input aria-label="required confidence" type="number" value={form.required_confidence} onChange={(event) => setForm({ ...form, required_confidence: Number(event.target.value) })} /></label>
-          <button className="execute compact" type="submit" disabled={loading}>{loading ? 'Checking route' : 'Run pre-spend check'}</button>
-          {error && <p className="route-state error">{error}</p>}
-        </form>
-        <section className="panel builder-result-panel" aria-label="Decision result">
-          <div className="panel-head"><div><p className="section-kicker">Decision Output</p><h2>{result ? terminalCopy(result.decision) : 'Should this agent spend?'}</h2></div></div>
-          {!result && <div className="empty-state polished-empty builder-terminal-empty">
-            <strong>Awaiting pre-spend decision.</strong>
-            <span>Set agent intent, risk tolerance, settlement preference, and required confidence, then interrogate the route before any economic action.</span>
-            <small>Should this agent spend? The terminal will not answer without route evidence, receipt references, and explicit rationale.</small>
-          </div>}
-          {result && <>
-            <div className={`builder-decision-banner ${resultTone}`}>
-              <div>
-                <span className="section-kicker">Decision state</span>
-                <strong>{decisionLabel(result.decision)}</strong>
-                <p>{result.recommended_route
-                  ? <>Recommended route: <BuilderLink href={routeHref(result.recommended_route)}>{result.recommended_route}</BuilderLink></>
-                  : 'No route cleared for spend.'}</p>
-              </div>
-              <div className="builder-banner-meta">
-                <span>confidence {result.confidence_score}</span>
-                <span>risk {result.risk_level}</span>
-                <span>human approval {result.requires_human_approval ? 'required' : 'not required'}</span>
-              </div>
-            </div>
-            {!hasReceipts && <p className="route-state error">No receipt, no trust. No recent successful receipt is attached to this recommendation.</p>}
-            {hasWarnings && <p className={`route-state ${resultTone === 'error' ? 'error' : 'warn'}`}>
-              {result.requires_human_approval
-                ? 'Human approval is required before spend.'
-                : result.known_blockers.length
-                  ? 'Known blockers are active. Review them before spend.'
-                  : result.do_not_use.length
-                    ? 'Unsafe providers were flagged for this intent.'
-                    : 'Decision is not a silent approval. Review rationale before spend.'}
-            </p>}
-            <div className="builder-result-grid">
-              <article><span>subject</span><strong>{result.subject ?? 'none'}</strong></article>
-              <article><span>intent</span><strong>{result.intent}</strong></article>
-              <article><span>settlement</span><strong>{result.preferred_settlement ?? form.preferred_settlement}</strong></article>
-              <article><span>required confidence</span><strong>{result.required_confidence ?? form.required_confidence}</strong></article>
-              <article><span>decision</span><strong>{result.decision}</strong></article>
-              <article><span>canonical judgment</span><strong>{result.judgment?.decision ?? 'unavailable'}</strong></article>
-              <article><span>recommended route</span><strong>{result.recommended_route ? <BuilderLink href={routeHref(result.recommended_route)}>{result.recommended_route}</BuilderLink> : 'none'}</strong></article>
-              <article><span>confidence score</span><strong>{result.confidence_score}</strong></article>
-              <article><span>judgment receipt</span><strong>{result.judgment?.receipt_id ?? 'unavailable'}</strong></article>
-              <article><span>outcome status</span><strong>{result.judgment?.outcome_status ?? 'unavailable'}</strong></article>
-              <article><span>risk level</span><strong>{result.risk_level}</strong></article>
-              <article><span>estimated cost</span><strong>{result.estimated_cost ?? 'n/a'}</strong></article>
-              <article><span>last successful run</span><strong>{formatDate(result.last_successful_run)}</strong></article>
-              <article><span>human approval</span><strong>{result.requires_human_approval ? 'required' : 'not required'}</strong></article>
-              <article><span>receipts</span><strong><LinkedIds items={result.receipt_references} buildHref={receiptHref} /></strong></article>
-              <article className="wide"><span>linked Proof Check</span><strong>{result.proof_check_reference
-                ? <BuilderLink href={result.proof_check_reference}>{result.linked_check_id ?? result.proof_check_reference}</BuilderLink>
-                : result.linked_check_id ?? 'none'}</strong></article>
-              <article className="wide"><span>known blockers</span><strong>{joined(result.known_blockers)}</strong></article>
-              <article className="wide"><span>safer alternatives</span><strong><LinkedIds items={result.safer_alternatives} buildHref={routeHref} /></strong></article>
-              <article className="wide"><span>do-not-use warnings</span><strong>{result.do_not_use.length
-                ? <div className="builder-note-stack">{result.do_not_use.map((item) => <span key={`${item.provider}:${item.reason}`}>{item.provider.startsWith('provider_') ? <><BuilderLink href={providerHref(item.provider)}>{item.provider}</BuilderLink>: {item.reason}</> : `${item.provider}: ${item.reason}`}</span>)}</div>
-                : 'none'}</strong></article>
-              <article className="wide"><span>rationale</span><strong>{result.rationale.join(' ')}</strong></article>
-            </div>
-          </>}
-        </section>
-      </section>
-      {!isMonitorSurface && <PlaceholderMarketPanel />}
-    </main>
-  </div>;
+  useEffect(() => { document.title = 'Check | Infopunks Radar'; }, []);
+  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page spend-terminal-page" aria-label="Pre-Spend Intelligence Terminal"><JudgmentCheckPanel /></main></div>;
 }
 
 export function DevelopersPage() {
   useEffect(() => {
-    document.title = 'Developers | Infopunks Builder';
+    document.title = 'Developers | Infopunks Radar';
   }, []);
 
-  const sdkExample = `import { createInfopunksPreSpendClient } from "infopunks-pay-sh-radar/sdk";
+  const sdkExample = `import { createInfopunksClient } from "infopunks-pay-sh-radar/sdk";
 
-const client = createInfopunksPreSpendClient({
-  baseUrl: "https://radar.infopunks.fun"
+// wallet supplies a bounded policy and an explicit authorize callback.
+const radar = createInfopunksClient({
+  apiKey: process.env.INFOPUNKS_API_KEY,
+  payment: wallet
 });
 
-const decision = await client.checkPreSpend({
-  agent_id: "agent_001",
-  intent: "buy_market_research",
-  budget: 25,
-  risk_tolerance: "low",
-  preferred_settlement: "stablecoin",
-  required_confidence: 75
-});`;
+const decision = await radar.judge({
+  intent: "buy market research",
+  budget: 0.20,
+  subject: "route:market-research"
+});
+
+// After a timeout, retain the session and inspect durable state.
+// await radar.resume(error.sessionId);
+// Legacy createInfopunksPreSpendClient/checkPreSpend remains available.`;
 
   const apiRequest = `POST /v1/pre-spend/check
 Content-Type: application/json
@@ -719,25 +575,27 @@ Content-Type: application/json
 }`;
 
   const apiResponse = `{
-  "data": {
-    "intent": "buy_market_research",
-    "decision": "approved_with_warning",
-    "recommended_route": "route_pay_sh_market_research_01",
-    "confidence_score": 82,
-    "risk_level": "medium",
-    "estimated_cost": "0.25 USDC",
-    "requires_human_approval": false,
-    "receipt_references": ["receipt_001"],
-    "known_blockers": ["occasional timeout under high load"]
-  }
+  "decision": "insufficient_evidence",
+  "confidence": 0,
+  "reasons": ["Required fresh, scoped, live evidence is missing."],
+  "cited_observations": [],
+  "payment_required": false,
+  "cost": { "amount": "0", "asset": "USDC" },
+  "receipt": null,
+  "presentation": {
+    "version": "judgment-presentation.v1",
+    "authoritative": false,
+    "summary": "Evidence is insufficient to approve this spend.",
+    "next_action": "collect_evidence"
+  },
+  "data": { "canonical_judgment": "same canonical assessment" }
 }`;
 
-  const decisionStates: Array<{ state: DecisionState; copy: string }> = [
-    { state: 'approved', copy: 'Route can be used under the declared constraints.' },
-    { state: 'approved_with_warning', copy: 'Use is allowed, but the agent should surface caveats.' },
-    { state: 'use_with_caution', copy: 'Evidence is usable but fragile. Slow down and inspect the route.' },
-    { state: 'requires_human_approval', copy: 'The agent should stop and request an explicit human decision.' },
-    { state: 'do_not_use', copy: 'Observed evidence does not support spend on this route or counterparty.' }
+  const decisionStates = [
+    { state: 'proceed', tone: 'ok', copy: 'Policy-bound assessment. A valid canonical receipt and separate execution authorization are required before action.' },
+    { state: 'test_spend_first', tone: 'warn', copy: 'Only a policy-defined bounded test is justified. Execution remains separately authorized.' },
+    { state: 'do_not_spend', tone: 'error', copy: 'Reviewed evidence establishes a deterministic blocker.' },
+    { state: 'insufficient_evidence', tone: 'warn', copy: 'Abstain for free. Missing, stale, or unqualified evidence cannot authorize action.' }
   ];
 
   const resourceCards = [
@@ -767,7 +625,7 @@ Content-Type: application/json
           <p className="eyebrow">Developer Surface</p>
           <h1>Before your agent pays, it checks Infopunks.</h1>
           <p className="copy">Infopunks is the pre-spend intelligence layer before payment. It returns receipt-backed route intelligence, known blockers, safer alternatives, and validation context before economic action.</p>
-          <p className="copy">Infopunks is not executing payment. The SDK calls POST /v1/pre-spend/check against https://radar.infopunks.fun.</p>
+          <p className="copy">The SDK handles an explicitly authorized Judgment fee and safe recovery. It never executes the requested task or trade. Legacy createInfopunksPreSpendClient remains available. The boundary is POST /v1/pre-spend/check at https://radar.infopunks.fun.</p>
         </div>
         <div className="ticker" aria-label="Developer page signals">
           <span>pre-spend intelligence</span>
@@ -799,7 +657,7 @@ Content-Type: application/json
             <p className="section-kicker">Step 3</p>
             <h2>Agent receives a decision.</h2>
             <div className="builder-chip-row" aria-label="Pre-spend decision states">
-              {decisionStates.map((item) => <span className={`builder-decision-chip ${decisionTone(item.state)}`} key={item.state}>{item.state}</span>)}
+              {decisionStates.map((item) => <span className={`builder-decision-chip ${item.tone}`} key={item.state}>{item.state}</span>)}
             </div>
           </article>
         </div>
@@ -814,19 +672,19 @@ Content-Type: application/json
             </div>
           </div>
           <p className="panel-caption">Import the SDK, create a client, and ask Infopunks whether the agent should spend before payment execution happens somewhere else.</p>
-          <pre className="builder-code-block"><code>{sdkExample}</code></pre>
+          <pre className="builder-code-block" tabIndex={0} role="region" aria-label="Integration code example"><code>{sdkExample}</code></pre>
         </section>
 
         <section className="panel builder-detail-panel" aria-labelledby="api-heading">
           <div className="panel-head">
             <div>
               <p className="section-kicker">API</p>
-              <h2 id="api-heading">POST /v1/pre-spend/check</h2>
+              <h2 id="api-heading">POST /v1/pre-spend/check</h2><p className="copy">Canonical decisions: proceed, test_spend_first, do_not_spend, insufficient_evidence. Inspect canonical_judgment; legacy diagnostic verdicts cannot authorize spend. Subject network is independent of fee settlement. The strict radar-judgment-context.v1 extension binds a namespaced subject, policy version, accepted evidence references, fee settlement network and expiry. RH market policy remains read-only and unqualified for trading. Native Solana fee settlement is unavailable. Canonical proof reads require operator authentication.</p>
             </div>
           </div>
           <p className="panel-caption">Builders can call the HTTP endpoint directly when they do not want the SDK wrapper. The public contract is the intelligence layer before payment, not the payment client itself.</p>
-          <pre className="builder-code-block"><code>{apiRequest}</code></pre>
-          <pre className="builder-code-block"><code>{apiResponse}</code></pre>
+          <pre className="builder-code-block" tabIndex={0} role="region" aria-label="Integration code example"><code>{apiRequest}</code></pre>
+          <pre className="builder-code-block" tabIndex={0} role="region" aria-label="Integration code example"><code>{apiResponse}</code></pre>
         </section>
       </section>
 
@@ -1600,11 +1458,11 @@ await db.walletSafetyReceipts.insert(integrationReceipt);`;
       <section className="grid two builder-section-grid">
         <section className="panel builder-detail-panel" aria-labelledby="wallet-safety-request-json">
           <div className="panel-head"><div><p className="section-kicker">Request JSON</p><h2 id="wallet-safety-request-json">Spend intent input</h2></div></div>
-          <pre className="builder-code-block"><code>{requestJson}</code></pre>
+          <pre className="builder-code-block" tabIndex={0} role="region" aria-label="Integration code example"><code>{requestJson}</code></pre>
         </section>
         <section className="panel builder-detail-panel" aria-labelledby="wallet-safety-response-shape">
           <div className="panel-head"><div><p className="section-kicker">Response shape</p><h2 id="wallet-safety-response-shape">Bundled safety answer</h2></div></div>
-          <pre className="builder-code-block"><code>{responseShape}</code></pre>
+          <pre className="builder-code-block" tabIndex={0} role="region" aria-label="Integration code example"><code>{responseShape}</code></pre>
         </section>
       </section>
 
@@ -1657,7 +1515,7 @@ await db.walletSafetyReceipts.insert(integrationReceipt);`;
               <h2 id={snippet.kicker.toLowerCase().replaceAll(' ', '-')}>{snippet.title}</h2>
             </div>
           </div>
-          <pre className="builder-code-block"><code>{snippet.code}</code></pre>
+          <pre className="builder-code-block" tabIndex={0} role="region" aria-label="Integration code example"><code>{snippet.code}</code></pre>
         </section>
         <section className="panel builder-detail-panel" aria-label={`${snippet.kicker} explanation`}>
           <div className="panel-head"><div><p className="section-kicker">When to use it</p><h2>{snippet.kicker}</h2></div></div>
@@ -1691,18 +1549,18 @@ await db.walletSafetyReceipts.insert(integrationReceipt);`;
         </section>
         <section className="panel builder-detail-panel" aria-labelledby="integration-receipt-json">
           <div className="panel-head"><div><p className="section-kicker">JSON example</p><h2 id="integration-receipt-json">Persist a lightweight audit record.</h2></div></div>
-          <pre className="builder-code-block"><code>{integrationReceiptJson}</code></pre>
+          <pre className="builder-code-block" tabIndex={0} role="region" aria-label="Integration code example"><code>{integrationReceiptJson}</code></pre>
         </section>
       </section>
 
       <section className="grid two builder-section-grid">
         <section className="panel builder-detail-panel" aria-labelledby="integration-receipt-helper">
           <div className="panel-head"><div><p className="section-kicker">TypeScript helper</p><h2 id="integration-receipt-helper">Build the receipt right after the safety decision.</h2></div></div>
-          <pre className="builder-code-block"><code>{integrationReceiptHelper}</code></pre>
+          <pre className="builder-code-block" tabIndex={0} role="region" aria-label="Integration code example"><code>{integrationReceiptHelper}</code></pre>
         </section>
         <section className="panel builder-detail-panel" aria-labelledby="integration-receipt-usage">
           <div className="panel-head"><div><p className="section-kicker">Usage example</p><h2 id="integration-receipt-usage">Store the proof next to the wallet action.</h2></div></div>
-          <pre className="builder-code-block"><code>{integrationReceiptUsage}</code></pre>
+          <pre className="builder-code-block" tabIndex={0} role="region" aria-label="Integration code example"><code>{integrationReceiptUsage}</code></pre>
         </section>
       </section>
 
@@ -1748,11 +1606,11 @@ await db.walletSafetyReceipts.insert(integrationReceipt);`;
       <section className="grid two builder-section-grid">
         <section className="panel builder-detail-panel" aria-labelledby="wallet-safety-curl">
           <div className="panel-head"><div><p className="section-kicker">Example curl</p><h2 id="wallet-safety-curl">Call the public endpoint</h2></div></div>
-          <pre className="builder-code-block"><code>{curlExample}</code></pre>
+          <pre className="builder-code-block" tabIndex={0} role="region" aria-label="Integration code example"><code>{curlExample}</code></pre>
         </section>
         <section className="panel builder-detail-panel" aria-labelledby="wallet-safety-agent-code">
           <div className="panel-head"><div><p className="section-kicker">Example agent integration pseudocode</p><h2 id="wallet-safety-agent-code">Check before spend</h2></div></div>
-          <pre className="builder-code-block"><code>{pseudocode}</code></pre>
+          <pre className="builder-code-block" tabIndex={0} role="region" aria-label="Integration code example"><code>{pseudocode}</code></pre>
         </section>
       </section>
 
@@ -2014,7 +1872,7 @@ export function ReceiptsIndexPage() {
     }).catch(() => undefined);
   }, []);
 
-  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page" aria-label="Receipts"><section className="panel hero builder-hero"><div><p className="eyebrow">Receipt-backed route intelligence</p><h1>Receipts</h1><p className="copy">Receipts are the proof layer behind route intelligence. No receipt, no trust. Every receipt should link back to route, provider, service, validation, and evidence graph context.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Receipt ledger rows">{receipts.map((receipt) => <article className="panel builder-card" key={receipt.receipt_id}><a className="builder-card-anchor" href={receiptHref(receipt.receipt_id)}><p className="section-kicker">{receipt.task_type}</p><h2>{receipt.receipt_id}</h2><div className="builder-stat-list"><span>status {receipt.status}</span><span>cost {receipt.cost}</span><span>latency {receipt.latency_ms} ms</span><span>validation state {receipt.validation_state}</span><span>linked route {receipt.route_id}</span><span>linked provider {receipt.provider_id}</span></div><p className="panel-caption">Failure reason: {receipt.failure_reason ?? 'none'}</p><p className="panel-caption">Evidence artifact: {receipt.evidence_artifact}</p><span className="builder-card-cta">Inspect receipt impact</span></a></article>)}</section></main></div>;
+  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page" aria-label="Receipts"><section className="panel hero builder-hero"><div><p className="eyebrow">Receipt-backed route intelligence</p><h1>Receipts</h1><p className="copy">Receipts are the proof layer behind route intelligence. No receipt, no trust. Every receipt should link back to route, provider, service, validation, and evidence graph context.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Receipt ledger rows">{!receipts.length && <div className="panel empty-state" role="status"><strong>No public receipt evidence available.</strong><p>Canonical proofs require authorized access. Missing evidence does not establish trust.</p></div>}{receipts.map((receipt) => <article className="panel builder-card" key={receipt.receipt_id}><a className="builder-card-anchor" href={receiptHref(receipt.receipt_id)}><p className="section-kicker">{receipt.task_type}</p><h2>{receipt.receipt_id}</h2><div className="builder-stat-list"><span>status {receipt.status}</span><span>cost {receipt.cost}</span><span>latency {receipt.latency_ms} ms</span><span>validation state {receipt.validation_state}</span><span>linked route {receipt.route_id}</span><span>linked provider {receipt.provider_id}</span></div><p className="panel-caption">Failure reason: {receipt.failure_reason ?? 'none'}</p><p className="panel-caption">Evidence artifact: {receipt.evidence_artifact}</p><span className="builder-card-cta">Inspect receipt impact</span></a></article>)}</section></main></div>;
 }
 
 export function RouteDetailPage({ routeId }: { routeId: string }) {

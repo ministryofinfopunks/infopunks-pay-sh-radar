@@ -63,6 +63,12 @@ export interface PreSpendRepository {
 
 export function createInMemoryPreSpendRepository(seedState: PreSpendSeedState = createPreSpendSeedState()): PreSpendRepository {
   const state = structuredClone(seedState);
+  // Synthetic compatibility records are never public production evidence.
+  if (process.env.NODE_ENV === 'production') {
+    state.routes = []; state.providers = []; state.services = []; state.receipts = [];
+    state.validations = []; state.claims = []; state.claimChallenges = [];
+    for (const key of Object.keys(state.metrics) as Array<keyof typeof state.metrics>) state.metrics[key] = 0;
+  }
   // Historical compatibility records are intake, never reputation deltas.
   state.routes = state.routes.map((route) => ({ ...route, confidence_score: 0 }));
   state.providers = state.providers.map((provider) => ({ ...provider, reliability_score: 0 }));

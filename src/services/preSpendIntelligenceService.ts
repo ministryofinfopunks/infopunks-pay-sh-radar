@@ -166,8 +166,8 @@ function metrics(repository: PreSpendRepository) {
     failed_routes_avoided: state.failed_routes_avoided,
     claims_challenged: repository.listChallenges().length + validations.filter((item) => item.validation_state === 'disputed').length,
     repeatable_routes_discovered: routes.filter((route) => route.success_rate >= 0.9 && route.receipt_references.length >= 2).length,
-    agent_builders_using_the_api: 7,
-    amount_of_spend_protected_or_intelligently_routed: '184.90 USDC'
+    agent_builders_using_the_api: 0,
+    amount_of_spend_protected_or_intelligently_routed: 'Not measured'
   };
 }
 

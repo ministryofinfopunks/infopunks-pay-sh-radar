@@ -1,15 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap');
+@import './designTokens.css';
 
 :root {
-  --bg: #050806;
-  --panel: rgba(9, 18, 14, 0.82);
-  --line: rgba(126, 255, 176, 0.2);
-  --green: #7effb0;
-  --amber: #f6d06f;
-  --red: #ff6b6b;
-  --blue: #7cc7ff;
-  --text: #e8fff0;
-  --muted: #87a393;
+  --bg: var(--radar-bg);
+  --panel: var(--radar-surface);
+  --line: var(--radar-line-soft);
+  --green: var(--radar-signal);
+  --amber: var(--radar-caution);
+  --red: var(--radar-blocked);
+  --blue: var(--radar-muted);
+  --text: var(--radar-text);
+  --muted: var(--radar-muted);
 }
 
 /* RH Chain Signal Desk */
@@ -18411,7 +18411,7 @@ samp,
 .market-pulse-metric em { display: block; min-height: 1.2rem; color: #8aa596; font-size: .72rem; font-style: normal; }
 .market-pulse-metric .delta-down { color: #d7a991; }
 .market-pulse-metric .delta-none { color: #6e8176; }
-.market-pulse-metric small { display: block; margin-top: .8rem; color: #65786d; }
+.market-pulse-metric small { display: block; margin-top: .8rem; color: #93a699; }
 .provider-health-card strong { font-size: 1.5rem; letter-spacing: -.02em; }
 .market-pulse-layer-layout { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(18rem, .8fr); gap: 2rem; align-items: center; }
 .market-pulse-layer-chart { margin: 0; }
@@ -18436,12 +18436,12 @@ samp,
 .market-pulse-finding:last-child { grid-column: 1 / -1; }
 .market-pulse-finding strong { display: block; margin-top: 1.5rem; color: #eaf2ed; font-size: 1.2rem; }
 .market-pulse-finding p { color: #91a298; line-height: 1.55; }
-.market-pulse-finding small { color: #667a6f; }
+.market-pulse-finding small { color: #93a699; }
 .market-pulse-concentration-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid rgba(183, 213, 195, .12); border-radius: .8rem; overflow: hidden; }
 .market-pulse-concentration-grid article { min-height: 9rem; padding: 1rem; background: #09130f; }
 .market-pulse-concentration-grid article + article { border-left: 1px solid rgba(183, 213, 195, .12); }
 .market-pulse-concentration-grid strong { display: block; margin: 1.4rem 0 .55rem; color: #eef4ef; font-size: clamp(1.35rem, 2.6vw, 2rem); }
-.market-pulse-concentration-grid small { color: #65786d; }
+.market-pulse-concentration-grid small { color: #93a699; }
 .market-pulse-interpretation blockquote { max-width: 32ch; margin: 2rem 0; color: #f1f5f2; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: clamp(1.65rem, 4vw, 3.2rem); font-weight: 610; letter-spacing: -.035em; line-height: 1.08; }
 .market-pulse-interpretation ul { display: grid; gap: .55rem; max-width: 50rem; padding-left: 1.2rem; color: #a2b1a8; line-height: 1.55; }
 .market-pulse-method { margin-top: 1.5rem; color: #63766b; font: .7rem/1.5 var(--font-mono, monospace); text-transform: uppercase; }
@@ -18534,7 +18534,7 @@ samp,
 .cross-layer-overview dl div:nth-child(n+3) { border-top: 1px solid rgba(183, 213, 195, .12); }
 .cross-layer-overview dt, .cross-layer-market dt { color: #7f9388; font: 600 .67rem/1.35 var(--font-mono, monospace); letter-spacing: .07em; text-transform: uppercase; }
 .cross-layer-overview dd { margin: 1rem 0 .35rem; color: #f0f5f1; font-size: clamp(1.45rem, 3vw, 2.25rem); font-weight: 620; letter-spacing: -.035em; }
-.cross-layer-overview small { color: #65786d; }
+.cross-layer-overview small { color: #93a699; }
 .cross-layer-section-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(14rem, 31rem); gap: 2rem; align-items: end; margin-bottom: 1.5rem; }
 .cross-layer-section-head > p { margin: 0; }
 .cross-layer-projects { display: grid; gap: .8rem; }
@@ -18552,7 +18552,7 @@ samp,
 .cross-layer-evidence h4, .cross-layer-market h4 { margin: 0 0 .75rem; color: #dbe6df; font-size: .82rem; letter-spacing: .03em; }
 .cross-layer-evidence ul { margin: 0 0 .75rem; padding-left: 1.15rem; color: #9caea4; line-height: 1.55; }
 .cross-layer-evidence p, .cross-layer-unavailable { color: #8d9e95; }
-.cross-layer-evidence small, .cross-layer-market small { color: #65786d; }
+.cross-layer-evidence small, .cross-layer-market small { color: #93a699; }
 .cross-layer-market dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; margin: 0 0 .8rem; }
 .cross-layer-market dl div { min-width: 0; padding-right: .6rem; }
 .cross-layer-market dd { margin: .35rem 0 0; color: #dfe8e2; overflow-wrap: anywhere; }
@@ -18614,3 +18614,5 @@ samp,
   .cross-layer-hero, .cross-layer-overview, .cross-layer-section, .cross-layer-methodology, .cross-layer-project-card { border-color: #8ba095; }
   .cross-layer-hero-copy > p:last-child, .cross-layer-section-head > p, .cross-layer-explanation { color: #d1dbd5; }
 }
+
+.site-header > .product-wayfinding, .rh-chain-shell .product-wayfinding { padding: 8px 20px; border-bottom: 1px solid var(--radar-line); }

@@ -1,3 +1,4 @@
+import { ProductWayfinding } from './productPrimitives';
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { radarNetworkForPath, type RadarNavigationContext, type RadarNetworkId } from './bootContext';
 import {
@@ -295,7 +296,7 @@ export function RadarProductNavigation({
     ...navigation.overflowGroups
   ];
 
-  return <nav className={`global-toolbar radar-product-navigation context-${context} ${className}`.trim()} aria-label={`${context === 'universal' ? 'Infopunks Radar' : RADAR_NETWORKS[context].contextLabel} navigation`}>
+  return <><ProductWayfinding current={current.split('#')[0]} /><nav className={`global-toolbar radar-product-navigation context-${context} ${className}`.trim()} aria-label={`${context === 'universal' ? 'Infopunks Radar' : RADAR_NETWORKS[context].contextLabel} navigation`}>
     <RadarHeaderIdentity context={context} />
     <div className="terminal-nav radar-primary-navigation" aria-label="Primary destinations">
       {navigation.primaryItems.map((item) => <span className={item.compactPriority ? 'radar-primary-priority' : 'radar-primary-collapsible'} key={item.href}><NavigationLink item={item} current={current} /></span>)}
@@ -362,7 +363,7 @@ export function RadarProductNavigation({
         </div>}
       </PopupMenu>}
     </div>}
-  </nav>;
+  </nav></>;
 }
 
 export function RadarContextHeader({ active = 'solana', current }: { active?: RadarNetworkId; current?: string }) {

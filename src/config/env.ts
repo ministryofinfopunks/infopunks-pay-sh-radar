@@ -1,5 +1,7 @@
+import { controlledStagingIssues } from './controlledStaging';
 import { EconomicNetworkSchema, type EconomicNetwork } from '../security/economicRails';
 import { judgmentIssuerFromEnv } from '../security/judgmentIssuer';
+import { createJudgmentIdentity } from '../security/judgmentIdentity';
 import { z } from 'zod';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -8,6 +10,7 @@ import { parseDatabasePoolMax } from '../persistence/databasePool';
 export type RuntimeConfig = {
   env: string;
   isProduction: boolean;
+  controlledStaging: boolean;
   port: number;
   databaseUrl: string | null;
   databasePoolMax: number;
@@ -157,6 +160,8 @@ export function assertProductionCatalog(env: NodeJS.ProcessEnv) {
 
 export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): RuntimeConfig {
   const nodeEnv = env.NODE_ENV ?? 'development';
+  const stagingIssues = controlledStagingIssues(env);
+  if (stagingIssues.length) throw new RuntimeConfigurationError(stagingIssues);
   const isProduction = nodeEnv === 'production';
   const port = readPort(env.PORT, isProduction);
   if (isProduction) {
@@ -166,6 +171,7 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
   const config: RuntimeConfig = {
     env: nodeEnv,
     isProduction,
+    controlledStaging: readBoolean('RADAR_CONTROLLED_STAGING', env.RADAR_CONTROLLED_STAGING, false),
     port,
     databaseUrl: optionalString(env.DATABASE_URL),
     databasePoolMax: parseDatabasePoolMax(env.DATABASE_POOL_MAX, 10),
@@ -277,6 +283,11 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
   if (config.judgmentPaymentEnabled && config.judgmentNetwork !== 'eip155:4663') throw new RuntimeConfigurationError([{ variable: 'JUDGMENT_NETWORK', code: 'new_judgments_require_usdg_4663' }]);
   if (config.judgmentPaymentEnabled && config.judgmentNetwork === 'eip155:4663' && !config.judgmentRhRpcUrl) throw new RuntimeConfigurationError([{ variable: 'JUDGMENT_RH_RPC_URL', code: 'rh_rpc_required' }]);
   if (config.judgmentPaymentEnabled && (!config.databaseUrl || !config.judgmentFacilitatorUrl || !config.judgmentResourceUrl || !/^0x[a-fA-F0-9]{40}$/.test(config.judgmentPayTo ?? ''))) throw new RuntimeConfigurationError([{ variable: 'JUDGMENT_PAYMENT_ENABLED', code: 'payment_configuration_incomplete' }]);
+  let identity;
+  try { identity = createJudgmentIdentity(env.JUDGMENT_API_KEYS_JSON); }
+  catch { throw new RuntimeConfigurationError([{ variable: 'JUDGMENT_API_KEYS_JSON', code: 'invalid_credentials_configuration' }]); }
+  if (config.adminToken && identity.authenticate('Bearer ' + config.adminToken)) throw new RuntimeConfigurationError([{ variable: 'JUDGMENT_API_KEYS_JSON', code: 'operator_credential_reused' }]);
+  if (isProduction && config.judgmentPaymentEnabled && !identity.configured) throw new RuntimeConfigurationError([{ variable: 'JUDGMENT_API_KEYS_JSON', code: 'production_judgment_identity_required' }]);
   return config;
 }
 
@@ -371,6 +382,7 @@ function resolveOptionalProductionFeatures(config: RuntimeConfig) {
 }
 
 const RUNTIME_ENVIRONMENT_DEPENDENCIES: Array<{ name: string; hasDefault: boolean }> = [
+  'JUDGMENT_API_KEYS_JSON',
   'JUDGMENT_NETWORK', 'JUDGMENT_PRICE', 'JUDGMENT_RH_RPC_URL', 'JUDGMENT_ISSUER', 'JUDGMENT_ISSUER_KEYS_JSON', 'JUDGMENT_SIGNING_KEY_ID', 'JUDGMENT_SIGNING_PRIVATE_KEY', 'JUDGMENT_PAYMENT_ENABLED', 'RECEIPT_PROCEED_CONFIDENCE_THRESHOLD', 'NODE_ENV', 'PORT', 'ADMIN_TOKEN', 'INFOPUNKS_ADMIN_TOKEN', 'DATABASE_URL', 'DATABASE_POOL_MAX', 'PAY_SH_CATALOG_URL', 'PAYSH_CATALOG_SOURCE', 'PAYSH_ALLOW_FIXTURE_FALLBACK', 'PAYSH_BOOTSTRAP_ENABLED', 'PAY_SH_INGEST_INTERVAL_MS', 'INGESTION_ENABLED', 'MONITOR_ENABLED', 'MONITOR_MODE', 'MONITOR_INTERVAL_MS', 'MONITOR_TIMEOUT_MS', 'MONITOR_MAX_PROVIDERS', 'MONITOR_ALLOW_PAID_ENDPOINTS', 'FEATURED_PROVIDER_ROTATION_MS', 'MACHINE_DEMO_SEED', 'MACHINE_RECEIPTS_JSONL_PATH', 'INFOPUNKS_BIGQUERY_LIVE_CREDENTIALS_CONFIGURED', 'INFOPUNKS_BIGQUERY_LIVE_HARNESS_ENABLED', 'INFOPUNKS_BIGQUERY_LIVE_HARNESS_MODE', 'INFOPUNKS_BIGQUERY_LIVE_RAIL_CONFIGURED', 'RH_CHAIN_LIVE_SNAPSHOTS_ENABLED', 'RH_CHAIN_PROVIDER_TIMEOUT_MS', 'RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS', 'RH_CHAIN_CACHE_TTL_SECONDS', 'RH_CHAIN_BLOCKSCOUT_URL', 'DEXSCREENER_ENABLED', 'DEXSCREENER_BASE_URL', 'DEXSCREENER_RH_CHAIN_ID', 'DEXSCREENER_TIMEOUT_MS', 'DEXSCREENER_CACHE_TTL_SECONDS', 'DEXSCREENER_STALE_WHILE_REVALIDATE_SECONDS', 'DEXSCREENER_MAX_STALE_SECONDS', 'DEXSCREENER_MAX_BATCH_SIZE', 'DEXSCREENER_MAX_RETRIES', 'DEXSCREENER_RETRY_BASE_MS', 'DEXSCREENER_MAX_CONCURRENCY', 'DEXSCREENER_RATE_LIMIT_PER_SECOND', 'BLOCKSCOUT_ENABLED', 'BLOCKSCOUT_BASE_URL', 'BLOCKSCOUT_TIMEOUT_MS', 'BLOCKSCOUT_CACHE_TTL_SECONDS', 'BLOCKSCOUT_MAX_PAGE_SIZE', 'RH_CHAIN_REVIEW_CONSOLE_ENABLED', 'RH_CHAIN_REVIEW_ADMIN_TOKEN', 'RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED', 'RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED', 'RH_CHAIN_PROJECT_CLAIMS_ENABLED', 'RH_CHAIN_INTELLIGENCE_RECEIPTS_ENABLED', 'RH_CHAIN_PROJECT_DIRECTORY_ENABLED', 'RH_CHAIN_AUTOMATION_ENABLED', 'RH_CHAIN_MARKET_INGESTION_ENABLED', 'RH_CHAIN_MARKET_HISTORY_ENABLED', 'RH_CHAIN_AUTOMATION_INSTANCE_ID', 'RH_CHAIN_JOB_LOCK_TTL_MS', 'RH_CHAIN_CHAIN_PULSE_INTERVAL_MS', 'RH_CHAIN_MEME_PULSE_INTERVAL_MS', 'RH_CHAIN_LAUNCHPAD_INTERVAL_MS', 'RH_CHAIN_RECEIPT_DRAFT_CRON', 'RH_CHAIN_PUBLIC_RATE_LIMIT_ENABLED', 'RH_CHAIN_PUBLIC_RATE_LIMIT_WINDOW_MS', 'RH_CHAIN_PUBLIC_RATE_LIMIT_MAX', 'RH_CHAIN_DUPLICATE_WINDOW_MS', 'RH_4663_PHASE2_ENABLED', 'RH_4663_RESOLUTION_PRIVATE_KEY', 'RH_4663_RESOLUTION_KEY_ID', 'RH_4663_ANCHOR_RPC_URL', 'RH_4663_ANCHOR_CONTRACT', 'RH_4663_ANCHOR_PRIVATE_KEY', 'RH_4663_ANCHOR_CONFIRMATIONS', 'RH_4663_PHASE3_ENABLED', 'RH_4663_PHASE3_INGESTION_ENABLED', 'RH_4663_PHASE3_CANDIDATE_GENERATION_ENABLED', 'RH_4663_PHASE3_PUBLICATION_ENABLED', 'RH_4663_AUTO_PUBLICATION_ENABLED', 'RH_4663_EXTERNAL_DISTRIBUTION_ENABLED', 'RH_4663_PHASE3_SHADOW_MODE', 'RH_4663_PHASE3_INTERVAL_MS', 'RH_4663_PHASE2_PRODUCTION_PROOF_VERIFIED', 'RH_4663_CAMPAIGN_MODE_ENABLED', 'RH_4663_CAMPAIGN_REHEARSAL_ENABLED', 'IPX_PLTR_SHADOW_OBSERVATION_ENABLED', 'IPX_PLTR_SHADOW_OBSERVATION_INTERVAL_MS', 'IPX_PLTR_SHADOW_CAPACITY_SWEEP_ENABLED', 'FRONTEND_ORIGIN', 'EVALUATION_REQUEST_WEBHOOK_URL', 'MACHINE_EXECUTION_ENABLED', 'PAY_SH_TRANSLATION_URL', 'PAY_SH_TRANSLATION_AUTH_MODE', 'PAY_SH_TRANSLATION_AUTH_HEADER', 'PAY_SH_TRANSLATION_AUTH_TOKEN', 'PAY_SH_TRANSLATION_PAYMENT_HEADER', 'PAY_SH_TRANSLATION_PAYMENT_VALUE', 'PAY_SH_TRANSLATION_TIMEOUT_MS', 'HERMES_ENABLED', 'HERMES_BASE_URL', 'HERMES_API_KEY', 'HERMES_MODE', 'APP_VERSION'
   // Kept separately to make additions to this intentionally long dependency
   // inventory reviewable without dropping established diagnostics.
@@ -383,6 +395,7 @@ export function deploymentSummary(config: RuntimeConfig) {
     service: 'infopunks-pay-sh-radar',
     version: config.version,
     env: config.env,
+    controlledStaging: config.controlledStaging,
     apiPort: config.port,
     monitorEnabled: config.monitorEnabled,
     monitorMode: config.monitorMode,

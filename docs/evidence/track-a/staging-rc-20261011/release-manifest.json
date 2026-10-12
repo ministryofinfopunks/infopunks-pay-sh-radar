@@ -1,0 +1,77 @@
+{
+  "release_track": "Track A",
+  "candidate_branch": "codex/track-a-staging-rc-20261011",
+  "source_revision": "f061ab4f3cda984e17e62cedb961fe2cbd752075",
+  "base_revision": "f6b5de64e96da4e5bacbfba39f6cdf6940d2aa79",
+  "main_revision": "dfe089bb71c6b4c52acdfb0e8e5b8cc331a13a2f",
+  "evidence_commit": "Resolve the branch tip: evidence-only follow-up; source revision separately pinned",
+  "source_test_status": "PASS",
+  "staging_decision": "HOLD",
+  "deployment_authorized": false,
+  "deployed": false,
+  "payment_enabled": false,
+  "execution_enabled": false,
+  "ipx_pltr_financial_operations_changed": false,
+  "pr6_merged": false,
+  "e1_activated": false,
+  "production_secrets_used": false,
+  "production_readiness_claim": false,
+  "real_paid_settlement_claim": false,
+  "causal_improvement_claim": false,
+  "migration_sequence": "001\u2013022; original 001\u2013021 unchanged",
+  "test_evidence": "check-results.json",
+  "integration_ledger": "integration-ledger.md",
+  "railway_manifest": "../../../../deployment/railway-staging-manifest.json",
+  "runbook": "railway-staging-runbook.md",
+  "remaining_staging_blockers": [
+    {
+      "id": "S1",
+      "blocker": "Independent review/approval of frozen candidate, security profile, Node runtime and additive migration 022",
+      "evidence": "No reviewer approval supplied; local preparation is authorized, deployment is not"
+    },
+    {
+      "id": "S2",
+      "blocker": "Linux Docker build, immutable image digest, container runtime smoke and image scan",
+      "evidence": "Docker unavailable locally; macOS Node 24.21.0 tests are not image validation"
+    },
+    {
+      "id": "S3",
+      "blocker": "Operator-provisioned isolated Railway service/private PostgreSQL and reviewed access/variable plan",
+      "evidence": "No staging environment IDs/bindings/access supplied; no provisioning attempted"
+    },
+    {
+      "id": "S4",
+      "blocker": "Approved live catalog endpoint/freshness verification and unique staging admin binding",
+      "evidence": "No live staging URL or credentials supplied; fixture fallback forbidden"
+    },
+    {
+      "id": "S5",
+      "blocker": "Restricted staging ingress, edge limits, ongoing health alerts and named rollback/backup owners",
+      "evidence": "Not configured or externally rehearsed"
+    },
+    {
+      "id": "S6",
+      "blocker": "Staging migration JSON/checksums plus staging backup/restore/restart receipt/context/tape replay evidence",
+      "evidence": "Only disposable local PostgreSQL qualification exists"
+    }
+  ],
+  "independently_gated_features": [
+    {
+      "feature": "Intelligent UI PR #6",
+      "gate": "Approve public-data policy or implement authenticated authorization; keep draft/unmerged"
+    },
+    {
+      "feature": "E1 reviewer authority / Evaluation and reputation",
+      "gate": "Review b9597fc, resolve migration number collision, pin reviewer/rubric registry, retain evidence archive and qualify sidecar durability/replay in a separate release"
+    },
+    {
+      "feature": "OpenAI Decisions/provider benchmark",
+      "gate": "Independent real evidence and prospective protocol/provider approvals; no model spend authority"
+    },
+    {
+      "feature": "Payments/execution/IPX/PLTR financial",
+      "gate": "Outside this task; remain disabled"
+    }
+  ],
+  "rollback": "Stop first-boot service or use previously approved guarded staging image; keep additive DB schema, restore to new DB only after reviewed data-loss/replay validation; no automatic down migration"
+}

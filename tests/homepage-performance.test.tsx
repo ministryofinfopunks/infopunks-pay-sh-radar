@@ -1,98 +1,60 @@
 // @vitest-environment jsdom
-import React from 'react';
-import { act } from 'react';
+import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import { UniversalHomepage } from '../src/web/homepage';
-
-describe('universal homepage performance boundary', () => {
-  let root: Root;
-  let container: HTMLDivElement;
-
-  beforeEach(() => {
-    container = document.createElement('div');
-    document.body.append(container);
-    performance.clearMarks();
-  });
-
-  afterEach(() => {
-    act(() => root?.unmount());
-    container.remove();
-    vi.restoreAllMocks();
-  });
-
-  it('renders the meaningful homepage before a never-resolving live pulse', async () => {
-    vi.spyOn(globalThis, 'fetch').mockReturnValue(new Promise(() => {}));
-    await act(async () => {
-      root = createRoot(container);
-      root.render(<UniversalHomepage />);
-    });
-
-    expect(container.textContent).toContain('Intelligence before the wallet acts.');
-    expect(container.textContent).toContain('Open Solana Radar');
-    expect(container.textContent).toContain('Enter //4663');
-    expect(container.querySelector('[role="status"]')?.textContent).toContain('Live status connecting');
+describe('unified terminal homepage performance and honest capability boundary', () => {
+  let root: Root; let container: HTMLDivElement;
+  beforeEach(() => { container = document.createElement('div'); document.body.append(container); performance.clearMarks(); });
+  afterEach(() => { act(() => root?.unmount()); container.remove(); vi.restoreAllMocks(); });
+  async function mount() { await act(async () => { root = createRoot(container); root.render(<UniversalHomepage />); }); }
+  it('offers a subject-preserving check journey without fetching data or inventing a decision', async () => {
+    const fetch = vi.spyOn(globalThis, 'fetch').mockReturnValue(new Promise(() => {}));
+    await mount();
+    expect(fetch).not.toHaveBeenCalled();
+    expect(container.querySelector('h1')?.textContent).toBe('Before your agent spends, check the evidence.');
+    const form = container.querySelector<HTMLFormElement>('.radar-home-route-form')!;
+    expect(form.getAttribute('action')).toBe('/spend-terminal');
+    expect(form.getAttribute('method')).toBe('get');
+    const subject = form.querySelector<HTMLInputElement>('input[name="subject"]')!;
+    subject.value = 'solana:mainnet:service_route:route/a?b=c&d=1';
+    expect(new FormData(form).get('subject')).toBe(subject.value);
+    expect(container.querySelector('.rh a')?.getAttribute('aria-label')).toBe('Inspect a Market');
+    expect(container.querySelector('.rh a')?.getAttribute('href')).toBe('/rh-chain-signal-desk/market');
+    expect(container.querySelectorAll('.radar-home-proof-grid li')).toHaveLength(4);
+    expect(container.textContent).toContain('No wallet required');
     expect(performance.getEntriesByName('radar_homepage_rendered')).toHaveLength(1);
-    expect(performance.getEntriesByName('radar_live_status_started')).toHaveLength(1);
   });
-
-  it('keeps the homepage visible and reports a local degraded status on pulse failure', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 500 }));
-    await act(async () => {
-      root = createRoot(container);
-      root.render(<UniversalHomepage />);
-      await Promise.resolve();
-    });
-
-    expect(container.textContent).toContain('Intelligence before the wallet acts.');
-    expect(container.textContent).toContain('Live status delayed');
-    expect(performance.getEntriesByName('radar_live_status_failed')).toHaveLength(1);
+  it('keeps preview evidence unassessed and receipts unissued', async () => {
+    await mount();
+    const panel = container.querySelector('#judgment-preview')!;
+    expect(panel.textContent).toContain('NO CHECK RUN');
+    expect(panel.textContent).toContain('AWAITING EVIDENCE');
+    expect(panel.textContent).toContain('NOT ISSUED');
+    expect(panel.textContent).not.toMatch(/72%|VERIFIED|PROCEED WITH CAUTION|MAINNET/);
+    expect(container.querySelector('[aria-label="Confidence not assessed"]')?.textContent).toBe('—');
+    expect(container.querySelectorAll('.radar-evidence-list details')).toHaveLength(4);
+    expect(container.textContent).toContain('Execution requires separate authorization');
+    expect(container.textContent).toContain('Read-only inspection');
+    expect(container.textContent).toContain('Insufficient evidence is free');
   });
-
-  it('keeps the homepage entry free of deep route imports', async () => {
-    const source = await readFile(join(process.cwd(), 'src/web/main.tsx'), 'utf8');
+  it('keeps the homepage and check route separated from heavy Radar imports', async () => {
+    const source = await readFile('src/web/main.tsx', 'utf8');
     expect(source).toContain("lazy(() => import('./radarApp'))");
-    expect(source).not.toContain('preSpendBuilderPages');
-    expect(source).not.toContain('rhChainUi');
-    expect(source).not.toContain('providerRisk');
+    expect(source).toContain("lazy(() => import('./spendTerminalPage')");
+    expect(source).not.toContain('preSpendBuilderPages'); expect(source).not.toContain('rhChainUi');
   });
-
-  it('preserves mobile navigation touch targets without adding homepage overflow behavior', async () => {
-    const css = await readFile(join(process.cwd(), 'src/web/homepage.css'), 'utf8');
-    expect(css).toMatch(/\.radar-home-header nav a \{[^}]*min-width: 44px;[^}]*min-height: 44px;/s);
-    expect(css).toContain('width: min(100% - 28px, 1180px);');
-    expect(css).toContain('grid-template-columns: 1fr;');
-  });
-
-  it('connects Robinhood Chain to //4663 without changing the existing homepage navigation', async () => {
-    vi.spyOn(globalThis, 'fetch').mockReturnValue(new Promise(() => {}));
-    await act(async () => {
-      root = createRoot(container);
-      root.render(<UniversalHomepage />);
-    });
-
-    const primaryNav = container.querySelector('nav[aria-label="Primary navigation"]');
-    expect(primaryNav?.querySelector('a[href="/solana"]')?.textContent).toBe('Solana');
-    expect(primaryNav?.querySelector('a[href="/4663"]')?.textContent).toBe('//4663');
-    expect(primaryNav?.querySelector('a[href="/radar/cards"]')?.textContent).toBe('Pre-Spend Intelligence');
-
-    const rhCard = container.querySelector('.radar-home-cards article.rh');
-    expect(rhCard?.textContent).toContain('Robinhood Chain');
-    expect(rhCard?.querySelector('h3')?.textContent).toBe('//4663');
-    expect(rhCard?.querySelector('span')?.textContent).toBe('Pulse · Today · Signals · Receipts · Market memory');
-    const primaryRhLink = rhCard?.querySelector('a[href="/4663"]');
-    const signalDeskLink = rhCard?.querySelector('a[href="/rh-chain-signal-desk"]');
-    expect(primaryRhLink?.textContent).toContain('Enter //4663');
-    expect(primaryRhLink?.classList.contains('radar-home-card-secondary')).toBe(false);
-    expect(signalDeskLink?.textContent).toContain('Signal Desk');
-    expect(signalDeskLink?.classList.contains('radar-home-card-secondary')).toBe(true);
-
-    expect(container.textContent).toContain('After attention,intelligence.');
-    expect(container.textContent).toContain('Intelligence before the wallet acts.');
-    expect(container.textContent).toContain('Culture → intelligence → infrastructure.');
-    expect(container.textContent).toContain('One Radar. Two economies.');
-    expect(container.querySelector('.radar-home-cards a[href="/solana"]')?.textContent).toContain('Open Solana Radar');
+  it('provides all five destinations and an Escape-dismissible mobile navigation', async () => {
+    await mount();
+    expect([...container.querySelectorAll('nav a')].map(a => a.textContent)).toEqual(['Radar', 'Solana', 'Robinhood Chain', 'Proof', 'Developers']);
+    const toggle = container.querySelector<HTMLButtonElement>('.product-menu-toggle')!;
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(document.getElementById(toggle.getAttribute('aria-controls')!)?.tagName).toBe('NAV');
+    await act(async () => toggle.click());
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    await act(async () => container.querySelector('nav a')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })));
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(toggle);
   });
 });

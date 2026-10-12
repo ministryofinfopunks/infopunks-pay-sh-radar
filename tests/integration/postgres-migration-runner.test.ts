@@ -21,9 +21,9 @@ describe.skipIf(!url)('PostgreSQL migration runner', () => {
     const db = await isolatedSchema();
     try {
       const first = await runPostgresMigrations(db.pool);
-      expect(first.valid).toBe(true); expect(first.applied).toHaveLength(21); expect(first.pending).toEqual([]);
+      expect(first.valid).toBe(true); expect(first.applied).toHaveLength(22); expect(first.pending).toEqual([]);
       const second = await runPostgresMigrations(db.pool);
-      expect(second.valid).toBe(true); expect(second.applied).toHaveLength(21); expect(second.history).toHaveLength(21);
+      expect(second.valid).toBe(true); expect(second.applied).toHaveLength(22); expect(second.history).toHaveLength(22);
       await expect(db.pool.query('update infopunks_schema_migrations set checksum=checksum')).rejects.toMatchObject({ code: '55000' });
       await expect(db.pool.query('truncate infopunks_schema_migrations')).rejects.toMatchObject({ code: '55000' });
     } finally { await db.close(); }
@@ -36,7 +36,7 @@ describe.skipIf(!url)('PostgreSQL migration runner', () => {
       expect(outcomes.every((result) => result.valid && !result.pending.length)).toBe(true);
       const rows = await db.pool.query('select count(*)::int as count from infopunks_schema_migrations');
       const runs = await db.pool.query("select count(*)::int as count from infopunks_schema_migration_history where outcome='applied'");
-      expect(rows.rows[0].count).toBe(21); expect(runs.rows[0].count).toBe(21);
+      expect(rows.rows[0].count).toBe(22); expect(runs.rows[0].count).toBe(22);
     } finally { await db.close(); }
   }, 30_000);
 
@@ -49,22 +49,22 @@ describe.skipIf(!url)('PostgreSQL migration runner', () => {
       const refused = await runPostgresMigrations(db.pool);
       expect(refused.valid).toBe(false); expect(refused.failures).toContain('unledgered_existing_database_refused');
       const upgraded = await runPostgresMigrations(db.pool, { adoptBaseline: '017' });
-      expect(upgraded.valid, JSON.stringify(upgraded)).toBe(true); expect(upgraded.baseline_adopted).toBe('017'); expect(upgraded.applied).toHaveLength(21); expect(upgraded.pending).toEqual([]);
+      expect(upgraded.valid, JSON.stringify(upgraded)).toBe(true); expect(upgraded.baseline_adopted).toBe('017'); expect(upgraded.applied).toHaveLength(22); expect(upgraded.pending).toEqual([]);
       expect(upgraded.history.filter((row) => row.outcome === 'adopted')).toHaveLength(17);
-      expect(upgraded.history.filter((row) => row.outcome === 'applied')).toHaveLength(4);
+      expect(upgraded.history.filter((row) => row.outcome === 'applied')).toHaveLength(5);
     } finally { await db.close(); }
   }, 30_000);
 
-  it('supports the verified 020 baseline and applies only migration 021', async () => {
+  it('supports the verified 020 baseline and applies migrations 021–022', async () => {
     const db = await isolatedSchema();
     try {
       const client = await db.pool.connect();
       try { for (const entry of inspectMigrationDirectory().entries.slice(0,20)) await client.query(readFileSync(join(process.cwd(),'migrations',entry.file),'utf8')); }
       finally { client.release(); }
       const result = await runPostgresMigrations(db.pool, { adoptBaseline: '020' });
-      expect(result.valid).toBe(true); expect(result.baseline_adopted).toBe('020'); expect(result.applied).toHaveLength(21);
+      expect(result.valid).toBe(true); expect(result.baseline_adopted).toBe('020'); expect(result.applied).toHaveLength(22);
       expect(result.history.filter((row) => row.outcome === 'adopted')).toHaveLength(20);
-      expect(result.history.filter((row) => row.outcome === 'applied').map((row) => row.migration_id)).toEqual(['20261008_021']);
+      expect(result.history.filter((row) => row.outcome === 'applied').map((row) => row.migration_id)).toEqual(['20261008_021', '20261008_022']);
     } finally { await db.close(); }
   }, 30_000);
 
@@ -77,7 +77,7 @@ describe.skipIf(!url)('PostgreSQL migration runner', () => {
       expect(failed.valid).toBe(false); expect(failed.applied).toEqual(['20260719_001']); expect(failed.pending[0]).toBe('20260719_002');
       expect(failed.history.at(-1)?.outcome).toBe('failed');
       const retry = await runPostgresMigrations(db.pool);
-      expect(retry.valid).toBe(true); expect(retry.pending).toEqual([]); expect(retry.applied).toHaveLength(21);
+      expect(retry.valid).toBe(true); expect(retry.pending).toEqual([]); expect(retry.applied).toHaveLength(22);
     } finally { rmSync(directory, { recursive: true, force: true }); await db.close(); }
   }, 30_000);
 

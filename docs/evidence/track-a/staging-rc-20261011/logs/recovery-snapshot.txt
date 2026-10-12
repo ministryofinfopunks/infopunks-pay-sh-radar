@@ -1,0 +1,1 @@
+{"mode":"snapshot","signature_valid":true,"chain_valid":true,"receipt_hash":"sha256:75000df6a413437530cd0a92ff487f70d30c7d848ea372f9a430a193f7fbfbb8","projection_hash":"sha256:1c7af4b7bf81fa648de4316b04276e417bde82cbff1febddca5d384a4cab5169","exact_replay_match":false}

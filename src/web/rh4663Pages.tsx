@@ -1,3 +1,4 @@
+import { ProductWayfinding } from './productPrimitives';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import type { Rh4663CallReceipt, Rh4663RotationOption, Rh4663Signal, Rh4663SignalCategory, Rh4663TodayEdition } from '../services/rh4663Service';
@@ -72,10 +73,10 @@ export function Rh4663Page() {
   if (view === 'home') return <Home />;
   return <div className="i4663-app">
     <header className="i4663-header">
-      <a className="i4663-wordmark" href="/4663" aria-label="Infopunks 4663 home"><span>INFOPUNKS</span><b>//4663</b></a>
+      <a className="i4663-wordmark" href="/4663" aria-label="Infopunks Radar 4663 research"><span>INFOPUNKS RADAR</span><b>//4663</b></a>
       <a className="i4663-radar-link" href="/rh-chain-signal-desk">RH DESK ↗</a>
     </header>
-    <nav className="i4663-nav" aria-label="4663 navigation"><a href="/4663#now">Now</a><a href="/4663#watch">Watch</a><a href="/4663#call">Call</a><a href="/4663#proof">Proof</a></nav>
+    <ProductWayfinding current="/rh-chain-signal-desk" /><nav className="i4663-nav" aria-label="4663 navigation"><a href="/4663#now">Now</a><a href="/4663#watch">Watch</a><a href="/4663#call">Call</a><a href="/4663#proof">Proof</a></nav>
     {view === 'campaign' && campaignId ? <CampaignLanding campaignId={decodeURIComponent(campaignId)} /> : view === 'print' && printId ? <Print printId={decodeURIComponent(printId)} /> : view === 'pulse' ? <Pulse /> : view === 'consensus' && consensusWindowId ? <ConsensusPage windowId={decodeURIComponent(consensusWindowId)} /> : view === 'today' ? <Today /> : view === 'signals' ? <Signals /> : view === 'signal_detail' && signalId ? <SignalProofPage signalId={decodeURIComponent(signalId)} /> : view === 'proof_profile' && proofWallet ? <ProofProfilePage wallet={proofWallet} /> : view === 'proof' && (proofId || callId || resolutionId) ? <ProofPage receiptId={decodeURIComponent(proofId ?? callId ?? resolutionId ?? '')} campaignRoute={callId ? 'call' : resolutionId ? 'resolution' : 'proof'} /> : <Receipts />}
     <footer className="i4663-footer"><span>AFTER ATTENTION, INTELLIGENCE.</span><span>UTC / RH CHAIN / PUBLIC MEMORY</span></footer>
   </div>;
@@ -99,7 +100,7 @@ function SocialLanding({ shareObjectId }: { shareObjectId: string }) {
   if (!object) return <main className="i4663-social-shell"><a className="i4663-wordmark" href="/4663"><span>INFOPUNKS</span><b>//4663</b></a><DataState status={api.status} message={api.message} /></main>;
   const action = socialAction(object);
   return <main className="i4663-social-shell" aria-labelledby="social-object-title">
-    <header><a className="i4663-wordmark" href="/4663" aria-label="Infopunks 4663 home"><span>INFOPUNKS</span><b>//4663</b></a><ShareControl object={object} /></header>
+    <header><a className="i4663-wordmark" href="/4663" aria-label="Infopunks Radar 4663 research"><span>INFOPUNKS RADAR</span><b>//4663</b></a><ShareControl object={object} /></header>
     <article className="i4663-social-object">
       <p className="i4663-micro">//4663 · {object.share_type.replaceAll('_', ' ')}</p>
       <section className="i4663-social-answer"><p className="i4663-social-question">WHAT HAPPENED?</p><h1 id="social-object-title">{object.primary_statement}</h1>{object.primary_metric && <strong className="i4663-social-metric">{object.primary_metric}</strong>}</section>

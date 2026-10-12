@@ -7,11 +7,11 @@ import { FORBIDDEN_SCORE_FIELDS } from '../../src/schemas/evaluate';
 import { ScoreProjectionSchema } from '../../src/schemas/scoreProjection';
 import { createOpenApiSpec } from '../../src/api/openapi';
 afterEach(() => vi.unstubAllEnvs());
-it('exposes strict evaluation, authenticated provenance, idempotency, and free score reads', async () => {
+it('exposes strict evaluation, authenticated provenance, idempotency, and authenticated free score reads', async () => {
   vi.stubEnv('ADMIN_TOKEN', 'test-phase4'); const app = await createApp(emptyIntelligenceStore());
   const headers = { authorization: 'Bearer test-phase4' };
   try {
-    const baseline = await app.inject('/v1/score/provider_test');
+    const baseline = await app.inject({ url:'/v1/score/provider_test',headers });
     expect(baseline.statusCode).toBe(200); expect(baseline.headers['payment-required']).toBeUndefined();
     expect(baseline.json().data.score).toBe(0);
     expect((await app.inject({ method: 'POST', url: '/v1/evaluate', payload: evaluationRequest })).statusCode).toBe(401);
@@ -30,10 +30,10 @@ it('exposes strict evaluation, authenticated provenance, idempotency, and free s
     expect(written.statusCode, written.body).toBe(200); expect(written.json().data.score_delta).toBe(-15);
     expect((await app.inject({ method: 'POST', url: '/v1/evaluate', headers, payload: evaluationRequest })).json()).toEqual(written.json());
     expect((await app.inject({ method: 'POST', url: '/v1/evaluate', headers, payload: { ...evaluationRequest, outcome: 'confirmed' } })).statusCode).toBe(409);
-    const score = await app.inject('/v1/score/provider_test');
+    const score = await app.inject({ url:'/v1/score/provider_test',headers });
     expect(ScoreProjectionSchema.parse(score.json().data)).toMatchObject({ score: 0, evaluation_count: 0, outcome_counts: { confirmed: 0, weakened: 0, contradicted: 0 } });
     expect(score.headers['payment-required']).toBeUndefined();
-    expect((await app.inject('/v1/score/provider_test?subject_type=route')).json().data.score).toBe(0);
+    expect((await app.inject({ url:'/v1/score/provider_test?subject_type=route',headers })).json().data.score).toBe(0);
   } finally { await app.close(); }
 });
 it('documents the strict evaluation and free score API', () => {

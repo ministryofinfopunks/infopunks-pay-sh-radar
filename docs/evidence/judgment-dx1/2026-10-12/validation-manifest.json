@@ -1,0 +1,390 @@
+{
+  "version": "judgment-dx1-local-qualification.v1",
+  "recorded_at": "2026-10-12T10:36:12.513406+00:00",
+  "implementation_commit": "9d02a6cf45772a65b82e27b559a068ed1a4875f8",
+  "implementation_tree": "aad46e92fb5ee8709674090d3ea036454e9d371c",
+  "pr7_head": "b3c9a94fb8b0ab0f8ad5e027ed45f63347f02c79",
+  "track_a_base": "f6b5de64e96da4e5bacbfba39f6cdf6940d2aa79",
+  "integration": {
+    "baseRefName": "codex/track-a-release-candidate",
+    "headRefName": "codex/pre-spend-launch-hardening",
+    "headRefOid": "b3c9a94fb8b0ab0f8ad5e027ed45f63347f02c79",
+    "isDraft": true,
+    "mergeStateStatus": "CLEAN",
+    "mergeable": "MERGEABLE",
+    "number": 7,
+    "reviews": [],
+    "state": "OPEN",
+    "statusCheckRollup": [],
+    "url": "https://github.com/ministryofinfopunks/infopunks-pay-sh-radar/pull/7"
+  },
+  "branch": "codex/judgment-dx1",
+  "decision": "HOLD",
+  "production_payments_enabled": false,
+  "deployed": false,
+  "main_or_track_a_merged": false,
+  "implementation_source_sha256": {
+    ".dockerignore": "49ea197cbe7fa51f0aad90c647b8d056df3faa24487a8fc9a33b99f3d8436256",
+    "Dockerfile": "957f1fa0225ae0b977fdbb0d89d48a0be553860b75a67caf1dc66bf7742ae84f",
+    "package.json": "224f46a3c3b6ef9bad6f9212f6f83bd2ceff454649e0d1d642f8b6b87136948e",
+    "src/api/app.ts": "476c1657a3936f971d1b813860c1e0aa99225933d50e3546136d7814b02a2045",
+    "src/api/judgmentPrivateAccess.ts": "1fc046c40f5d99fc25d2b3f23be7c56a87c63c028cd223f499d6a30723f3bae9",
+    "src/api/openapi.ts": "ff2ff4dfe8d81489274d7f3af77d4534bfb5f10676d52faa17724210c104ebab",
+    "src/config/env.ts": "35848c2b69fd7c585456799e5a4a0b4bf0baf6956b4ae049e4390f2f6c33af8a",
+    "src/repositories/judgmentRequestRepository.ts": "11562654d79a0063cb934c7a3570f8b4f22eec0fa754dd1d6216bef3cbaf9ff0",
+    "src/sdk/index.ts": "1ecd7525a36c8c58156041ffd3037717d65f2ec8474098f1ca1ba5f372f14be5",
+    "src/sdk/judgmentClient.ts": "851ad0b84f28bd57e48b1ef10a67141f20920ccea10dd8031918442cc74af02f",
+    "src/sdk/judgmentIntegrity.ts": "45f917d759b326f1a525ac20f364d471b1b6622e98d943e0b7462efa4ee694ea",
+    "src/sdk/preSpendClient.ts": "02c9c1e9239dc6235eb71c22509b04322311fa605757993a6f28d9355956dbe7",
+    "src/sdk/protectedSessionStore.ts": "e4d477ae4c56018a9c64d3e1ce2dbd7c5b7ababef4191b2a14809cb32aa6ebff",
+    "src/sdk/x402WalletPayment.ts": "fa3ef0171da517e89c8ff8071dd56c450feab5b40629cac94f15e7aedcb3018f",
+    "src/security/judgmentAccessPolicy.ts": "a9e7849c721af37e0c652bcd28c14d96fb473a75493aae7a36c9811995447737",
+    "src/security/judgmentIdentity.ts": "d7609eec65b67a1f9ca097be5d64005df664c976c579eff9b699ed56fed48619",
+    "src/security/judgmentIssuer.ts": "66902c6f9af5aa0c7d0480d9fc1784b1db92651cb8d9037a16640c74fe48d77b",
+    "src/security/judgmentIssuerProtocol.ts": "a123bc7640b754f340ad3eaca59fa52f663ef0c0d2d79df32e156ebad90f77fe",
+    "src/services/judgmentPresentation.ts": "d699205e9a30cd5aef092727dba9239525527c0bc28144d62079ed7693fc9e7d",
+    "src/services/judgmentReconciliationService.ts": "2aaa984a37d06267998eac569cecd6daa4938f82d4ff2ce693f20d877e43d954",
+    "src/services/judgmentService.ts": "bd127617901f0518f0fc8c46700a0bc0c579a2db8a4b703d2a4b0d986db899cd",
+    "src/web/judgmentCheck.css": "4c1739ce185d363b53d0266e37a3f47249a2b17a79bae00120b64b5c10a2a4a8",
+    "src/web/judgmentCheckPanel.tsx": "102d2f6405d014379b0e244f47033cf15930957ab219d9e29a295b5f724e8cfd",
+    "src/web/preSpendBuilderPages.tsx": "c9789f526818692093319e08fb7d08f26a8f61f34ff4b9763bfe14deeb4388ed",
+    "tests/economic-accounting-api.test.ts": "317481f714c2405fb7fa6ea42866e024a7e9e286be7922878e0694eab079f9ff",
+    "tests/helpers/judgmentDx.ts": "dc018e47da08faae9b74da355166b62797fee5c155ec8f9977d3d79a55e70c86",
+    "tests/helpers/judgmentReconciliation.ts": "60029ad4be73ab4a1c0f47aca1084cf85d6ce5a3312f4cd4dbb9ad89120009fe",
+    "tests/integration/evaluate.test.ts": "20c5d63cd4bb78e82602f7a5690b022e4ed26c8e4453895615225d8522c7f089",
+    "tests/integration/execute-proof.test.ts": "7dee166bc59259e113e56a6386d3113cddd9a5a21f4f8b35c73e0ef41f756d37",
+    "tests/integration/judgment-dx-postgres.test.ts": "163d5c64ce5c722d51f4055a921e39c3dd9bbe2e106807216c97e4e600be7524",
+    "tests/integration/pre-spend-payment.test.ts": "b6f14e618d586741918932776873dee86908cf71ebbad804ebb2385c93662b98",
+    "tests/judgment-dx-sdk.test.ts": "58ca41ef134806a0523ddd3a0311f94b97e925f1808368b804d8fa597ca08b90",
+    "tests/judgment-issuer.test.ts": "634ec2ab8cf5d9b70186ccd7cbd4e5d31c6050cfcbd93d6249e32ed8ec6f0307",
+    "tests/judgment-private-access.test.ts": "6267057ec9c05886f6c426e0e6a7f394a753b6b56a5de833d96d465a1a39aacc",
+    "tests/judgment-reconciliation.test.ts": "9899d1a5950bdad50e2bc379995fe67942539876b4d7d1d06dfa424f5982d721",
+    "tests/legacy-write-lockdown.test.ts": "dc48da4080b018dcfa1c2156814da401eeba2d0cecd82ca606a693401bb6a84c",
+    "tests/machine-preflight.test.ts": "7e5e0365e7dce7c7af0ce8e01e9bf8c549f3e944110f867968a28b0596d9dabf",
+    "tests/pre-spend-builder-pages.test.tsx": "61b215412445cf6e8d600d4d62f6d8206d9d1029bb3877f830bfecd418f11907",
+    "tests/receipt-spine.test.ts": "95141e56b5a3cb9681b68228265161bf6d2702d42bf2f37c7ea9e4edbb77853d",
+    "tests/unit/judgment-service.test.ts": "72ffb62cfaedd5ab6f0b874122c631e3c1d87d97d8d3836e65d8e358dccce4c2"
+  },
+  "all_changed_files": [
+    ".dockerignore",
+    "Dockerfile",
+    "docs/evidence/judgment-dx1/2026-10-12/browser-qa.json",
+    "docs/evidence/judgment-dx1/2026-10-12/changed-files.md",
+    "docs/evidence/judgment-dx1/2026-10-12/database-recovery.json",
+    "docs/evidence/judgment-dx1/2026-10-12/physical-recovery-qualification.ts",
+    "docs/evidence/judgment-dx1/2026-10-12/route-policy.json",
+    "docs/evidence/judgment-dx1/2026-10-12/runtime-qualification.json",
+    "docs/evidence/judgment-dx1/2026-10-12/ui-desktop.png",
+    "docs/evidence/judgment-dx1/2026-10-12/ui-mobile.png",
+    "docs/evidence/judgment-dx1/2026-10-12/validation-manifest.json",
+    "docs/judgment-dx1-developer-guide.md",
+    "docs/judgment-dx1-qualification-2026-10-12.md",
+    "docs/judgment-dx1-reconciliation-runbook.md",
+    "package.json",
+    "src/api/app.ts",
+    "src/api/judgmentPrivateAccess.ts",
+    "src/api/openapi.ts",
+    "src/config/env.ts",
+    "src/repositories/judgmentRequestRepository.ts",
+    "src/sdk/index.ts",
+    "src/sdk/judgmentClient.ts",
+    "src/sdk/judgmentIntegrity.ts",
+    "src/sdk/preSpendClient.ts",
+    "src/sdk/protectedSessionStore.ts",
+    "src/sdk/x402WalletPayment.ts",
+    "src/security/judgmentAccessPolicy.ts",
+    "src/security/judgmentIdentity.ts",
+    "src/security/judgmentIssuer.ts",
+    "src/security/judgmentIssuerProtocol.ts",
+    "src/services/judgmentPresentation.ts",
+    "src/services/judgmentReconciliationService.ts",
+    "src/services/judgmentService.ts",
+    "src/web/judgmentCheck.css",
+    "src/web/judgmentCheckPanel.tsx",
+    "src/web/preSpendBuilderPages.tsx",
+    "tests/economic-accounting-api.test.ts",
+    "tests/helpers/judgmentDx.ts",
+    "tests/helpers/judgmentReconciliation.ts",
+    "tests/integration/evaluate.test.ts",
+    "tests/integration/execute-proof.test.ts",
+    "tests/integration/judgment-dx-postgres.test.ts",
+    "tests/integration/pre-spend-payment.test.ts",
+    "tests/judgment-dx-sdk.test.ts",
+    "tests/judgment-issuer.test.ts",
+    "tests/judgment-private-access.test.ts",
+    "tests/judgment-reconciliation.test.ts",
+    "tests/legacy-write-lockdown.test.ts",
+    "tests/machine-preflight.test.ts",
+    "tests/pre-spend-builder-pages.test.tsx",
+    "tests/receipt-spine.test.ts",
+    "tests/unit/judgment-service.test.ts"
+  ],
+  "checks": {
+    "macos_full": {
+      "status": "pass",
+      "files": 277,
+      "passing_tests": 1975,
+      "failing_tests": 0,
+      "skipped_tests": 0,
+      "log": "full-tests-final.log"
+    },
+    "linux_full": {
+      "status": "pass",
+      "files": 277,
+      "passing_tests": 1975,
+      "failing_tests": 0,
+      "skipped_tests": 0,
+      "log": "linux-full-tests-final.log"
+    },
+    "focused": {
+      "status": "pass",
+      "files": 8,
+      "passing_tests": 111,
+      "failing_tests": 0,
+      "skipped_tests": 0,
+      "log": "focused-tests-final.log"
+    },
+    "typecheck": {
+      "status": "pass",
+      "log": "typecheck-final.log"
+    },
+    "lint": {
+      "status": "pass",
+      "log": "lint-final.log"
+    },
+    "build": {
+      "status": "pass",
+      "log": "build-final.log"
+    },
+    "migration_inventory": {
+      "status": "pass",
+      "log": "migrations-final.log"
+    },
+    "runtime-migrations-first.json": {
+      "status": "pass",
+      "applied": [
+        "20260719_001",
+        "20260719_002",
+        "20260719_003",
+        "20260719_004",
+        "20260719_005",
+        "20260720_006",
+        "20260813_007",
+        "20260813_008",
+        "20260814_009",
+        "20260908_010",
+        "20261007_011",
+        "20261007_012",
+        "20261007_013",
+        "20261007_014",
+        "20261007_015",
+        "20261008_016",
+        "20261008_017",
+        "20261008_018",
+        "20261008_019",
+        "20261008_020",
+        "20261008_021"
+      ],
+      "pending": [],
+      "failures": []
+    },
+    "runtime-migrations-repeat.json": {
+      "status": "pass",
+      "applied": [
+        "20260719_001",
+        "20260719_002",
+        "20260719_003",
+        "20260719_004",
+        "20260719_005",
+        "20260720_006",
+        "20260813_007",
+        "20260813_008",
+        "20260814_009",
+        "20260908_010",
+        "20261007_011",
+        "20261007_012",
+        "20261007_013",
+        "20261007_014",
+        "20261007_015",
+        "20261008_016",
+        "20261008_017",
+        "20261008_018",
+        "20261008_019",
+        "20261008_020",
+        "20261008_021"
+      ],
+      "pending": [],
+      "failures": [],
+      "new_migration_runs": 0,
+      "history_unchanged_from_first_apply": true
+    }
+  },
+  "dependency_audits": {
+    "audit-production-final.json": {
+      "info": 0,
+      "low": 1,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 1
+    },
+    "audit-all-final.json": {
+      "info": 0,
+      "low": 1,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 1
+    }
+  },
+  "linux_platform": {
+    "node": "v24.21.0",
+    "platform": "linux",
+    "arch": "arm64",
+    "uid": 1000
+  },
+  "linux_images": [
+    {
+      "id": "sha256:66fe9d3ba3cee708f719ef7076d8dd281ce36ed0ee57fa0bf6b343e9431fbb65",
+      "tags": [
+        "infopunks-judgment-dx1-build:local"
+      ],
+      "repo_digests": [
+        "infopunks-judgment-dx1-build@sha256:66fe9d3ba3cee708f719ef7076d8dd281ce36ed0ee57fa0bf6b343e9431fbb65"
+      ],
+      "architecture": "arm64",
+      "os": "linux"
+    },
+    {
+      "id": "sha256:ee288347dbc06748c826fa346de7602ac72019d4d21fc3bf2afb7071cdcf78dd",
+      "tags": [
+        "infopunks-judgment-dx1-runtime:local"
+      ],
+      "repo_digests": [
+        "infopunks-judgment-dx1-runtime@sha256:ee288347dbc06748c826fa346de7602ac72019d4d21fc3bf2afb7071cdcf78dd"
+      ],
+      "architecture": "arm64",
+      "os": "linux"
+    },
+    {
+      "id": "sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d",
+      "tags": [
+        "postgres:16"
+      ],
+      "repo_digests": [
+        "postgres@sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d"
+      ],
+      "architecture": "arm64",
+      "os": "linux"
+    }
+  ],
+  "linux_source_match": true,
+  "database_recovery": {
+    "version": "judgment-local-recovery-evidence.v1",
+    "postgres_version": "16.15",
+    "physical_restart": true,
+    "pg_dump_restore_to_separate_database": true,
+    "mock_settlement_only": true,
+    "results": [
+      {
+        "mode": "prepare",
+        "database": "original",
+        "receipt_hash": "sha256:d784fbfa1c93b42e8488089c292f1b0454a55aa2277b1a48be29985cf004e078",
+        "issuer_verified": true,
+        "identical_historical_receipt": false,
+        "missing_proof_rejected": true,
+        "settlements": 1,
+        "verifications": 1
+      },
+      {
+        "mode": "verify",
+        "database": "original-after-restart",
+        "receipt_hash": "sha256:d784fbfa1c93b42e8488089c292f1b0454a55aa2277b1a48be29985cf004e078",
+        "issuer_verified": true,
+        "identical_historical_receipt": true,
+        "missing_proof_rejected": true,
+        "settlements": 0,
+        "verifications": 0
+      },
+      {
+        "mode": "verify",
+        "database": "restored-database",
+        "receipt_hash": "sha256:d784fbfa1c93b42e8488089c292f1b0454a55aa2277b1a48be29985cf004e078",
+        "issuer_verified": true,
+        "identical_historical_receipt": true,
+        "missing_proof_rejected": true,
+        "settlements": 0,
+        "verifications": 0
+      }
+    ]
+  },
+  "browser_qa": {
+    "browser": "154.0.8037.98",
+    "scenarios": [
+      {
+        "viewport": "desktop",
+        "free_assessment": true,
+        "explicit_check_posts": 1,
+        "automatic_posts": 0,
+        "local_storage_credentials": false,
+        "overflow": false,
+        "errors": []
+      },
+      {
+        "viewport": "mobile",
+        "free_assessment": true,
+        "explicit_check_posts": 1,
+        "automatic_posts": 0,
+        "local_storage_credentials": false,
+        "overflow": false,
+        "errors": []
+      }
+    ]
+  },
+  "local_log_sha256": {
+    "full-tests-final.log": "e94e1959b869f9d7989ad71dbf08ec23bc048e7e7c32999975ff8a30e2ebc5d7",
+    "linux-full-tests-final.log": "174065ddf11de9f67c64b596be1d500bdd803fa2789b1002738cca24275453a8",
+    "focused-tests-final.log": "ce0c8f5ceda293752e35ab8914c96c0c02dc59ef897e244565b165ea469263c1",
+    "typecheck-final.log": "8c130045816136582deedcf711e910a2396c6e4c0739b0f5719548e764414970",
+    "lint-final.log": "d03a558579d6c5bf7d9941dab14d20d6960b6011bd01717758fa05f6a0063285",
+    "build-final.log": "f155d64cd1bc3458cb92629246448a0b30437f388178df224adbf290d54ad14e",
+    "migrations-final.log": "854b364da86672219cb5b5a2eb4b9fd25a8f479ab6bd3685f36dbb917a3cb987",
+    "audit-production-final.json": "3fe0b720b9b2fdc48d12c68ae31317334eb82afdddc467e75200146a3f5a43c6",
+    "audit-all-final.json": "3fe0b720b9b2fdc48d12c68ae31317334eb82afdddc467e75200146a3f5a43c6",
+    "linux-build-stage-final.log": "985074a04be8df25b3a6427f035ade30c383879e122f18207a83b1422f60832c",
+    "linux-runtime-build-final.log": "bb6e25afdb7b0bacdb2c26003a7b02e8e572aaf45f7a100c8006e89f6fba3811",
+    "linux-source-integrity.json": "7b1407422ec25c74cfa0ecf095b77cc8514a638261672302944827b0db2417ea",
+    "runtime-platform.json": "1fb03b1c1074b6ee5c685b67f5543bdf04365fd1a26f70a3f4c1526090c17926",
+    "runtime-invalid-config.log": "0390bfe5c42bb7015f066096a7ce4917b3a2da3fd09ad163a44ec5a4b71316e1",
+    "runtime-migrations-first.json": "92f8ad013853b419145a653331db61003ec70868bb28e26dba1fdca0c53346e0",
+    "runtime-migrations-repeat.json": "92f8ad013853b419145a653331db61003ec70868bb28e26dba1fdca0c53346e0",
+    "runtime-smoke.json": "8f5f06cbd26a5dcb800e0bd958370485c75fd6bd8bb64c801afdeee24504af18",
+    "physical-prepare.json": "7a4f1760608e6d39cb1b10e65b7e2711501d75741ab7424259b8027fd47f8d33",
+    "physical-after-restart.json": "ea4eeb329024bc1d754737eed115b3f58e909b8437f9807be16de64f7faaa4de",
+    "physical-after-restore.json": "9689901c73cd0652ea9e3509f5ba402d85ffa90ebc6888551570ebcf617ef53b",
+    "physical-reviewed-script.json": "9689901c73cd0652ea9e3509f5ba402d85ffa90ebc6888551570ebcf617ef53b",
+    "browser-qa.json": "15e8e65efa088ee5f6e7b5854b1d0af1e9ada45afd71cb2e012cc8460db714f5",
+    "pr7-final.json": "c200f91ee53fe5f774a870d107721fe28f9c51327a9fa6368dc62b65c87c855a",
+    "remote-refs-final.txt": "ed60b2b155197b872362b90ffc4f7fa650755f3215e863388e7769ccfca3512b"
+  },
+  "limitations": [
+    "No live funded settlement or live staging qualification",
+    "PR #7 draft; reviews/check approval pending",
+    "Static tenant authority provisioning and historical wallet/owner mapping require operator review",
+    "RPC-only billing provenance needs reviewed versioned receipt payment profile for economic recognition",
+    "Conservative same-second/legacy/batch-transfer reconciliation remains pending",
+    "No native AMD64, image SBOM or OS vulnerability scan",
+    "One low esbuild advisory remains",
+    "No paid UI wallet qualification; no independently verified real outcomes"
+  ],
+  "evidence_sha256": {
+    "docs/evidence/judgment-dx1/2026-10-12/route-policy.json": "bdf5228aa28a81083cff09395c1e90241da036b6cd7e12404733b7067993b1c4",
+    "docs/evidence/judgment-dx1/2026-10-12/changed-files.md": "08247919676b2329f46c13c9956ae290a36eff82fcb6a540a259d78f7c374d18",
+    "docs/evidence/judgment-dx1/2026-10-12/physical-recovery-qualification.ts": "2c9f322874dffb788ac50ac7727954b8ce4f93ab25b88d1e8fa103e6d200ffb6",
+    "docs/evidence/judgment-dx1/2026-10-12/browser-qa.json": "15e8e65efa088ee5f6e7b5854b1d0af1e9ada45afd71cb2e012cc8460db714f5",
+    "docs/evidence/judgment-dx1/2026-10-12/runtime-qualification.json": "f68779a52be8e3ce5697d8dccd2e0cb5a750511facc90ad3555ffeb28167071a",
+    "docs/evidence/judgment-dx1/2026-10-12/ui-mobile.png": "84d54698c90e92bc1b35d1b739c7f7cd08fbb267da0aacd5b8aa77bb4126c2f6",
+    "docs/evidence/judgment-dx1/2026-10-12/ui-desktop.png": "03195a327a94c0a566f89dda1e639a38b802d482c1ca60c2c9186cc1629bec8e",
+    "docs/evidence/judgment-dx1/2026-10-12/database-recovery.json": "7dc8a41dd33dd1a40c17067c4febbdde4f0e7cdb30b753f257375543a13486ab"
+  }
+}

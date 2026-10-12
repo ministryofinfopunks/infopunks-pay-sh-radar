@@ -1,0 +1,40 @@
+.spend-check { min-height: 100vh; background: var(--radar-bg); color: var(--radar-text); font-family: var(--radar-mono); -webkit-font-smoothing: antialiased; padding-top: 16px; }
+.spend-header, .spend-check main { width: min(100% - 64px, 1180px); margin: auto; }
+.spend-header .product-header { width: 100%; }
+.spend-intro { padding: 44px 0 16px; max-width: 850px; }
+.spend-kicker { color: var(--radar-muted); font: 11px/1.6 var(--radar-mono); text-transform: uppercase; letter-spacing: .12em; }
+.spend-intro h1 { font-size: clamp(32px, 4vw, 48px); font-weight: 750; letter-spacing: -.055em; margin: 18px 0; }
+.spend-intro > p:not([class]) { color: var(--radar-muted); font-size: 16px; line-height: 1.6; }
+.spend-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; padding-bottom: 40px; align-items: start; }
+.spend-grid > form, .spend-result { background: var(--radar-bg); border: 1px solid var(--radar-line); border-radius: var(--radar-radius); padding: 28px; min-width: 0; box-shadow: var(--radar-shadow); }
+.spend-grid h2 { font-size: 24px; font-weight: 500; letter-spacing: -.025em; margin: 0 0 24px; }
+.spend-grid label { display: flex; flex-direction: column; gap: 8px; font-size: 14px; margin-bottom: 20px; }
+.spend-grid small, .spend-form-note { font-size: 12px; line-height: 1.6; color: var(--radar-muted); }
+.spend-grid input, .spend-grid select { width: 100%; min-height: 46px; padding: 10px 12px; font: 16px var(--radar-mono); border: 1px solid var(--radar-line); background: var(--radar-surface); color: var(--radar-text); border-radius: var(--radar-radius); }
+.spend-form-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.spend-grid button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 48px; padding: 12px 18px; border: 0; border-radius: 6px; background: var(--radar-signal); color: var(--radar-bg); font: 650 15px var(--radar-mono); cursor: pointer; }
+.spend-grid button:disabled { opacity: .6; cursor: wait; }
+.spend-result { min-height: 430px; }
+.spend-result h2 { margin-top: 16px; }
+.spend-empty { padding: 40px 0; color: var(--radar-muted); font-size: 15px; line-height: 1.8; }
+.spend-empty > span { font-size: 56px; color: var(--radar-line); }
+.spend-verdict { padding: 12px; border-radius: 6px; background: var(--radar-bg); color: var(--radar-caution); line-height: 1.6; font-size: 14px; }
+.verdict-do_not_spend, .spend-error { color: var(--radar-blocked); }
+.verdict-proceed { color: var(--radar-signal); }
+.spend-no-execution { color: var(--radar-muted); font-size: 13px; line-height: 1.6; }
+.spend-reasons { padding-left: 20px; font-size: 14px; line-height: 1.8; }
+.spend-result dl > div { display: flex; justify-content: space-between; gap: 24px; padding: 14px 0; border-top: 1px solid var(--radar-line); font-size: 13px; }
+.spend-result dt { color: var(--radar-muted); flex-shrink: 0; }
+.spend-result dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+.spend-result summary { cursor: pointer; min-height: 44px; padding: 12px 0; font-size: 13px; }
+.spend-result pre { white-space: pre-wrap; overflow-wrap: anywhere; font: 11px/1.7 var(--radar-mono); }
+.spend-next { display: inline-flex; align-items: center; min-height: 44px; color: var(--radar-signal); font-size: 14px; }
+.spend-check footer { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; padding: 24px 0; border-top: 1px solid var(--radar-line); color: var(--radar-muted); font-size: 13px; }
+.spend-check footer a { color: var(--radar-text); text-decoration: none; display: inline-flex; align-items: center; min-height: 44px; }
+@media (max-width: 820px) { .spend-grid { grid-template-columns: minmax(0, 1fr); }  }
+@media (max-width: 680px) { .spend-header, .spend-check main { width: min(100% - 28px, 1180px); } .spend-grid > form, .spend-result { padding: 22px; } .spend-intro { padding-top: 28px; } }
+
+.spend-grid fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+
+.spend-result > .spend-kicker { color: var(--radar-judgment); }
+.spend-grid button:active { transform: translateY(1px); }

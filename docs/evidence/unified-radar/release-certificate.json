@@ -1,0 +1,42 @@
+{
+  "tested_source_sha": "d6112b5c8c56e75a8b33c238126a478277b3d0a1",
+  "baseline_sha": "60e3fd004edcb1f9b6ece69ba6417cb161290794",
+  "branch": "codex/unified-radar",
+  "date": "2026-10-12",
+  "timezone": "Asia/Colombo",
+  "local_qualification": "PASS",
+  "staging_decision": "HOLD",
+  "production_operation": "NOT_ASSERTED",
+  "test_files": 277,
+  "tests_passed": 1976,
+  "tests_failed": 0,
+  "tests_skipped": 0,
+  "browser_views": 33,
+  "accessibility_violations": 0,
+  "horizontal_overflow_views": 0,
+  "browser_console_errors": 0,
+  "migration_count": 22,
+  "migration_source_changed": false,
+  "backup_restore_exact_replay": true,
+  "dependency_audit": {
+    "production_findings": 0,
+    "all_findings": 1,
+    "all_severity": "low",
+    "scope": "esbuild Windows development-server advisory; no forced override"
+  },
+  "external_blockers": [
+    "Linux exact-image/container qualification",
+    "Approved isolated Railway staging and private PostgreSQL bindings",
+    "Live approved catalog and ingress/edge limits",
+    "Staging backup/restore, rollback and alert ownership",
+    "Independent E1 outcome/reviewer authority",
+    "Tenant-specific paid access/public canonical publication policy",
+    "RH action policy/independent market Evaluation",
+    "Native Solana fee settlement unsupported"
+  ],
+  "production_changes": false,
+  "live_payments_enabled": false,
+  "signing_keys_moved": false,
+  "ipx_pltr_operations_activated": false,
+  "source_unchanged_after_test": true
+}

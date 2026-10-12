@@ -1,3 +1,4 @@
+import { ProductWayfinding } from './productPrimitives';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import type { Rh4663CallReceipt, Rh4663RotationOption } from '../services/rh4663Service';
@@ -11,7 +12,9 @@ type EvidenceState = 'VERIFIED' | 'MIXED' | 'WATCH' | 'UNRESOLVED' | 'BLOCK' | '
 
 function evidenceState(value?: string | null): EvidenceState {
   const state = (value ?? '').toUpperCase().replaceAll('-', '_').replaceAll(' ', '_');
-  if (state.includes('VERIFY') || state.includes('VERIFIED') || state === 'FRESH' || state === 'PUBLISHED' || state === 'AVAILABLE') return 'VERIFIED';
+  // Availability/publication/freshness and UNVERIFIED never imply verified proof.
+  if (state === 'VERIFIED') return 'VERIFIED';
+  if (state === 'UNVERIFIED' || state === 'DISCOVERED_UNVERIFIED') return 'UNRESOLVED';
   if (state.includes('MIX')) return 'MIXED';
   if (state.includes('WATCH')) return 'WATCH';
   if (state.includes('BLOCK')) return 'BLOCK';
@@ -24,9 +27,9 @@ function evidenceState(value?: string | null): EvidenceState {
 export function FreshnessBadge({ at, pending }: { at?: string | null; pending?: boolean }) {
   if (pending) return <span className="fd-freshness" aria-label="Freshness: D7 pending">D7 pending</span>;
   const timestamp = at ? new Date(at).getTime() : NaN;
-  if (Number.isNaN(timestamp)) return <span className="fd-freshness" aria-label="Freshness: insufficient data">—</span>;
+  if (!Number.isFinite(timestamp) || timestamp > Date.now()) return <span className="fd-freshness" aria-label="Freshness: insufficient data">—</span>;
   const minutes = Math.max(0, Math.floor((Date.now() - timestamp) / 60_000));
-  const label = minutes < 2 ? 'LIVE' : minutes < 60 ? `${minutes}m` : minutes < 1_440 ? `${Math.floor(minutes / 60)}h` : `${Math.floor(minutes / 1_440)}d`;
+  const label = minutes < 2 ? 'Just observed' : minutes < 60 ? `${minutes}m` : minutes < 1_440 ? `${Math.floor(minutes / 60)}h` : `${Math.floor(minutes / 1_440)}d`;
   return <time className="fd-freshness" dateTime={at ?? undefined} aria-label={`Freshness: ${label}`}>{label}</time>;
 }
 
@@ -400,7 +403,7 @@ function My4663Module({ data, my }: { data: Rh4663FrontdoorState | null; my: Ret
 }
 
 export function FrontdoorShell({ children, freshness }: { children: React.ReactNode; freshness?: string | null }) {
-  return <div className="fd-shell"><a className="fd-skip" href="#now">Skip to now</a><header className="fd-topbar"><a href="/4663" className="fd-mark" aria-label="Infopunks 4663 home"><span>INFOPUNKS</span><b>4663</b></a><div className="fd-topbar-status"><span><i aria-hidden="true" /> <FreshnessBadge at={freshness} /></span><a href="#call">Call</a></div></header><nav className="fd-nav" aria-label="Primary navigation"><a href="#now">Now</a><a href="#watch">Watch</a><a href="#call">Call</a><a href="#proof">Proof</a></nav>{children}</div>;
+  return <div className="fd-shell"><a className="fd-skip" href="#now">Skip to now</a><header className="fd-topbar"><a href="/4663" className="fd-mark" aria-label="Infopunks Radar 4663 research"><span>INFOPUNKS RADAR</span><b>4663</b></a><div className="fd-topbar-status"><span><i aria-hidden="true" /> <FreshnessBadge at={freshness} /></span><a href="#call">Call</a></div></header><ProductWayfinding current="/rh-chain-signal-desk" /><nav className="fd-nav" aria-label="Primary navigation"><a href="#now">Now</a><a href="#watch">Watch</a><a href="#call">Call</a><a href="#proof">Proof</a></nav>{children}</div>;
 }
 
 export function Frontdoor({ data, status, message }: { data: Rh4663FrontdoorState | null; status: 'loading' | 'ready' | 'degraded'; message?: string }) {
