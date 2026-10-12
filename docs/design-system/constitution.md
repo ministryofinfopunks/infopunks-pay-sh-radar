@@ -4,9 +4,9 @@ Intelligence before action. Proof after execution.
 
 ## Canonical identity and audit
 
-Baseline: dfe089b (clean main, 2026-10-12). Read `.agents/skills/apple-design/SKILL.md`: purpose, agency, familiarity, responsive hierarchy, direct feedback, readable typography, reduced motion, contrast and transparency preferences. Existing project guidance is AGENTS.md; no additional frontend engineering instructions were found.
+UI-INT2 integration baseline: 2c2fe64db173c63048e70353ae926aa199792d1b (qualified secure R2). Cyan presentation donor: 1f3f9f99e81f78c9aa7e79d42c53e395f8e3040c. Earlier recovery began at dfe089b; that history does not authorize replacing current secure behavior. Read `.agents/skills/apple-design/SKILL.md`: purpose, agency, familiarity, responsive hierarchy, direct feedback, readable typography, reduced motion, contrast and transparency preferences. Existing project guidance is AGENTS.md; no additional frontend engineering instructions were found.
 
-The approved supplied reference is `references/infopunks-radar-canonical-cyan-terminal.png`. It is authoritative. The green editorial homepage is retired. Recovery baseline is 068df23; approved cyan presentation and 74,906-byte Signal Lens asset are reused from 205e3c9 without its backend changes. Root cause and exact source-to-port mapping are in recovery/root-cause.md.
+The approved supplied reference is `references/infopunks-radar-canonical-cyan-terminal.png`. It is authoritative. The green editorial homepage is retired. Recovery baseline is 068df23; approved cyan presentation and 74,906-byte Signal Lens asset are reused from 205e3c9 without its backend changes. Root cause and exact source-to-port mapping are in ui-int2/final-report.md; the historical recovery report remains in its source worktree.
 
 ## Architecture
 
@@ -49,12 +49,12 @@ WCAG 2.2 AA target. Visible focus; skip link; semantic landmarks and heading hie
 
 A: record routes, foundations, components and baseline. B: shell/tokens/status/lifecycle. C: homepage/Solana/spend. D: intelligence/proof/operations. E: RH/reflexive/PLTR. F: existing typecheck, lint, tests, build, browser render, axe, keyboard, reduced motion, failure and mobile checks. Each boundary is a reviewable commit. No backend contract, authentication, ownership, payment authority or security gate changes. No deploy or merge.
 
-Mobile qualification is release-blocking: evaluate every route family at 320/375/390/430/768/1024/1440, preserve complete evidence, eliminate page overflow and document real-device/virtual-keyboard limitations. Automated emulation is not device testing. Do not call the migration complete when critical mobile issues or an unqualified essential journey remain. See route inventory and qualification report for actual implementation/test status.
+Mobile qualification is release-blocking: evaluate every route family at 320/375/390/430/768/1024/1440, preserve complete evidence, eliminate page overflow and document real-device/virtual-keyboard limitations. Automated emulation is not device testing. Do not call the migration complete when critical mobile issues or an unqualified essential journey remain. See route inventory and ui-int2/final-report.md for current implementation/test status.
 
 ## Mandatory identity governance
 
 One entry-level RadarAppShell owns ProductHeader (RADAR, SOLANA, ROBINHOOD CHAIN, PROOF, DEVELOPERS), indexed route framing and ProductFooter. Existing network directories remain beneath it as progressive disclosure; no copied global headers. Every router entry inherits the shell; tables, panels and forms retain their appropriate layouts. RadarReceiptLifecycle serves the homepage and all receipt workflows. No second root token file; new work uses radarTokens.css. Green-named compatibility aliases resolve to cyan actions, never verification.
 
-Run check:design, typecheck, build, test:ui and test:ui:journeys. New route patterns require regenerated inventory and coverage. Screenshots produced by tests are candidates: human approval of checkpoint 1 (homepage) and checkpoint 2 (remaining routes) is required before merge. Never automatically update visual baselines or merge/deploy. Missing device, evidence, field performance or accessibility verification is HOLD, not PASS.
+Run check:design, typecheck, build, the full PostgreSQL-backed suite, scripts/qualify-ui-int2-routes.cjs, scripts/qualify-unified-radar-browser.mjs, scripts/qualify-ui-int2-journeys.cjs and scripts/compare-ui-int2-visuals.cjs. External QA dependencies and local server configuration are documented in ui-int2/final-report.md. New route patterns require regenerated inventory and coverage. Screenshots produced by tests are candidates: human approval of checkpoint 1 (homepage) and checkpoint 2 (remaining routes) is required before merge. Never automatically update visual baselines or merge/deploy. Missing device, evidence, field performance or accessibility verification is HOLD, not PASS.
 
 Official guidance: https://developer.apple.com/design/human-interface-guidelines/accessibility ; https://developer.apple.com/design/human-interface-guidelines/layout ; https://web.dev/articles/vitals ; https://web.dev/learn/accessibility/ . Web Vitals must report field p75 separately from labs; Lighthouse TBT cannot certify INP.

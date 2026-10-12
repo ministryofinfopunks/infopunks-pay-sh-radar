@@ -1,6 +1,6 @@
 # Security-sensitive forward resolution ledger
 
-Target 4bcaf5731cdadf1d5229ab93faea3a90fa9b17de is retained; recovery is a presentation donor only.
+Target 2c2fe64db173c63048e70353ae926aa199792d1b is retained; recovery is a presentation donor only.
 
 | Overlap | Resolution | Security invariant |
 | --- | --- | --- |
@@ -14,4 +14,4 @@ Target 4bcaf5731cdadf1d5229ab93faea3a90fa9b17de is retained; recovery is a prese
 | styles.css and route CSS | Transform target stylesheet declarations into existing canonical tokens instead of copying older CSS wholesale | Target bounded keyboard-scroll code examples, sr-only geometry and long-scope-badge wrapping preserved |
 | API/security/schemas/services/SDK/persistence/migrations | Target source unchanged | Tenant ownership, private ancestry, issuer authority, policy, reputation mutation, payment recovery, rate limits, error redaction and proxy trust remain |
 
-No semantic conflict is resolved by selecting the prettier old file. Full protected-source hashes, test diffs and qualification evidence are recorded separately. G1 remains HOLD until explicit human approval; no merge or deploy.
+No semantic conflict is resolved by selecting the prettier old file. Canonical receipt inspection is a separate authenticated read-only consumer of current receipt-spine contracts; password keys stay in memory and changing identity clears prior evidence. Missing stages remain missing. Accessibility changes only add focusable, labelled scroll regions and change the interactive SVG container from image to group. No API/service/migration behavior is changed. Full protected-source hashes, test diffs and qualification evidence are recorded separately. G1 is PASS following explicit approval of both visual checkpoints; no merge or deploy.
