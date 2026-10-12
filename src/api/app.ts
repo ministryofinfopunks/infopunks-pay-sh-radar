@@ -754,7 +754,7 @@ export async function createApp(
     if (req.headers['payment-signature']) return reply.code(403).send({ error: 'controlled_staging_payment_forbidden' });
   });
   app.addHook('onRequest', async (req, reply) => {
-    const route = safeRequestPath(req.url);
+    const route = req.routeOptions.url ?? safeRequestPath(req.url);
     if (config.isProduction && req.method === 'POST' && (['/v1/receipts', '/v1/validation/submit', '/v1/claims'].includes(route) || /^\/v1\/claims\/[^/]+\/challenges$/.test(route))) {
       reply.header('Cache-Control', 'private, no-store');
       if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'legacy_intake_authorization_required' });
@@ -1381,7 +1381,7 @@ export async function createApp(
   });
   const requestStartedAt = new WeakMap<FastifyRequest, number>();
   app.addHook('onRequest', async (req, reply) => {
-    if (requiresOperatorProofRead(safeRequestPath(req.url))) {
+    if ((requiresOperatorProofRead(req.routeOptions.url ?? '') || requiresOperatorProofRead(safeRequestPath(req.url)))) {
       reply.header('Cache-Control', 'private, no-store');
       if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'proof_read_authorization_required' });
     }
@@ -1422,7 +1422,7 @@ export async function createApp(
   app.addHook('onSend', async (req, reply, payload) => {
     // Safe defaults for API responses. CSP is intentionally owned by the HTML
     // shell, where nonces can be applied without weakening the policy.
-    if (requiresOperatorProofRead(safeRequestPath(req.url))) reply.header('Cache-Control', 'private, no-store');
+    if ((requiresOperatorProofRead(req.routeOptions.url ?? '') || requiresOperatorProofRead(safeRequestPath(req.url)))) reply.header('Cache-Control', 'private, no-store');
     reply.header('X-Content-Type-Options', 'nosniff');
     reply.header('Referrer-Policy', 'strict-origin-when-cross-origin');
     reply.header('X-Frame-Options', 'SAMEORIGIN');

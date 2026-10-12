@@ -72,7 +72,7 @@ describe('production readiness gates', () => {
         expect(denied.statusCode).toBe(503);
         expect(denied.json().error).toBe('independent_evaluation_review_unavailable');
       }
-      for (const url of ['/v1/receipts', '/v1/validation/submit', '/v1/claims', '/v1/claims/private-id/challenges']) {
+      for (const url of ['/v1/receipts', '/v1/%72eceipts', '/v1/validation/submit', '/v1/%76alidation/submit', '/v1/claims', '/v1/%63laims', '/v1/claims/private-id/challenges', '/v1/%63laims/private-id/challenges']) {
         expect((await app.inject({ method: 'POST', url, payload: {} })).statusCode).toBe(401);
         expect((await app.inject({ method: 'POST', url, payload: {}, headers: { authorization: 'Bearer wrong' } })).statusCode).toBe(401);
         const authorized = await app.inject({ method: 'POST', url, payload: {}, headers: { authorization: 'Bearer secret' } });

@@ -6,7 +6,7 @@ describe('canonical proof privacy boundary', () => {
     vi.stubEnv('ADMIN_TOKEN', 'test-operator');
     const app = await createApp();
     try {
-      for (const url of ['/v1/receipt-spine/tape', '/v1/receipt-spine/attempts', '/v1/receipt-spine/judgment/guess', '/v1/receipt-spine/judgment/guess/context', '/v1/receipt-spine/judgment/guess/verify', '/v1/receipt-spine/witness/a/b/c', '/v1/economics/revenue', '/v1/attribution', '/v1/decision-views/guess']) {
+      for (const url of ['/v1/receipt-spine/tape', '/v1/receipt%2dspine/tape', '/v1/%72eceipt-spine/tape', '/v1/receipt-spine/attempts', '/v1/receipt-spine/judgment/guess', '/v1/receipt-spine/judgment/guess/context', '/v1/%72eceipt-spine/judgment/guess/context', '/v1/receipt-spine/judgment/guess/verify', '/v1/receipt-spine/witness/a/b/c', '/v1/economics/revenue', '/v1/economics/%72evenue', '/v1/attribution', '/v1/%61ttribution', '/v1/decision-views/guess']) {
         for (const authorization of [undefined, 'Bearer wrong']) {
           const denied = await app.inject({ url, headers: authorization ? { authorization } : {} });
           expect(denied.statusCode, url).toBe(401);
