@@ -20,12 +20,15 @@ revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).stri
 if subprocess.check_output(['git', 'diff', 'HEAD', '--', 'src', 'tests', 'migrations', 'package.json', 'package-lock.json', 'scripts'], text=True).strip():
     raise RuntimeError('Commit source/tests/qualification scripts before freezing evidence')
 name = 'unified_radar_' + uuid.uuid4().hex[:12]
+database_url_base = env.get('RADAR_QUALIFICATION_DATABASE_URL', 'postgresql://localhost')
+def database_url(database):
+    return database_url_base.rstrip('/') + '/' + database
 databases = [name, name + '_resilience', name + '_migration', name + '_restore']
 for database in databases:
     subprocess.run(['createdb', database], check=True)
-env.update(NODE_ENV='test', RADAR_QUERY_TIMING_ENABLED='true', CANONICAL_RECEIPT_TEST_URL='postgresql://localhost/' + name,
-           ECONOMIC_ENGINE_TEST_URL='postgresql://localhost/' + name,
-           POSTGRES_RESILIENCE_TEST_URL='postgresql://localhost/' + name + '_resilience')
+env.update(NODE_ENV='test', RADAR_QUERY_TIMING_ENABLED='true', CANONICAL_RECEIPT_TEST_URL=database_url(name),
+           ECONOMIC_ENGINE_TEST_URL=database_url(name),
+           POSTGRES_RESILIENCE_TEST_URL=database_url(name + '_resilience'))
 results = []
 
 def run(label, command, scoped_env=None, tolerated=False):
@@ -55,17 +58,17 @@ for label, command in [('audit-production', ['npm', 'audit', '--omit=dev', '--js
     log = run(label, command, tolerated=(label == 'audit-all'))
     shutil.copyfile(log, out / (label + '.json'))
 # Apply/check/repeat the whole inventory to a separate fresh database.
-migration_env = dict(env, DATABASE_URL='postgresql://localhost/' + name + '_migration')
+migration_env = dict(env, DATABASE_URL=database_url(name + '_migration'))
 for label, extra in [('migration-first', []), ('migration-check', ['--validate']), ('migration-repeat', [])]:
     log = run(label, ['node', 'dist/server/cli/runPostgresMigrations.js'] + extra, migration_env)
     shutil.copyfile(log, out / (label + '.json'))
-recovery_env = dict(env, CANONICAL_RECEIPT_TEST_URL= migration_env['DATABASE_URL'])
+recovery_env = dict(env, CANONICAL_RECEIPT_TEST_URL=migration_env['DATABASE_URL'])
 run('recovery-seed', ['node', '--import', 'tsx', 'scripts/qualify-unified-radar-recovery.mjs', 'seed'], recovery_env)
 # pg_dump and pg_restore never see an existing database or production connection string.
 backup = logs / 'local-recovery.dump'
 run('backup', ['pg_dump', '--format=custom', '--no-owner', '--file=' + str(backup), name + '_migration'])
 run('restore', ['pg_restore', '--no-owner', '--dbname=' + name + '_restore', str(backup)])
-run('recovery-verify', ['node', '--import', 'tsx', 'scripts/qualify-unified-radar-recovery.mjs', 'verify'], dict(recovery_env, CANONICAL_RECEIPT_TEST_URL='postgresql://localhost/' + name + '_restore'))
+run('recovery-verify', ['node', '--import', 'tsx', 'scripts/qualify-unified-radar-recovery.mjs', 'verify'], dict(recovery_env, CANONICAL_RECEIPT_TEST_URL=database_url(name + '_restore')))
 for filename in ['phase2-judgment-performance.json', 'phase2-judgment-postgres-performance.json']:
     if (root / 'output' / filename).exists():
         shutil.copyfile(root / 'output' / filename, out / filename)

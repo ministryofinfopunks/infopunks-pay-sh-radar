@@ -2,9 +2,9 @@ import { ProductWayfinding } from './productPrimitives';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import type { Rh4663CallReceipt, Rh4663RotationOption } from '../services/rh4663Service';
-import type { Rh4663ProofProfile } from '../services/rh4663ResolutionService';
 import type { FrontdoorChangeEvent, OpenLoop, Rh4663FrontdoorState } from '../services/rh4663FrontdoorService';
 import type { My4663FollowInput, My4663SubjectType } from '../services/rh4663My4663Service';
+import { buildMy4663State } from '../services/rh4663My4663Service';
 
 type Pulse = Rh4663FrontdoorState['current_call'];
 
@@ -140,7 +140,6 @@ export function CallLoop({ data, hideResolvedReturn = false }: { data: Rh4663Fro
   const pulse = data?.current_call ? { window_id: data.current_call.window_id, opens_at: data.current_call.opens_at, closes_at: data.current_call.closes_at } : null;
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const [personal, setPersonal] = useState<MeCallState | null>(null);
-  const [personalStatus, setPersonalStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading');
   const [selection, setSelection] = useState<Rh4663RotationOption | null>(null);
   const [confidence, setConfidence] = useState(() => Math.min(100, Math.max(1, Number(params.get('confidence')) || 50)));
   const [evidenceDigest, setEvidenceDigest] = useState('');
@@ -152,28 +151,9 @@ export function CallLoop({ data, hideResolvedReturn = false }: { data: Rh4663Fro
   const [shared, setShared] = useState(false);
 
   useEffect(() => { callEvent('call_card_viewed', pulse?.window_id); }, [pulse?.window_id]);
-  useEffect(() => {
-    let cancelled = false;
-    const load = async (address?: string) => {
-      try {
-        const path = address ? `/v1/4663/me/call?wallet=${encodeURIComponent(address)}` : '/v1/4663/me/call';
-        const response = await fetch(toApiUrl(apiBase, path), { headers: { accept: 'application/json' } });
-        if (!response.ok) throw new Error();
-        const body = await response.json() as { data: MeCallState };
-        if (!cancelled) { setPersonal(body.data); setPersonalStatus('ready'); }
-      } catch { if (!cancelled) setPersonalStatus('unavailable'); }
-    };
-    const ethereum = (window as Window & { ethereum?: { request(args: { method: string }): Promise<unknown> } }).ethereum;
-    if (!ethereum) { void load(); return () => { cancelled = true; }; }
-    void ethereum.request({ method: 'eth_accounts' }).then((accounts) => {
-      const address = Array.isArray(accounts) && typeof accounts[0] === 'string' ? accounts[0] : undefined;
-      return load(address);
-    }).catch(() => load());
-    return () => { cancelled = true; };
-  }, [apiBase, pulse?.window_id]);
   useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 30_000); return () => window.clearInterval(timer); }, []);
 
-  const lifecycle = receipt ? 'SIGNED' : signing ? 'SIGNING' : (personalStatus === 'unavailable' && !personal ? 'ERROR' : callWindowState(pulse, personal, now));
+  const lifecycle = receipt ? 'SIGNED' : signing ? 'SIGNING' : callWindowState(pulse, personal, now);
   const canEdit = lifecycle === 'OPEN_NOT_CALLED' || lifecycle === 'DRAFTING' || lifecycle === 'READY_TO_SIGN';
   const showEditor = !receipt && (canEdit || signing);
   const effectiveLifecycle = error ? 'ERROR' : review && canEdit ? 'READY_TO_SIGN' : selection && canEdit ? 'DRAFTING' : lifecycle;
@@ -213,11 +193,11 @@ export function CallLoop({ data, hideResolvedReturn = false }: { data: Rh4663Fro
     try { if (navigator.share) await navigator.share({ title: '//4663 CALL', text, url }); else await navigator.clipboard.writeText(`${text}\n${url}`); setShared(true); callEvent('call_shared', current.window_id); } catch { /* A cancelled native share leaves the receipt unchanged. */ }
   }
 
-  const isUnavailable = !data || personalStatus === 'unavailable';
+  const isUnavailable = !data;
   return <article id="call" className={`fd-call-loop fd-call-${String(effectiveLifecycle).toLowerCase()}`} data-call-state={effectiveLifecycle} aria-labelledby="call-title">
     <div className="fd-call-head"><div><p>CALL</p><h2 id="call-title">What happens next?</h2><span>Next 24h rotation</span><span className="fd-call-state" role="status" aria-live="polite">{effectiveLifecycle.replaceAll('_', ' ')}</span></div><div className="fd-call-window" aria-live="polite"><strong>{pulse ? timeRemaining(pulse.closes_at, now) : 'UNAVAILABLE'}</strong><span>{pulse ? `Closes ${shortUtc(pulse.closes_at)}` : 'Pulse unavailable'}</span></div></div>
     {isUnavailable && !data && <p className="fd-call-alert" role="status">PULSE UNAVAILABLE. NOW, WATCH, and OPEN LOOPS remain available.</p>}
-    {isUnavailable && data && personalStatus === 'unavailable' && <p className="fd-call-alert" role="status">CALL STATUS TEMPORARILY UNAVAILABLE</p>}
+    {!personal && data && <p className="fd-call-alert" role="status">Private CALL history requires an approved identity. Public Pulse remains available; a new CALL is only submitted after you explicitly sign it.</p>}
     {personal?.has_called && !receipt && <section className="fd-call-return" aria-live="polite"><p>YOUR CALL</p><h3>{labelForCall(personal.selection)}</h3><strong>{personal.confidence}% confidence</strong><span>{resolutionPending ? 'RESOLUTION PENDING' : `RESOLVED ${personal.resolution_state}`}</span>{resolutionPending && <small>Canonical checkpoint: {shortUtc(pulse?.closes_at)}</small>}</section>}
     {showEditor && <>
       <div className="fd-call-context"><p>RADAR CONTEXT</p>{(data?.now_cards ?? []).slice(0, 3).map((card) => <span key={card.id}><b>{card.topic}</b>{card.headline}</span>)}</div>
@@ -236,28 +216,10 @@ export function CallLoop({ data, hideResolvedReturn = false }: { data: Rh4663Fro
   </article>;
 }
 
-type MeProofState = { authenticated: boolean; profile: Rh4663ProofProfile | null; my_4663_version: string };
-
-function proofPercent(value: number | null) { return value === null ? '—' : `${Math.round(value * 100)}%`; }
-
 export function ProofProfileCard({ proof }: { proof: Rh4663FrontdoorState['proof_summary'] }) {
-  const [wallet, setWallet] = useState<string | null>(null); const [profile, setProfile] = useState<Rh4663ProofProfile | null>(null); const [status, setStatus] = useState<'loading' | 'ready' | 'anonymous' | 'unavailable'>('loading');
-  useEffect(() => {
-    let cancelled = false;
-    const load = async (address?: string) => {
-      if (!address) { if (!cancelled) setStatus('anonymous'); return; }
-      try { const response = await fetch(toApiUrl(getApiBaseUrl(), `/v1/4663/me/proof?wallet=${encodeURIComponent(address)}`), { headers: { accept: 'application/json' } }); if (!response.ok) throw new Error(); const body = await response.json() as { data: MeProofState }; if (!cancelled) { setWallet(address); setProfile(body.data.profile); setStatus('ready'); } }
-      catch { if (!cancelled) setStatus('unavailable'); }
-    };
-    const ethereum = (window as Window & { ethereum?: { request(args: { method: string }): Promise<unknown> } }).ethereum;
-    if (!ethereum) { void load(); return () => { cancelled = true; }; }
-    void ethereum.request({ method: 'eth_accounts' }).then((accounts) => load(Array.isArray(accounts) && typeof accounts[0] === 'string' ? accounts[0] : undefined)).catch(() => load());
-    return () => { cancelled = true; };
-  }, []);
-  const profileHref = profile && wallet ? `/4663/proof/${encodeURIComponent(wallet)}` : '/4663/receipts';
-  return <article id="proof" className="fd-proof-card fd-proof-profile-card" data-proof-state={status}>
-    <div><p>PROOF</p><h2>{profile ? profile.display_name : 'Your record, when you make one.'}</h2><span>{profile ? 'A receipt-backed history of judgment. Not a portfolio, balance, or trading record.' : proof.note}</span></div>
-    {profile ? <div className="fd-proof-stats"><div><small>CALLS</small><strong>{profile.calls}</strong></div><div><small>RESOLVED</small><strong>{profile.resolved}</strong></div><div><small>CORRECT</small><strong>{profile.correct}</strong></div><div><small>ACCURACY</small><strong>{proofPercent(profile.accuracy)}</strong></div><div><small>HIGH-CONFIDENCE</small><strong>{proofPercent(profile.high_confidence_accuracy)}</strong></div>{profile.best_supported_category.category && <div><small>SUPPORTED CATEGORY</small><strong>{rotationLabel(profile.best_supported_category.category)}</strong></div>}{profile.genesis && <div><small>GENESIS</small><strong>#{String(profile.genesis.ordinal).padStart(4, '0')}</strong></div>}<ResearchLink href={profileHref}>View proof</ResearchLink></div> : <div className="fd-proof-card-actions"><EvidenceBadge state={status === 'unavailable' ? 'DEGRADE' : 'UNRESOLVED'} /><span className="fd-proof-note">{status === 'unavailable' ? 'Proof profile temporarily unavailable.' : status === 'loading' ? 'Checking for a connected identity…' : `${proof.total_calls} calls in this window`}</span><ResearchLink href={profileHref}>{status === 'anonymous' ? 'Receipts' : 'View proof'}</ResearchLink></div>}
+  return <article id="proof" className="fd-proof-card fd-proof-profile-card" data-proof-state="anonymous">
+    <div><p>PROOF</p><h2>Your record, when you make one.</h2><span>{proof.note}</span></div>
+    <div className="fd-proof-card-actions"><EvidenceBadge state="UNRESOLVED" /><span className="fd-proof-note">Private history requires an approved identity. Public receipt history remains available.</span><ResearchLink href="/4663/receipts">Receipts</ResearchLink></div>
   </article>;
 }
 
@@ -298,7 +260,7 @@ type ReturnHabitContext = ReturnType<typeof useReturnHabit>;
 function useReturnHabit(data: Rh4663FrontdoorState | null) {
   const [cursor, setCursor] = useState<FrontdoorCursor | null | undefined>(undefined);
   const [globalChanges, setGlobalChanges] = useState<FrontdoorChangeEvent[]>([]);
-  const [personal, setPersonal] = useState<MeChangesState | null>(null);
+  const [personal] = useState<MeChangesState | null>(null);
   useEffect(() => {
     if (!data?.frontdoor_version?.version) return;
     const prior = readFrontdoorCursor(); setCursor(prior);
@@ -307,14 +269,6 @@ function useReturnHabit(data: Rh4663FrontdoorState | null) {
     if (prior && data.frontdoor_version.version > prior.version) frontdoorEvent('frontdoor_return_visit');
     writeFrontdoorCursor(data.frontdoor_version.version);
   }, [data?.frontdoor_version?.version]);
-  useEffect(() => {
-    let cancelled = false;
-    const load = async (address?: string) => { try { const path = address ? `/v1/4663/me/changes?wallet=${encodeURIComponent(address)}` : '/v1/4663/me/changes'; const response = await fetch(toApiUrl(getApiBaseUrl(), path), { headers: { accept: 'application/json' } }); if (!response.ok) throw new Error(); const body = await response.json() as { data: MeChangesState }; if (!cancelled) setPersonal(body.data); } catch { if (!cancelled) setPersonal(null); } };
-    const ethereum = (window as Window & { ethereum?: { request(args: { method: string }): Promise<unknown> } }).ethereum;
-    if (!ethereum) { void load(); return () => { cancelled = true; }; }
-    void ethereum.request({ method: 'eth_accounts' }).then((accounts) => load(Array.isArray(accounts) && typeof accounts[0] === 'string' ? accounts[0] : undefined)).catch(() => load());
-    return () => { cancelled = true; };
-  }, []);
   return { cursor, globalChanges, personal };
 }
 
@@ -355,19 +309,21 @@ function writeLocalFollows(follows: My4663FollowInput[]) { try { window.localSto
 function useMy4663(data: Rh4663FrontdoorState | null) {
   const [follows, setFollows] = useState<My4663FollowInput[]>(readLocalFollows);
   const [state, setState] = useState<My4663State | null>(null);
-  const [refresh, setRefresh] = useState(0);
   const [announcement, setAnnouncement] = useState('');
   useEffect(() => {
     if (!data) return;
-    let cancelled = false;
     const cursor = (() => { try { return window.localStorage.getItem(MY_4663_CURSOR_KEY); } catch { return null; } })();
-    const query = new URLSearchParams({ follows: JSON.stringify(follows) }); if (cursor) query.set('last_seen_my4663_event_id', cursor);
-    void fetch(toApiUrl(getApiBaseUrl(), `/v1/4663/me?${query.toString()}`), { headers: { accept: 'application/json' } })
-      .then(async (response) => { if (!response.ok) throw new Error(); return response.json() as Promise<{ data: My4663State }>; })
-      .then((body) => { if (!cancelled && body.data?.object_type === 'MY_4663_STATE') { setState(body.data); try { if (body.data.last_seen_my4663_event_id) window.localStorage.setItem(MY_4663_CURSOR_KEY, body.data.last_seen_my4663_event_id); } catch { /* cursor is an enhancement */ } } })
-      .catch(() => { if (!cancelled) setState(null); });
-    return () => { cancelled = true; };
-  }, [data?.frontdoor_version?.version, refresh]);
+    const projected = buildMy4663State({
+      ...data,
+      now_cards: data.now_cards ?? [],
+      watch_cards: data.watch_cards ?? [],
+      open_loops: data.open_loops ?? [],
+      change_events: data.change_events ?? [],
+      frontdoor_version: data.frontdoor_version ?? { object_type: 'FRONTDOOR_VERSION', version: 0, changed: [], generated_at: data.generated_at },
+    }, follows, cursor);
+    setState(projected);
+    try { if (projected.last_seen_my4663_event_id) window.localStorage.setItem(MY_4663_CURSOR_KEY, projected.last_seen_my4663_event_id); } catch { /* local cursor is an enhancement */ }
+  }, [data, follows]);
   useEffect(() => { if (state) { frontdoorEvent('my4663_viewed'); if (state.changed_followed_subjects.length) frontdoorEvent('followed_subject_return'); } }, [state?.last_seen_my4663_event_id]);
   const toggle = (subject: FollowSubject) => {
     const key = followKey(subject); const existing = follows.some((item) => followKey(item) === key);
@@ -377,7 +333,6 @@ function useMy4663(data: Rh4663FrontdoorState | null) {
     else {
       const next = [...follows, { ...subject, subject_id: subject.subject_id.toUpperCase(), created_at: new Date().toISOString() }]; setFollows(next); writeLocalFollows(next); setAnnouncement('Following.'); frontdoorEvent('follow_created', subject.subject_id);
     }
-    setRefresh((value) => value + 1);
   };
   return { follows, state, toggle, announcement };
 }

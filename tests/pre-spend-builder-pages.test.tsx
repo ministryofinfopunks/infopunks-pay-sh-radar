@@ -220,6 +220,14 @@ describe('pre-spend builder pages', () => {
     expect(text).toContain('A safety API is useful. A registry makes adoption visible.');
     expect(container.querySelector('a[href="/developers/wallet-safety"]')).toBeTruthy();
     expect(container.querySelector('a[href="/developers/wallet-safety/integrations"]')).toBeTruthy();
+    const codeBlocks = Array.from(container.querySelectorAll('pre.builder-code-block')) as HTMLPreElement[];
+    expect(codeBlocks.length).toBeGreaterThanOrEqual(3);
+    for (const block of codeBlocks) {
+      expect(block.tabIndex).toBe(0);
+      expect(block.getAttribute('role')).toBe('region');
+      expect(block.getAttribute('aria-label')).toBe('Integration code example');
+    }
+    expect(container.querySelector('input[aria-label="Tenant access key"]')?.getAttribute('type')).toBe('password');
     expect(container.querySelector('a[href="/spend-terminal"]')).toBeTruthy();
     expect(container.querySelector('a[href="/routes"]')).toBeTruthy();
     expect(container.querySelector('a[href="/providers"]')).toBeTruthy();
