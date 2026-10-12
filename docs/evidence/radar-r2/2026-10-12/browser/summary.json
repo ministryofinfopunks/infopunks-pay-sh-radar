@@ -1,0 +1,53 @@
+{
+  "source_sha": "541d002e5c0e89386e81e12bb5a0980a53807116",
+  "report_count": 33,
+  "viewport_counts": {
+    "desktop": 11,
+    "tablet": 11,
+    "mobile": 11
+  },
+  "all_http_200": true,
+  "axe_violations": 0,
+  "axe_incomplete_nodes": 9247,
+  "horizontal_overflow_reports": [
+    {
+      "viewport": "tablet",
+      "route": "/developers",
+      "elements": [
+        {
+          "tag": "CODE",
+          "className": ""
+        }
+      ]
+    },
+    {
+      "viewport": "mobile",
+      "route": "/rh-chain-signal-desk/market",
+      "elements": [
+        {
+          "tag": "P",
+          "className": "sr-only"
+        }
+      ]
+    },
+    {
+      "viewport": "mobile",
+      "route": "/developers",
+      "elements": [
+        {
+          "tag": "CODE",
+          "className": ""
+        },
+        {
+          "tag": "CODE",
+          "className": ""
+        }
+      ]
+    }
+  ],
+  "console_errors": 12,
+  "network_responses": 228,
+  "non_success_api_responses": {
+    "503": 12
+  }
+}

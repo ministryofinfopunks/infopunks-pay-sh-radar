@@ -20,7 +20,7 @@ describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('durable causal decisio
     const database = await createCanonicalTestDatabase(process.env.CANONICAL_RECEIPT_TEST_URL!, 'causal_context', [
       '20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_013_execution_proof_uniqueness',
       '20261007_014_derived_score_projection', '20261008_018_decision_context',
-      '20261008_019_execution_score_eligibility', '20261008_020_receipt_acceptance', '20261008_021_free_assessment_attempts'
+      '20261008_019_execution_score_eligibility', '20261008_020_receipt_acceptance', '20261008_021_free_assessment_attempts', '20261008_022_publication_boundaries'
     ]);
     try {
       const pair = generateKeyPairSync('ed25519');

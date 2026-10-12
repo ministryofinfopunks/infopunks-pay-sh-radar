@@ -1,3 +1,4 @@
+import { EvidenceScope } from './productPrimitives';
 import React, { useEffect, useState } from 'react';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
 import type { RhChainMarketPulse as Pulse, RhChainMarketPulseConfidence as Confidence, RhChainMarketPulseFinding as Finding, RhChainMarketPulseFreshness as Freshness, RhChainMarketPulseMetric as Metric } from '../services/rhChainMarketStructureService';
@@ -22,6 +23,7 @@ export function RhChainMarketPulsePage() {
     <a className="skip-link" href="#market-pulse-content">Skip to Market Pulse</a>
     <header className="site-header"><RhChainSuiteNav current={CANONICAL_PATH} /></header>
     <main id="market-pulse-content" className="narrative-page rh-chain-page market-pulse-page">
+      <EvidenceScope kind="market" />
       {error && <RhChainRouteState state="unavailable" detail={error} onRetry={() => void load()} />}
       {!pulse && !error && <MarketPulseSkeleton />}
       {pulse && envelope && <>

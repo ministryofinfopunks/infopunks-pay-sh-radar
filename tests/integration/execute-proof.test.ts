@@ -3,12 +3,15 @@ import { createApp } from '../../src/api/app';
 import { setupExecution } from '../helpers/executions';
 import { observationInput } from '../helpers/canonicalReceipts';
 import { sealReceipt } from '../../src/services/receiptIntegrityService';
+import { configureTestTenant, testTenantKey } from '../helpers/judgmentDx';
 
 afterEach(() => { vi.unstubAllEnvs(); vi.restoreAllMocks(); });
 describe('POST /v1/execute-proof', () => {
-  it('is free, records verified proof and returns a stable canonical parent receipt', async () => {
+  it('does not attach an operator-published historical Judgment to a caller-selected proof', async () => {
     vi.stubEnv('ADMIN_TOKEN', 'reviewer');
     vi.stubEnv('INGESTION_ENABLED', 'false');
+    configureTestTenant();
+    const tenantHeaders = { authorization: 'Bearer ' + testTenantKey };
     const f = await setupExecution();
     // Reviewed internal authority can publish free judgments; paid publication
     // must go through the already-tested payment boundary.
@@ -27,28 +30,26 @@ describe('POST /v1/execute-proof', () => {
       expect(judgment.statusCode).toBe(200); expect(judgment.json().data.receipt_hash).toBe(reviewedParent.receipt_hash);
       const paidBefore = vi.mocked(f.facilitator.settle).mock.calls.length;
       const externalRequests = vi.spyOn(globalThis, 'fetch');
-      const result = await app.inject({ method: 'POST', url: '/v1/execute-proof', payload: submittedProof });
-      expect(result.statusCode).toBe(200); expect(result.headers['payment-required']).toBeUndefined(); expect(result.headers['payment-response']).toBeUndefined();
-      expect(result.json().data.parent_hash).toBe(reviewedParent.receipt_hash);
-      expect(result.json().data.verification.settlement.verified).toBe(true);
-      const duplicate = await app.inject({ method: 'POST', url: '/v1/execute-proof', payload: submittedProof });
-      expect(duplicate.json()).toEqual(result.json());
-      const conflict = await app.inject({ method: 'POST', url: '/v1/execute-proof', payload: { ...submittedProof, latency_ms: 99 } }); expect(conflict.statusCode).toBe(409);
+      const result = await app.inject({ method: 'POST', url: '/v1/execute-proof', headers: tenantHeaders, payload: submittedProof });
+      expect(result.statusCode).toBe(404); expect(result.headers['payment-required']).toBeUndefined(); expect(result.headers['payment-response']).toBeUndefined();
+      const duplicate = await app.inject({ method: 'POST', url: '/v1/execute-proof', headers: tenantHeaders, payload: submittedProof });
+      expect(duplicate.statusCode).toBe(404);
+      const conflict = await app.inject({ method: 'POST', url: '/v1/execute-proof', headers: tenantHeaders, payload: { ...submittedProof, latency_ms: 99 } }); expect(conflict.statusCode).toBe(404);
       expect(vi.mocked(f.facilitator.settle).mock.calls.length).toBe(paidBefore);
       expect(externalRequests).not.toHaveBeenCalled();
-      expect((await app.inject('/v1/receipt-spine/scores/provider/provider_test')).json().data.score).toBe(0);
-      // Public reads need no wallet or signature.
-      expect((await app.inject('/v1/receipt-spine/execution/' + result.json().data.execution_id)).statusCode).toBe(200);
+      expect((await app.inject({ url: '/v1/receipt-spine/scores/provider/provider_test', headers: { authorization: 'Bearer reviewer' } })).json().data.score).toBe(0);
+      // A tenant cannot read a historical execution that was never bound to its Judgment.
+      expect((await app.inject({ url: '/v1/receipt-spine/execution/' + submittedProof.judgment_id, headers: tenantHeaders })).statusCode).toBe(404);
     } finally { await app.close(); }
   });
-  it('rejects malformed free write requests and enforces the write rate limit', async () => {
+  it('fails closed when credential-bound execution ownership is unavailable', async () => {
     const app = await createApp();
     try {
       for (let i=0;i<20;i++) {
         const response = await app.inject({ method: 'POST', url: '/v1/execute-proof', payload: { request_hash: 'bad', raw_secret: 'not accepted' } });
-        expect(response.statusCode).toBe(400); expect(response.headers['payment-required']).toBeUndefined();
+        expect(response.statusCode).toBe(503); expect(response.headers['payment-required']).toBeUndefined();
       }
-      expect((await app.inject({ method: 'POST', url: '/v1/execute-proof', payload: {} })).statusCode).toBe(429);
+      expect((await app.inject({ method: 'POST', url: '/v1/execute-proof', payload: {} })).statusCode).toBe(503);
     } finally { await app.close(); }
   });
 });

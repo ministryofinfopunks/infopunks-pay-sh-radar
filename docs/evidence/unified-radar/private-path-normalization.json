@@ -1,0 +1,46 @@
+{
+  "source_sha": "d6112b5c8c56e75a8b33c238126a478277b3d0a1",
+  "scope": "local compiled application only",
+  "probes": [
+    {
+      "path": "/v1/receipt-spine/tape",
+      "status": 401,
+      "error": "proof_read_authorization_required"
+    },
+    {
+      "path": "/v1/receipt%2dspine/tape",
+      "status": 401,
+      "error": "proof_read_authorization_required"
+    },
+    {
+      "path": "/v1/%72eceipt-spine/tape",
+      "status": 401,
+      "error": "proof_read_authorization_required"
+    },
+    {
+      "path": "/v1//receipt-spine/tape",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "path": "/v1/receipt-spine%2ftape",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "path": "/v1/receipt-spine/tape/",
+      "status": 401,
+      "error": "proof_read_authorization_required"
+    },
+    {
+      "path": "/v1/receipt-spine/../receipt-spine/tape",
+      "status": 401,
+      "error": "proof_read_authorization_required"
+    },
+    {
+      "path": "/v1/decision-views/guess",
+      "status": 401,
+      "error": "proof_read_authorization_required"
+    }
+  ]
+}

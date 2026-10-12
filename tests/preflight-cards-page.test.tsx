@@ -17,6 +17,7 @@ function pathOf(input: RequestInfo | URL) {
 function installFetch() {
   vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
     const path = pathOf(input);
+    if (path === '/v1/providers') return json([{ id: 'paysponge-coingecko' }]);
     if (path === '/v1/providers/alpha/intelligence') return json({
       provider: { id: 'alpha', name: 'Alpha Provider', category: 'payments', description: 'Public provider dossier sample.' },
       latest_trust_score: 84,

@@ -1,4 +1,5 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { EvidenceScope } from './productPrimitives';
 import { MethodologyDrawer } from './methodology';
 import { formatCatalogPrice } from './pricingDisplay';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
@@ -91,10 +92,10 @@ function SolanaRadarHomepageHero() {
       <h1 id="radar-home-title">Proof before agent spend.</h1>
       <p className="radar-universal-lede">Route intelligence, provider evidence, narrative memory and machine-market infrastructure for the Solana economy.</p>
       <div className="panel-actions radar-universal-actions">
-        <a className="execute compact" href="#global-pulse">Open Radar</a>
-        <a className="execute compact secondary" href="#preflight">Run Preflight</a>
+        <a className="execute compact" href="/spend-terminal">Check a Spend Route</a>
+        <a className="execute compact secondary" href="#explore-solana-radar">Explore the Radar</a>
       </div>
-      <p className="radar-hero-supporting-line">Pay.sh is the spend rail. Radar is the evidence layer.</p>
+      <p className="radar-hero-supporting-line">Pay.sh is a spend rail. Radar is the evidence layer.</p><EvidenceScope kind="service" />
     </div>
     <aside className="radar-system-note" aria-label="Solana Radar doctrine">
       <span className="radar-system-mark" aria-hidden="true" />
@@ -2688,7 +2689,7 @@ function BenchmarkProofContent({ benchmark, history, routeHistory }: { benchmark
         <p>Status: not evaluated.</p>
         <p>Next: {benchmark.next_step}.</p>
         <p>No artifact exists until benchmark evidence is recorded.</p>
-        {hasTokenSearchMappingTarget && <p><a href="/#mapping-targets">Mapping target: finance/data token search</a> is benchmark-ready with two proven routes; normalized benchmark evidence is still pending.</p>}
+        {hasTokenSearchMappingTarget && <p><a href="/solana#mapping-targets">Mapping target: finance/data token search</a> is benchmark-ready with two proven routes; normalized benchmark evidence is still pending.</p>}
       </div>}
     </section>
     <section className="panel">
@@ -8198,7 +8199,7 @@ function normalizeTemplateId(policyId: string) {
 }
 
 function MachineMethodologyNote() {
-  return <p className="machine-methodology-note"><a href="/#methodology">Methodology: Machine Economy evidence ladder</a> Repeatability-recorded means the same route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark and does not compare providers. Benchmark-ready criteria define the minimum evidence required before a benchmark can be recorded. Criteria definition is not a benchmark.</p>;
+  return <p className="machine-methodology-note"><a href="/solana#methodology">Methodology: Machine Economy evidence ladder</a> Repeatability-recorded means the same route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark and does not compare providers. Benchmark-ready criteria define the minimum evidence required before a benchmark can be recorded. Criteria definition is not a benchmark.</p>;
 }
 
 function MachineEvidenceMethodologyDrawer() {
@@ -8770,10 +8771,10 @@ function PublicProviderPage({ providerId }: { providerId: string }) {
               {copyState === 'copied' ? 'Copied URL' : 'Copy Share URL'}
             </button>
             <a className="execute compact secondary" href={`/radar/cards/provider/${encodeURIComponent(providerId)}`}>Open Preflight Card</a>
-            <a className="execute compact secondary" href="/#terminal-content">Open Radar</a>
-            <a className="execute compact secondary" href="/#terminal-content" onClick={(event) => {
+            <a className="execute compact secondary" href="/solana#terminal-content">Open Radar</a>
+            <a className="execute compact secondary" href="/solana#terminal-content" onClick={(event) => {
               event.preventDefault();
-              window.location.href = '/#terminal-content';
+              window.location.href = '/solana#terminal-content';
             }}>Methodology</a>
           </div>
         </div>
@@ -8854,7 +8855,7 @@ function PublicProviderPage({ providerId }: { providerId: string }) {
         </DossierSection>
         <DossierSection title="Evidence Metadata">
           <EvidenceReceiptView evidence={providerIntel} title="Provider Intelligence Receipt" />
-          <p><a href="/#terminal-content">Methodology link</a></p>
+          <p><a href="/solana#terminal-content">Methodology link</a></p>
         </DossierSection>
       </section>
     </main>
@@ -10917,7 +10918,7 @@ export function ComparisonPanel({
       </select>
     </div>}
     {!result && <EmptyState title="No comparison selected." body="Select two or three providers or endpoints, then run Compare." />}
-    {result && <div className="endpoint-list has-rows comparison-results">{visibleRows.map((row) => {
+    {result && <div className="endpoint-list has-rows comparison-results" tabIndex={0} role="region" aria-label="Comparison results">{visibleRows.map((row) => {
       const routeState = comparisonRouteState(row);
       return <div className={`endpoint ${routeState.tone === 'degraded' ? 'degraded-card' : ''}`} key={row.id}>
       <strong>{row.name}</strong>
@@ -10997,7 +10998,7 @@ function CostPerformancePanel({
       <ScopeLabel scope="GLOBAL" />
       <h2>Cost / Performance Intelligence</h2>
     </div>
-    <div className="endpoint-list has-rows comparison-results">
+    <div className="endpoint-list has-rows comparison-results" tabIndex={0} role="region" aria-label="Comparison results">
       {rows.map(({ endpoint, est, conf, value, benchmark }) => <div key={endpoint.endpoint_id} className={`endpoint ${endpoint.route_eligibility ? '' : 'degraded-card'}`}>
         <strong>{endpoint.provider_name ?? endpoint.provider_id} / {endpoint.endpoint_name ?? endpoint.endpoint_id}</strong>
         <small>category {endpoint.category ?? 'unknown'} / trust {endpoint.provider_trust_score ?? 'unknown'} / signal {endpoint.provider_signal_score ?? 'unknown'}</small>
@@ -11048,14 +11049,15 @@ function EmptyState({ title, body }: { title: string; body: string }) {
 }
 
 function CompactChipList({ title, items, emptyLabel, limit = 10, wide = false }: { title: string; items: string[]; emptyLabel: string; limit?: number; wide?: boolean }) {
-  const visible = items.slice(0, limit);
-  const hiddenCount = Math.max(0, items.length - visible.length);
+  const uniqueItems = Array.from(new Set(items));
+  const visible = uniqueItems.slice(0, limit);
+  const hiddenCount = Math.max(0, uniqueItems.length - visible.length);
   return <section className={wide ? 'compact-chip-list wide' : 'compact-chip-list'}>
     <div className="compact-chip-list-head">
       <strong>{title}</strong>
-      <span>{items.length}</span>
+      <span>{uniqueItems.length}</span>
     </div>
-    {items.length === 0
+    {uniqueItems.length === 0
       ? <p>{emptyLabel}</p>
       : <div className="compact-chip-wrap">
         {visible.map((item) => <span key={item}>{item}</span>)}
@@ -11064,7 +11066,7 @@ function CompactChipList({ title, items, emptyLabel, limit = 10, wide = false }:
     {hiddenCount > 0 && <details className="compact-chip-details">
       <summary>View full list</summary>
       <div className="compact-chip-wrap full">
-        {items.map((item) => <span key={item}>{item}</span>)}
+        {uniqueItems.map((item) => <span key={item}>{item}</span>)}
       </div>
     </details>}
   </section>;

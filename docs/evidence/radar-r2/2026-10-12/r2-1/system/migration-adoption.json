@@ -1,0 +1,77 @@
+{
+  "source_sha": "00d847379a1530848a8789f33cc075bd0a25095e",
+  "migration_count": 22,
+  "clean_install": {
+    "status": "PASS",
+    "first_apply_count": 22,
+    "pending": 0
+  },
+  "repeat_execution": {
+    "status": "PASS",
+    "reported_applied_count": 22,
+    "history_count": 22,
+    "applied_once": true
+  },
+  "baseline_017": {
+    "status": "PASS",
+    "adopted_count": 17,
+    "applied_remaining_count": 5,
+    "pending": 0
+  },
+  "baseline_020": {
+    "status": "PASS",
+    "adopted_count": 20,
+    "new_migrations": [
+      "20261008_021",
+      "20261008_022"
+    ],
+    "pending": 0
+  },
+  "concurrent_runners": {
+    "status": "PASS",
+    "runner_count": 2,
+    "migration_rows": 22,
+    "applied_history_rows": 22
+  },
+  "checksum_drift": {
+    "status": "PASS",
+    "expected_failure": "applied_migration_checksum_drift:20260719_001"
+  },
+  "historical_baseline_mismatch": {
+    "pre_fix_errors_reproduced": "documented in ../integration-ledger.md for both 017 and 020",
+    "proven_defect": "same-named constraint lookup was not scoped to current_schema()",
+    "fix": "scope constraint lookup to current_schema(); migration files, IDs, and checksums unchanged"
+  },
+  "migration_022_compatibility": "PASS; 020 adoption then applies 021 and 022",
+  "test_status": "passed",
+  "test_cases": [
+    {
+      "status": "passed",
+      "name": "PostgreSQL migration runner applies a clean install once and repeat boot is idempotent"
+    },
+    {
+      "status": "passed",
+      "name": "PostgreSQL migration runner serializes concurrent runners and records each migration exactly once"
+    },
+    {
+      "status": "passed",
+      "name": "PostgreSQL migration runner refuses implicit adoption and performs a pinned, verified 017 historical upgrade"
+    },
+    {
+      "status": "passed",
+      "name": "PostgreSQL migration runner supports the verified 020 baseline and applies migrations 021\u2013022"
+    },
+    {
+      "status": "passed",
+      "name": "PostgreSQL migration runner records failure, leaves failed DDL unapplied, and retries from the failed migration"
+    },
+    {
+      "status": "passed",
+      "name": "PostgreSQL migration runner rejects checksum drift and modified historical baselines"
+    },
+    {
+      "status": "passed",
+      "name": "PostgreSQL migration runner fails closed on unknown or reordered applied ledger identities"
+    }
+  ]
+}

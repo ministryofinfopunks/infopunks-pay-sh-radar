@@ -1,0 +1,46 @@
+{
+  "source_sha": "134c3f130288d27af7ee1e0002e83fb3bf0e481f",
+  "scope": "empty local development store; no production data",
+  "probes": [
+    {
+      "path": "/v1/receipt-spine/tape",
+      "status": 401,
+      "error": "proof_read_authorization_required"
+    },
+    {
+      "path": "/v1/receipt%2dspine/tape",
+      "status": 200,
+      "error": null
+    },
+    {
+      "path": "/v1/%72eceipt-spine/tape",
+      "status": 200,
+      "error": null
+    },
+    {
+      "path": "/v1//receipt-spine/tape",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "path": "/v1/receipt-spine%2ftape",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "path": "/v1/receipt-spine/tape/",
+      "status": 401,
+      "error": "proof_read_authorization_required"
+    },
+    {
+      "path": "/v1/receipt-spine/../receipt-spine/tape",
+      "status": 401,
+      "error": "proof_read_authorization_required"
+    },
+    {
+      "path": "/v1/decision-views/guess",
+      "status": 401,
+      "error": "proof_read_authorization_required"
+    }
+  ]
+}

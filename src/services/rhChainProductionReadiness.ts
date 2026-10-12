@@ -23,7 +23,8 @@ export const RH_CHAIN_REQUIRED_MIGRATIONS: readonly RhChainMigrationRequirement[
   { id: '20261008_018', file: '20261008_018_decision_context.up.sql', tables: ['decision_contexts'], indexes: [], checks: ['decision_contexts_immutable', 'decision_contexts_no_truncate', 'canonical_judgment_context', 'judgment_receipt_version_context_check'] },
   { id: '20261008_019', file: '20261008_019_execution_score_eligibility.up.sql', tables: [], indexes: ['execution_qualifying_settlement_once_idx', 'execution_qualifying_judgment_once_idx'] },
   { id: '20261008_020', file: '20261008_020_receipt_acceptance.up.sql', tables: ['canonical_receipt_acceptances', 'canonical_receipt_quarantine'], indexes: ['canonical_receipt_acceptances_kind_sequence'], checks: ['canonical_receipt_acceptances_immutable', 'canonical_receipt_acceptances_no_truncate', 'canonical_receipt_quarantine_immutable', 'canonical_receipt_quarantine_no_truncate', 'decision_contexts_version_check'] },
-  { id: '20261008_021', file: '20261008_021_free_assessment_attempts.up.sql', tables: ['free_assessment_attempts'], indexes: [], checks: ['free_assessment_attempts_immutable', 'free_assessment_attempts_no_truncate'] }
+  { id: '20261008_021', file: '20261008_021_free_assessment_attempts.up.sql', tables: ['free_assessment_attempts'], indexes: [], checks: ['free_assessment_attempts_immutable', 'free_assessment_attempts_no_truncate'] },
+  { id: '20261008_022', file: '20261008_022_publication_boundaries.up.sql', tables: [], indexes: ['free_assessment_attempts_publication_sequence_key', 'canonical_receipt_quarantine_publication_sequence_key'] }
 ] as const;
 
 export type RhChainMigrationStatus = { id: string; file: string; state: 'applied' | 'pending'; missing_tables: string[]; missing_indexes: string[]; missing_checks: string[] };
@@ -40,7 +41,7 @@ export async function inspectRhChainMigrationLedger(pool: Queryable | null): Pro
   try {
     const tables = await pool.query<{ name: string }>('select value as name from unnest($1::text[]) value where to_regclass(value) is null order by value', [requiredTables]);
     const indexes = await pool.query<{ name: string }>('select value as name from unnest($1::text[]) value where not exists (select 1 from pg_indexes where schemaname = current_schema() and indexname = value) order by value', [requiredIndexes]);
-    const vocabulary = await pool.query<{ definition: string }>("select pg_get_constraintdef(oid) as definition from pg_constraint where conname='rh_chain_reviewed_classifications_primary_layer_check' limit 1");
+    const vocabulary = await pool.query<{ definition: string }>("select pg_get_constraintdef(oid) as definition from pg_constraint where conname='rh_chain_reviewed_classifications_primary_layer_check' and connamespace=(select oid from pg_namespace where nspname=current_schema())");
     const missingChecks = await pool.query<{ name: string }>("select value as name from unnest($1::text[]) value where not exists (select 1 from pg_trigger t join pg_class c on c.oid=t.tgrelid join pg_namespace n on n.oid=c.relnamespace where t.tgname=value and n.nspname=current_schema() and t.tgenabled in ('O','A')) and not exists (select 1 from pg_constraint c join pg_namespace n on n.oid=c.connamespace where c.conname=value and n.nspname=current_schema()) order by value", [ALL_REQUIRED_CHECKS]);
     const missing = missingChecks.rows.map((row) => row.name);
     if (!vocabulary.rows.some((row) => row.definition.includes("'consumer'"))) missing.push('consumer_primary_layer_vocabulary');

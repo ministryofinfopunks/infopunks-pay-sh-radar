@@ -1,3 +1,4 @@
+import { ProductWayfinding } from './productPrimitives';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import type { Rh4663CallReceipt, Rh4663RotationOption, Rh4663Signal, Rh4663SignalCategory, Rh4663TodayEdition } from '../services/rh4663Service';
@@ -72,10 +73,10 @@ export function Rh4663Page() {
   if (view === 'home') return <Home />;
   return <div className="i4663-app">
     <header className="i4663-header">
-      <a className="i4663-wordmark" href="/4663" aria-label="Infopunks 4663 home"><span>INFOPUNKS</span><b>//4663</b></a>
+      <a className="i4663-wordmark" href="/4663" aria-label="Infopunks Radar 4663 research"><span>INFOPUNKS RADAR</span><b>//4663</b></a>
       <a className="i4663-radar-link" href="/rh-chain-signal-desk">RH DESK ↗</a>
     </header>
-    <nav className="i4663-nav" aria-label="4663 navigation"><a href="/4663#now">Now</a><a href="/4663#watch">Watch</a><a href="/4663#call">Call</a><a href="/4663#proof">Proof</a></nav>
+    <ProductWayfinding current="/rh-chain-signal-desk" /><nav className="i4663-nav" aria-label="4663 navigation"><a href="/4663#now">Now</a><a href="/4663#watch">Watch</a><a href="/4663#call">Call</a><a href="/4663#proof">Proof</a></nav>
     {view === 'campaign' && campaignId ? <CampaignLanding campaignId={decodeURIComponent(campaignId)} /> : view === 'print' && printId ? <Print printId={decodeURIComponent(printId)} /> : view === 'pulse' ? <Pulse /> : view === 'consensus' && consensusWindowId ? <ConsensusPage windowId={decodeURIComponent(consensusWindowId)} /> : view === 'today' ? <Today /> : view === 'signals' ? <Signals /> : view === 'signal_detail' && signalId ? <SignalProofPage signalId={decodeURIComponent(signalId)} /> : view === 'proof_profile' && proofWallet ? <ProofProfilePage wallet={proofWallet} /> : view === 'proof' && (proofId || callId || resolutionId) ? <ProofPage receiptId={decodeURIComponent(proofId ?? callId ?? resolutionId ?? '')} campaignRoute={callId ? 'call' : resolutionId ? 'resolution' : 'proof'} /> : <Receipts />}
     <footer className="i4663-footer"><span>AFTER ATTENTION, INTELLIGENCE.</span><span>UTC / RH CHAIN / PUBLIC MEMORY</span></footer>
   </div>;
@@ -99,7 +100,7 @@ function SocialLanding({ shareObjectId }: { shareObjectId: string }) {
   if (!object) return <main className="i4663-social-shell"><a className="i4663-wordmark" href="/4663"><span>INFOPUNKS</span><b>//4663</b></a><DataState status={api.status} message={api.message} /></main>;
   const action = socialAction(object);
   return <main className="i4663-social-shell" aria-labelledby="social-object-title">
-    <header><a className="i4663-wordmark" href="/4663" aria-label="Infopunks 4663 home"><span>INFOPUNKS</span><b>//4663</b></a><ShareControl object={object} /></header>
+    <header><a className="i4663-wordmark" href="/4663" aria-label="Infopunks Radar 4663 research"><span>INFOPUNKS RADAR</span><b>//4663</b></a><ShareControl object={object} /></header>
     <article className="i4663-social-object">
       <p className="i4663-micro">//4663 · {object.share_type.replaceAll('_', ' ')}</p>
       <section className="i4663-social-answer"><p className="i4663-social-question">WHAT HAPPENED?</p><h1 id="social-object-title">{object.primary_statement}</h1>{object.primary_metric && <strong className="i4663-social-metric">{object.primary_metric}</strong>}</section>
@@ -159,32 +160,29 @@ function MetricEvidence({ metric, featured = false }: { metric: PrintMetric; fea
 function Pulse() {
   const [pulseRefresh, setPulseRefresh] = useState(0);
   const api = useApi<PulseData>('/v1/4663/pulse', pulseRefresh);
-  const [wallet, setWallet] = useState<string | null>(null); const [reputationRefresh, setReputationRefresh] = useState(0);
-  const reputation = useOptionalApi<Reputation>(wallet ? `/v1/4663/pulse/reputation/${encodeURIComponent(wallet)}` : null, reputationRefresh);
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const [rotation, setRotation] = useState<Rh4663RotationOption>('MEMES'); const [confidence, setConfidence] = useState(() => Math.min(100, Math.max(1, Number(params.get('confidence')) || 70))); const [digest, setDigest] = useState('');
   const [result, setResult] = useState<{ state: 'idle' | 'working' | 'success' | 'error'; message?: string; receipt?: Rh4663CallReceipt }>({ state: 'idle' });
-  useEffect(() => { const ethereum = (window as Window & { ethereum?: { request(args: { method: string }): Promise<unknown> } }).ethereum; if (!ethereum) return; void ethereum.request({ method: 'eth_accounts' }).then((accounts) => { const walletAddress = Array.isArray(accounts) && typeof accounts[0] === 'string' ? accounts[0] : null; setWallet(walletAddress); }).catch(() => undefined); }, []);
   async function makeCall() {
     setResult({ state: 'working', message: 'Requesting wallet signature…' });
     trackCampaign('4663_call_started', { surface: 'pulse', window_id: api.data?.window.window_id });
     try {
       const ethereum = (window as Window & { ethereum?: { request(args: { method: string; params?: unknown[] }): Promise<unknown> } }).ethereum;
       if (!ethereum) throw new Error('No EVM wallet found. Open 4663 in a wallet-enabled browser.');
-      const accounts = await ethereum.request({ method: 'eth_requestAccounts' }) as string[]; const connectedWallet = accounts[0]; if (!connectedWallet) throw new Error('Wallet access was not granted.'); setWallet(connectedWallet);
+      const accounts = await ethereum.request({ method: 'eth_requestAccounts' }) as string[]; const connectedWallet = accounts[0]; if (!connectedWallet) throw new Error('Wallet access was not granted.');
       const payloadResponse = await fetch(toApiUrl(API_BASE_URL, '/v1/4663/pulse/payload'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ wallet: connectedWallet, rotation, confidence, evidence_digest: digest || null, window_id: api.data?.window.window_id }) });
       const payloadBody = await payloadResponse.json() as { data?: { canonical_serialization: string }; error?: string }; if (!payloadResponse.ok || !payloadBody.data) throw new Error(readableError(payloadBody.error));
       const signature = await ethereum.request({ method: 'personal_sign', params: [payloadBody.data.canonical_serialization, connectedWallet] });
       trackCampaign('4663_call_signed', { surface: 'pulse', window_id: api.data?.window.window_id });
       const callResponse = await fetch(toApiUrl(API_BASE_URL, '/v1/4663/pulse/calls'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ wallet: connectedWallet, rotation, confidence, evidence_digest: digest || null, window_id: api.data?.window.window_id, signature }) });
       const callBody = await callResponse.json() as { data?: Rh4663CallReceipt; error?: string }; if (!callResponse.ok || !callBody.data) throw new Error(readableError(callBody.error));
-      setResult({ state: 'success', message: 'Call recorded. The receipt will not change.', receipt: callBody.data }); setReputationRefresh((value) => value + 1); setPulseRefresh((value) => value + 1); trackCampaign('4663_call_accepted', { surface: 'call', window_id: callBody.data.window_id });
+      setResult({ state: 'success', message: 'Call recorded. The receipt will not change.', receipt: callBody.data }); setPulseRefresh((value) => value + 1); trackCampaign('4663_call_accepted', { surface: 'call', window_id: callBody.data.window_id });
     } catch (error) { setResult({ state: 'error', message: error instanceof Error ? error.message : 'Call could not be recorded.' }); }
   }
   return <main className="i4663-main i4663-subpage">
     <PageHead index="01" title="RH PULSE" lede="CALL THE ROTATION." />
     <DataState status={api.status} message={api.message} />
-    {reputation.data && <PulseMemory reputation={reputation.data} currentWindowId={api.data?.window.window_id} />}
+    <p className="i4663-data-state" role="status">Private reputation requires an approved identity. Public Pulse data remains available.</p>
     <div className="i4663-window"><span>WINDOW</span><strong>{api.data?.window.window_id ?? 'UTC DAILY'}</strong><time>{api.data ? `${machineTime(api.data.window.opens_at)} → ${machineTime(api.data.window.closes_at)}` : 'FIXED UTC BOUNDARY'}</time></div>
     <section className="i4663-pulse-grid" aria-label="Rotation options">{ROTATIONS.map((item) => <button type="button" key={item.value} aria-pressed={rotation === item.value} onClick={() => setRotation(item.value)}><i />{item.label}</button>)}</section>
     <label className="i4663-range"><span>CONFIDENCE <b>{confidence}</b></span><input aria-label="Confidence" type="range" min="1" max="100" value={confidence} onChange={(event) => setConfidence(Number(event.target.value))} /></label>

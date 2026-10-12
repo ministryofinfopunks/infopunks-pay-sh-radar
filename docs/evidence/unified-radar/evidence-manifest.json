@@ -1,0 +1,315 @@
+{
+  "tested_source_sha": "d6112b5c8c56e75a8b33c238126a478277b3d0a1",
+  "artifacts": [
+    {
+      "path": "docs/evidence/unified-radar/api-observability.json",
+      "bytes": 1200,
+      "sha256": "6790e3ebb4214378301d4369385a07b1a041883420efc9141f34019ed0a1b3f4"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/desktop-4663.png",
+      "bytes": 78815,
+      "sha256": "4eaa3ad5bf02bb88d188740816e8efa6c44150548212bd65049dafa1b1e0e482"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/desktop-developers.png",
+      "bytes": 405180,
+      "sha256": "c9b7b235ec646d4d0298923c7db20f6afec25dc86999a1165702241ae5d1543c"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/desktop-home.png",
+      "bytes": 288323,
+      "sha256": "c0672ce133f55486d6d6219e393f5cc984680423c4f6804648802f8b2697eb3d"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/desktop-loops.png",
+      "bytes": 437662,
+      "sha256": "526f9fac6c4b1f1de7d66d885216c52f680a7d5cac3ecbee123be26808affb30"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/desktop-radar-cards.png",
+      "bytes": 264455,
+      "sha256": "f823c3d2852484e5822efa359f2cf56880eebe7c86a91cbbd82e1fa21e0e0254"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/desktop-receipts-receipt_001.png",
+      "bytes": 303046,
+      "sha256": "d7b7386c8c6684c2651d5250a8e558fef8a31ee84a8fc001fda4a1d35187d41d"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/desktop-receipts.png",
+      "bytes": 362962,
+      "sha256": "a6ffc0e466825ac486e780ecc9a90cd5ca782f5ec889723745f9c2352f2acdf3"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/desktop-rh-chain-signal-desk-market.png",
+      "bytes": 202997,
+      "sha256": "ab79d26a887ed837fdee5009b7676d338c76ca52a51a0608b2e27d16493d4501"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/desktop-rh-chain-signal-desk.png",
+      "bytes": 584369,
+      "sha256": "b5e7de161edb6a9a7b9f3c22c5b5b0c325aacc96e7330e9ce6f56d4ed5ac8d6e"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/desktop-solana.png",
+      "bytes": 617354,
+      "sha256": "8583c0be68b0689c9a7c5d28cd3e68206995ab2e7dde3e1f2826ae11c554b96a"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/desktop-spend-terminal.png",
+      "bytes": 133605,
+      "sha256": "b2308f237f46e4b96d8792bf49a784cb88baba7b88b0e7fa20a5e64a93b19db6"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/failure-recovery.json",
+      "bytes": 641,
+      "sha256": "e53b97e17034c7913ea28b143e21592c332a2558588b252a20f979465cc31b8f"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/keyboard-reduced-motion.json",
+      "bytes": 727,
+      "sha256": "8646bde70e185e8627ec30d06e9f14bed5eb5eac628f90118c27dbca4a226024"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/mobile-4663.png",
+      "bytes": 52126,
+      "sha256": "58e2abe481d4bf6384ab45f3d28c799394caab6de3e371aa402abeed66cd7416"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/mobile-developers.png",
+      "bytes": 159038,
+      "sha256": "f049ddfea65b473f33302bc010da06ab474f45721390df19f3f58d37e56d439d"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/mobile-home.png",
+      "bytes": 230682,
+      "sha256": "11b25bb20290470f8589d5184527b184ab935c811b06667ae17bbe70a1465a1c"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/mobile-loops.png",
+      "bytes": 182160,
+      "sha256": "34529f6727d2d8f134a1502b73399aceeb1fff92fdbe85a9561655e1fdbb9d23"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/mobile-radar-cards.png",
+      "bytes": 138439,
+      "sha256": "63fe790cfcb55a4e6b7ba790634b7d6c9e39788d721980a6e594b6c647c308ac"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/mobile-receipts-receipt_001.png",
+      "bytes": 137976,
+      "sha256": "a9f168a9459e6376894447985d7f70fc034a71f689c5f97ba85a116ce5afc635"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/mobile-receipts.png",
+      "bytes": 131671,
+      "sha256": "a86a8a9e272e93a1f4680630954e8552d635e0b0deb2ab9c45e14cebf7af09fd"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/mobile-rh-chain-signal-desk-market.png",
+      "bytes": 101892,
+      "sha256": "ae74acd0886a7c5703417bd9fed02527936358b93766c292d0be4ae7c42bc116"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/mobile-rh-chain-signal-desk.png",
+      "bytes": 215894,
+      "sha256": "c1e6cc9badfc85124134d82200ca318c0a16173dcf233fd2c3800a6671c9e5f7"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/mobile-solana.png",
+      "bytes": 161605,
+      "sha256": "11f2a8f2ffd2d3175a2238ca7b65e749ad0572f6c9fdba9648441c3df746a99b"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/mobile-spend-terminal.png",
+      "bytes": 119419,
+      "sha256": "c4985d6eb3e33eec00a2014b560e281977a03aaa1d1bebc720971c373142b957"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/navigation-audit.json",
+      "bytes": 169829,
+      "sha256": "7359a2621908a507be009016eca2535ee961445f4ff16d49e4620804a1334d21"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/results.json",
+      "bytes": 430425,
+      "sha256": "8a9e4a19078a59c7d945dd7d7768ff62eec52b5fddfdc4156ff4ec84d2e280ea"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/tablet-4663.png",
+      "bytes": 68096,
+      "sha256": "20d5445d2e3c5ef2374df82032c2f3bf6e1f0586ded1776a32214321d296032b"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/tablet-developers.png",
+      "bytes": 270288,
+      "sha256": "7a0897de75bc6b26663c89247b21175d3a00b4c8724406160b4a1e6bbc16a557"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/tablet-home.png",
+      "bytes": 272178,
+      "sha256": "e76531e5ca622dc4c6ddddb51cd72ada5530fdb78b99407d86d3894c216ec86e"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/tablet-loops.png",
+      "bytes": 256657,
+      "sha256": "ec16308c6eeb1e1382822914d842d07aa841b99af6c1ae2a7142329546e91210"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/tablet-radar-cards.png",
+      "bytes": 216902,
+      "sha256": "cfae2f471ce69fe1765b65f0206e6361bc588e06dd112ee7cd130550381efbe5"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/tablet-receipts-receipt_001.png",
+      "bytes": 198290,
+      "sha256": "3133590ea452180c1823c2818cddd9687751f69b8ee411fa274b0332e7aa27e7"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/tablet-receipts.png",
+      "bytes": 217909,
+      "sha256": "204bcd00ffd630d6ca9bcf24794d7f4a6f5865299782241d0562da33d954fef4"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/tablet-rh-chain-signal-desk-market.png",
+      "bytes": 124887,
+      "sha256": "c955903cde5994530de2eaaa08cdcc7a43c0a32408010557a15431d07acd293f"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/tablet-rh-chain-signal-desk.png",
+      "bytes": 360015,
+      "sha256": "4aad6f9660cdb3b3b196394f97518a85c9e19f231f14e819ef87d058b2ca5be2"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/tablet-solana.png",
+      "bytes": 355713,
+      "sha256": "8198d6fa17fc3b75ade08b9198e4c25b214e8bef05b2253c005a9b904126dc53"
+    },
+    {
+      "path": "docs/evidence/unified-radar/browser/tablet-spend-terminal.png",
+      "bytes": 125292,
+      "sha256": "a777ce4160a5738c9af0d339183a2e29c0573f2217072853ba2bf5bd310a1ed9"
+    },
+    {
+      "path": "docs/evidence/unified-radar/lighthouse-desktop.json",
+      "bytes": 547849,
+      "sha256": "94401b386d21007e691cb1c5eee43baf7d36610e8626e21c71ff41279f4cef97"
+    },
+    {
+      "path": "docs/evidence/unified-radar/lighthouse-mobile.json",
+      "bytes": 535580,
+      "sha256": "7a453086bc8580fabf2691cf2e2e301ce7968830789f85411b6ce42349575588"
+    },
+    {
+      "path": "docs/evidence/unified-radar/lighthouse-summary.json",
+      "bytes": 1073,
+      "sha256": "4bb949d7c4b681f13a81e692569d8b611cd152503acfa02633426dc8a28618ed"
+    },
+    {
+      "path": "docs/evidence/unified-radar/local-cleanup.json",
+      "bytes": 887,
+      "sha256": "e522df2ac5b9a53a0c4310c12e6c25149d00f3898ffa3642c3772a888f6335ed"
+    },
+    {
+      "path": "docs/evidence/unified-radar/local-readiness.json",
+      "bytes": 263,
+      "sha256": "fb2ce578f52922a99000e412d012807e7c4e2b82f79befba126f5bb2152c9874"
+    },
+    {
+      "path": "docs/evidence/unified-radar/migration-checksums.json",
+      "bytes": 7651,
+      "sha256": "b6309ab3a55d26a8faad8a8ff33ebdd2c3800822bc93bd912c738bea06ca344c"
+    },
+    {
+      "path": "docs/evidence/unified-radar/private-path-normalization-before.json",
+      "bytes": 1062,
+      "sha256": "e656e1e007eb904c393d24f7c23016c67fe32401824902d2d34b59da9206aac0"
+    },
+    {
+      "path": "docs/evidence/unified-radar/private-path-normalization.json",
+      "bytes": 1106,
+      "sha256": "a802d04020e930be51200b0cf120acee10c57dcdd085ed1ca8f48d83fd493cd1"
+    },
+    {
+      "path": "docs/evidence/unified-radar/release-certificate.json",
+      "bytes": 1487,
+      "sha256": "a1f84a8436063664c842bdbad065803cde19e075bb0d48c9036f71919ce09694"
+    },
+    {
+      "path": "docs/evidence/unified-radar/remote-heads.txt",
+      "bytes": 393,
+      "sha256": "0b9ff74086a9be0ecdffc846b3747d01d905f49538f1de4936278364aa6ff4b7"
+    },
+    {
+      "path": "docs/evidence/unified-radar/staging-runbook.md",
+      "bytes": 4216,
+      "sha256": "ececf12d5220ef08617df6e992a8c850db0fedab091e711677d050ce1ac57fde"
+    },
+    {
+      "path": "docs/evidence/unified-radar/system/audit-all.json",
+      "bytes": 1169,
+      "sha256": "0d75bd206edf647f324e22163e6ddcf90c8635bbbca1b648daf94112efa75e44"
+    },
+    {
+      "path": "docs/evidence/unified-radar/system/audit-production.json",
+      "bytes": 364,
+      "sha256": "2373fe622ad5cd0c3c51b74230374f1bb6a79fce40e11f3f6a540c657783e0d1"
+    },
+    {
+      "path": "docs/evidence/unified-radar/system/check-results.json",
+      "bytes": 5151,
+      "sha256": "2786233abac37bdcdc79e147fd263eeb08e5e2513580a0214a6c24c54e19fc80"
+    },
+    {
+      "path": "docs/evidence/unified-radar/system/full-test-summary.json",
+      "bytes": 30815,
+      "sha256": "1379ca19a3ff058d9edff061b4361f11864522683a206d0563fe633f00fed305"
+    },
+    {
+      "path": "docs/evidence/unified-radar/system/migration-check.json",
+      "bytes": 9563,
+      "sha256": "c4442e53dfe05097eddcbb8b63c8ad9d7fa5529ffd549c4a2c9a4b5bedbfbf20"
+    },
+    {
+      "path": "docs/evidence/unified-radar/system/migration-first.json",
+      "bytes": 9560,
+      "sha256": "e75abaf8816514ab36c9b2991008c3fcaa1e288c4638fd44e6ebae90c17083cc"
+    },
+    {
+      "path": "docs/evidence/unified-radar/system/migration-repeat.json",
+      "bytes": 9560,
+      "sha256": "e75abaf8816514ab36c9b2991008c3fcaa1e288c4638fd44e6ebae90c17083cc"
+    },
+    {
+      "path": "docs/evidence/unified-radar/system/phase2-judgment-performance.json",
+      "bytes": 387,
+      "sha256": "bcd8f343d9412b478d6e32f496746d752235fc9a67cb1100c8976e86fc004b43"
+    },
+    {
+      "path": "docs/evidence/unified-radar/system/phase2-judgment-postgres-performance.json",
+      "bytes": 355,
+      "sha256": "12ef93d7846e4319759f9a86d0f9e95d9ef7f1424f850ade7a359b4b266807e3"
+    },
+    {
+      "path": "docs/evidence/unified-radar/system/recovery-after.json",
+      "bytes": 1944,
+      "sha256": "b4b72fedf57b0ced6a7874660fee2df1287f688a5b87e2454049ec10149125de"
+    },
+    {
+      "path": "docs/evidence/unified-radar/system/recovery-before.json",
+      "bytes": 1914,
+      "sha256": "ed017d1f92ac499d524c2df7458b5abf119a85a4bf7521514f9edc8c6e67e636"
+    },
+    {
+      "path": "docs/evidence/unified-radar/system/recovery-public-trust.json",
+      "bytes": 349,
+      "sha256": "23c1ad8db9c75adb9542b51feba47fd63dfc1ef927d09594db1a52a379bdda06"
+    },
+    {
+      "path": "docs/evidence/unified-radar/test-observability.json",
+      "bytes": 3026,
+      "sha256": "213733a7fd11bcc429ff49237057568753101c6280f83ef514358773b35bbc39"
+    }
+  ]
+}

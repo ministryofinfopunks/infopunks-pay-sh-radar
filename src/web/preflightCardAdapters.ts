@@ -286,6 +286,9 @@ export async function loadMachineServicePreflightCard(id: string): Promise<Prefl
 }
 
 export async function getPreflightCardIndex(): Promise<PreflightCardIndexSection[]> {
+  // An optional featured provider must exist in this catalog before probing its detail.
+  const catalog = await api<Array<{ id: string }>>('/v1/providers').catch(() => []);
+  const featuredProviderExists = catalog.some(provider => provider.id === RADAR_PROVIDER_ALIASES['coingecko-onchain']);
   const definitions: Array<{
     id: string;
     title: string;
@@ -298,7 +301,7 @@ export async function getPreflightCardIndex(): Promise<PreflightCardIndexSection
       title: 'Agent Spend Cards',
       description: 'Routes and providers agents can inspect before spending.',
       loaders: [
-        () => loadRadarPreflightCard('provider', 'coingecko-onchain'),
+        ...(featuredProviderExists ? [() => loadRadarPreflightCard('provider', 'coingecko-onchain')] : []),
         () => loadRadarPreflightCard('route', 'sol-price')
       ]
     },

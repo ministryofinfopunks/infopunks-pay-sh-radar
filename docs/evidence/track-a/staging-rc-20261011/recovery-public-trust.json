@@ -1,0 +1,12 @@
+{
+  "issuer": "synthetic-local-recovery-only",
+  "keys": [
+    {
+      "key_id": "local-recovery",
+      "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEARUv6hbKby++CnPRqoWQ5bIc9XoUMnk1cXvSFXtwzXtY=\n-----END PUBLIC KEY-----\n",
+      "valid_from": "2026-01-01T00:00:00Z",
+      "valid_until": null,
+      "revoked": false
+    }
+  ]
+}

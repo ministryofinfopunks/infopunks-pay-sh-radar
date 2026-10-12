@@ -1,8 +1,37 @@
 import { describe, expect, it } from 'vitest';
 import { adaptDecision, judgmentExpired } from '../../src/services/judgmentService';
 import { request, setupJudgment } from '../helpers/judgments';
+import { hashCanonical } from '../../src/services/receiptIntegrityService';
 
 describe('canonical judgment policy', () => {
+  it('keeps token-market evidence outside the service-provider policy even if every generic fact is sufficient', async () => {
+    const f = await setupJudgment({}, { subject_type: 'token' });
+    expect((await f.service.check(request)).response).toMatchObject({ decision: 'insufficient_evidence', payment_required: false, cost: { amount: '0' } });
+    expect(f.facilitator.settle).not.toHaveBeenCalled();
+  });
+  it('does not reinterpret a tokenized settlement preference as qualified service policy', async () => {
+    const market = { ...request, preferred_settlement: 'tokenized_pltr' };
+    const f = await setupJudgment({ settlement: 'tokenized_pltr' }, { intent_hash: hashCanonical(market) });
+    expect((await f.service.check(market)).response).toMatchObject({ decision: 'insufficient_evidence', payment_required: false, cost: { amount: '0' } });
+    expect(f.facilitator.settle).not.toHaveBeenCalled();
+  });
+  it.each([{ subject_network: 'eip155:4663' }, { settlement_network: 'solana:mainnet' }, { policy_id: 'unsupported' }])('rejects unsupported request selectors %j at the service boundary', async (selector) => {
+    const f = await setupJudgment();
+    await expect(f.service.check({ ...request, ...selector })).rejects.toThrow();
+    expect(f.facilitator.verify).not.toHaveBeenCalled();
+    expect(f.facilitator.settle).not.toHaveBeenCalled();
+  });
+  it.each(['', 'unsafe*key', 'a'.repeat(129)])('rejects invalid idempotency key %j before quoting', async (key) => {
+    const f = await setupJudgment();
+    await expect(f.service.check(request, key)).rejects.toMatchObject({ statusCode: 400, code: 'invalid_idempotency_key' });
+    expect(f.facilitator.settle).not.toHaveBeenCalled();
+  });
+  it.each(['', 'a'.repeat(16385)])('rejects invalid payment header length', async (proof) => {
+    const f = await setupJudgment();
+    await expect(f.service.check(request, 'length', proof)).rejects.toMatchObject({ statusCode: 400, code: 'invalid_payment_signature_length' });
+    expect(f.facilitator.verify).not.toHaveBeenCalled();
+    expect(f.facilitator.settle).not.toHaveBeenCalled();
+  });
   it.each([
     ['approved', false, 'proceed'], ['approved_with_warning', false, 'insufficient_evidence'],
     ['approved_with_warning', true, 'test_spend_first'], ['use_with_caution', false, 'insufficient_evidence'],
