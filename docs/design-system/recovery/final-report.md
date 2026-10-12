@@ -24,7 +24,7 @@ One `RadarAppShell` owns `ProductHeader`, five-destination `ProductWayfinding`, 
 
 ## Routes migrated
 
-Actual TypeScript dispatchers were scanned, including aliases and details: **129 patterns, 137 concrete routes, 979 viewport cases**. Every match inherits the shell/tokens. The full migration matrix is `../route-inventory.md`; exact patterns/source lines are `../route-patterns.json`; concrete route-by-route final results are `evidence/qualification-summary.json`.
+Actual TypeScript dispatchers were scanned, including aliases and details: **129 patterns, 137 concrete routes, 959 viewport cases**. Every match inherits the shell/tokens. The full migration matrix is `../route-inventory.md`; exact patterns/source lines are `../route-patterns.json`; concrete route-by-route final results are `evidence/qualification-summary.json`.
 
 Coverage includes homepage, Solana, Spend Terminal, pre-spend cards/check/claims, routes/providers/services and their details, receipt/proof/revenue receipt inspection, LoopLab, evaluation requests, provider and machine reputation, machine markets and dossiers, attention/signal graph/hunt, narratives, Hermes/wallet memory, Robinhood signal desk and subviews, //4663, Reflexive, IPX/PLTR, liquidity/contracts/counterparty/market evidence, developer documentation, and discovered internal review interfaces. Their workflow layouts remain distinct. This baseline has no dedicated canonical Judgment-detail dispatcher; receipt detail is captured, and the newer release baseline's canonical workflow is explicitly an integration blocker.
 
