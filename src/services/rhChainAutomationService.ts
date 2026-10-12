@@ -10,6 +10,7 @@ import { InMemoryRhChainMemePulseSnapshotStore, RhChainMemePulseSnapshotService 
 import { InMemoryRhChainLaunchpadSnapshotStore, RhChainLaunchpadSnapshotService } from './rhChainLaunchpadSnapshotService';
 import { InMemoryRhChainDailyReceiptDraftStore, RhChainDailyReceiptDraftService } from './rhChainDailyReceiptDraftService';
 import { InMemoryRhChainRiskCorrelationSnapshotStore, RhChainRiskCorrelationSweepService } from './rhChainRiskCorrelationSweepService';
+import type { RhChainMarketCaptureResult } from './rhChainMarketSnapshotService';
 
 export const RH_CHAIN_AUTOMATION_JOB_NAMES = [
   'rh_chain_pulse_refresh',
@@ -19,7 +20,8 @@ export const RH_CHAIN_AUTOMATION_JOB_NAMES = [
   'rh_clone_risk_correlation',
   'rh_daily_receipt_draft',
   'rh_freshness_sweep',
-  'rh_4663_intelligence_refresh'
+  'rh_4663_intelligence_refresh',
+  'rh_market_snapshot_refresh'
 ] as const;
 
 export type RhChainAutomationJobName = typeof RH_CHAIN_AUTOMATION_JOB_NAMES[number];
@@ -56,6 +58,7 @@ export interface RhChainAutomationStore {
   saveRun(run: RhChainAutomationRun): Promise<void>;
   listRuns(): Promise<RhChainAutomationRun[]>;
   saveDraft(draft: RhChainAutomationDraft): Promise<void>;
+  withJobLock?<T>(jobName: RhChainAutomationJobName, task: () => Promise<T>): Promise<T | null>;
   close?(): Promise<void>;
 }
 
@@ -65,6 +68,12 @@ export class InMemoryRhChainAutomationStore implements RhChainAutomationStore {
   private readonly locks = new Map<string, { instanceId: string; expiresAt: number }>();
   private readonly runs = new Map<string, RhChainAutomationRun>();
   private readonly drafts = new Map<string, RhChainAutomationDraft>();
+  private readonly exclusive = new Set<string>();
+  async withJobLock<T>(jobName: RhChainAutomationJobName, task: () => Promise<T>) {
+    if (this.exclusive.has(jobName)) return null;
+    this.exclusive.add(jobName);
+    try { return await task(); } finally { this.exclusive.delete(jobName); }
+  }
 
   async tryAcquireLock(jobName: RhChainAutomationJobName, instanceId: string, ttlMs: number) {
     const existing = this.locks.get(jobName);
@@ -88,6 +97,33 @@ export class PostgresRhChainAutomationStore implements RhChainAutomationStore {
   private readonly ownsPool: boolean;
   private readonly schema = new RetryablePostgresSchema('rh_chain_automation_store');
   constructor(source: PostgresPoolSource) { const resolved = resolvePostgresPool(source); this.pool = resolved.pool; this.ownsPool = resolved.ownsPool; }
+
+  /** A dedicated session owns collection until completion; a TTL cannot expire underneath a slow batch. */
+  async withJobLock<T>(jobName: RhChainAutomationJobName, task: () => Promise<T>) {
+    // The lock owns one session while collection/history/draft queries use the shared pool.
+    // A one-connection pool would otherwise queue the task behind its own lock indefinitely.
+    if ((this.pool.options.max ?? 10) < 2) throw new Error('collection_requires_two_database_connections');
+    const client = await this.pool.connect();
+    let acquired = false;
+    let lost: Error | null = null;
+    const onError = (error: Error) => { lost = error; };
+    client.on('error', onError);
+    try {
+      const result = await client.query<{ locked: boolean }>("select pg_try_advisory_lock(hashtext(current_database()),hashtext(current_schema() || ':' || $1)) as locked", [jobName]);
+      acquired = result.rows[0]?.locked === true;
+      if (!acquired) return null;
+      const value = await task();
+      if (lost) throw new Error('collection_lock_connection_lost');
+      return value;
+    } finally {
+      if (acquired && !lost) {
+        try { await client.query("select pg_advisory_unlock(hashtext(current_database()),hashtext(current_schema() || ':' || $1))", [jobName]); }
+        catch { lost = new Error('collection_lock_release_failed'); }
+      }
+      client.removeListener('error', onError);
+      client.release(Boolean(lost));
+    }
+  }
 
   async tryAcquireLock(jobName: RhChainAutomationJobName, instanceId: string, ttlMs: number) {
     await this.ensureSchema();
@@ -152,6 +188,7 @@ export type RhChainAutomationServiceOptions = {
   submissions: Pick<RhChainSubmissionStore, 'list'>;
   enabledJobs?: readonly RhChainAutomationJobName[];
   rh4663IntelligenceRun?: () => Promise<{ observations: number; events: number; candidates: number; publications: number; providers: Array<{ provider: string; state: string }> }>;
+  marketSnapshotCapture?: () => Promise<RhChainMarketCaptureResult>;
   now?: () => Date;
 };
 
@@ -186,6 +223,12 @@ export class RhChainAutomationService {
     if (this.options.isProduction && !this.options.store.durable) return this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'skipped', error_summary: 'durable_lock_required_in_production', records_observed: 0, records_updated: 0, data_mode: 'unavailable', sources: [] });
     let locked = false;
     try {
+      if (jobName === 'rh_market_snapshot_refresh') {
+        if (!this.options.store.withJobLock) throw new Error('collection_session_lock_required');
+        const result = await this.options.store.withJobLock(jobName, () => this.execute(jobName, jobId));
+        if (!result) return this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'locked', error_summary: 'job_lock_held', records_observed: 0, records_updated: 0, data_mode: 'unavailable', sources: [] });
+        return this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'success', error_summary: null, records_observed: result.recordsObserved, records_updated: result.recordsUpdated, data_mode: result.dataMode, sources: result.sources });
+      }
       locked = await this.options.store.tryAcquireLock(jobName, this.options.instanceId, this.options.lockTtlMs);
       if (!locked) return this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'locked', error_summary: 'job_lock_held', records_observed: 0, records_updated: 0, data_mode: 'unavailable', sources: [] });
       const result = await this.execute(jobName, jobId);
@@ -206,6 +249,14 @@ export class RhChainAutomationService {
     await this.options.store.saveDraft({ draft_id: randomUUID(), job_id: jobId, job_name: jobName, draft_type, created_at: this.now().toISOString(), data_mode: dataMode, sources, payload });
   }
   private async execute(jobName: RhChainAutomationJobName, jobId: string): Promise<JobResult> {
+    if (jobName === 'rh_market_snapshot_refresh') {
+      if (!this.options.marketSnapshotCapture) throw new Error('market_snapshot_capture_unavailable');
+      const result = await this.options.marketSnapshotCapture();
+      const sources = ['DEX Screener', 'known-contract watchlist'];
+      await this.draft(jobId, jobName, 'context_observation', result, result.status, sources);
+      if (result.status === 'unavailable' || result.status === 'disabled') throw new Error('market_collection_' + result.status);
+      return { recordsObserved: result.captured.length, recordsUpdated: result.storage.written, dataMode: result.status === 'partial' ? 'partial' : 'persisted', sources };
+    }
     if (jobName === 'rh_4663_intelligence_refresh') {
       if (!this.options.rh4663IntelligenceRun) throw new Error('rh_4663_intelligence_runner_unavailable');
       const result = await this.options.rh4663IntelligenceRun(); const sources = result.providers.map((provider) => provider.provider);

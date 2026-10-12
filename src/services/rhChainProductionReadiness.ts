@@ -14,7 +14,8 @@ export const RH_CHAIN_REQUIRED_MIGRATIONS: readonly RhChainMigrationRequirement[
   { id: '20260814_009', file: '20260814_009_infopunks_4663_make_the_chain_speak.up.sql', tables: ['rh_4663_observations', 'rh_4663_signal_candidates', 'rh_4663_signal_publications', 'rh_4663_signal_distribution', 'rh_4663_signal_corrections', 'rh_4663_provider_health'], indexes: ['rh_4663_observations_subject_metric_idx', 'rh_4663_observations_observed_idx', 'rh_4663_signal_candidates_state_idx', 'rh_4663_signal_publications_archive_idx', 'rh_4663_signal_distribution_state_idx', 'rh_4663_signal_corrections_signal_idx'] },
   { id: '20260908_010', file: '20260908_010_rh4663_product_intelligence.up.sql', tables: ['rh4663_product_intelligence_events'], indexes: ['rh4663_product_intelligence_events_window_idx', 'rh4663_product_intelligence_events_campaign_window_idx', 'rh4663_product_intelligence_events_call_idx'] },
   { id: '20261007_011', file: '20261007_011_canonical_receipt_spine.up.sql', tables: ['observation_receipts', 'judgment_receipts', 'execution_receipts', 'evaluation_receipts', 'judgment_observations'], indexes: ['observation_receipts_subject_idx', 'judgment_receipts_subject_idx', 'execution_receipts_judgment_idx', 'evaluation_receipts_execution_idx', 'judgment_observations_observation_idx'] },
-  { id: '20261008_016', file: '20261008_016_rh_usdg_accounting.up.sql', tables: ['settled_judgment_revenue', 'recorded_protocol_costs'], indexes: ['execution_proof_one_authorization_idx', 'execution_proof_one_settlement_idx'] }
+  { id: '20261008_016', file: '20261008_016_rh_usdg_accounting.up.sql', tables: ['settled_judgment_revenue', 'recorded_protocol_costs'], indexes: ['execution_proof_one_authorization_idx', 'execution_proof_one_settlement_idx'] },
+  { id: '20261012_024', file: '20261012_024_rh_market_observation_history.up.sql', tables: ['rh_chain_market_aggregates'], indexes: ['rh_chain_market_aggregates_contract_time_idx', 'rh_chain_market_aggregates_retention_idx'] }
 ] as const;
 
 export type RhChainMigrationStatus = { id: string; file: string; state: 'applied' | 'pending'; missing_tables: string[]; missing_indexes: string[]; missing_checks: string[] };
@@ -36,9 +37,9 @@ export async function inspectRhChainMigrationLedger(pool: Queryable | null): Pro
       pool.query<{ name: string }>('select value as name from unnest($1::text[]) value where to_regclass(value) is null order by value', [requiredTables]),
       pool.query<{ name: string }>('select value as name from unnest($1::text[]) value where not exists (select 1 from pg_indexes where schemaname = current_schema() and indexname = value) order by value', [requiredIndexes]),
       pool.query<{ definition: string }>("select pg_get_constraintdef(oid) as definition from pg_constraint where conname='rh_chain_reviewed_classifications_primary_layer_check' limit 1"),
-      pool.query<{ name: string }>("select value as name from unnest($1::text[]) value where not exists (select 1 from pg_trigger t join pg_class c on c.oid=t.tgrelid join pg_namespace n on n.oid=c.relnamespace where t.tgname=value and n.nspname=current_schema() and t.tgenabled in ('O','A')) order by value", [CANONICAL_RECEIPT_GUARDS])
+      pool.query<{ name: string }>("select value as name from unnest($1::text[]) value where not exists (select 1 from pg_trigger t join pg_class c on c.oid=t.tgrelid join pg_namespace n on n.oid=c.relnamespace where t.tgname=value and n.nspname=current_schema() and t.tgenabled in ('O','A')) order by value", [[...CANONICAL_RECEIPT_GUARDS, 'rh_chain_market_snapshot_rollup']])
     ]);
-    return ledger(true, requiredTables, requiredIndexes, tables.rows.map((row) => row.name), indexes.rows.map((row) => row.name), vocabulary.rows.some((row) => row.definition.includes("'consumer'")), null, guards.rows.map((row) => row.name));
+    return ledger(true, requiredTables, requiredIndexes, tables.rows.map((row) => row.name), indexes.rows.map((row) => row.name), vocabulary.rows.some((row) => row.definition.includes("'consumer'")), null, guards.rows.map((row) => row.name).filter((name) => name !== 'rh_chain_market_snapshot_rollup'), guards.rows.some((row) => row.name === 'rh_chain_market_snapshot_rollup'));
   } catch (error) {
     const code = error && typeof error === 'object' && 'code' in error && typeof (error as { code?: unknown }).code === 'string' ? (error as { code: string }).code : 'database_query_failed';
     return ledger(false, requiredTables, requiredIndexes, requiredTables, requiredIndexes, false, code);
@@ -69,7 +70,7 @@ export async function inspectRhChainOperationalReadiness(input: { pool: Queryabl
   const receiptStorageReady = projectStorageReady;
   const attentionStorageReady = migrationReady(migrations, ['20260719_001', '20260719_004']);
   const classificationStorageReady = migrationReady(migrations, ['20260719_002', '20260719_003']);
-  const snapshotStorageReady = migrationReady(migrations, ['20260719_001']);
+  const snapshotStorageReady = migrationReady(migrations, ['20260719_001', '20261012_024']);
   const latestSnapshotAt = databaseFacts.latest_snapshot_at;
   const freshness = snapshotFreshness(latestSnapshotAt, flags.dexScreenerMaxStaleSeconds);
   const [approvedCount, conflictCount] = await Promise.all([
@@ -79,6 +80,7 @@ export async function inspectRhChainOperationalReadiness(input: { pool: Queryabl
   const publicationCapable = flags.rhChainIntelligenceReceiptsEnabled && flags.rhChainReviewConsoleEnabled && Boolean(flags.rhChainReviewAdminToken) && receiptStorageReady;
   const blockers = [
     ...migrations.pending_migrations.map((id) => `pending_migration:${id}`),
+    ...((flags.rhChainMarketIngestionEnabled || flags.rhChainAutomationEnabled) && !snapshotStorageReady ? ['market_history_storage_not_ready'] : []),
     ...(flags.rhChainReviewedClassificationsEnabled && !classificationStorageReady ? ['reviewed_classifications_storage_not_ready'] : []),
     ...(flags.rhChainAttentionQualityV2Enabled && !attentionStorageReady ? ['attention_quality_storage_not_ready'] : []),
     ...(flags.rhChainProjectClaimsEnabled && !projectStorageReady ? ['project_claims_storage_not_ready'] : []),
@@ -94,8 +96,8 @@ async function inspectDatabaseFacts(pool: Queryable | null) {
   if (!pool) return { latest_snapshot_at: null as string | null };
   try { const result = await pool.query<{ latest_snapshot_at: string | null }>('select max(captured_at)::text as latest_snapshot_at from rh_chain_market_snapshots'); return { latest_snapshot_at: result.rows[0]?.latest_snapshot_at ?? null }; } catch { return { latest_snapshot_at: null }; }
 }
-function ledger(databaseReachable: boolean, requiredTables: string[], requiredIndexes: string[], missingTables: string[], missingIndexes: string[], vocabularyApplied: boolean, errorCode: string | null, missingReceiptGuards: string[] = CANONICAL_RECEIPT_GUARDS): RhChainMigrationLedger {
-  const migrations = RH_CHAIN_REQUIRED_MIGRATIONS.map((migration) => { const tables = migration.tables.filter((table) => missingTables.includes(table)); const indexes = migration.indexes.filter((index) => missingIndexes.includes(index)); const checks = migration.id === '20260719_003' && !vocabularyApplied ? ['consumer_primary_layer_vocabulary'] : migration.id === '20261007_011' ? missingReceiptGuards : []; return { id: migration.id, file: migration.file, state: tables.length || indexes.length || checks.length ? 'pending' as const : 'applied' as const, missing_tables: tables, missing_indexes: indexes, missing_checks: checks }; });
+function ledger(databaseReachable: boolean, requiredTables: string[], requiredIndexes: string[], missingTables: string[], missingIndexes: string[], vocabularyApplied: boolean, errorCode: string | null, missingReceiptGuards: string[] = CANONICAL_RECEIPT_GUARDS, missingMarketRollup = !databaseReachable): RhChainMigrationLedger {
+  const migrations = RH_CHAIN_REQUIRED_MIGRATIONS.map((migration) => { const tables = migration.tables.filter((table) => missingTables.includes(table)); const indexes = migration.indexes.filter((index) => missingIndexes.includes(index)); const checks = migration.id === '20260719_003' && !vocabularyApplied ? ['consumer_primary_layer_vocabulary'] : migration.id === '20261007_011' ? missingReceiptGuards : migration.id === '20261012_024' && missingMarketRollup ? ['rh_chain_market_snapshot_rollup'] : []; return { id: migration.id, file: migration.file, state: tables.length || indexes.length || checks.length ? 'pending' as const : 'applied' as const, missing_tables: tables, missing_indexes: indexes, missing_checks: checks }; });
   return { database_reachable: databaseReachable, migration_runner: 'external_only', migrations, pending_migrations: migrations.filter((migration) => migration.state === 'pending').map((migration) => migration.id), required_tables: requiredTables, required_indexes: requiredIndexes, error_code: errorCode };
 }
 function migrationReady(ledger: RhChainMigrationLedger, ids: string[]) { return ids.every((id) => ledger.migrations.find((migration) => migration.id === id)?.state === 'applied'); }

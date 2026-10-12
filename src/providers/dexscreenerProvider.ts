@@ -174,6 +174,7 @@ export class DexScreenerProvider implements RhChainDexScreenerIngestionSource {
   private readonly cache = createResponseCache();
   private readonly limiter: RequestLimiter;
   private readonly rateGate: RateGate;
+  private readonly attentionRateGate: RateGate;
   private lastSuccess: string | null = null;
   private lastFailure: string | null = null;
   private latestLatencyMs: number | null = null;
@@ -202,7 +203,9 @@ export class DexScreenerProvider implements RhChainDexScreenerIngestionSource {
     this.random = options.random ?? Math.random;
     this.log = options.log ?? (() => undefined);
     this.limiter = new RequestLimiter(options.maxConcurrency ?? 4, options.maxPendingRequests ?? 100);
-    this.rateGate = new RateGate(options.rateLimitPerSecond ?? 20, this.sleep);
+    // Endpoint budgets differ: pair lookups allow 300/minute; paid/list endpoints 60/minute.
+    this.rateGate = new RateGate(Math.min(5, options.rateLimitPerSecond ?? 5), this.sleep);
+    this.attentionRateGate = new RateGate(1, this.sleep);
     this.activeCacheStatus = options.enabled ? 'unavailable' : 'disabled';
   }
 
@@ -346,7 +349,7 @@ export class DexScreenerProvider implements RhChainDexScreenerIngestionSource {
     for (let attempt = 0; attempt <= this.maxRetries; attempt += 1) {
       if (attempt > 0 && lastError) await this.sleep(this.retryDelay(attempt - 1, lastError.retryAfterMs));
       try {
-        await this.rateGate.wait();
+        await (/^orders:|^\/token-|^\/community-|^\/ads\//.test(operation) ? this.attentionRateGate : this.rateGate).wait();
         const response = await this.fetchImpl(`${this.baseUrl}${path}`, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(this.timeoutMs) });
         if (!response.ok) {
           const retryAfterMs = parseRetryAfter(response.headers.get('retry-after'), this.now());

@@ -17,7 +17,7 @@ function provider(overrides: Partial<RhChainDexScreenerIngestionSource> = {}): R
 function snapshot(id: string, capturedAt: string, overrides: Partial<RhChainMarketSnapshot> = {}): RhChainMarketSnapshot {
   return { snapshot_id: id, captured_at: capturedAt, provider: 'dexscreener', chain_id: 'robinhood', token_address: contract, ticker: 'MEMORY', pair_address: 'canonical', dex_id: 'dex', price_usd: 1, liquidity_usd: 100, market_cap: 1_000, fdv: 2_000, volume_h24: 100, volume_h6: 50, volume_h1: 10, txns_h24_buys: 8, txns_h24_sells: 4, txns_h6_buys: 4, txns_h6_sells: 2, price_change_h24: 0, pair_created_at: null, active_boosts: 0, paid_order_types: [], paid_order_statuses: [], data_mode: 'live_cached', source_url: 'https://dexscreener.com/robinhood/canonical', ...overrides };
 }
-function service(store = new InMemoryRhChainMarketSnapshotStore(), source = provider()) { return new RhChainMarketSnapshotService({ store, provider: source, enabled: true, watchlist: () => [contract], classificationFor: (value) => value.toLowerCase() === contract ? classification : null, narrativePersistenceFor: () => 15, now: () => new Date('2026-07-17T03:00:00.000Z') }); }
+function service(store = new InMemoryRhChainMarketSnapshotStore(), source = provider()) { return new RhChainMarketSnapshotService({ store, provider: source, enabled: true, watchlist: () => [contract], classificationFor: (value) => value.toLowerCase() === contract ? classification : null, narrativePersistenceFor: () => 15, now: () => new Date('2026-07-17T00:05:00.000Z') }); }
 
 describe('RH Chain market snapshot history', () => {
   it('captures and normalizes canonical DEX Screener batch observations', async () => {
@@ -63,7 +63,7 @@ describe('RH Chain market snapshot history', () => {
 
   it('can ingest without writing when historical storage is independently disabled', async () => {
     const snapshots = new InMemoryRhChainMarketSnapshotStore();
-    const capture = new RhChainMarketSnapshotService({ store: snapshots, provider: provider(), enabled: true, storageEnabled: false, watchlist: () => [contract] });
+    const capture = new RhChainMarketSnapshotService({ store: snapshots, provider: provider(), enabled: true, storageEnabled: false, watchlist: () => [contract], now: () => new Date('2026-07-17T00:05:00.000Z') });
     const result = await capture.captureKnownWatchlistSnapshot();
     expect(result).toMatchObject({ status: 'captured', storage: { enabled: false, adapter: 'memory', durable: false, written: 0 } });
     expect(await snapshots.list(contract)).toEqual([]);
@@ -90,8 +90,8 @@ describe('RH Chain market snapshot history', () => {
   it('splits known-watchlist DEX Screener batch requests at 30 contracts', async () => {
     const contracts = Array.from({ length: 31 }, (_, index) => `0x${String(index + 1).padStart(40, '0')}`);
     const batches: string[][] = [];
-    const source = provider({ getTokenBatch: async (batch) => { batches.push(batch); return Object.fromEntries(batch.map((address) => [address, [dex()]])); } });
-    const snapshots = new RhChainMarketSnapshotService({ store: new InMemoryRhChainMarketSnapshotStore(), provider: source, enabled: true, watchlist: () => contracts });
+    const source = provider({ getTokenBatch: async (batch) => { batches.push(batch); return Object.fromEntries(batch.map((address) => [address, [{ ...dex(), tokenAddress: address }]])); } });
+    const snapshots = new RhChainMarketSnapshotService({ store: new InMemoryRhChainMarketSnapshotStore(), provider: source, enabled: true, watchlist: () => contracts, now: () => new Date('2026-07-17T00:05:00.000Z') });
     await snapshots.captureKnownWatchlistSnapshot();
     expect(batches.map((batch) => batch.length)).toEqual([30, 1]);
   });
@@ -139,7 +139,7 @@ describe('RH Chain market snapshot history', () => {
   it('keeps the capture API available with ingestion enabled while reporting disabled historical writes', async () => {
     const previous = process.env.INFOPUNKS_ADMIN_TOKEN;
     process.env.INFOPUNKS_ADMIN_TOKEN = 'market-test-token';
-    const app = await createApp(undefined, undefined, { rhChainMarketDataOptions: { enabled: true, provider: provider() }, rhChainTokenRegistryOptions: { enabled: false }, rhChainMarketSnapshotOptions: { enabled: true, storageEnabled: false } });
+    const app = await createApp(undefined, undefined, { rhChainMarketDataOptions: { enabled: true, provider: provider({ getTokenBatch: async (contracts) => Object.fromEntries(contracts.map((address) => [address, [{ ...dex(), tokenAddress: address }]])) }) }, rhChainTokenRegistryOptions: { enabled: false }, rhChainMarketSnapshotOptions: { enabled: true, storageEnabled: false, now: () => new Date('2026-07-17T00:05:00.000Z') } });
     try {
       const response = await app.inject({ method: 'POST', url: '/v1/rh-chain/market/snapshots/capture', headers: { authorization: 'Bearer market-test-token' } });
       expect(response.statusCode).toBe(200);

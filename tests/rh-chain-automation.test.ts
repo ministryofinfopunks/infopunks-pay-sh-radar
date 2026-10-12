@@ -80,7 +80,7 @@ describe('RH Chain automation', () => {
     process.env.RH_CHAIN_AUTOMATION_ENABLED = 'true';
     process.env.RH_CHAIN_REVIEW_CONSOLE_ENABLED = 'true';
     process.env.RH_CHAIN_REVIEW_ADMIN_TOKEN = 'review-secret';
-    const app = await createApp(undefined, undefined, { rhChainAutomationStore: new InMemoryRhChainAutomationStore() });
+    const app = await createApp(undefined, undefined, { rhChainAutomationStore: new InMemoryRhChainAutomationStore(), rhChainMarketSnapshotOptions: { enabled: false } });
     const unauthenticated = await app.inject({ method: 'POST', url: '/internal/rh-chain/jobs/rh_chain_pulse_refresh/run' });
     expect(unauthenticated.statusCode).toBe(401);
     const authenticated = await app.inject({ method: 'POST', url: '/internal/rh-chain/jobs/rh_chain_pulse_refresh/run', headers: { authorization: 'Bearer review-secret' } });

@@ -214,8 +214,10 @@ export class RhChainMarketStructureService {
     const retention = postBoostRetentionLeader(tracked, histories, provenance, capturedAt, overallFreshness, confidence);
     const crossLayer = crossLayerDevelopment(tracked, provenance, capturedAt, overallFreshness, confidence);
     const currentBoosts = sum(boosts.boosts.map((boost) => boost.amount ?? 0));
-    const previousBoosts = sum([...previous.values()].map((item) => item.active_boosts));
+    const priorBoosts = [...previous.values()].map((item) => item.active_boosts);
+    const previousBoosts = priorBoosts.some((value) => value === null) ? null : sum(priorBoosts as number[]);
     const warnings = pulseWarnings({ tracked: tracked.length, total: snapshot.assets.length, historyCoverage, staleCount, unknownShare: unknownLayer.volume_share.value, providerFallback: providerStatus.fallback_mode });
+    if (previousBoosts === null) warnings.push('Previous paid-attention coverage is incomplete; no promotion trend is inferred.');
     const interpretation = interpretMarketPulse({ metrics, layers: layerComposition, fastestLayer, retention, currentBoosts, previousBoosts, capturedAt, freshness: overallFreshness, confidence, provenance });
     return {
       title: 'Robinhood Chain Market Pulse',
@@ -360,7 +362,7 @@ function postBoostRetentionLeader(assets: MarketStructureAsset[], histories: Rec
   const candidates = assets.flatMap((asset) => {
     const current = asset.market_snapshot;
     if (!current) return [];
-    const boosted = [...(histories[asset.token.contract.toLowerCase()] ?? [])].reverse().find((item) => item.active_boosts > 0 || item.paid_order_types.length > 0);
+    const boosted = [...(histories[asset.token.contract.toLowerCase()] ?? [])].reverse().find((item) => (item.active_boosts ?? 0) > 0 || item.paid_order_types.length > 0);
     if (!boosted || !boosted.liquidity_usd || !boosted.volume_h24 || current.liquidityUsd === null || current.volume.h24 === null) return [];
     const score = round(Math.min(1, current.liquidityUsd / boosted.liquidity_usd) * 50 + Math.min(1, current.volume.h24 / boosted.volume_h24) * 50);
     return [{ asset, boosted, score }];
@@ -384,7 +386,7 @@ function interpretMarketPulse(input: {
   fastestLayer: { label: string; volume_24h: RhChainMarketPulseMetric } | null;
   retention: RhChainMarketPulseFinding;
   currentBoosts: number;
-  previousBoosts: number;
+  previousBoosts: number | null;
   capturedAt: string;
   freshness: RhChainMarketPulseFreshness;
   confidence: RhChainMarketPulseConfidence;
@@ -408,7 +410,7 @@ function interpretMarketPulse(input: {
   } else if (volumeChange !== null && liquidityChange !== null && liquidityChange > volumeChange + 5) {
     supporting.push('Tracked liquidity is building faster than 24-hour volume.'); rules.push('liquidity_outpaces_volume');
   }
-  if (input.currentBoosts > input.previousBoosts && (!input.retention || (input.retention.metric.value ?? 0) < 65)) {
+  if (input.previousBoosts !== null && input.currentBoosts > input.previousBoosts && (!input.retention || (input.retention.metric.value ?? 0) < 65)) {
     supporting.push('Paid promotion is increasing, while measured post-boost retention remains weak or incomplete.'); rules.push('paid_attention_without_retention');
   }
   if (!input.fastestLayer) { supporting.push('Previous-window coverage is incomplete, so momentum claims remain limited.'); rules.push('insufficient_comparison_history'); }

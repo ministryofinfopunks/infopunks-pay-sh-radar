@@ -1,3 +1,4 @@
+import { startRhChainMarketScheduler } from '../services/rhChainMarketScheduler';
 import { registerIpxLaunchRoutes } from './ipxLaunchRoutes';
 import { MemoryEconomicAccountingStore, PostgresEconomicAccountingStore } from '../persistence/economicAccountingStore';
 import { createEconomicAccountingService } from '../services/economicAccountingService';
@@ -878,7 +879,7 @@ export async function createApp(
     'rh_4663_window_anchors',
     'rh4663_product_intelligence_events',
     ...(config.rh4663Phase3Enabled ? ['rh_4663_observations', 'rh_4663_signal_candidates', 'rh_4663_signal_publications', 'rh_4663_signal_distribution', 'rh_4663_signal_corrections', 'rh_4663_provider_health'] as const : []),
-    ...((config.rhChainMarketHistoryEnabled || config.rhChainAutomationEnabled) ? ['rh_chain_market_snapshots'] as const : []),
+    ...((config.rhChainMarketHistoryEnabled || config.rhChainAutomationEnabled) ? ['rh_chain_market_snapshots', 'rh_chain_market_aggregates'] as const : []),
     ...(config.rhChainReviewedClassificationsEnabled ? ['rh_chain_reviewed_classifications', 'rh_chain_reviewed_classification_audit'] as const : [])
     ,...((config.rhChainProjectClaimsEnabled || config.rhChainIntelligenceReceiptsEnabled || config.rhChainProjectDirectoryEnabled) ? ['rh_chain_projects', 'rh_chain_project_claims', 'rh_chain_project_evidence', 'rh_chain_project_observations', 'rh_chain_project_verdicts', 'rh_chain_intelligence_receipts', 'rh_chain_project_audit', 'rh_chain_project_contract_relationships'] as const : [])
   ] as const;
@@ -1034,6 +1035,7 @@ export async function createApp(
     provider: rhChainMarketProvider,
     enabled: rhChainMarketCaptureEnabled,
     storageEnabled: rhChainMarketHistoryEnabled,
+    maxObservationAgeMs: config.dexScreenerMaxStaleSeconds * 1000,
     // Snapshot history remains DEX Screener market data. Blockscout only adds exact-contract watchlist provenance/evidence.
     watchlist: async () => [...new Set([...(await rhChainTokenRegistry.seedWatchlistFromBlockscout()).map((item) => item.contract), ...(rhChainDiscoveryQueue?.watchedContracts() ?? [])])],
     classificationFor: (contract) => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? []), ...(rhChainReviewPipeline?.marketStructureCandidates() ?? [])].find((classification) => classification.contract.toLowerCase() === contract.toLowerCase()) ?? null,
@@ -1263,12 +1265,15 @@ export async function createApp(
     for (const signal of await rh4663Store.listSignals(1_000)) for (const result of await rh4663Intelligence.ingestCommunitySignal(signal)) { communityObservations += Number(result.observation_created); communityEvents += Number(Boolean(result.event)); communityCandidates += Number(Boolean(result.candidate)); communityPublications += Number(Boolean(result.publication)); }
     return { observations: providerResult.observations + communityObservations, events: providerResult.events + communityEvents, candidates: providerResult.candidates + communityCandidates, publications: providerResult.publications + communityPublications, providers: [...providerResult.providers, { provider: 'community_signal_hunt', state: 'healthy' }] };
   };
+  const marketCollectionEnabled = config.rhChainMarketSchedulerEnabled && rhChainMarketCaptureEnabled && rhChainMarketHistoryEnabled;
+  let marketCollectionScheduler: ReturnType<typeof startRhChainMarketScheduler> | null = null;
   const enabledAutomationJobs = [
-    ...(config.rhChainAutomationEnabled ? RH_CHAIN_AUTOMATION_JOB_NAMES.filter((job) => job !== 'rh_4663_intelligence_refresh') : []),
-    ...(config.rh4663Phase3Enabled && config.rh4663Phase3IngestionEnabled ? ['rh_4663_intelligence_refresh' as const] : [])
+    ...(config.rhChainAutomationEnabled ? RH_CHAIN_AUTOMATION_JOB_NAMES.filter((job) => job !== 'rh_4663_intelligence_refresh' && job !== 'rh_market_snapshot_refresh') : []),
+    ...(config.rh4663Phase3Enabled && config.rh4663Phase3IngestionEnabled ? ['rh_4663_intelligence_refresh' as const] : []),
+    ...(marketCollectionEnabled ? ['rh_market_snapshot_refresh' as const] : [])
   ];
   const rhChainAutomation = new RhChainAutomationService({
-    enabled: config.rhChainAutomationEnabled || (config.rh4663Phase3Enabled && config.rh4663Phase3IngestionEnabled),
+    enabled: config.rhChainAutomationEnabled || marketCollectionEnabled || (config.rh4663Phase3Enabled && config.rh4663Phase3IngestionEnabled),
     enabledJobs: enabledAutomationJobs,
     isProduction: config.isProduction,
     instanceId: config.rhChainAutomationInstanceId,
@@ -1281,6 +1286,10 @@ export async function createApp(
     dailyReceiptDrafts: rhChainDailyReceiptDrafts,
     riskCorrelationSweep: rhChainRiskCorrelationSweep,
     submissions: rhChainSubmissionStore,
+    marketSnapshotCapture: async () => {
+      if (config.isProduction && !rhChainMarketSnapshots.storageDurable) throw new Error('durable_market_storage_required');
+      return rhChainMarketSnapshots.captureKnownWatchlistSnapshot({ includePaidAttention: false });
+    },
     rh4663IntelligenceRun: runPhase3Intelligence
   });
   const rhChainPublicRateLimiter = new RhChainPublicRateLimiter(
@@ -1333,6 +1342,7 @@ export async function createApp(
   configureMachineDemoSeed(config.machineDemoSeed);
   const responseCache = createResponseCache();
   app.addHook('onClose', async () => {
+    await marketCollectionScheduler?.stop();
     await rhChainSubmissionStore.close?.();
     await rhChainReviewedClassificationStore.close?.();
     await rhChainProjectClaimsStore.close?.();
@@ -3618,7 +3628,7 @@ export async function createApp(
   });
   app.get<{ Params: { contract: string }; Querystring: { window?: string } }>('/v1/rh-chain/market/snapshots/:contract', async (req) => {
     const snapshots = req.query.window ? await rhChainMarketSnapshots.getSnapshotWindow(req.params.contract, req.query.window) : await rhChainMarketSnapshots.listSnapshots(req.params.contract);
-    return safeJsonExport(buildRhChainApiResponse({ token: { contract: req.params.contract }, snapshots, latest_snapshot: snapshots.at(-1) ?? null, snapshot_count: snapshots.length, caveats: ['Snapshots are low-frequency provider observations and do not change reviewed classification, receipts, or approved-signal status.'] }));
+    return safeJsonExport(buildRhChainApiResponse({ token: { contract: req.params.contract }, snapshots, latest_snapshot: snapshots.at(-1) ?? null, snapshot_count: snapshots.length, freshness: rhChainMarketSnapshots.readFreshness(snapshots.at(-1) ?? null), caveats: ['Snapshots are low-frequency provider observations and do not change reviewed classification, receipts, or approved-signal status. Stored freshness is the state at capture; current age is reported separately.'] }));
   });
   app.get<{ Params: { contract: string }; Querystring: { window?: RhChainAttentionWindow } }>('/v1/rh-chain/market/attention-quality/:contract', async (req, reply) => {
     if (optionalFeatureUnavailable(reply, 'rh_chain_attention_quality_v2')) return;
@@ -4899,6 +4909,16 @@ export async function createApp(
       console.log(JSON.stringify({ event: 'hook_enter', hook: 'onClose', source: 'monitor_timer' }));
       clearInterval(timer);
       console.log(JSON.stringify({ event: 'hook_exit', hook: 'onClose', source: 'monitor_timer' }));
+    });
+  }
+
+  if (marketCollectionEnabled) {
+    app.addHook('onReady', async () => {
+      marketCollectionScheduler = startRhChainMarketScheduler(
+        () => runRhChainAutomationJob('rh_market_snapshot_refresh'),
+        config.rhChainMarketSnapshotIntervalMs,
+        () => app.log.warn({ event: 'rh_market_collection_scheduler_failed' })
+      );
     });
   }
 
