@@ -83,11 +83,15 @@ jobs:
       RADAR_CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       DATABASE_URL: postgresql://radar:radar-local-only@localhost:5432/radar_ci
       CANONICAL_RECEIPT_TEST_URL: postgresql://radar:radar-local-only@localhost:5432/radar_ci
-      NODE_ENV: production
+      # Run the compiled production build in a deterministic development runtime.
+      # Production mode correctly refuses unsigned Judgment issuance; CI must not
+      # receive a signing key just to exercise tenant-authenticated browser flows.
+      NODE_ENV: development
       PORT: 8799
       PAYSH_CATALOG_SOURCE: fixture
       PAYSH_ALLOW_FIXTURE_FALLBACK: "true"
       PAYSH_BOOTSTRAP_ENABLED: "false"
+      INGESTION_ENABLED: "false"
       JUDGMENT_PAYMENT_ENABLED: "false"
       JUDGMENT_API_KEYS_JSON: >-
         [{"tenant_id":"tenant-a","agent_id":"radar-browser","key_sha256":"ea4282280fc19c58e9b7eb4fec3ebe47ea1440c01b376688f5e0d0e52d9c4a3c"},{"tenant_id":"tenant-b","agent_id":"agent-b","key_sha256":"a56a699a89bbf7085f704b2816935c11730feacd05c2abda6f11b55a6ed6b982"},{"tenant_id":"tenant-a","agent_id":"agent-other","key_sha256":"71949874f03a4030527c0a3ac35d1b79830f32fc4b844c25f517f01ceac99763"},{"tenant_id":"tenant-expired","agent_id":"agent-expired","key_sha256":"a2abc2113a0a97bc7af15b5b7d5a69f21bd271f20e31acd44d43e86efd22cc1d","expires_at":"2000-01-01T00:00:00.000Z"}]
@@ -111,7 +115,7 @@ jobs:
       - name: Linux Node 24 non-root container startup
         run: |
           docker build --tag radar-r2-browser:${RADAR_CANDIDATE_SHA} .
-          docker run --detach --name radar-r2-container-smoke --publish 127.0.0.1:10000:10000 --env NODE_ENV=production --env PORT=10000 --env PAYSH_CATALOG_SOURCE=fixture --env PAYSH_ALLOW_FIXTURE_FALLBACK=true --env PAYSH_BOOTSTRAP_ENABLED=false radar-r2-browser:${RADAR_CANDIDATE_SHA}
+          docker run --detach --name radar-r2-container-smoke --add-host=host.docker.internal:host-gateway --publish 127.0.0.1:10000:10000 --env NODE_ENV=production --env PORT=10000 --env DATABASE_URL=postgresql://radar:radar-local-only@host.docker.internal:5432/radar_ci --env PAYSH_CATALOG_SOURCE=live --env PAY_SH_CATALOG_URL=https://catalog.invalid/providers --env PAYSH_ALLOW_FIXTURE_FALLBACK=false --env PAYSH_BOOTSTRAP_ENABLED=false --env INGESTION_ENABLED=false radar-r2-browser:${RADAR_CANDIDATE_SHA}
           trap 'docker rm --force radar-r2-container-smoke >/dev/null 2>&1 || true' EXIT
           test "$(docker exec radar-r2-container-smoke id -u)" != "0"
           for attempt in $(seq 1 60); do

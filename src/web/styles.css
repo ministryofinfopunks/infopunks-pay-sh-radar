@@ -18626,3 +18626,15 @@ samp,
 }
 
 .site-header > .product-wayfinding, .rh-chain-shell .product-wayfinding { padding: 8px 20px; border-bottom: 1px solid var(--radar-line); }
+
+@media (max-width: 640px) {
+  .zone-provider .panel-head .scope-label.provider {
+    display: block;
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+}

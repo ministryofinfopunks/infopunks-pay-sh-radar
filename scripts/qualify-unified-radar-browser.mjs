@@ -52,8 +52,11 @@ for (const [viewportName, viewport] of Object.entries({ desktop: { width: 1440, 
         if (!rect.width || style.position === 'fixed' || style.clipPath !== 'none' || style.clip !== 'auto') return false;
         if (!(rect.right > innerWidth + 2 || rect.left < -2)) return false;
         for (let parent = el.parentElement; parent && parent !== document.body; parent = parent.parentElement) {
-          const parentStyle = getComputedStyle(parent); const bounds = parent.getBoundingClientRect();
-          if (/(auto|scroll|hidden|clip)/.test(parentStyle.overflowX) && (rect.left >= bounds.left - 1 && rect.right <= bounds.right + 1)) return false;
+          const parentStyle = getComputedStyle(parent);
+          // Descendant content may extend past the scrollport by design; the
+          // scroll container bounds the page while the dedicated check below
+          // verifies that the region itself is visible, labelled and scrollable.
+          if (/(auto|scroll|hidden|clip)/.test(parentStyle.overflowX)) return false;
         }
         return true;
       }).slice(0,12).map(el => ({ tag: el.tagName, className: el.className })),
@@ -112,8 +115,18 @@ for (const width of [720, 360]) {
     const response = await zoomPage.goto(base + route, { waitUntil: 'domcontentloaded', timeout: 20000 });
     await zoomPage.waitForTimeout(700);
     const metrics = await zoomPage.evaluate(() => ({ viewport_width: innerWidth, document_width: document.documentElement.scrollWidth, overflowing: document.documentElement.scrollWidth > innerWidth,
-      code_regions: [...document.querySelectorAll('pre.builder-code-block')].map(el => ({ label: el.getAttribute('aria-label'), tabIndex: el.getAttribute('tabindex'), bounded: el.getBoundingClientRect().right <= innerWidth + 1, scrollable: el.scrollWidth > el.clientWidth && getComputedStyle(el).overflowX === 'auto' })) }));
-    zoomReports.push({ zoom_equivalent: width === 720 ? '200_percent' : '400_percent', route, http_status: response?.status() ?? null, ...metrics });
+      code_regions: [...document.querySelectorAll('pre.builder-code-block')].map(el => ({ label: el.getAttribute('aria-label'), tabIndex: el.getAttribute('tabindex'), bounded: el.getBoundingClientRect().right <= innerWidth + 1, requiresScroll: el.scrollWidth > el.clientWidth, scrollable: getComputedStyle(el).overflowX === 'auto' })) }));
+    let keyboardScroll = null;
+    const scrollIndex = metrics.code_regions.findIndex(region => region.requiresScroll);
+    if (scrollIndex >= 0) {
+      const codeRegion = zoomPage.locator('pre.builder-code-block').nth(scrollIndex);
+      await codeRegion.focus();
+      const before = await codeRegion.evaluate(el => el.scrollLeft);
+      await zoomPage.keyboard.press('ArrowRight');
+      const after = await codeRegion.evaluate(el => el.scrollLeft);
+      keyboardScroll = { focused: await codeRegion.evaluate(el => document.activeElement === el), before, after, advanced: after > before };
+    }
+    zoomReports.push({ zoom_equivalent: width === 720 ? '200_percent' : '400_percent', route, http_status: response?.status() ?? null, ...metrics, ...(route === '/developers' ? { keyboard_scroll: keyboardScroll } : {}) });
     await zoomPage.close();
   }
 }
@@ -162,7 +175,8 @@ for (const report of reports) {
   if (report.route === '/developers' && report.dom.codeScrollRegions.some(region => region.role !== 'region' || !region.label || region.tabIndex !== '0' || !region.bounded || region.overflowX !== 'auto')) failures.push(`${report.viewportName}:/developers:code_scroll_region_invalid`);
 }
 for (const report of zoomReports) {
-  if (report.http_status !== 200 || report.overflowing || report.code_regions.some(region => !region.bounded || !region.scrollable || !region.label || region.tabIndex !== '0')) failures.push(`${report.zoom_equivalent}:${report.route}:reflow_or_code_scroll_failure`);
+  if (report.http_status !== 200 || report.overflowing || report.code_regions.some(region => !region.bounded || (region.requiresScroll && !region.scrollable) || !region.label || region.tabIndex !== '0')) failures.push(`${report.zoom_equivalent}:${report.route}:reflow_or_code_scroll_failure`);
+  if (report.route === '/developers' && report.code_regions.some(region => region.requiresScroll) && (!report.keyboard_scroll?.focused || !report.keyboard_scroll.advanced)) failures.push(`${report.zoom_equivalent}:/developers:keyboard_code_scroll_failure`);
 }
 if (!keyboardReducedMotion.reduced_motion.requested || keyboard.some(item => item.tag === 'BODY' || item.outline === 'none')) failures.push('keyboard_or_reduced_motion_failure');
 if (process.env.RADAR_QA_TENANT_KEY && reports.filter(r => r.route === '/spend-terminal').some(r => r.check_request_count !== 1 || !r.credential_exposure?.password_input || r.credential_exposure.url_contains_key || r.credential_exposure.local_storage_contains_key)) failures.push('authenticated_check_request_or_credential_exposure');
