@@ -58,7 +58,7 @@ describe('Radar network architecture', () => {
   it('renders the homepage as Infopunks Radar across all networks', () => {
     render(<RadarProductNavigation context="universal" current="/" />);
 
-    expect(container.querySelector('a[aria-label="Infopunks Radar home"]')?.textContent).toBe('InfopunksRadar');
+    expect(container.querySelector('a[aria-label="Infopunks Radar home"]')?.textContent).toContain('INFOPUNKSRADAR');
     expect(container.querySelector('button[aria-label="All Networks. Choose Radar network"]')).not.toBeNull();
     expect(container.textContent).toContain('All Networks');
     expect(container.textContent).not.toContain('Infopunks/Solana');

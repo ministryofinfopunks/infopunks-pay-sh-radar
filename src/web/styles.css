@@ -12722,21 +12722,17 @@ summary:focus-visible {
 /* Cohesive intelligence-terminal polish: shared tokens, density, and component rhythm. */
 :root {
   --radar-bg-deep: #020403;
-  --radar-surface: rgba(7, 14, 10, .86);
   --radar-surface-raised: rgba(11, 22, 16, .9);
   --radar-surface-recessed: rgba(0, 0, 0, .22);
-  --radar-line: rgba(203, 255, 221, .105);
   --radar-line-strong: rgba(126, 255, 176, .22);
   --radar-line-blue: rgba(124, 199, 255, .18);
-  --radar-text: #effff4;
-  --radar-text-secondary: #c5ddcd;
-  --radar-text-muted: #91aa9a;
-  --radar-green: #8effb9;
-  --radar-blue: #8fd2ff;
-  --radar-amber: #f4cf79;
-  --radar-red: #ff8080;
-  --radar-radius: 12px;
-  --radar-radius-sm: 9px;
+  --radar-text-secondary: var(--radar-muted);
+  --radar-text-muted: var(--radar-muted);
+  --radar-green: var(--radar-signal);
+  --radar-blue: var(--radar-muted);
+  --radar-amber: var(--radar-caution);
+  --radar-red: var(--radar-blocked);
+  --radar-radius-sm: var(--radar-radius);
   --radar-space-1: 6px;
   --radar-space-2: 8px;
   --radar-space-3: 10px;
@@ -17882,7 +17878,7 @@ select:focus {
 :root {
   color-scheme: dark;
 
-  /* Typography roles: human-facing UI stays sans; machine truth stays mono. */
+  /* Terminal typography shares the canonical product font tokens. */
   --font-ui: var(--radar-mono);
   --font-mono: var(--radar-mono);
   --type-display-tracking: -.045em;
@@ -17929,7 +17925,7 @@ select:focus {
   --premium-radius-sm: var(--radius-surface);
   --radius-section: var(--radius-panel);
   --radius-group: var(--radius-surface);
-  --radar-radius-sm: var(--radius-control);
+  --radar-radius-sm: var(--radar-radius);
   --radar-space-1: var(--space-1);
   --radar-space-2: var(--space-2);
   --radar-space-3: var(--space-3);
@@ -18622,7 +18618,6 @@ body::before, body::after { display: none; }
 .site-header .product-brand { color: var(--radar-text); font-family: var(--radar-mono); }
 .site-header .product-header .product-wayfinding a { font: 11px/1.4 var(--radar-mono); }
 .site-header .global-toolbar { border-radius: var(--radar-radius); border-color: var(--radar-line); background: var(--radar-surface); box-shadow: none; backdrop-filter: none; }
-.radar-product-navigation .nav-brand { display: none; }
 .radar-product-navigation :is(a,button) { border-radius: var(--radar-radius); font-family: var(--radar-mono); }
 :is(.radar-universal-hero,.rh-chain-hero,.solana-evidence-brief) h1 { font-family: var(--radar-mono); font-size: clamp(30px, 3.8vw, 54px); font-weight: 750; line-height: 1.1; letter-spacing: -.05em; }
 :is(.radar-universal-hero,.rh-chain-hero,.solana-evidence-brief) :is(h2,h3,.copy,.mission-subtitle,.radar-universal-lede) { font-family: var(--radar-mono); }
@@ -18637,3 +18632,8 @@ body::before, body::after { display: none; }
   .site-header .product-header .product-menu-toggle { padding: 0; min-width: 44px; }
   .site-header .product-header .product-brand { font-size: 20px; }
 }
+
+.site-header .product-header { border-radius: var(--radar-radius); border-color: var(--radar-line); }
+:is(.radar-universal-hero,.rh-chain-hero,.solana-evidence-brief) .execute.secondary { background: var(--radar-bg); color: var(--radar-muted); border: 1px solid var(--radar-line); }
+
+.market-pulse-method { color: var(--radar-muted); }

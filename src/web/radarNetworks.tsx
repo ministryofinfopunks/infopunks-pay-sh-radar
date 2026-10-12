@@ -254,13 +254,13 @@ export function SolanaRadarDirectory({ current = currentLocation() }: { current?
   </section>;
 }
 
-export function RadarHeaderIdentity({ active, context = active ?? 'universal', homeHref = '/' }: { active?: RadarNetworkId; context?: RadarNavigationContext; homeHref?: string }) {
+export function RadarHeaderIdentity({ active, context = active ?? 'universal', homeHref = '/', showBrand = true }: { active?: RadarNetworkId; context?: RadarNavigationContext; homeHref?: string; showBrand?: boolean }) {
   const selectedNetwork = context === 'universal' ? null : context;
   return <div className="radar-network-identity">
-    <a className="nav-brand" href={homeHref} aria-label="Infopunks Radar home">
+    {showBrand && <a className="nav-brand" href={homeHref} aria-label="Infopunks Radar home">
       <span>Infopunks</span>
       <strong>Radar</strong>
-    </a>
+    </a>}
     <RadarNetworkSelector active={selectedNetwork} />
   </div>;
 }
@@ -296,8 +296,8 @@ export function RadarProductNavigation({
     ...navigation.overflowGroups
   ];
 
-  return <><ProductHeader embedded current={context === 'rh-chain' ? '/rh-chain-signal-desk' : context === 'solana' ? '/solana' : '/'} /><nav className={`global-toolbar radar-product-navigation context-${context} ${className}`.trim()} aria-label={`${context === 'universal' ? 'Infopunks Radar' : RADAR_NETWORKS[context].contextLabel} navigation`}>
-    <RadarHeaderIdentity context={context} />
+  return <><ProductHeader embedded current={context === 'robinhood-chain' ? '/rh-chain-signal-desk' : context === 'solana' ? '/solana' : '/'} /><nav className={`global-toolbar radar-product-navigation context-${context} ${className}`.trim()} aria-label={`${context === 'universal' ? 'Infopunks Radar' : RADAR_NETWORKS[context].contextLabel} navigation`}>
+    <RadarHeaderIdentity context={context} showBrand={false} />
     <div className="terminal-nav radar-primary-navigation" aria-label="Primary destinations">
       {navigation.primaryItems.map((item) => <span className={item.compactPriority ? 'radar-primary-priority' : 'radar-primary-collapsible'} key={item.href}><NavigationLink item={item} current={current} /></span>)}
     </div>

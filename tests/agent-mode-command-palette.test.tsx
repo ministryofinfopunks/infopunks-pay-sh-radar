@@ -214,7 +214,7 @@ describe('agent mode and command palette', () => {
     expect(header?.querySelector('button[aria-label="Open command palette (Command K or Control K)"]')).not.toBeNull();
     expect(header?.querySelector('button[aria-label="Open view settings"]')).not.toBeNull();
     expect(container.textContent).toContain('API Docs');
-    expect(header?.textContent).toContain('InfopunksRadar');
+    expect(header?.querySelector('a[aria-label="Infopunks Radar home"]')?.textContent).toContain('INFOPUNKSRADAR');
     expect(header?.textContent).toContain('All Networks');
     expect(header?.textContent).toContain('Agent Mode');
     expect(header?.textContent).toContain('Comfortable Density');
@@ -246,7 +246,7 @@ describe('agent mode and command palette', () => {
     const primaryLabels = Array.from(header?.querySelectorAll('[aria-label="Primary destinations"] a') ?? []).map((node) => node.textContent?.trim()).filter(Boolean);
     expect(primaryLabels).toEqual(['Radar', 'Economies']);
     expect(new Set(primaryLabels).size).toBe(primaryLabels.length);
-    expect((header?.textContent?.match(/Infopunks/g) ?? []).length).toBe(1);
+    expect(header?.querySelectorAll('a[aria-label="Infopunks Radar home"]')).toHaveLength(1);
     expect((header?.textContent?.match(/Solana/g) ?? []).length).toBeGreaterThanOrEqual(1);
     expect((header?.textContent?.match(/Active/g) ?? []).length).toBe(0);
     expect(header?.textContent).not.toContain('/ Solana');

@@ -16,7 +16,7 @@ describe('Infopunks //4663 mobile surface', () => {
     window.history.replaceState({}, '', '/4663'); vi.spyOn(globalThis, 'fetch').mockReturnValue(new Promise(() => {}));
     await act(async () => { root = createRoot(container); root.render(<Rh4663Page />); });
     const text = container.textContent ?? '';
-    expect(text).toContain('INFOPUNKS RADAR4663'); expect(text).toContain('Robinhood Chain,right now.');
+    expect(text).toContain('INFOPUNKSRADAR / INTELLIGENCE TERMINAL'); expect(text).toContain('READ-ONLY RESEARCH4663'); expect(text).toContain('Robinhood Chain,right now.');
     for (const label of ['What matters right now?', 'What is developing?', 'What still needs to be proved?', 'How good is your record?']) expect(text).toContain(label);
     expect(Array.from(container.querySelectorAll('.fd-nav a')).map((node) => node.getAttribute('href'))).toEqual(['#now', '#watch', '#call', '#proof']);
     expect(container.querySelector('.fd-call-action[href^="/4663/pulse"]')?.textContent).toContain('Make the call');
