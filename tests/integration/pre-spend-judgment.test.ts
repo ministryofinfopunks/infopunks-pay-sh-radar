@@ -33,6 +33,7 @@ describe('canonical pre-spend HTTP and SDK boundary', () => {
     } finally { await app.close(); }
   });
   it('rejects invalid caller-controlled headers before echoing the key', async () => {
+    vi.stubEnv('ADMIN_TOKEN', 'reviewer');
     const app = await createApp();
     try {
       for (const url of ['/v1/pre-spend/check', '/v1/decide']) {
@@ -44,7 +45,7 @@ describe('canonical pre-spend HTTP and SDK boundary', () => {
           expect(response.headers['cache-control']).toBe('private, no-store');
         }
         for (const proof of ['', 'a'.repeat(16385)]) {
-          const response = await app.inject({ method: 'POST', url, payload: request, headers: { 'idempotency-key': 'valid', 'payment-signature': proof } });
+          const response = await app.inject({ method: 'POST', url, payload: request, headers: { authorization: 'Bearer reviewer', 'idempotency-key': 'valid', 'payment-signature': proof } });
           expect(response.statusCode).toBe(400);
           expect(response.json().error).toBe('invalid_payment_signature_length');
           expect(response.headers['idempotency-key']).toBeUndefined();
