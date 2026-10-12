@@ -2689,7 +2689,7 @@ function BenchmarkProofContent({ benchmark, history, routeHistory }: { benchmark
         <p>Status: not evaluated.</p>
         <p>Next: {benchmark.next_step}.</p>
         <p>No artifact exists until benchmark evidence is recorded.</p>
-        {hasTokenSearchMappingTarget && <p><a href="/#mapping-targets">Mapping target: finance/data token search</a> is benchmark-ready with two proven routes; normalized benchmark evidence is still pending.</p>}
+        {hasTokenSearchMappingTarget && <p><a href="/solana#mapping-targets">Mapping target: finance/data token search</a> is benchmark-ready with two proven routes; normalized benchmark evidence is still pending.</p>}
       </div>}
     </section>
     <section className="panel">
@@ -8199,7 +8199,7 @@ function normalizeTemplateId(policyId: string) {
 }
 
 function MachineMethodologyNote() {
-  return <p className="machine-methodology-note"><a href="/#methodology">Methodology: Machine Economy evidence ladder</a> Repeatability-recorded means the same route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark and does not compare providers. Benchmark-ready criteria define the minimum evidence required before a benchmark can be recorded. Criteria definition is not a benchmark.</p>;
+  return <p className="machine-methodology-note"><a href="/solana#methodology">Methodology: Machine Economy evidence ladder</a> Repeatability-recorded means the same route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark and does not compare providers. Benchmark-ready criteria define the minimum evidence required before a benchmark can be recorded. Criteria definition is not a benchmark.</p>;
 }
 
 function MachineEvidenceMethodologyDrawer() {
@@ -8771,10 +8771,10 @@ function PublicProviderPage({ providerId }: { providerId: string }) {
               {copyState === 'copied' ? 'Copied URL' : 'Copy Share URL'}
             </button>
             <a className="execute compact secondary" href={`/radar/cards/provider/${encodeURIComponent(providerId)}`}>Open Preflight Card</a>
-            <a className="execute compact secondary" href="/#terminal-content">Open Radar</a>
-            <a className="execute compact secondary" href="/#terminal-content" onClick={(event) => {
+            <a className="execute compact secondary" href="/solana#terminal-content">Open Radar</a>
+            <a className="execute compact secondary" href="/solana#terminal-content" onClick={(event) => {
               event.preventDefault();
-              window.location.href = '/#terminal-content';
+              window.location.href = '/solana#terminal-content';
             }}>Methodology</a>
           </div>
         </div>
@@ -8855,7 +8855,7 @@ function PublicProviderPage({ providerId }: { providerId: string }) {
         </DossierSection>
         <DossierSection title="Evidence Metadata">
           <EvidenceReceiptView evidence={providerIntel} title="Provider Intelligence Receipt" />
-          <p><a href="/#terminal-content">Methodology link</a></p>
+          <p><a href="/solana#terminal-content">Methodology link</a></p>
         </DossierSection>
       </section>
     </main>

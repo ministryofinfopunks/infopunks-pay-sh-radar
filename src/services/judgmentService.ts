@@ -29,11 +29,16 @@ export type JudgmentServiceOptions = {
   issuer?: JudgmentIssuer | null;
   /** Existing receipts replay unchanged; new production decisions cannot consume unreviewed history. */
   requireIndependentEvaluationReview?: boolean;
+  onPaymentEvent?(event: 'challenge' | 'verified' | 'settled' | 'duplicate_prevented'): void;
+  onEvidence?(freshness: { observations: number; fresh: number; stale: number }): void;
   now?: () => Date;
   onTiming?: (timing: { local_ms: number; payment_ms: number; total_ms: number }) => void;
 };
 export function createJudgmentService(options: JudgmentServiceOptions) {
   const now = options.now ?? (() => new Date());
+  function paymentEvent(stage: 'challenge' | 'verified' | 'settled' | 'duplicate_prevented') {
+    try { options.onPaymentEvent?.(stage); } catch { /* Telemetry cannot interrupt settlement journaling. */ }
+  }
   const authority = createReceiptAuthorityService(options.store, options.threshold, options.issuer);
   const scores = createDerivedScoreService(options.store, options.threshold);
   async function complete(key: string, record: JudgmentRequestRecord) {
@@ -90,6 +95,8 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
         const intentHash = hashCanonical(input);
         const at = now();
         const observations = subject ? await options.observations(subject, intentHash) : [];
+        const fresh = observations.filter(o => o.freshness_expires_at && Date.parse(o.freshness_expires_at) > at.getTime()).length;
+        try { options.onEvidence?.({ observations: observations.length, fresh, stale: observations.length - fresh }); } catch { /* Telemetry is not decision authority. */ }
         const policy = { engine_version: 'pre-spend-decision.v2' as const, threshold: options.threshold,
           veto_threshold: -10 as const, ttl_ms: options.ttlMs, amount: options.amount,
           asset: options.gateway?.asset === 'USDG' ? 'USDG' as const : 'USDC' as const };
@@ -138,6 +145,7 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
           score_projection: history, legacy: frozenLegacy, legacy_hash: hashCanonical(frozenLegacy),
           policy, policy_hash: hashCanonical(policy), output });
         response.decision_context_hash = context.context_hash;
+        paymentEvent('challenge');
         record = await options.journal.quote(key, { request_hash: requestHash, state: 'quoted', response, legacy,
           subject_type: observations[0].subject_type, subject_id: subject, intent_hash: intentHash,
           decision_context: context, challenge: await options.gateway.challenge() });
@@ -163,11 +171,16 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
       if (options.store.judgmentTrust?.requireSigned && !options.issuer) throw new JudgmentError(503, 'judgment_signing_unavailable');
       if (options.issuer) { try { options.issuer.assertCanSign(record.response.issued_at, record.response.valid_until); } catch { throw new JudgmentError(503, 'judgment_signing_unavailable'); } }
       const paymentHash = hashCanonical(payment);
-      if (!await options.journal.claim(key, paymentHash)) throw new JudgmentError(409, 'payment_already_claimed');
+      paymentEvent('verified');
+      if (!await options.journal.claim(key, paymentHash)) {
+        paymentEvent('duplicate_prevented');
+        throw new JudgmentError(409, 'payment_already_claimed');
+      }
       record.state = 'settling'; record.payment_hash = paymentHash;
       // An ambiguous failure stays settling: a retry must never re-submit settlement.
       const settlement = await paymentCall(() => options.gateway!.settle(signature, requirement));
       if (!settlement.success || !settlement.transaction || settlement.network !== requirement.network) throw new JudgmentError(402, 'payment_settlement_failed');
+      paymentEvent('settled');
       record.settlement = settlement; record.state = 'settled'; await options.journal.save(key, record);
       return await complete(key, record);
       } finally {

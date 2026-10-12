@@ -23,7 +23,7 @@ name = 'unified_radar_' + uuid.uuid4().hex[:12]
 databases = [name, name + '_resilience', name + '_migration', name + '_restore']
 for database in databases:
     subprocess.run(['createdb', database], check=True)
-env.update(NODE_ENV='test', CANONICAL_RECEIPT_TEST_URL='postgresql://localhost/' + name,
+env.update(NODE_ENV='test', RADAR_QUERY_TIMING_ENABLED='true', CANONICAL_RECEIPT_TEST_URL='postgresql://localhost/' + name,
            ECONOMIC_ENGINE_TEST_URL='postgresql://localhost/' + name,
            POSTGRES_RESILIENCE_TEST_URL='postgresql://localhost/' + name + '_resilience')
 results = []

@@ -41,6 +41,8 @@ for (const [viewportName, viewport] of Object.entries({ desktop: { width: 1440, 
       navigation: [...document.querySelectorAll('.product-wayfinding a')].map(a => ({ label: a.textContent, href: a.getAttribute('href') })),
       performance: performance.getEntriesByType('navigation').map(n => ({ dom_content_loaded_ms: n.domContentLoadedEventEnd, transfer_bytes: n.transferSize })),
       resource_bytes: performance.getEntriesByType('resource').filter(r=>r.name.endsWith('.js')).reduce((sum,r)=>sum+r.transferSize,0),
+      ids: [...document.querySelectorAll('[id]')].map(el => el.id),
+      links: [...document.querySelectorAll('a[href]')].map(a => ({ href: a.getAttribute('href'), label: a.textContent?.trim().slice(0, 120) })),
       form: document.querySelector('.spend-result')?.textContent }));
     const screenshot = `${viewportName}-${route === '/' ? 'home' : route.slice(1).replaceAll('/', '-')}.png`;
     await page.evaluate(() => { document.activeElement?.blur(); window.scrollTo(0, 0); });
@@ -51,6 +53,17 @@ for (const [viewportName, viewport] of Object.entries({ desktop: { width: 1440, 
     await page.close();
   }
 }
+const routeDocuments = new Map(reports.filter(r => r.viewportName === 'desktop').map(r => [r.route, r.dom.ids]));
+const navigationAudit = [];
+for (const report of reports.filter(r => r.viewportName === 'desktop')) {
+  for (const link of report.dom.links) {
+    const destination = new URL(link.href, base + report.route);
+    const ids = routeDocuments.get(destination.pathname);
+    navigationAudit.push({ from: report.route, ...link, external: destination.origin !== base,
+      checked_fragment: destination.origin === base && destination.hash && ids ? destination.hash === '#methodology' && destination.pathname === '/solana' ? 'opens_methodology_dialog' : ids.includes(decodeURIComponent(destination.hash.slice(1))) : null });
+  }
+}
+await fs.writeFile(path.join(output, 'navigation-audit.json'), JSON.stringify({ source_sha: sourceSha, links: navigationAudit, broken_known_fragments: navigationAudit.filter(link => link.checked_fragment === false), unvisited_destination_policy: 'Deep routes outside this viewport matrix remain inventoried; no operation or external action is inferred from a link.' }, null, 2));
 const failureScenarios = [];
 for (const scenario of ['server_failure', 'timeout']) {
   const failedPage = await browser.newPage({ viewport: { width: 390, height: 844 } });

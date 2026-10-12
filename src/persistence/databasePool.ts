@@ -82,6 +82,10 @@ class DatabaseCircuit {
   }
 
   recordSuccess(operation: string, elapsedMs: number) {
+    // Opt-in query timing contains no SQL, parameters, connection URL or tenant identifiers.
+    if (operation === 'client_query' && process.env.RADAR_QUERY_TIMING_ENABLED === 'true') {
+      logDatabaseEvent('database_query_timing', { elapsed_ms: elapsedMs });
+    }
     const previousState = this.state;
     this.state = 'healthy';
     this.lastSuccessAt = new Date().toISOString();

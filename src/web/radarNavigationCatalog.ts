@@ -124,13 +124,13 @@ export const SOLANA_SURFACE_GROUPS: readonly (NavigationGroup & { id: RadarSurfa
       { id: 'check', href: '/check', label: 'Check', description: 'Verify a claim before action', featured: true, activePrefixes: ['/check/'] },
       { id: 'loops', href: '/loops', label: 'Loops', description: 'Run and inspect proof loops', featured: true, activePrefixes: ['/loops/'] },
       { id: 'hermes-desk', href: '/hermes', label: 'Hermes Desk', description: 'Agentic investigations before spend', featured: true },
-      { id: 'agent-benchmarks', href: '/#agent-benchmark-api', label: 'Agent Benchmarks', description: 'Benchmark agent readiness', featured: true },
+      { id: 'agent-benchmarks', href: '/solana#agent-benchmark-api', label: 'Agent Benchmarks', description: 'Benchmark agent readiness', featured: true },
       { id: 'preflight-cards', href: '/radar/cards', label: 'Preflight Cards', description: 'Shareable decision artifacts', activePrefixes: ['/radar/cards/'] },
       { id: 'claims', href: '/claim', label: 'Claims', description: 'Judgments backed by receipts', activePrefixes: ['/claim/'] },
-      { id: 'route-mappings', href: '/#route-mapping-registry', label: 'Route Mappings', description: 'Provider-to-endpoint coverage' },
-      { id: 'preflight', href: '/#preflight', label: 'Preflight', description: 'Check a route before payment' },
-      { id: 'compare', href: '/#compare', label: 'Compare', description: 'Compare routes and providers' },
-      { id: 'provider-dossier', href: '/#dossier', label: 'Provider Dossier', description: 'Inspect provider evidence' },
+      { id: 'route-mappings', href: '/solana#route-mapping-registry', label: 'Route Mappings', description: 'Provider-to-endpoint coverage' },
+      { id: 'preflight', href: '/solana#preflight', label: 'Preflight', description: 'Check a route before payment' },
+      { id: 'compare', href: '/solana#compare', label: 'Compare', description: 'Compare routes and providers' },
+      { id: 'provider-dossier', href: '/solana#dossier', label: 'Provider Dossier', description: 'Inspect provider evidence' },
       { id: 'pre-spend-terminal', href: '/spend-terminal', label: 'Pre-Spend Terminal', description: 'Decision surface for agents' }
     ]
   },
@@ -194,7 +194,7 @@ export const SOLANA_SURFACE_GROUPS: readonly (NavigationGroup & { id: RadarSurfa
       { id: 'hermes-json', href: '/v1/hermes', label: 'Hermes JSON', description: 'Machine-readable Hermes state', featured: true, external: true },
       { id: 'hermes-health', href: '/v1/hermes/health', label: 'Hermes Health', description: 'Service health endpoint', featured: true, external: true },
       { id: 'methodology', href: '/#proof', label: 'Methodology', description: 'How Radar forms judgment', featured: true },
-      { id: 'events', href: '/#events', label: 'Events', description: 'Recent evidence events' }
+      { id: 'events', href: '/solana#events', label: 'Events', description: 'Recent evidence events' }
     ]
   }
 ] as const;

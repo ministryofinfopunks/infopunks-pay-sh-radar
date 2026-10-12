@@ -82,3 +82,9 @@ PostgreSQL remains canonical; memory is development/test only. Migrations 001–
 | Native Solana fee settlement | Unsupported | Abstention tested | Unsupported | Unsupported |
 | Base/RH payment code | Gated existing code | Mocked settlement/restart tests | Real rail qualification pending | Not asserted |
 | IPX/PLTR operations | Inert existing code | No activation | Out of scope | Out of scope |
+
+## Observability and release compatibility
+
+Structured events cover request correlation/status/duration, canonical decision/domain/accepted-evidence counts, unsupported-policy rejection, evidence freshness, payment challenge/verification/settlement/duplicate prevention, proof rejection and the Judgment critical path. Payment telemetry cannot interrupt settlement journaling. `RADAR_QUERY_TIMING_ENABLED=true` enables shared PostgreSQL client-query durations without logging SQL, parameters, URLs or identities. `scripts/summarize-radar-observability.mjs` derives request volume and p50/p95/p99 from a supplied log using bounded memory; missing decision/payment/query events remain unknown. Existing provider catalog/RPC cache health and receipt replay checks remain separate sources. A shared production telemetry/alert collector, real RPC/payment rates and representative capacity baseline require staging bindings; no production SLO is asserted from test data.
+
+Legacy console fragment links now target `/solana#…`; `/#proof` and `/#economies` belong to the universal landing. `/solana#methodology` opens the existing methodology dialog. Canonical free checks remain compatible, while raw proof reads, qualified quotes/receipts and payment signatures require operator authority. Production legacy publication/intake remains 503 even for an operator. This intentional authorization change must be reviewed before release; no HOLD branch is merged or deployed here.

@@ -1841,7 +1841,7 @@ export async function createApp(
       req.log.info({ event: 'judgment_assessed', request_id: req.id, decision: result.response.decision,
         policy: parsed.data.judgment_context?.policy.id ?? 'legacy.service-spend',
         domain: parsed.data.judgment_context?.subject.network ?? 'legacy', payment_required: result.response.payment_required,
-        evidence_count: result.response.cited_observations.length, outcome: result.response.decision === 'insufficient_evidence' ? 'abstained' : 'assessed' });
+        evidence_count: result.response.cited_observations.length, http_status: result.status, receipt_issued: Boolean(result.response.receipt), outcome: result.response.decision === 'insufficient_evidence' ? 'abstained' : 'assessed' });
       for (const [name, value] of Object.entries(result.headers)) if (value) reply.header(name, value);
       reply.header('Server-Timing', `judgment;dur=${(performance.now() - started).toFixed(2)}`);
       // Preserve the original SDK envelope; canonical fields are also available at the top level.
@@ -1849,7 +1849,10 @@ export async function createApp(
         execution_authorization: null, execution_authorized: false,
         data: { ...result.legacy, canonical_judgment: result.response } }));
     } catch (error) {
-      if (error instanceof JudgmentError) return reply.code(error.statusCode).send({ error: error.code });
+      if (error instanceof JudgmentError) {
+        req.log.info({ event: 'judgment_rejected', request_id: req.id, code: error.code });
+        return reply.code(error.statusCode).send({ error: error.code });
+      }
       req.log.error({ event: 'judgment_unavailable' });
       return reply.code(503).send({ error: 'judgment_unavailable' });
     } finally {
@@ -4524,6 +4527,8 @@ export async function createApp(
     ttlMs: config.judgmentTtlMs, amount: config.judgmentPriceUsdc,
     requireIndependentEvaluationReview: config.isProduction || config.controlledStaging,
     onTiming: timing => app.log.info({ event: 'judgment_hot_path_timing', ...timing }),
+    onEvidence: freshness => app.log.info({ event: 'judgment_evidence_freshness', ...freshness }),
+    onPaymentEvent: stage => app.log.info({ event: 'judgment_payment_stage', stage, proof_scope: 'configured_gateway_attestation' }),
     marketEvidence: async () => {
       // Stored public inspection evidence only: no refresh/RPC/provider request in a judgment's critical path.
       const snapshot = await reflexiveRadar.snapshot();
