@@ -43,6 +43,24 @@ def run(label, command, scoped_env=None, tolerated=False):
         raise RuntimeError(label + ' failed; see local raw log')
     return logs / (label + '.log')
 
+def postgres_tool(tool, arguments):
+    image = env.get('RADAR_PG_CLIENT_CONTAINER')
+    if not image:
+        return [tool, *arguments]
+    command = ['docker', 'run', '--rm', '-v', str(root) + ':/workspace', '-e', 'PGHOST=host.docker.internal', '-e', 'PGPORT', '-e', 'PGUSER', '-e', 'PGPASSWORD']
+    if platform.system() == 'Linux':
+        command.extend(['--add-host=host.docker.internal:host-gateway'])
+    command.extend([image, tool])
+    for argument in arguments:
+        if argument.startswith('--file='):
+            argument = '--file=/workspace/' + str(Path(argument[7:]).resolve().relative_to(root))
+        elif argument.startswith('--dbname=') and '://' in argument:
+            raise RuntimeError('postgres_tool_command_must_not_embed_database_credentials')
+        elif argument.startswith('/'):
+            argument = '/workspace/' + str(Path(argument).resolve().relative_to(root))
+        command.append(argument)
+    return command
+
 run('runtime', ['node', '--version'])
 run('typecheck', ['npm', 'run', 'typecheck'])
 run('lint', ['npm', 'run', 'lint'])
@@ -66,8 +84,8 @@ recovery_env = dict(env, CANONICAL_RECEIPT_TEST_URL=migration_env['DATABASE_URL'
 run('recovery-seed', ['node', '--import', 'tsx', 'scripts/qualify-unified-radar-recovery.mjs', 'seed'], recovery_env)
 # pg_dump and pg_restore never see an existing database or production connection string.
 backup = logs / 'local-recovery.dump'
-run('backup', ['pg_dump', '--format=custom', '--no-owner', '--file=' + str(backup), name + '_migration'])
-run('restore', ['pg_restore', '--no-owner', '--dbname=' + name + '_restore', str(backup)])
+run('backup', postgres_tool('pg_dump', ['--format=custom', '--no-owner', '--file=' + str(backup), name + '_migration']))
+run('restore', postgres_tool('pg_restore', ['--no-owner', '--dbname=' + name + '_restore', str(backup)]))
 run('recovery-verify', ['node', '--import', 'tsx', 'scripts/qualify-unified-radar-recovery.mjs', 'verify'], dict(recovery_env, CANONICAL_RECEIPT_TEST_URL=database_url(name + '_restore')))
 for filename in ['phase2-judgment-performance.json', 'phase2-judgment-postgres-performance.json']:
     if (root / 'output' / filename).exists():
