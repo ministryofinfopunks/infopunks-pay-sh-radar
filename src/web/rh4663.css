@@ -86,7 +86,7 @@
 }
 @media (prefers-reduced-motion: no-preference) { .i4663-main > section, .i4663-page-head { animation: i4663-enter 320ms cubic-bezier(.22,1,.36,1) both; } @keyframes i4663-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } } }
 @media (prefers-reduced-motion: reduce) { .i4663-app *, .i4663-app *::before, .i4663-app *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
-@media (prefers-contrast: more) { .i4663-app { --i4663-line: #697169; --i4663-muted: #c5ccc5; } }
+@media (prefers-contrast: more) { .i4663-app { } }
 
 /* Consumer shell: intentionally separate from the archival research page styles. */
 .fd-shell { min-height: 100vh; color: var(--fd-text); background: var(--fd-bg); font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; }
@@ -157,7 +157,7 @@
 @media (max-width: 720px) { .fd-topbar, .fd-nav, .fd-main, .fd-footer { width: min(calc(100% - 1.5rem), var(--fd-content)); }.fd-topbar { min-height: 4rem; }.fd-nav { top: .35rem; }.fd-hero { padding-block: var(--fd-space-6); }.fd-campaign-grid { grid-template-columns: 1fr; gap: var(--fd-space-3); }.fd-campaign-grid > div:first-child { grid-row: auto; }.fd-now-grid, .fd-watch-grid, .fd-loop-grid { grid-template-columns: 1fr; }.fd-card { min-height: 13.5rem; }.fd-pulse-card, .fd-proof-card, .fd-my4663 { grid-template-columns: 1fr; gap: var(--fd-space-4); }.fd-pulse-card .fd-pulse-meta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--fd-space-2); }.fd-proof-card > div:last-child { align-items: start; }.fd-call-action { width: 100%; }.fd-footer { display: grid; }.fd-section-header { align-items: start; }.fd-section-header > .fd-research-link { min-height: 2rem; } }
 @media (prefers-reduced-motion: no-preference) { .fd-card, .fd-loop, .fd-pulse-card, .fd-proof-card { transition: border-color var(--fd-duration) var(--fd-ease), box-shadow var(--fd-duration) var(--fd-ease), transform var(--fd-duration) var(--fd-ease); }.fd-card:hover, .fd-loop:hover, .fd-proof-card:hover { border-color: rgba(157, 217, 255, .33); box-shadow: none; transform: translateY(-2px); }.fd-now-card:first-child { animation: fd-fresh-emphasis 700ms var(--fd-ease) both; } @keyframes fd-fresh-emphasis { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } } }
 @media (prefers-reduced-motion: reduce) { .fd-shell *, .fd-shell *::before, .fd-shell *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
-@media (prefers-contrast: more) { .fd-shell { --fd-line: rgba(255, 255, 255, .42); --fd-text-secondary: #e2e5e8; } }
+@media (prefers-contrast: more) { .fd-shell { } }
 
 /* Phase 3 CALL loop: one contained component, with receipt-first language. */
 .fd-call-loop { display: grid; gap: var(--fd-space-4); margin-top: var(--fd-space-6); padding: clamp(1.25rem, 4vw, 3rem); color: var(--fd-text); background: #15191d; border: 1px solid var(--fd-line); border-radius: var(--fd-radius-lg); }

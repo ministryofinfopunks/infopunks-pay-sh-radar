@@ -554,7 +554,7 @@ export function SpendTerminalPage() {
       intent: params.get('intent') || 'buy_market_research',
       budget: 25,
       risk_tolerance: 'low' as RiskLevel,
-      preferred_settlement: params.get('settlement') === 'tokenized_pltr' ? 'tokenized_pltr' : 'stablecoin',
+      preferred_settlement: params.get('settlement') === 'stablecoin' ? 'stablecoin' : subject ? 'tokenized_pltr' : 'stablecoin',
       required_confidence: 75,
       subject_id: subject,
       linked_check_id: subject
@@ -620,6 +620,7 @@ export function SpendTerminalPage() {
         <form className="panel builder-form-panel" onSubmit={runCheck}>
           <div className="panel-head"><div><p className="section-kicker">Agent Intent</p><h2>Pre-spend input flow</h2></div></div>
           <p className="panel-caption">Run a receipt-backed preflight before any paid route call. No receipt, no trust.</p>
+          <label><span>route, endpoint, or provider identifier (optional)</span><input aria-label="route, endpoint, or provider identifier" autoComplete="off" value={form.subject_id ?? ''} onChange={(event) => setForm({ ...form, subject_id: event.target.value || undefined })} /></label>
           <label><span>intent</span><input aria-label="intent" value={form.intent} onChange={(event) => setForm({ ...form, intent: event.target.value })} /></label>
           <label><span>budget</span><input aria-label="budget" type="number" inputMode="decimal" min="0" step="any" value={form.budget} onChange={(event) => setForm({ ...form, budget: Number(event.target.value) })} /></label>
           <label><span>risk tolerance</span><select aria-label="risk tolerance" value={form.risk_tolerance} onChange={(event) => setForm({ ...form, risk_tolerance: event.target.value as RiskLevel })}><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="critical">critical</option></select></label>
@@ -636,7 +637,7 @@ export function SpendTerminalPage() {
             <small>Should this agent spend? The terminal will not answer without route evidence, receipt references, and explicit rationale.</small>
           </div>}
           {result && <>
-            <RadarStatus state="judgment" detail={result.judgment?.decision ?? result.decision} />
+            <RadarStatus state={result.judgment ? "judgment" : "unavailable"} detail={result.judgment?.decision ?? "Canonical Judgment not supplied"} />
             <div className={`builder-decision-banner ${resultTone}`}>
               <div>
                 <span className="section-kicker">Decision state</span>
@@ -646,7 +647,7 @@ export function SpendTerminalPage() {
                   : 'No route cleared for spend.'}</p>
               </div>
               <div className="builder-banner-meta">
-                <span>confidence {result.confidence_score}</span>
+                <span>catalog diagnostic confidence {result.confidence_score}</span>
                 <span>risk {result.risk_level}</span>
                 <span>human approval {result.requires_human_approval ? 'required' : 'not required'}</span>
               </div>

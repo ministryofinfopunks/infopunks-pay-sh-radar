@@ -38,6 +38,7 @@
       body { margin: 0; min-width: 320px; background: #050b0c; color: #f1f0e5; font-family: ui-monospace, monospace; }
       .radar-initial-boot { display: grid; place-items: center; min-height: 100vh; padding: 24px; color: #a0c2d0; font-size: 1rem; visibility: hidden; }
       .radar-initial-boot[data-ready="true"] { visibility: visible; }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
     </style>
     <script type="application/ld+json">
       {

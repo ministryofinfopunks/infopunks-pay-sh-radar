@@ -138,7 +138,7 @@ body { margin: 0; }
  .radar-app-shell .panel,.radar-app-header .global-toolbar { background: var(--panel); backdrop-filter: none; }
 }
 @media (prefers-contrast: more) {
- .radar-app-shell { --line: #a8b5aa; --muted: #d3dace; }
+ .radar-app-shell { }
 }
 .radar-app-shell .hero::before,.radar-app-shell .hero::after { content: none; }
 .radar-app-shell .fd-topbar { display: none; }
@@ -179,30 +179,30 @@ body { margin: 0; }
 
 /* Approved shared header, footer and protocol icons. */
 .product-wayfinding { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; }
-.product-wayfinding a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; color: var(--radar-muted); text-decoration: none; font: 12px/1.4 var(--radar-mono); }
+.product-wayfinding a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; color: var(--radar-muted); text-decoration: none; font: 0.75rem/1.4 var(--radar-mono); }
 .product-wayfinding a:hover, .product-wayfinding a[aria-current] { color: var(--radar-signal); }
-.product-evidence-scope { padding: 16px 20px; border: 1px solid var(--radar-line); border-radius: var(--radar-radius); background: var(--radar-surface); color: var(--radar-muted); font: 14px/1.6 var(--radar-font); }
+.product-evidence-scope { padding: 16px 20px; border: 1px solid var(--radar-line); border-radius: var(--radar-radius); background: var(--radar-surface); color: var(--radar-muted); font: 0.875rem/1.6 var(--radar-font); }
 :where(a, button, input, select, summary):focus-visible { outline: 2px solid var(--radar-signal); outline-offset: 4px; }
 .terminal-icon { width: 24px; height: 24px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
 .product-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; border: 1px solid var(--radar-line); border-radius: var(--radar-radius); padding: 8px 20px; min-height: 70px; background: var(--radar-bg); }
-.product-brand { display: flex; align-items: center; gap: 10px; min-height: 44px; color: var(--radar-text); text-decoration: none; font: 750 23px/1.1 var(--radar-mono); letter-spacing: -.045em; }
+.product-brand { display: flex; align-items: center; gap: 10px; min-height: 44px; color: var(--radar-text); text-decoration: none; font: 750 1.4375rem/1.1 var(--radar-mono); letter-spacing: -.045em; }
 .product-brand .terminal-icon { width: 31px; height: 40px; }
-.product-brand small { display: block; color: var(--radar-muted); font: 9px/1.6 var(--radar-mono); letter-spacing: .22em; }
+.product-brand small { display: block; color: var(--radar-muted); font: 0.75rem/1.6 var(--radar-mono); letter-spacing: .22em; }
 .product-header .product-wayfinding { gap: 12px; }
-.product-header .product-wayfinding a { position: relative; text-transform: uppercase; font-size: 11px; }
+.product-header .product-wayfinding a { position: relative; text-transform: uppercase; font-size: 0.75rem; }
 .product-header .product-wayfinding a[aria-current]::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--radar-signal); }
-.product-header-note { color: var(--radar-muted); font: 10px var(--radar-mono); letter-spacing: .04em; }
+.product-header-note { color: var(--radar-muted); font: 0.75rem var(--radar-mono); letter-spacing: .04em; }
 .product-menu-toggle { display: none; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid var(--radar-line); border-radius: var(--radar-radius); color: var(--radar-text); background: var(--radar-surface); cursor: pointer; }
 @media (max-width: 1100px) { .product-header-note { display: none; } }
 @media (max-width: 680px) {
   .product-header { padding: 8px 12px; gap: 4px; min-height: 64px; }
-  .product-brand { font-size: 20px; }
+  .product-brand { font-size: 1.25rem; }
   .product-menu-toggle { display: inline-flex; }
   .product-header .product-wayfinding { display: none; flex-basis: 100%; padding: 12px 0 4px; gap: 4px 20px; border-top: 1px solid var(--radar-line-soft); }
   .product-header.is-open .product-wayfinding { display: flex; }
 }
 @media (max-width: 680px) {
-  .product-header .product-brand small { font-size: 9px; letter-spacing: .06em; }
+  .product-header .product-brand small { font-size: 0.75rem; letter-spacing: .06em; }
 }
 
 .radar-app-shell { padding: 16px; }
@@ -238,3 +238,7 @@ body { margin: 0; }
 .radar-app-shell:not([data-radar-home]) :where(.ipx-lab-hero,.reflexive-hero,.i4663-hero) { min-height: 0; padding-block: 2rem; }
 .radar-app-shell .product-header .product-wayfinding a { color: var(--muted); }
 .radar-app-shell .product-header .product-wayfinding a[aria-current],.radar-app-shell .product-header .product-wayfinding a:hover { color: var(--signal-action); }
+/* Keep text readable after removing legacy decorative fills. */
+.radar-app-shell .machine-badge { color: var(--text); background: var(--surface-raised); }
+.radar-app-shell .ipx-architecture-grid button.selected { background: var(--surface-raised); }
+.radar-app-shell :is(.rh-chain-legal-note small,.observatory-card dt,.observatory-table-wrap th,.market-pulse-method,.agent-chip-row,.radar-directory-card-head > span) { color: var(--muted); opacity: 1; }
