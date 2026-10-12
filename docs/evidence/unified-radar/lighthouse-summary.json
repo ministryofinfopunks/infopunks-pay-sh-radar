@@ -1,0 +1,37 @@
+{
+  "source_sha": "d6112b5c8c56e75a8b33c238126a478277b3d0a1",
+  "measurements": {
+    "mobile": {
+      "lighthouse_version": "12.8.2",
+      "fetch_time": "2026-10-12T06:28:58.859Z",
+      "scores": {
+        "performance": 0.97,
+        "accessibility": 1,
+        "best-practices": 1
+      },
+      "timings": {
+        "first-contentful-paint": 2019.0094,
+        "largest-contentful-paint": 2019.0094,
+        "cumulative-layout-shift": 0,
+        "total-blocking-time": 0
+      },
+      "scope": "Local lab; fixtures; no production/field Web Vitals or SLO claim."
+    },
+    "desktop": {
+      "lighthouse_version": "12.8.2",
+      "fetch_time": "2026-10-12T06:29:06.590Z",
+      "scores": {
+        "performance": 1,
+        "accessibility": 1,
+        "best-practices": 1
+      },
+      "timings": {
+        "first-contentful-paint": 447.8282,
+        "largest-contentful-paint": 447.8282,
+        "cumulative-layout-shift": 0,
+        "total-blocking-time": 0
+      },
+      "scope": "Local lab; fixtures; no production/field Web Vitals or SLO claim."
+    }
+  }
+}
