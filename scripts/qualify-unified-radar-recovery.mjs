@@ -19,7 +19,7 @@ const mode = process.argv[2], url = process.env.CANONICAL_RECEIPT_TEST_URL;
 if (process.env.NODE_ENV !== 'test' || !url) throw new Error('local_test_environment_required');
 const target = new URL(url);
 if (target.hostname !== 'localhost' || !/^\/unified_radar_[a-f0-9]{12}_(migration|restore)$/.test(target.pathname)) throw new Error('disposable_local_target_required');
-const out = resolve('docs/evidence/unified-radar/system');
+const out = resolve(process.env.RADAR_RECOVERY_OUTPUT_DIR ?? 'docs/evidence/unified-radar/system');
 let signer;
 if (mode === 'seed') {
   const pair = generateKeyPairSync('ed25519');
