@@ -1,6 +1,7 @@
 import { createCanonicalTestDatabase, expectRollbackMigrationFailure } from '../helpers/canonicalPostgres';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { encodePaymentSignatureHeader } from '@x402/core/http';
 import { PostgresJudgmentRequestRepository } from '../../src/repositories/judgmentRequestRepository';
 import { PostgresCanonicalReceiptStore } from '../../src/persistence/canonicalReceiptStore';
 import { createReceiptAuthorityService } from '../../src/services/receiptAuthorityService';
@@ -23,12 +24,18 @@ describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('durable judgment payme
       const paid = await service().check(request, 'durable', f.signature);
       expect(paid.response.receipt?.schema_version).toBe('canonical-receipts.v2');
       expect(await verifyDecisionContext(frozen!, paid.response.receipt!, new PostgresCanonicalReceiptStore(pool))).toBe(true);
+      const otherProof = encodePaymentSignatureHeader({ x402Version: 2, accepted: f.gateway.requirements[0], payload: { signature: 'different' } });
+      await expect(service().check(request, 'durable')).rejects.toMatchObject({ statusCode: 401 });
+      await expect(service().check(request, 'durable', otherProof)).rejects.toMatchObject({ statusCode: 403 });
       const replay = await service().check(request, 'durable', f.signature);
       expect(replay.response.receipt).toEqual(paid.response.receipt); expect(f.facilitator.settle).toHaveBeenCalledTimes(1);
       expect(await store.list('judgment')).toHaveLength(1);
       // Simulate loss of final publication acknowledgement after settlement was persisted.
       await pool.query("update judgment_requests set state='settled',record=jsonb_set(record,'{state}','\"settled\"')");
+      await expect(service().check(request, 'durable')).rejects.toMatchObject({ statusCode: 401 });
+      await expect(service().check(request, 'durable', otherProof)).rejects.toMatchObject({ statusCode: 403 });
       expect((await service().check(request, 'durable', f.signature)).response.receipt).toEqual(paid.response.receipt);
+      expect(f.facilitator.verify).toHaveBeenCalledTimes(1);
       expect(f.facilitator.settle).toHaveBeenCalledTimes(1);
       expect((await createReceiptAuthorityService(store).projectScore('provider', 'provider_test')).score).toBe(0);
       const freeService = createJudgmentService({ store, journal: new PostgresJudgmentRequestRepository(pool), gateway: f.gateway, legacyCheck: () => legacy, observations: async () => [], threshold: 80, ttlMs: 60000, amount: '0.01', now: () => new Date('2026-10-07T00:00:02Z') });

@@ -1,0 +1,98 @@
+{
+  "recorded_date": "2026-10-12",
+  "branch": "codex/pre-spend-launch-hardening",
+  "base_sha": "f6b5de64e96da4e5bacbfba39f6cdf6940d2aa79",
+  "implementation_sha": "b3c8ece9d1c76e2218d0eb119d2b880a4c671c1a",
+  "implementation_tree": "3158b6cc6874a928079ec09cfd31eab05dee7ef5",
+  "input_patch_sha256": "e757328d13a2ab9aba61c77806ecec2f0a8790d89170c57166d5e56760f1221a",
+  "patch_application": "git apply --check and git apply passed without conflicts",
+  "runbook_acceptance": "Additional accompanying runbook path/contents not supplied; checked-in A5.1 and request requirements used",
+  "environment": {
+    "platform": "macOS ARM64",
+    "node": "25.6.1",
+    "npm": "11.9.0",
+    "postgresql": "14.20",
+    "database": "dedicated disposable local database; isolated test schemas",
+    "facilitator": "mocked; no live settlement"
+  },
+  "focused": {
+    "status": "PASS",
+    "files_passed": 7,
+    "tests_passed": 64,
+    "skipped": 0,
+    "log": "output/pre-spend-hardening/focused-tests.log",
+    "log_sha256": "2f67cc682de5805c16550796abcaafd7efa5e60125de14ef9cad12aed4b303da"
+  },
+  "full": {
+    "status": "PASS",
+    "files_passed": 273,
+    "tests_passed": 1927,
+    "skipped": 0,
+    "log": "output/pre-spend-hardening/full-tests.log",
+    "log_sha256": "a1181f2d03e12bb81f19fadb1575501bd0faf0677662620ae39dd1217f8f045b"
+  },
+  "checks": {
+    "typecheck.log": {
+      "status": "PASS",
+      "log": "output/pre-spend-hardening/typecheck.log",
+      "log_sha256": "8c130045816136582deedcf711e910a2396c6e4c0739b0f5719548e764414970"
+    },
+    "lint.log": {
+      "status": "PASS",
+      "log": "output/pre-spend-hardening/lint.log",
+      "log_sha256": "d03a558579d6c5bf7d9941dab14d20d6960b6011bd01717758fa05f6a0063285"
+    },
+    "build.log": {
+      "status": "PASS",
+      "log": "output/pre-spend-hardening/build.log",
+      "log_sha256": "70de4d04f0919a5cb7a99a3b5559486e1550aa0fbb2458bece64774eddefbec9"
+    },
+    "migrations.log": {
+      "status": "PASS",
+      "log": "output/pre-spend-hardening/migrations.log",
+      "log_sha256": "854b364da86672219cb5b5a2eb4b9fd25a8f479ab6bd3685f36dbb917a3cb987"
+    }
+  },
+  "dependency_audit": {
+    "production": {
+      "info": 0,
+      "low": 1,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 1
+    },
+    "all": {
+      "info": 0,
+      "low": 1,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 1
+    },
+    "residual": "GHSA-g7r4-m6w7-qqqr, low: esbuild development server on Windows; operator acceptance not inferred"
+  },
+  "source_files": {
+    "package-lock.json": "35d6229d5f08a212259e03a5d1d51074edce3431eded17fae92f2e84ffbf235d",
+    "package.json": "88851a45f5d825d706ee5714ea55b9aa9683552e2c2f36c3669e0e679c167bb7",
+    "src/api/app.ts": "9054285887ee045b7259e83b42454899e9851065ea98ab7ea82d48707e073164",
+    "src/api/openapi.ts": "c704dc530a22be13fc9d16f5d74848fcd879cd2f630678b5ef6e24a1c27baa2d",
+    "src/services/judgmentService.ts": "2ceaeb0b21e1a8138c1d8550276cf04c6a9a8115e8505af6c5994b81bcff26e0",
+    "tests/integration/judgment-payment-durability.test.ts": "2c1f8bc435cde23ef650984c4aed53ce06664dd8b3e37193bbb169c9e4fdf060",
+    "tests/integration/pre-spend-judgment.test.ts": "f2076b971e3fe9644beed0ab21242ac9c4c881e663e81eab16998b0ea427d4a4",
+    "tests/integration/pre-spend-payment.test.ts": "cef77ad272d501bbcec583d6eafb7ed7084f1c1cd881366eed020c2209b02310",
+    "tests/openapi.test.ts": "67381ca1a5e548ef15d12b22aa3182688076f869deb4dae3a9917e0919dafa4a",
+    "tests/unit/judgment-service.test.ts": "72f0f89b082e8d9c1a3edb442523e3b22326f91113e30ecabaf8abd63ee9767b",
+    "tests/unit/x402-judgment.test.ts": "773ebb14d904648dcfb48394a54b4e0439cc93e366077ff254d12959791c6bb3"
+  },
+  "public_paid_launch": "HOLD",
+  "open_gates": [
+    "public receipt/context/tape/request access policy",
+    "later staging security fixes and release integration",
+    "production database/restore, issuer, live catalog and payment rail/reconciliation qualification",
+    "supported Linux runtime/image qualification",
+    "acceptance against missing accompanying runbook"
+  ],
+  "migrations_or_frozen_evidence_changed": false,
+  "deployed_or_payments_activated": false
+}

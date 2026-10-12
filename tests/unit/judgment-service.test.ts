@@ -3,6 +3,23 @@ import { adaptDecision, judgmentExpired } from '../../src/services/judgmentServi
 import { request, setupJudgment } from '../helpers/judgments';
 
 describe('canonical judgment policy', () => {
+  it.each([{ subject_network: 'eip155:4663' }, { settlement_network: 'solana:mainnet' }, { policy_id: 'unsupported' }])('rejects unsupported request selectors %j at the service boundary', async (selector) => {
+    const f = await setupJudgment();
+    await expect(f.service.check({ ...request, ...selector })).rejects.toThrow();
+    expect(f.facilitator.verify).not.toHaveBeenCalled();
+    expect(f.facilitator.settle).not.toHaveBeenCalled();
+  });
+  it.each(['', 'unsafe*key', 'a'.repeat(129)])('rejects invalid idempotency key %j before quoting', async (key) => {
+    const f = await setupJudgment();
+    await expect(f.service.check(request, key)).rejects.toMatchObject({ statusCode: 400, code: 'invalid_idempotency_key' });
+    expect(f.facilitator.settle).not.toHaveBeenCalled();
+  });
+  it.each(['', 'a'.repeat(16385)])('rejects invalid payment header length', async (proof) => {
+    const f = await setupJudgment();
+    await expect(f.service.check(request, 'length', proof)).rejects.toMatchObject({ statusCode: 400, code: 'invalid_payment_signature_length' });
+    expect(f.facilitator.verify).not.toHaveBeenCalled();
+    expect(f.facilitator.settle).not.toHaveBeenCalled();
+  });
   it.each([
     ['approved', false, 'proceed'], ['approved_with_warning', false, 'insufficient_evidence'],
     ['approved_with_warning', true, 'test_spend_first'], ['use_with_caution', false, 'insufficient_evidence'],

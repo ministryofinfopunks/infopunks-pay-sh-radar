@@ -66,6 +66,27 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
     record.response.receipt = receipt; record.state = 'complete'; await options.journal.save(key, record);
     return { status: 200, headers: { 'PAYMENT-RESPONSE': encodePaymentResponseHeader(record.settlement!) }, response: record.response, legacy: record.legacy };
   }
+  // A caller-controlled agent_id / idempotency key is not authorization to read a paid receipt.
+  // Replays must present the exact payment proof previously verified before settlement.
+  // This does not re-settle or invoke the facilitator, preserving recovery after HTTP timeouts.
+  function assertPaidReplayProof(record: JudgmentRequestRecord, signature?: string) {
+    if (!signature) throw new JudgmentError(401, 'paid_judgment_replay_proof_required');
+    try {
+      const payment = decodePaymentSignatureHeader(signature);
+      if (payment?.x402Version !== 2 || !record.payment_hash || hashCanonical(payment) !== record.payment_hash ||
+        !record.settlement?.success || !record.settlement.transaction) throw new Error('invalid_replay_proof');
+    } catch { throw new JudgmentError(403, 'paid_judgment_replay_proof_invalid'); }
+  }
+  // A caller-controlled agent_id / idempotency key is not authorization to read a paid receipt.
+  // Replays must present the exact payment proof previously verified before settlement.
+  function assertPaidReplayProof(record: JudgmentRequestRecord, signature?: string) {
+    if (!signature) throw new JudgmentError(401, 'paid_judgment_replay_proof_required');
+    try {
+      const payment = decodePaymentSignatureHeader(signature);
+      if (payment?.x402Version !== 2 || !record.payment_hash || hashCanonical(payment) !== record.payment_hash ||
+        !record.settlement?.success || !record.settlement.transaction) throw new Error('invalid_replay_proof');
+    } catch { throw new JudgmentError(403, 'paid_judgment_replay_proof_invalid'); }
+  }
   return {
     async check(raw: unknown, suppliedKey?: string, signature?: string): Promise<JudgmentCheckResult> {
       const started = performance.now();
@@ -75,9 +96,10 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
         try { return await run(); } finally { paymentMs += performance.now() - begin; }
       }
       try {
-      const input = PreSpendCheckRequestSchema.parse(raw);
-      if (suppliedKey && !/^[A-Za-z0-9_.:-]{1,128}$/.test(suppliedKey)) throw new JudgmentError(400, 'invalid_idempotency_key');
-      if (signature && signature.length > 16384) throw new JudgmentError(400, 'payment_signature_too_large');
+      // Do not silently discard an unsupported chain, policy or settlement selector.
+      const input = PreSpendCheckRequestSchema.strict().parse(raw);
+      if (suppliedKey !== undefined && !/^[A-Za-z0-9_.:-]{1,128}$/.test(suppliedKey)) throw new JudgmentError(400, 'invalid_idempotency_key');
+      if (signature !== undefined && (signature.length === 0 || signature.length > 16384)) throw new JudgmentError(400, 'invalid_payment_signature_length');
       const requestHash = hashCanonical(input);
       const key = hashCanonical({ agent: input.agent_id, key: suppliedKey ?? requestHash });
       const priorFree = await options.journal.getFreeAttempt?.(key);
@@ -87,7 +109,10 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
       }
       let record = await options.journal.get(key);
       if (record && record.request_hash !== requestHash) throw new JudgmentError(409, 'idempotency_conflict');
-      if (record?.state === 'complete' || record?.state === 'settled') return await complete(key, record);
+      if (record?.state === 'complete' || record?.state === 'settled') {
+        assertPaidReplayProof(record, signature);
+        return await complete(key, record);
+      }
       if (record?.state === 'settling') throw new JudgmentError(409, 'payment_pending_reconciliation');
       if (!record) {
         const legacy = options.legacyCheck(serviceDiagnosticRequest(input));
@@ -160,9 +185,20 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
       if (!signature) return { status: 402, headers: { 'PAYMENT-REQUIRED': encodePaymentRequiredHeader(record.challenge) }, response: record.response, legacy: record.legacy };
       if (!options.gateway) throw new JudgmentError(503, 'judgment_payment_unavailable');
       let payment;
-      try { payment = decodePaymentSignatureHeader(signature); } catch { throw new JudgmentError(400, 'invalid_payment_signature'); }
-      if (payment.x402Version !== 2) throw new JudgmentError(400, 'x402_v2_required');
-      const requirement = record.challenge.accepts.find(r => canonicalSerialize(r) === canonicalSerialize(payment.accepted));
+      let paymentHash: string;
+      let accepted: string;
+      try {
+        payment = decodePaymentSignatureHeader(signature);
+        // The official header decoder parses JSON; it does not validate its shape.
+        if (!payment || typeof payment !== 'object' || Array.isArray(payment)) throw new Error('invalid_payment_payload');
+        if (payment.x402Version !== 2) throw new JudgmentError(400, 'x402_v2_required');
+        accepted = canonicalSerialize(payment.accepted);
+        paymentHash = hashCanonical(payment);
+      } catch (error) {
+        if (error instanceof JudgmentError) throw error;
+        throw new JudgmentError(400, 'invalid_payment_signature');
+      }
+      const requirement = record.challenge.accepts.find(r => canonicalSerialize(r) === accepted);
       if (!requirement) throw new JudgmentError(400, 'payment_requirements_mismatch');
       let verified = false;
       try { verified = await paymentCall(() => options.gateway!.verify(signature, requirement)); } catch { throw new JudgmentError(400, 'payment_verification_failed'); }

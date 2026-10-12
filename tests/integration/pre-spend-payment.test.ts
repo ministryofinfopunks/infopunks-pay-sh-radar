@@ -7,12 +7,12 @@ import { observationInput } from '../helpers/canonicalReceipts';
 
 afterEach(() => vi.unstubAllEnvs());
 describe('pre-spend HTTP payment lifecycle', () => {
-  it('issues a V2 challenge then persists one receipt after verified settlement', async () => {
+  it.each(['/v1/pre-spend/check', '/v1/decide'])('issues a V2 challenge and proof-bound receipt replay at %s', async (url) => {
     vi.stubEnv('ADMIN_TOKEN', 'reviewer');
     const f = await setupJudgment(); const app = await createApp(undefined, undefined, { judgmentGateway: f.gateway });
     const input = { ...request, intent: 'buy_market_research', subject_id: 'route_pay_sh_market_research_03', required_confidence: 80 };
     try {
-      const diagnostic = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input });
+      const diagnostic = await app.inject({ method: 'POST', url, payload: input });
       const route = diagnostic.json().data.recommended_route;
       const at = new Date();
       const seed = await app.inject({ method: 'POST', url: '/internal/receipt-spine/observation', headers: { authorization: 'Bearer reviewer' }, payload: {
@@ -29,6 +29,7 @@ describe('pre-spend HTTP payment lifecycle', () => {
       expect(invalid.statusCode).toBe(400);
       const paid = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input, headers: { authorization: 'Bearer reviewer', 'idempotency-key': 'paid', 'payment-signature': signature } });
       expect(paid.statusCode).toBe(200); expect(decodePaymentResponseHeader(String(paid.headers['payment-response'])).success).toBe(true);
+      expect(paid.headers['cache-control']).toBe('private, no-store');
       expect(paid.json().receipt).toMatchObject({ decision: 'proceed', payment_required: true });
       const replay = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input, headers: { authorization: 'Bearer reviewer', 'idempotency-key': 'paid', 'payment-signature': signature } });
       expect(replay.json().receipt.receipt_hash).toBe(paid.json().receipt.receipt_hash); expect(f.facilitator.settle).toHaveBeenCalledTimes(1);

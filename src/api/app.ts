@@ -1833,15 +1833,13 @@ export async function createApp(
     try {
       const key = req.headers['idempotency-key'];
       const signature = req.headers['payment-signature'];
-      if ((key && typeof key !== 'string') || (signature && typeof signature !== 'string')) return reply.code(400).send({ error: 'invalid_judgment_headers' });
+      if ((key !== undefined && typeof key !== 'string') || (signature !== undefined && typeof signature !== 'string')) return reply.code(400).send({ error: 'invalid_judgment_headers' });
+      // Validate untrusted header bytes before reflecting the idempotency key.
+      if (key !== undefined && !/^[A-Za-z0-9_.:-]{1,128}$/.test(key)) return reply.code(400).send({ error: 'invalid_idempotency_key' });
+      if (signature !== undefined && (signature.length === 0 || signature.length > 16_384)) return reply.code(400).send({ error: 'invalid_payment_signature_length' });
       const stableKey = key ?? hashCanonical(parsed.data);
-      reply.header('Idempotency-Key', stableKey);
       const result = await judgments.check(parsed.data, stableKey, signature);
-      if (result.response.payment_required && !isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'judgment_authentication_required' });
-      req.log.info({ event: 'judgment_assessed', request_id: req.id, decision: result.response.decision,
-        policy: parsed.data.judgment_context?.policy.id ?? 'legacy.service-spend',
-        domain: parsed.data.judgment_context?.subject.network ?? 'legacy', payment_required: result.response.payment_required,
-        evidence_count: result.response.cited_observations.length, http_status: result.status, receipt_issued: Boolean(result.response.receipt), outcome: result.response.decision === 'insufficient_evidence' ? 'abstained' : 'assessed' });
+      reply.header('Idempotency-Key', stableKey);
       for (const [name, value] of Object.entries(result.headers)) if (value) reply.header(name, value);
       reply.header('Server-Timing', `judgment;dur=${(performance.now() - started).toFixed(2)}`);
       // Preserve the original SDK envelope; canonical fields are also available at the top level.
