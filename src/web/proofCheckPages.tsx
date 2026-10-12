@@ -1,4 +1,4 @@
-import { RadarReceiptLifecycle } from './radarDesignSystem';
+import { RadarReceiptLifecycle, RadarStatus } from './radarDesignSystem';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { RadarProductNavigation } from './radarNetworks';
@@ -138,6 +138,7 @@ function monitorSettlementLabel(value: string) {
 export function ProofReceiptCard({ check, compact = false, showShareLink = false }: { check: ProofCheckResult; compact?: boolean; showShareLink?: boolean }) {
   const isMonitor = check.check_id === 'check_monitor' || check.subject?.ticker === 'MONITOR';
   return <article className={`panel proof-receipt-card ${proofToneClass(check.decision_state)} ${compact ? 'compact' : ''}`} aria-label="Infopunks Receipt Check">
+    {check.submitted_by?.startsWith('seed:') && <RadarStatus state="demonstration" detail="Seeded compatibility record" />}
     <div className="proof-card-head">
       <p className="eyebrow">{check.headline}</p>
       <span className="proof-decision-pill">{decisionLabel(check.decision_state)}</span>

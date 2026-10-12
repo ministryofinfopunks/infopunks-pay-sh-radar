@@ -29,7 +29,7 @@ Indices identify navigation families, not backend stages or record counts. 01 Ra
 
 ## Truth vocabulary and four receipts
 
-`RadarStatus` distinguishes **verified evidence**, **Judgment**, **pending outcome**, **missing evidence**, **recorded**, **unavailable**, **validation failed** and **demonstration**. These are presentation categories, never backend verdicts. Render canonical ALLOW/DEGRADE/BLOCK and existing decisions verbatim. Provider verification never approves payment. Availability, freshness, publication, record existence and confidence never establish verification. A hash never establishes a service outcome.
+`RadarStatus` distinguishes **verified evidence**, **Judgment**, **pending outcome**, **missing evidence**, **recorded**, **verification not established**, **unavailable**, **validation failed** and **demonstration**. These are presentation categories, never backend verdicts. Render canonical ALLOW/DEGRADE/BLOCK and existing decisions verbatim. Provider verification never approves payment. Availability, freshness, publication, record existence and confidence never establish verification. A hash never establishes a service outcome.
 
 `RadarReceiptLifecycle`: OBSERVATION → JUDGMENT → EXECUTION → EVALUATION. Each stage accepts explicit status, provenance and optional authorized record links. Unprovided stages say “No stage record supplied”; they never become completed through position or a preceding favorable Judgment. A conceptual lifecycle is explicitly marked “Architecture reference” and claims no records. Map backend facts in each consuming workflow, never infer them from rendered text. Historical evidence referenced by a new decision is not a new execution.
 

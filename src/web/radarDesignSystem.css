@@ -169,3 +169,17 @@ body { margin: 0; }
 .radar-app-shell .panel-caption a { text-decoration: underline; }
 .radar-app-shell .market-pulse-page small { color: var(--muted); opacity: 1; }
 .radar-app-shell .ipx-lab-shell .selected > span { color: var(--text); }
+.radar-app-shell .machine-methodology-note > a { text-decoration: underline; }
+/* Keep global footer outside the loading viewport while route evidence arrives. */
+.radar-route-content { min-height: calc(100dvh - 9rem); }
+.radar-local-controls { display: block; }
+.radar-local-controls > summary { min-height: 44px; padding: .6rem .75rem; border: 1px solid var(--line); color: var(--muted); cursor: pointer; }
+.radar-local-controls > div { display: flex; flex-wrap: wrap; gap: .5rem; padding-block: .5rem; }
+@media(max-width:768px) {
+ .radar-app-shell .radar-universal-hero .radar-universal-lede { font-size: .9375rem; }
+ .radar-app-shell .preflight-console .panel-caption { font-size: .875rem; }
+ .radar-app-shell .preflight-console textarea { min-height: 10rem; }
+}
+@media(max-width:768px) {
+ .radar-app-shell :where(.machine-service-table,.machine-receipt-table,.reflexive-table,.observatory-table-wrap)::before { content: 'Scroll horizontally for all columns →'; display: block; padding: .75rem; color: var(--muted); font: .75rem/1.5 var(--font-mono); }
+}

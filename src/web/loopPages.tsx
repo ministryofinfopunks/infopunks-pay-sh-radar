@@ -1,4 +1,4 @@
-import { RadarReceiptLifecycle } from './radarDesignSystem';
+import { RadarReceiptLifecycle, RadarStatus } from './radarDesignSystem';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { ProofReceiptCard, type ProofCheckResult } from './proofCheckPages';
@@ -105,6 +105,7 @@ export function LoopReceiptCard({ loop, compact = false }: { loop: LoopDetail; c
       <p className="eyebrow">INFOPUNKS LOOP RECEIPT</p>
       <span className="proof-decision-pill">{decisionLabel(loop.decision_state)}</span>
     </div>
+    {loop.linked_check_id.endsWith('_seed') && <RadarStatus state="demonstration" detail="Seeded compatibility record" />}
     <h2>{loop.name}</h2>
     <p className="copy">{loop.objective}</p>
     <div className="proof-card-grid">

@@ -1,0 +1,77 @@
+{
+  "baseline": "dfe089b",
+  "branch": "codex/radar-design-system",
+  "commands": {
+    "provenance": "Recorded executed checks for this migration on 2026-10-12; this file is an evidence snapshot, not a test runner.",
+    "typecheck": {
+      "command": "npm run typecheck",
+      "status": "passed"
+    },
+    "lint": {
+      "command": "npm run lint",
+      "status": "passed"
+    },
+    "build": {
+      "command": "npm run build",
+      "status": "passed",
+      "warning": "Existing deep route chunk exceeds 500 kB"
+    },
+    "designDrift": {
+      "command": "npm run check:design",
+      "status": "passed",
+      "routePatterns": 129
+    },
+    "diffCheck": {
+      "command": "git diff --check",
+      "status": "passed"
+    },
+    "fullSuite": {
+      "command": "npm test -- --maxWorkers=4 --testTimeout=15000",
+      "filesPassed": 252,
+      "filesSkipped": 9,
+      "testsPassed": 1869,
+      "testsSkipped": 19
+    },
+    "finalProofRegression": {
+      "command": "npx vitest run tests/radar-design-system.test.tsx tests/loop-page.test.tsx tests/proof-check-page.test.tsx --maxWorkers=2 --testTimeout=15000",
+      "filesPassed": 3,
+      "testsPassed": 23
+    }
+  },
+  "chromium": {
+    "routes": 137,
+    "viewports": [
+      320,
+      375,
+      390,
+      430,
+      768,
+      1024,
+      1440
+    ],
+    "routeViewportChecks": 959,
+    "failures": 0,
+    "unmatchedRouterPatterns": 0
+  },
+  "journeys": {
+    "browser": "Chromium emulation",
+    "checks": [
+      "API failure → retry → honest empty results",
+      "403 receipt access preserves permission boundary",
+      "200% text scaling at 320px without page overflow",
+      "Touch submission → loading → canonical ALLOW with pending execution and missing evaluation",
+      "Keyboard focus remains visible",
+      "Mobile navigation Escape returns focus",
+      "Network switching keyboard path",
+      "Reduced motion has no active animation",
+      "Long titles wrap at 320px"
+    ]
+  },
+  "limitations": [
+    "Frozen macOS WebKit runtime launched but failed to open a page within 30-second diagnostic",
+    "Real iOS Safari, Android Chrome, VoiceOver/TalkBack and virtual keyboard not available",
+    "Authenticated production tenant/private receipt and wallet signing flows not run",
+    "Skipped database/infrastructure tests not certified"
+  ],
+  "status": "Chromium UI qualification passed; Safari/real-device/production qualification not claimed"
+}

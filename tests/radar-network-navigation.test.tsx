@@ -71,7 +71,7 @@ describe('Radar network architecture', () => {
     const trigger = container.querySelector<HTMLButtonElement>('button[aria-label="Explore Radar destinations"]')!;
     act(() => trigger.click());
     const menu = container.querySelector<HTMLElement>('[role="menu"][aria-label="Radar destination directory"]')!;
-    for (const href of ['/solana', '/rh-chain-signal-desk', '/#methodology', '/developers', '/openapi.json']) {
+    for (const href of ['/solana', '/rh-chain-signal-desk', '/solana#methodology', '/developers', '/openapi.json']) {
       expect(menu.querySelector(`a[href="${href}"]`)).not.toBeNull();
     }
     for (const href of ['/providers', '/routes', '/graph', '/machine-market']) {
@@ -82,16 +82,16 @@ describe('Radar network architecture', () => {
 
   it('defines compact primary navigation for Solana and Robinhood Chain', () => {
     expect(RADAR_NAVIGATION.solana.primaryItems.map((item) => item.label)).toEqual([
-      'Overview', 'Providers', 'Routes', 'Receipts', 'Benchmarks'
+      'Overview', 'Providers', 'Routes', 'Services', 'Receipts', 'Benchmarks'
     ]);
     expect(RADAR_NAVIGATION['robinhood-chain'].primaryItems.map((item) => item.label)).toEqual([
       'Signal Desk', 'Market', 'Meme Pulse', '4663 Index', 'Receipts', 'Submit'
     ]);
-    expect(RADAR_NAVIGATION.solana.primaryItems).toHaveLength(5);
+    expect(RADAR_NAVIGATION.solana.primaryItems).toHaveLength(6);
     expect(RADAR_NAVIGATION['robinhood-chain'].primaryItems).toHaveLength(6);
     expect(navigationItemIsActive(RADAR_NAVIGATION['robinhood-chain'].primaryItems[1], '/rh-chain-signal-desk/market')).toBe(true);
     expect(navigationItemIsActive(RADAR_NAVIGATION.solana.primaryItems[0], '/solana')).toBe(true);
-    expect(RADAR_NAVIGATION.solana.overflowGroups.flatMap((group) => group.items).some((item) => item.href === '/#agent-benchmark-api')).toBe(true);
+    expect(RADAR_NAVIGATION.solana.overflowGroups.flatMap((group) => group.items).some((item) => item.href === '/solana#agent-benchmark-api')).toBe(true);
   });
 
   it('keeps the Solana catalog ordered, unique, featured, and mapped to real route contexts', () => {

@@ -1,0 +1,130 @@
+[
+  {
+    "route": "/check/monitor",
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 0,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 0,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 0,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 0,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 0,
+        "overflow": []
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 0,
+        "overflow": []
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 0,
+        "overflow": []
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": []
+  },
+  {
+    "route": "/loops",
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": []
+  }
+]

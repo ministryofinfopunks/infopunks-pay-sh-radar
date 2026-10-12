@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import ts from 'typescript';
 const sources = ['src/web/main.tsx','src/web/radarApp.tsx','src/web/rh4663Pages.tsx','src/web/rhChainReflexiveRadarPage.tsx'];
 export function discoverRoutePatterns() {
@@ -19,6 +19,10 @@ const patterns = discoverRoutePatterns();
 if(process.argv.includes('--check')) {
  const prior = JSON.parse(readFileSync('docs/design-system/route-patterns.json','utf8'));
  if(JSON.stringify(prior.map(x=>x.pattern))!==JSON.stringify(patterns.map(x=>x.pattern))) throw Error('Route patterns changed. Regenerate design inventory and extend mobile coverage.');
+ for(const file of readdirSync('src/web').filter(name=>name.endsWith('.css') && name !== 'radarTokens.css')) {
+  const content=readFileSync(`src/web/${file}`,'utf8');
+  if([...content.matchAll(/:root\s*\{([^{}]*)\}/g)].some(match=>/--[\w-]+\s*:/.test(match[1]))) throw Error(`Global tokens must be defined in radarTokens.css: ${file}`);
+ }
  const css = readFileSync('src/web/styles.css','utf8');
  if(/:root\s*\{/.test(css)) throw Error('Global tokens belong in radarTokens.css.');
  console.log(`Design drift check passed: ${patterns.length} router patterns; no workflow root tokens.`);

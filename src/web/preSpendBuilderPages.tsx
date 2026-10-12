@@ -568,6 +568,7 @@ export function SpendTerminalPage() {
 
   async function requestDecision() {
     setLoading(true);
+    setResult(null);
     setError(null);
     try {
       const response = await api<{ data: PreSpendCheckResponse }>('/v1/pre-spend/check', {

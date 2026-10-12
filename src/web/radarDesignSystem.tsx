@@ -1,8 +1,8 @@
 import React, { useId } from 'react';
 
-export type RadarEvidenceState = 'verified' | 'judgment' | 'pending' | 'missing' | 'recorded' | 'unavailable' | 'failed' | 'demonstration';
+export type RadarEvidenceState = 'verified' | 'judgment' | 'pending' | 'missing' | 'recorded' | 'unavailable' | 'failed' | 'demonstration' | 'unverified';
 const STATUS_LABELS: Record<RadarEvidenceState, string> = {
-  verified: 'Verified evidence', judgment: 'Judgment', pending: 'Pending outcome',
+  unverified: 'Verification not established', verified: 'Verified evidence', judgment: 'Judgment', pending: 'Pending outcome',
   missing: 'Missing evidence', recorded: 'Record exists', unavailable: 'Unavailable',
   failed: 'Validation failed', demonstration: 'Demonstration'
 };

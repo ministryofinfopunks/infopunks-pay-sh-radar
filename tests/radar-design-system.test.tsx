@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { RadarAsyncState, RadarEvidenceRow, RadarReceiptLifecycle, RadarStatus } from '../src/web/radarDesignSystem';
 import { RadarAppShell } from '../src/web/radarAppShell';
 import { RadarContextHeader } from '../src/web/radarNetworks';
+import { RoutesIndexPage, ReceiptDetailPage } from '../src/web/preSpendBuilderPages';
 import { EvidenceBadge } from '../src/web/frontdoor4663';
 
 describe('Radar universal identity and evidence boundaries', () => {
@@ -24,8 +25,8 @@ describe('Radar universal identity and evidence boundaries', () => {
   expect(el.textContent).toContain('Architecture reference'); expect(el.querySelector('[data-evidence-state]')).toBeNull();
  });
  it('keeps all evidence categories independently labeled',()=>{
-  render(<>{(['verified','judgment','pending','missing','recorded','unavailable','failed','demonstration'] as const).map(state=><RadarStatus key={state} state={state}/>)}</>);
-  expect(new Set([...el.querySelectorAll('[data-evidence-state]')].map(node=>node.textContent)).size).toBe(8);
+  render(<>{(['verified','judgment','pending','missing','recorded','unavailable','failed','demonstration','unverified'] as const).map(state=><RadarStatus key={state} state={state}/>)}</>);
+  expect(new Set([...el.querySelectorAll('[data-evidence-state]')].map(node=>node.textContent)).size).toBe(9);
  });
  it.each(['FRESH','PUBLISHED','AVAILABLE','UNVERIFIED','NOT_VERIFIED'])('does not upgrade %s to verified',state=>{
   render(<EvidenceBadge state={state}/>); expect(el.querySelector('[data-evidence-state="VERIFIED"]')).toBeNull();
@@ -53,4 +54,18 @@ describe('Radar universal identity and evidence boundaries', () => {
   render(<RadarEvidenceRow title="Provider evidence" state="recorded" provenance="receipt_42"><p>Validation not established</p></RadarEvidenceRow>);
   expect(el.querySelector('details > summary')).toBeTruthy();expect(el.textContent).toContain('receipt_42');
  });
+ it('recovers from a failed catalog request and distinguishes empty evidence',async()=>{
+  vi.spyOn(globalThis,'fetch').mockResolvedValueOnce(new Response('{}',{status:503})).mockResolvedValueOnce(new Response(JSON.stringify({data:{routes:[],metrics:null}}),{status:200}));
+  await act(async()=>root.render(<RoutesIndexPage/>));
+  expect(el.querySelector('[role="alert"]')?.textContent).toContain('Evidence request failed');
+  await act(async()=>el.querySelector<HTMLButtonElement>('.radar-async-state button')!.click());
+  expect(el.textContent).toContain('No records available');expect(el.querySelector('[role="alert"]')).toBeNull();
+ });
+ it('shows permission denial instead of waiting indefinitely for receipt evidence',async()=>{
+  vi.spyOn(globalThis,'fetch').mockResolvedValue(new Response('{}',{status:403}));
+  await act(async()=>root.render(<ReceiptDetailPage receiptId="receipt_private_qualification"/>));
+  expect(el.querySelector('.state-permission-denied')?.textContent).toContain('Evidence access required');
+  expect(el.textContent).not.toContain('Loading evidence-backed detail.');
+ });
+
 });

@@ -1,0 +1,264 @@
+{
+  "environment": "Local built Vite preview; fresh Chromium contexts at 390px, no CPU/network throttling; not real-device or production telemetry",
+  "result": [
+    {
+      "route": "/",
+      "navigation": {
+        "domContentLoadedMs": 70.80000000447035,
+        "loadMs": 70.90000000596046
+      },
+      "paint": [
+        {
+          "name": "first-paint",
+          "ms": 64
+        },
+        {
+          "name": "first-contentful-paint",
+          "ms": 64
+        }
+      ],
+      "layoutShift": 0,
+      "resources": [
+        {
+          "name": "index-DBXYeSsE.js",
+          "transferSize": 68451,
+          "duration": 31.5
+        },
+        {
+          "name": "jsx-runtime-BHwPObl3.js",
+          "transferSize": 3515,
+          "duration": 17.900000005960464
+        },
+        {
+          "name": "index-DcxSjxzz.css",
+          "transferSize": 7233,
+          "duration": 20
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "route": "/spend-terminal",
+      "navigation": {
+        "domContentLoadedMs": 60.20000000298023,
+        "loadMs": 60.20000000298023
+      },
+      "paint": [
+        {
+          "name": "first-paint",
+          "ms": 44
+        },
+        {
+          "name": "first-contentful-paint",
+          "ms": 44
+        }
+      ],
+      "layoutShift": 0,
+      "resources": [
+        {
+          "name": "index-DBXYeSsE.js",
+          "transferSize": 68451,
+          "duration": 32.399999998509884
+        },
+        {
+          "name": "jsx-runtime-BHwPObl3.js",
+          "transferSize": 3515,
+          "duration": 7.800000004470348
+        },
+        {
+          "name": "index-DcxSjxzz.css",
+          "transferSize": 7233,
+          "duration": 10.200000002980232
+        },
+        {
+          "name": "radarApp-xRqqNWH5.js",
+          "transferSize": 246858,
+          "duration": 72.79999999701977
+        },
+        {
+          "name": "narrativeMetadata-D2V3qhe4.js",
+          "transferSize": 55751,
+          "duration": 34.5
+        },
+        {
+          "name": "rhChain-c7AzPMYA.js",
+          "transferSize": 22967,
+          "duration": 19.19999999552965
+        },
+        {
+          "name": "rhChainContract-DqMVGhU1.js",
+          "transferSize": 473,
+          "duration": 9.099999994039536
+        },
+        {
+          "name": "rhChainUi-DakhY7Rx.js",
+          "transferSize": 3691,
+          "duration": 14.5
+        },
+        {
+          "name": "rhChainPortableCard-CLZe2zqp.js",
+          "transferSize": 854,
+          "duration": 18.599999994039536
+        },
+        {
+          "name": "radarApp-Bh2iiU1b.css",
+          "transferSize": 73225,
+          "duration": 40.5
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "route": "/solana",
+      "navigation": {
+        "domContentLoadedMs": 52.19999999552965,
+        "loadMs": 52.19999999552965
+      },
+      "paint": [
+        {
+          "name": "first-paint",
+          "ms": 40
+        },
+        {
+          "name": "first-contentful-paint",
+          "ms": 40
+        }
+      ],
+      "layoutShift": 0,
+      "resources": [
+        {
+          "name": "index-DBXYeSsE.js",
+          "transferSize": 68451,
+          "duration": 28.399999998509884
+        },
+        {
+          "name": "jsx-runtime-BHwPObl3.js",
+          "transferSize": 3515,
+          "duration": 9.299999997019768
+        },
+        {
+          "name": "index-DcxSjxzz.css",
+          "transferSize": 7233,
+          "duration": 10.699999995529652
+        },
+        {
+          "name": "radarApp-xRqqNWH5.js",
+          "transferSize": 246858,
+          "duration": 113.20000000298023
+        },
+        {
+          "name": "narrativeMetadata-D2V3qhe4.js",
+          "transferSize": 55751,
+          "duration": 29.5
+        },
+        {
+          "name": "rhChainContract-DqMVGhU1.js",
+          "transferSize": 473,
+          "duration": 4.5
+        },
+        {
+          "name": "rhChainUi-DakhY7Rx.js",
+          "transferSize": 3691,
+          "duration": 8.899999998509884
+        },
+        {
+          "name": "rhChain-c7AzPMYA.js",
+          "transferSize": 22967,
+          "duration": 17.600000001490116
+        },
+        {
+          "name": "rhChainPortableCard-CLZe2zqp.js",
+          "transferSize": 854,
+          "duration": 17.099999994039536
+        },
+        {
+          "name": "radarApp-Bh2iiU1b.css",
+          "transferSize": 73225,
+          "duration": 65.5
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "route": "/4663/reflexive",
+      "navigation": {
+        "domContentLoadedMs": 65.10000000149012,
+        "loadMs": 65.10000000149012
+      },
+      "paint": [
+        {
+          "name": "first-paint",
+          "ms": 48
+        },
+        {
+          "name": "first-contentful-paint",
+          "ms": 48
+        }
+      ],
+      "layoutShift": 0,
+      "resources": [
+        {
+          "name": "index-DBXYeSsE.js",
+          "transferSize": 68451,
+          "duration": 37.399999998509884
+        },
+        {
+          "name": "jsx-runtime-BHwPObl3.js",
+          "transferSize": 3515,
+          "duration": 8.200000002980232
+        },
+        {
+          "name": "index-DcxSjxzz.css",
+          "transferSize": 7233,
+          "duration": 13.300000004470348
+        },
+        {
+          "name": "radarApp-xRqqNWH5.js",
+          "transferSize": 246858,
+          "duration": 77
+        },
+        {
+          "name": "rhChain-c7AzPMYA.js",
+          "transferSize": 22967,
+          "duration": 19.5
+        },
+        {
+          "name": "narrativeMetadata-D2V3qhe4.js",
+          "transferSize": 55751,
+          "duration": 31.200000002980232
+        },
+        {
+          "name": "rhChainUi-DakhY7Rx.js",
+          "transferSize": 3691,
+          "duration": 9.299999997019768
+        },
+        {
+          "name": "rhChainContract-DqMVGhU1.js",
+          "transferSize": 473,
+          "duration": 15.899999998509884
+        },
+        {
+          "name": "rhChainPortableCard-CLZe2zqp.js",
+          "transferSize": 854,
+          "duration": 21.899999998509884
+        },
+        {
+          "name": "radarApp-Bh2iiU1b.css",
+          "transferSize": 73225,
+          "duration": 38.70000000298023
+        },
+        {
+          "name": "rhChainReflexiveRadarPage-C-ODyXbY.css",
+          "transferSize": 2456,
+          "duration": 4.700000002980232
+        },
+        {
+          "name": "rhChainReflexiveRadarPage-B1TSfhJX.js",
+          "transferSize": 9262,
+          "duration": 5.600000001490116
+        }
+      ],
+      "overflow": false
+    }
+  ]
+}

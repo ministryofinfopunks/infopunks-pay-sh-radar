@@ -91,8 +91,8 @@ function SolanaRadarHomepageHero() {
       <h1 id="radar-home-title">Proof before agent spend.</h1>
       <p className="radar-universal-lede">Route intelligence, provider evidence, narrative memory and machine-market infrastructure for the Solana economy.</p>
       <div className="panel-actions radar-universal-actions">
-        <a className="execute compact" href="#global-pulse">Open Radar</a>
-        <a className="execute compact secondary" href="#preflight">Run Preflight</a>
+        <a className="execute compact" href="#preflight">Run Preflight</a>
+        <a className="execute compact secondary" href="#global-pulse">Open Radar</a>
       </div>
       <p className="radar-hero-supporting-line">Pay.sh is the spend rail. Radar is the evidence layer.</p>
     </div>
@@ -10756,9 +10756,6 @@ function PreflightConsole({
         <StatusPill state={result?.recommended_route ? 'healthy' : result ? 'critical' : status === 'error' ? 'watch' : 'unknown'} />
       </div>
     </div>
-    <div className="preflight-examples" aria-label="Preflight examples">
-      {examples.map((example) => <button key={example.label} type="button" onClick={() => onExample(example.body)}>{example.label}</button>)}
-    </div>
     <div className="preflight-form">
       <label className="command-input preflight-editor">
         <span>preflight JSON input</span>
@@ -10776,6 +10773,10 @@ function PreflightConsole({
     {!result && status !== 'loading' && !error && <EmptyState title="No preflight decision yet." body="Before your agent pays, it checks Infopunks for route intelligence." />}
     {status === 'loading' && <div className="preflight-skeleton" aria-label="Preflight loading"><span /><span /><span /></div>}
     {result && <PreflightResultView result={result} curl={curl} />}
+    <div className="preflight-examples" aria-label="Preflight examples">
+      {examples.map((example) => <button key={example.label} type="button" onClick={() => onExample(example.body)}>{example.label}</button>)}
+    </div>
+
   </section>;
 }
 

@@ -1,0 +1,10 @@
+{
+  "provenance": "Recorded executed checks for this migration on 2026-10-12; this file is an evidence snapshot, not a test runner.",
+  "typecheck": { "command": "npm run typecheck", "status": "passed" },
+  "lint": { "command": "npm run lint", "status": "passed" },
+  "build": { "command": "npm run build", "status": "passed", "warning": "Existing deep route chunk exceeds 500 kB" },
+  "designDrift": { "command": "npm run check:design", "status": "passed", "routePatterns": 129 },
+  "diffCheck": { "command": "git diff --check", "status": "passed" },
+  "fullSuite": { "command": "npm test -- --maxWorkers=4 --testTimeout=15000", "filesPassed": 252, "filesSkipped": 9, "testsPassed": 1869, "testsSkipped": 19 },
+  "finalProofRegression": { "command": "npx vitest run tests/radar-design-system.test.tsx tests/loop-page.test.tsx tests/proof-check-page.test.tsx --maxWorkers=2 --testTimeout=15000", "filesPassed": 3, "testsPassed": 23 }
+}

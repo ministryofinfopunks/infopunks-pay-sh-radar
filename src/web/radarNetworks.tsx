@@ -301,10 +301,10 @@ export function RadarProductNavigation({
     ...navigation.overflowGroups
   ];
 
-  if (inheritedShell && !shellOwner) return (onOpenCommandPalette || viewSettings) ? <div className="radar-local-controls" aria-label="Terminal view controls">
+  if (inheritedShell && !shellOwner) return (onOpenCommandPalette || viewSettings) ? <details className="radar-local-controls"><summary>Terminal view controls</summary><div>
     {onOpenCommandPalette && <button className="execute secondary" onClick={onOpenCommandPalette} type="button">Commands ⌘K</button>}
     {viewSettings && <><button className="execute secondary" type="button" aria-pressed={viewSettings.agentMode} onClick={viewSettings.onToggleAgentMode}>Agent mode</button><button className="execute secondary" type="button" aria-pressed={viewSettings.densityMode === 'dense'} onClick={viewSettings.onToggleDensity}>Dense view</button></>}
-  </div> : null;
+  </div></details> : null;
   return <nav className={`global-toolbar radar-product-navigation context-${context} ${className}`.trim()} aria-label={`${context === 'universal' ? 'Infopunks Radar' : RADAR_NETWORKS[context].contextLabel} navigation`}>
     <RadarShellContext.Provider value={false}><RadarHeaderIdentity context={context} /></RadarShellContext.Provider>
     <div className="terminal-nav radar-primary-navigation" aria-label="Primary destinations">

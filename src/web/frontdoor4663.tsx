@@ -33,7 +33,7 @@ export function FreshnessBadge({ at, pending }: { at?: string | null; pending?: 
 
 export function EvidenceBadge({ state }: { state?: string | null }) {
   const raw = (state ?? '').toUpperCase();
-  if (['FRESH', 'PUBLISHED', 'AVAILABLE'].includes(raw)) return <RadarStatus state={raw === 'PUBLISHED' ? 'recorded' : 'unavailable'} detail={raw === 'PUBLISHED' ? 'Published · verification not established' : `${raw.toLowerCase()} · verification not established`} />;
+  if (['FRESH', 'PUBLISHED', 'AVAILABLE'].includes(raw)) return <RadarStatus state={raw === 'PUBLISHED' ? 'recorded' : 'unverified'} detail={raw === 'PUBLISHED' ? 'Published · verification not established' : `${raw.toLowerCase()} · verification not established`} />;
   const label = evidenceState(state);
   return <span className={`fd-evidence fd-evidence-${label.toLowerCase().replaceAll(' ', '-')}`} data-evidence-state={label}>{label}</span>;
 }

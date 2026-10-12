@@ -1,0 +1,20 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+const dir='docs/design-system/evidence/';
+const runs=['chromium-qualification.json','chromium-recheck-qualification.json','chromium-core-final-qualification.json','chromium-table-final-qualification.json','chromium-proof-final-qualification.json'];
+const latest=new Map();
+for(const file of runs) for(const record of JSON.parse(readFileSync(dir+file,'utf8'))) latest.set(record.route,{...record,source:file});
+const results=[...latest.values()].sort((a,b)=>a.route.localeCompare(b.route));
+const failures=results.filter(r=>r.failure||r.errors?.length||r.violations?.length||!r.menuCheck||r.layouts?.some(l=>l.scroll>l.client+2));
+writeFileSync(dir+'consolidated-qualification.json',JSON.stringify({method:'Latest executed scoped check per route; original runs retained',routes:results.length,failures:failures.length,results},null,2)+'\n');
+const patterns=JSON.parse(readFileSync('docs/design-system/route-patterns.json','utf8'));
+const regex=pattern=>new RegExp(pattern.slice(1,pattern.lastIndexOf('/')));
+writeFileSync('docs/design-system/route-inventory.md',`# Radar route coverage matrix\n\nDiscovered from the actual TSX dispatchers using TypeScript AST: ${patterns.length} distinct anchored patterns, including aliases, dynamic details, subviews and the internal review console. Every UI match inherits RadarAppShell through main.tsx. API/JSON/health endpoints are excluded. ${results.length} representative concrete URLs were rendered at 320/375/390/430/768/1024/1440 in Chromium. Dynamic examples include missing records, plus existing compatibility records on the core journey. Each regex may represent arbitrarily many identifiers; this is representative coverage, not all possible records.\n\nAll patterns inherit shell/tokens/identity. The matrix records the latest executed browser outcome for matching examples. The original per-route JSON, axe details and viewport results remain inspectable under evidence. Qualification does not imply real-device, Safari, authenticated-production or content-provenance approval. See qualification.md.\n\n| Actual router pattern | Dispatcher | Shared foundation | Matching Chromium examples / status |\n| --- | --- | --- | --- |\n`+patterns.map(p=>{
+ const expression=regex(p.pattern);const matching=results.filter(r=>expression.test(r.route)||expression.test(r.route+'/'));
+ const failed=matching.some(r=>failures.includes(r));
+ return `| \`${p.pattern.replaceAll('|','&#124;')}\` | ${p.file}:${p.line} | Implemented | ${matching.length} / ${matching.length ? failed ? 'FAIL' : 'PASS (7 widths)' : 'NO MATCH — review required'} |`;
+}).join('\n')+'\n');
+const unmatched=patterns.filter(p=>!results.some(r=>regex(p.pattern).test(r.route)||regex(p.pattern).test(r.route+'/')));
+const summary={baseline:'dfe089b',branch:'codex/radar-design-system',commands:JSON.parse(readFileSync(dir+'automated-checks.json','utf8')),chromium:{routes:results.length,viewports:[320,375,390,430,768,1024,1440],routeViewportChecks:results.length*7,failures:failures.length,unmatchedRouterPatterns:unmatched.length},journeys:JSON.parse(readFileSync(dir+'journey-qualification.json','utf8')),limitations:['Frozen macOS WebKit runtime launched but failed to open a page within 30-second diagnostic','Real iOS Safari, Android Chrome, VoiceOver/TalkBack and virtual keyboard not available','Authenticated production tenant/private receipt and wallet signing flows not run','Skipped database/infrastructure tests not certified'],status:failures.length||unmatched.length?'BLOCKED: responsive failures remain':'Chromium UI qualification passed; Safari/real-device/production qualification not claimed'};
+writeFileSync(dir+'validation-summary.json',JSON.stringify(summary,null,2)+'\n');
+console.log(JSON.stringify({routes:results.length,failures:failures.length,unmatchedPatterns:unmatched.map(p=>p.pattern)}));
+if(failures.length||unmatched.length)process.exitCode=1;

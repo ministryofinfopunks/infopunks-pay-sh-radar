@@ -267,7 +267,7 @@ describe('agent mode and command palette', () => {
 
     const header = container.querySelector('.site-header');
     const primaryLabels = Array.from(header?.querySelectorAll('[aria-label="Primary destinations"] a') ?? []).map((node) => node.textContent?.trim()).filter(Boolean);
-    expect(primaryLabels).toEqual(['Overview', 'Providers', 'Routes', 'Receipts', 'Benchmarks']);
+    expect(primaryLabels).toEqual(['Overview', 'Providers', 'Routes', 'Services', 'Receipts', 'Benchmarks']);
     expect(header?.querySelector('button[aria-label="Solana network. Switch Radar network"]')).not.toBeNull();
     expect(container.querySelector('h1')?.textContent).toBe('Proof before agent spend.');
     expect(container.textContent).toContain('Route intelligence, provider evidence, narrative memory and machine-market infrastructure for the Solana economy.');
@@ -275,6 +275,7 @@ describe('agent mode and command palette', () => {
     expect(container.querySelector('a[href="#global-pulse"]')?.textContent).toContain('Open Radar');
     expect(container.querySelector('a[href="#preflight"]')?.textContent).toContain('Run Preflight');
     expect(container.querySelector('section#explore-solana-radar')).not.toBeNull();
+    expect(container.querySelector('#preflight')?.compareDocumentPosition(container.querySelector('#explore-solana-radar')!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(container.textContent).toContain('Explore Solana Radar');
     expect(document.title).toBe('Solana Radar | Infopunks Radar');
     expect(document.querySelector('meta[name="description"]')?.getAttribute('content')).toBe('Evidence, route intelligence, provider evaluation and machine-market infrastructure for the Solana agentic economy.');
