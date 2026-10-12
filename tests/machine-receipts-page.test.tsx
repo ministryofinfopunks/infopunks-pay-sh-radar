@@ -314,7 +314,7 @@ describe('machine receipts page', () => {
     installFetch([baseReceipt]);
     root = await renderPage(container);
 
-    const link = container.querySelector('a[href="/#methodology"]');
+    const link = container.querySelector('a[href="/solana#methodology"]');
     expect(link?.textContent).toBe('Methodology: Machine Economy evidence ladder');
   });
 
