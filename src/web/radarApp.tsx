@@ -10771,7 +10771,7 @@ function PreflightConsole({
     </div>
     {error && <p className="route-state error">{error}</p>}
     {!result && status !== 'loading' && !error && <EmptyState title="No preflight decision yet." body="Before your agent pays, it checks Infopunks for route intelligence." />}
-    {status === 'loading' && <div className="preflight-skeleton" aria-label="Preflight loading"><span /><span /><span /></div>}
+    {status === 'loading' && <div className="preflight-skeleton" role="status" aria-label="Preflight loading"><span /><span /><span /></div>}
     {result && <PreflightResultView result={result} curl={curl} />}
     <div className="preflight-examples" aria-label="Preflight examples">
       {examples.map((example) => <button key={example.label} type="button" onClick={() => onExample(example.body)}>{example.label}</button>)}
@@ -11751,7 +11751,7 @@ function AgentBenchmarkApiPanel() {
           <h3>Bundle Planner</h3>
         </div>
         <p className="panel-caption">Bundles are non-executing spend recipes. Plans map intent and constraints to included, review-required, and blocked steps. Radar does not execute paid APIs from bundle plans.</p>
-        {bundlePlannerStatus === 'loading' && <div className="preflight-skeleton" aria-label="Bundle planner loading"><span /><span /><span /></div>}
+        {bundlePlannerStatus === 'loading' && <div className="preflight-skeleton" role="status" aria-label="Bundle planner loading"><span /><span /><span /></div>}
         {bundlePlannerStatus === 'error' && <EmptyState title="Bundle planner examples unavailable." body="Planner examples are documentation-only previews. Retry when bundle plan APIs are reachable." />}
         <div className="bundle-planner-card-grid">
           {bundlePlannerExamples.map((example) => {
@@ -11788,7 +11788,7 @@ function AgentBenchmarkApiPanel() {
         <p className="panel-caption">Bundle run history records controlled Harness proof evolution, not benchmark claims.</p>
         <p className="panel-caption">This run is caveated because observed cost and pay_cli HTTP status were unavailable, and one executed step had an empty source map.</p>
         <p className="panel-caption"><b>winner_claimed=false</b></p>
-        {bundleRunStatus === 'loading' && <div className="preflight-skeleton" aria-label="Bundle run ledger loading"><span /><span /><span /></div>}
+        {bundleRunStatus === 'loading' && <div className="preflight-skeleton" role="status" aria-label="Bundle run ledger loading"><span /><span /><span /></div>}
         {bundleRunStatus === 'error' && <>
           <p className="route-state warn">Bundle Run Ledger unavailable</p>
           <p className="route-state warn">Bundle Run History unavailable</p>
