@@ -15,11 +15,13 @@ describe('unified homepage performance and honest capability boundary', () => {
     expect(fetch).not.toHaveBeenCalled();
     expect(container.textContent).toContain('Before your agent spends, check the evidence.');
     expect(container.textContent).toContain('Intelligence before the wallet acts.');
-    expect(container.querySelector('.radar-home-actions a')?.getAttribute('href')).toBe('/spend-terminal');
-    expect(container.querySelector('.rh a')?.textContent).toContain('Inspect a Market');
+    expect(container.querySelector('.radar-home-route-form')?.getAttribute('action')).toBe('/spend-terminal');
+    expect(container.querySelector('.radar-home-route-form')?.getAttribute('method')).toBe('get');
+    expect(container.querySelector('button[type="submit"]')?.textContent).toContain('Run Spend Check');
+    expect(container.querySelector('.rh a')?.getAttribute('aria-label')).toContain('Inspect a Market');
     expect(container.querySelector('.rh a')?.getAttribute('href')).toBe('/rh-chain-signal-desk/market');
-    expect(container.textContent).toContain('Read-only market inspection');
-    expect(container.querySelectorAll('.radar-home-proof-grid li')).toHaveLength(4);
+    expect(container.textContent).toContain('Read-only inspection');
+    expect(container.querySelectorAll('.radar-lifecycle li')).toHaveLength(4);
     expect(container.textContent).not.toContain('Live intelligence available');
     expect(performance.getEntriesByName('radar_homepage_rendered')).toHaveLength(1);
   });

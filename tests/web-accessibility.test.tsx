@@ -283,7 +283,7 @@ describe('web accessibility landmarks', () => {
     expect(container.querySelector('section[aria-labelledby="ecosystem-zone-title"]')).not.toBeNull();
     expect(container.querySelector('section[aria-labelledby="provider-zone-title"]')).not.toBeNull();
 
-    expect(container.querySelector('a[href="/#proof"]')?.textContent).toContain('Proof');
+    expect(container.querySelector('a[href="/receipts"]')?.textContent).toContain('Proof');
     expect(container.querySelector('input[aria-label="Filter providers by name tag FQN or category"]')).not.toBeNull();
     expect(container.querySelector('select[aria-label="Sort providers"]')).not.toBeNull();
     expect(container.querySelector('[role="group"][aria-label="Filter providers by category"]')).not.toBeNull();
