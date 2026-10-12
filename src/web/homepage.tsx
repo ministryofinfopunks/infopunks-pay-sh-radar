@@ -42,7 +42,7 @@ export function UniversalHomepage() {
             </form>
             <p className="radar-home-availability">No wallet required to explore. Advisory checks; no automatic payment.</p>
           </div>
-          <div className="radar-signal-portrait" aria-hidden="true"><img src="/artwork/signal-punk.webp" alt="" width="533" height="800" fetchPriority="high" /><span className="portrait-note">INTELLIGENCE<br />BEFORE<br />THE WALLET<br />ACTS.</span><span className="portrait-note portrait-note-bottom">VERIFIABLE<br />EVIDENCE.<br />ACCOUNTABLE<br />DECISIONS.</span></div>
+          <div className="radar-signal-portrait" aria-hidden="true"><picture><source media="(min-width: 1101px)" srcSet="/artwork/signal-punk.webp" /><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" width="533" height="800" fetchPriority="high" /></picture><span className="portrait-note">INTELLIGENCE<br />BEFORE<br />THE WALLET<br />ACTS.</span><span className="portrait-note portrait-note-bottom">VERIFIABLE<br />EVIDENCE.<br />ACCOUNTABLE<br />DECISIONS.</span></div>
           <JudgmentPreview />
         </section>
         <section className="radar-home-proof terminal-panel" id="proof" aria-labelledby="radar-home-proof-title">

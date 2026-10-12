@@ -189,3 +189,11 @@ html { scroll-behavior: smooth; }
   .radar-home-proof-grid li { min-height: 82px; }
   .radar-protocol-boundary { margin-top: 8px; }
 }
+
+@media (max-width: 680px) {
+  .radar-homepage :is(p,small,.terminal-state,.radar-evidence-state,.radar-evidence-list summary,.radar-preview-receipt strong) { font-size: 12px; }
+  .radar-home-developers pre { font-size: 12px; }
+  .radar-evidence-list details p { font-size: 12px; }
+  .radar-home-footer { font-size: 12px; }
+  .radar-principles::after { display: none; }
+}
