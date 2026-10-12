@@ -1,0 +1,14 @@
+# Integration readiness — HOLD
+
+Recovery base is the requested 068df2356834a97eecf8c5192b16a5036dca1a09 on main dfe089b. It provides universal route coverage and a reviewed UI architecture; it is not the current security/release baseline. Approved visual source 205e3c9 is reused selectively; none of its backend changes are imported.
+
+The independently evolving release integration worktree was inspected read-only. Its `codex/radar-release-integration-r2` ref resolved to c1f0d3d752ff9f8a7684d24c73bc78a22c0c0db9 during this audit; it had been at 41e4596 at initial worktree inspection. This demonstrates why a moving branch name cannot be treated as a frozen qualification certificate. The historical ledger records exact candidate 541d002 and 566 suites / 2,045 tests, not a rerun on this recovery source. The release lineage adds tenant identity, canonical Judgment contracts, wallet/payment authorization and stricter receipt/privacy boundaries. The R2.1 accessibility review still records manual/AT qualification limitations.
+
+Do not merge this older-baseline branch wholesale into release integration. Specifically preserve the release baseline's `spendTerminalPage.tsx`, `judgmentCheckClient.ts`, canonical `preSpendBuilderPages.tsx` integration, tenant authentication, payment cancellation/replay/reconciliation and privacy handling. Its dedicated Spend Terminal must inherit RadarAppShell and the cyan token aliases when these UI changes are integrated. Do not substitute the legacy catalog diagnostic terminal from this baseline for that canonical workflow.
+
+Safe forward integration requires freezing the independently reviewed release SHA, applying presentation-only shell/token/homepage/CSS changes to it, reconciling its existing product header/wayfinding and indexed/lifecycle components, and rerunning its contract, privacy, PostgreSQL, wallet and browser suites. No release, security or policy gate is waived by the UI checks here. Existing migration histories remain untouched. A merge/conflict rehearsal using temporary git merge-tree is recorded separately; conflicts are not silently resolved by selecting older files.
+
+Checkpoint 1: review supplied reference against homepage candidates at desktop/mobile, including deliberate improvements to text sizes and honest pre-check states.
+Checkpoint 2: review remaining route candidates for a shared identity with their distinct layouts, then qualify the same presentation on the frozen release baseline's canonical Spend Terminal.
+
+No merge/deploy is performed. Initial development-server mappings are preserved in the audit. After continuation, 5178 and 8799 were no longer listening; no historical worktree was changed. The recovery frontend preview was restarted at 5182, with its existing 8799 backend target unavailable. Current live API journeys remain HOLD until the selected backend is restored and requalified.

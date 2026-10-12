@@ -1,0 +1,1937 @@
+[
+  {
+    "route": "/abundance",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Abundance Desk"
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "P",
+            "class": "section-kicker"
+          }
+        ]
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": []
+  },
+  {
+    "route": "/machine-economy-snapshot",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Machine Market Radar Snapshot"
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": []
+  },
+  {
+    "route": "/machine-execution-blockers",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Execution Blockers"
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-blocker-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-blocker-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-blocker-row"
+          }
+        ]
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-blocker-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-blocker-row"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": []
+  },
+  {
+    "route": "/machine-execution-shortlist",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Execution Shortlist"
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-shortlist-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-shortlist-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-shortlist-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": []
+  },
+  {
+    "route": "/machine-first-safe-routes",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Machine First Safe Route Queue"
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-first-safe-route-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-first-safe-route-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-first-safe-route-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-first-safe-route-row"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": []
+  },
+  {
+    "route": "/machine-market",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Machine Market Command Center"
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "DIV",
+            "class": "machine-service-row selected"
+          }
+        ]
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "DIV",
+            "class": "machine-service-row selected"
+          },
+          {
+            "tag": "SPAN",
+            "class": "machine-policy-risk"
+          }
+        ]
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": []
+  },
+  {
+    "route": "/machine-market-changelog",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Machine Market Changelog"
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-changelog-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-changelog-row"
+          }
+        ]
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-changelog-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-changelog-row"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-changelog-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-changelog-row"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-changelog-row"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": []
+  },
+  {
+    "route": "/machine-market-map",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Machine Market Map"
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": []
+  },
+  {
+    "route": "/machine-no-claim-ledger",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Machine No-Claim Ledger"
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": []
+  },
+  {
+    "route": "/machine-rail-coverage",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Machine Execution Rail Coverage"
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-rail-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-rail-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-rail-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": []
+  },
+  {
+    "route": "/machine-receipts",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Machine Receipts"
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-receipt-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-receipt-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-receipt-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "DIV",
+            "class": "machine-receipt-row review"
+          }
+        ]
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": []
+  },
+  {
+    "route": "/machine-route-risk-matrix",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Route-Level Risk Matrix"
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-route-risk-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-route-risk-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "machine-service-row machine-route-risk-row head"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          }
+        ]
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": []
+  },
+  {
+    "route": "/narratives/abundance-desk",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Abundance Desk"
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "P",
+            "class": "section-kicker"
+          }
+        ]
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": []
+  },
+  {
+    "route": "/rh-chain-signal-desk/launchpad-observatory",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "RH Chain Launchpad Observatory"
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "TABLE",
+            "class": ""
+          },
+          {
+            "tag": "THEAD",
+            "class": ""
+          },
+          {
+            "tag": "TR",
+            "class": ""
+          },
+          {
+            "tag": "TH",
+            "class": ""
+          },
+          {
+            "tag": "TH",
+            "class": ""
+          },
+          {
+            "tag": "TH",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "TABLE",
+            "class": ""
+          },
+          {
+            "tag": "THEAD",
+            "class": ""
+          },
+          {
+            "tag": "TR",
+            "class": ""
+          },
+          {
+            "tag": "TH",
+            "class": ""
+          },
+          {
+            "tag": "TH",
+            "class": ""
+          },
+          {
+            "tag": "TH",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "TABLE",
+            "class": ""
+          },
+          {
+            "tag": "THEAD",
+            "class": ""
+          },
+          {
+            "tag": "TR",
+            "class": ""
+          },
+          {
+            "tag": "TH",
+            "class": ""
+          },
+          {
+            "tag": "TH",
+            "class": ""
+          },
+          {
+            "tag": "TH",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "TABLE",
+            "class": ""
+          },
+          {
+            "tag": "THEAD",
+            "class": ""
+          },
+          {
+            "tag": "TR",
+            "class": ""
+          },
+          {
+            "tag": "TH",
+            "class": ""
+          },
+          {
+            "tag": "TH",
+            "class": ""
+          },
+          {
+            "tag": "TH",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "TABLE",
+            "class": ""
+          },
+          {
+            "tag": "THEAD",
+            "class": ""
+          },
+          {
+            "tag": "TR",
+            "class": ""
+          },
+          {
+            "tag": "TH",
+            "class": ""
+          },
+          {
+            "tag": "TBODY",
+            "class": ""
+          },
+          {
+            "tag": "TR",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": []
+  },
+  {
+    "route": "/signals/qualification-missing-record",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Intelligence before the wallet acts."
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "endpoint-flags"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "DIV",
+            "class": "key-values"
+          },
+          {
+            "tag": "P",
+            "class": ""
+          },
+          {
+            "tag": "B",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".bundle-plan-card:nth-child(1) > p:nth-child(2) > .agent-chip-row"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.18 (foreground color: #607c6e, background color: #081113, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bundle-plan-card:nth-child(2) > p:nth-child(2) > .agent-chip-row"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.18 (foreground color: #607c6e, background color: #081113, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bundle-plan-card:nth-child(3) > p:nth-child(2) > .agent-chip-row"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.18 (foreground color: #607c6e, background color: #081113, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/solana",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Proof before agent spend."
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": [
+          {
+            "tag": "DIV",
+            "class": "endpoint-flags"
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "SPAN",
+            "class": ""
+          },
+          {
+            "tag": "DIV",
+            "class": "key-values"
+          },
+          {
+            "tag": "P",
+            "class": ""
+          },
+          {
+            "tag": "B",
+            "class": ""
+          }
+        ]
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".bundle-plan-card:nth-child(1) > p:nth-child(2) > .agent-chip-row"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.18 (foreground color: #607c6e, background color: #081113, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bundle-plan-card:nth-child(2) > p:nth-child(2) > .agent-chip-row"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.18 (foreground color: #607c6e, background color: #081113, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bundle-plan-card:nth-child(3) > p:nth-child(2) > .agent-chip-row"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.18 (foreground color: #607c6e, background color: #081113, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  }
+]

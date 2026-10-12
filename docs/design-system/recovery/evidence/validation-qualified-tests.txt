@@ -1,0 +1,13 @@
+
+> infopunks-pay-sh-radar@0.1.0 test
+> vitest run --maxWorkers=2 --testTimeout=15000
+
+
+ RUN  v4.1.5 /Users/ahdilm/.codex/worktrees/radar-terminal-identity-recovery/Infopunks Pay.sh Intelligence Terminal
+
+
+ Test Files  252 passed | 9 skipped (261)
+      Tests  1867 passed | 19 skipped (1886)
+   Start at  20:22:15
+   Duration  100.66s (transform 7.61s, setup 0ms, import 78.76s, tests 73.64s, environment 24.42s)
+

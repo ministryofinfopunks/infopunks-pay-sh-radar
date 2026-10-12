@@ -1,0 +1,34 @@
+Auto-merging package.json
+Auto-merging src/web/frontdoor4663.tsx
+CONFLICT (content): Merge conflict in src/web/frontdoor4663.tsx
+Auto-merging src/web/homepage.css
+CONFLICT (content): Merge conflict in src/web/homepage.css
+Auto-merging src/web/homepage.tsx
+CONFLICT (content): Merge conflict in src/web/homepage.tsx
+Auto-merging src/web/main.tsx
+CONFLICT (content): Merge conflict in src/web/main.tsx
+Auto-merging src/web/preSpendBuilderPages.tsx
+CONFLICT (content): Merge conflict in src/web/preSpendBuilderPages.tsx
+Auto-merging src/web/productPrimitives.tsx
+CONFLICT (add/add): Merge conflict in src/web/productPrimitives.tsx
+Auto-merging src/web/radarApp.tsx
+CONFLICT (content): Merge conflict in src/web/radarApp.tsx
+Auto-merging src/web/radarNavigationCatalog.ts
+CONFLICT (content): Merge conflict in src/web/radarNavigationCatalog.ts
+Auto-merging src/web/radarNetworks.tsx
+CONFLICT (content): Merge conflict in src/web/radarNetworks.tsx
+Auto-merging src/web/rh4663.css
+CONFLICT (content): Merge conflict in src/web/rh4663.css
+Auto-merging src/web/rhChainReflexiveRadarPage.tsx
+CONFLICT (content): Merge conflict in src/web/rhChainReflexiveRadarPage.tsx
+Auto-merging src/web/rhChainSignalDeskV2.tsx
+CONFLICT (content): Merge conflict in src/web/rhChainSignalDeskV2.tsx
+Auto-merging src/web/styles.css
+CONFLICT (content): Merge conflict in src/web/styles.css
+Auto-merging tests/agent-mode-command-palette.test.tsx
+Auto-merging tests/homepage-performance.test.tsx
+CONFLICT (content): Merge conflict in tests/homepage-performance.test.tsx
+Auto-merging tests/radar-network-navigation.test.tsx
+CONFLICT (content): Merge conflict in tests/radar-network-navigation.test.tsx
+Auto-merging tests/web-accessibility.test.tsx
+CONFLICT (content): Merge conflict in tests/web-accessibility.test.tsx

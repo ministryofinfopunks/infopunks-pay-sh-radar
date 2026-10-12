@@ -1,0 +1,13 @@
+
+> infopunks-pay-sh-radar@0.1.0 test:ui:journeys
+> node scripts/qualify-radar-journeys.cjs
+
+API failure → retry → honest empty results
+403 receipt access preserves permission boundary
+200% text scaling at 320px without page overflow
+Touch submission → loading → canonical ALLOW with pending execution and missing evaluation
+Keyboard focus remains visible
+Mobile navigation Escape returns focus
+Network switching keyboard path
+Reduced motion has no active animation
+Long titles wrap at 320px

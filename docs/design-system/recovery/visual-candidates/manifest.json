@@ -1,0 +1,115 @@
+{
+  "status": "REVIEW_REQUIRED",
+  "sourceSha": "5796e3d31711a6c6a81b4ad4f499a6710077c155",
+  "fixture": "All API responses controlled; fixed time; system fonts; reduced motion; Chromium",
+  "views": [
+    {
+      "route": "/",
+      "width": 390,
+      "file": "home-390.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/",
+      "width": 1440,
+      "file": "home-1440.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/solana",
+      "width": 390,
+      "file": "solana-390.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/solana",
+      "width": 1440,
+      "file": "solana-1440.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/spend-terminal",
+      "width": 390,
+      "file": "spend-terminal-390.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/spend-terminal",
+      "width": 1440,
+      "file": "spend-terminal-1440.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/receipts/judgment_visual_missing",
+      "width": 390,
+      "file": "receipts-judgment_visual_missing-390.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/receipts/judgment_visual_missing",
+      "width": 1440,
+      "file": "receipts-judgment_visual_missing-1440.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/receipts/receipt_visual_missing",
+      "width": 390,
+      "file": "receipts-receipt_visual_missing-390.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/receipts/receipt_visual_missing",
+      "width": 1440,
+      "file": "receipts-receipt_visual_missing-1440.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/rh-chain-signal-desk",
+      "width": 390,
+      "file": "rh-chain-signal-desk-390.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/rh-chain-signal-desk",
+      "width": 1440,
+      "file": "rh-chain-signal-desk-1440.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/routes",
+      "width": 390,
+      "file": "routes-390.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/routes",
+      "width": 1440,
+      "file": "routes-1440.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/loops",
+      "width": 390,
+      "file": "loops-390.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/loops",
+      "width": 1440,
+      "file": "loops-1440.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/developers",
+      "width": 390,
+      "file": "developers-390.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    },
+    {
+      "route": "/developers",
+      "width": 1440,
+      "file": "developers-1440.png",
+      "state": "No check run; GET evidence unavailable (controlled 503), no fabricated records"
+    }
+  ]
+}

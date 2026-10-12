@@ -1,0 +1,10 @@
+
+> infopunks-pay-sh-radar@0.1.0 test:ui
+> node scripts/qualify-radar-ui.cjs
+
+Inventory: 137 concrete route/alias/detail examples from 129 router patterns
+{
+  "chromium": 2,
+  "webkit": 0,
+  "failures": []
+}

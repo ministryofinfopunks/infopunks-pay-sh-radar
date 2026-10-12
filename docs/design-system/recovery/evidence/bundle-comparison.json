@@ -1,0 +1,72 @@
+{
+  "baseline_sha": "068df2356834a97eecf8c5192b16a5036dca1a09",
+  "method": "Fresh Vite builds with same installed dependencies; gzip measured from actual emitted files",
+  "before": {
+    "entry_js": {
+      "file": "index-DtczkTwk.js",
+      "bytes": 224454,
+      "gzip_bytes": 68014
+    },
+    "entry_css": {
+      "file": "index-1X8bTbl4.css",
+      "bytes": 30103,
+      "gzip_bytes": 6980
+    },
+    "workflow_js": {
+      "file": "radarApp-Cechh7W9.js",
+      "bytes": 1293128,
+      "gzip_bytes": 244942
+    },
+    "workflow_css": {
+      "file": "radarApp-Bh2iiU1b.css",
+      "bytes": 413175,
+      "gzip_bytes": 71978
+    }
+  },
+  "after": {
+    "entry_js": {
+      "file": "index-CZurwx1L.js",
+      "bytes": 233070,
+      "gzip_bytes": 70826
+    },
+    "entry_css": {
+      "file": "index-DQDvpJsn.css",
+      "bytes": 42980,
+      "gzip_bytes": 8734
+    },
+    "workflow_js": {
+      "file": "radarApp-DHZpqbK-.js",
+      "bytes": 1163807,
+      "gzip_bytes": 221851
+    },
+    "workflow_css": {
+      "file": "styles-CkcbcBPq.css",
+      "bytes": 404338,
+      "gzip_bytes": 66660
+    },
+    "spend_entry": {
+      "file": "spendTerminalEntry-DS3cNLLS.js",
+      "bytes": 70,
+      "gzip_bytes": 85
+    }
+  },
+  "portrait_bytes": 74906,
+  "deltas": {
+    "entry_js": {
+      "bytes": 8616,
+      "gzip_bytes": 2812
+    },
+    "entry_css": {
+      "bytes": 12877,
+      "gzip_bytes": 1754
+    },
+    "workflow_js": {
+      "bytes": -129321,
+      "gzip_bytes": -23091
+    },
+    "workflow_css": {
+      "bytes": -8837,
+      "gzip_bytes": -5318
+    }
+  }
+}

@@ -1,0 +1,1796 @@
+{
+  "source_sha": "f7fb3c8056d9c4e87dacee6070ffdb8e6de2af8f",
+  "patterns": 129,
+  "routes": 137,
+  "viewports": [
+    320,
+    375,
+    390,
+    430,
+    768,
+    1024,
+    1440
+  ],
+  "layout_cases": 959,
+  "failures": [],
+  "status": "Automated Chromium checks pass",
+  "accessibility_boundary": "Axe violations checked at 375px; extra representative desktop/390px checks. Incomplete/manual and real AT are not certified.",
+  "route_results": [
+    {
+      "route": "/",
+      "run": "recovery-spend-split",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Before your agent spends, check the evidence."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Robinhood Chain,right now."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/call/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "CALL RECEIPT"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/campaign/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/consensus/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "INFOPUNKS CONSENSUS"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/print/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "//4663 PRINT 0830"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/proof/0x1111111111111111111111111111111111111111",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "PROOF PROFILE"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/proof/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "PROOF"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/receipts",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "RECEIPTS"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/reflexive",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "STOCK TOKENSARE BECOMING MONEY."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/reflexive/census",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "COUNT THECATEGORY."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/reflexive/pair/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/reflexive/preflight/ipx-pltr",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "IPX / PLTR// PREFLIGHT LAB"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/reflexive/stock/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/reflexive/watch",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "WATCH DISCOVERS.RADAR VERIFIES."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/reflexive/watch/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/resolution/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "RESOLUTION RECEIPT"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/share/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/4663/signals/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "SIGNAL PROOF"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/abundance",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Abundance Desk"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/attention-market-watch",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Attention Market Watch"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/attention-market-watch/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/benchmarks",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Radar Evidence Ledger"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/benchmarks/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Benchmark Not Found"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/check",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Check the receipts before the market believes the claim."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/check/monitor",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/check/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Proof check not found"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/claim",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Claims are how Infopunks turns receipts into reusable signal."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/claims/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Claim not found"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/developers",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Before your agent pays, it checks Infopunks."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/developers/wallet-safety",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Wallet Safety Developer Quickstart"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/developers/wallet-safety/integrations",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Wallet Safety Integration Registry"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/developers/wallet-safety/integrations/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Integration Readiness Detail"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/evaluation-request",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Request an Infopunks Evaluation"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/graph",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Infopunks Signal Graph"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/hermes",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Hermes Desk"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/hermes/decision-feedback",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Decision Receipt and Feedback Loop"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/hermes/memory-loop",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Agent Memory Loop"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/hermes/pre-spend-decision",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Pre-Spend Decision Engine"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/hermes/reputation-ledger",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Reputation Ledger"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/hermes/skill-pack",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Infopunks Hermes Skill Pack"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/hermes/spend-policy",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Agent Spend Policy Layer"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/hermes/wallet-audit-trail",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Autonomous Wallet Audit Trail"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/hermes/wallet-risk-score",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Wallet Risk Score"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/hermes/wallet-safety",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Wallet Safety API"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/internal/rh-chain/review-console",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "RH Chain Review Console"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/loops",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Where autonomous work becomes collective memory."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/loops/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Loop not found"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-benchmark-methodology",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Machine Benchmark Methodology"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-benchmark-readiness",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Machine Benchmark Readiness"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-comparable-routes",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Machine Comparable Routes"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-dossier/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "qualification-missing-record"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-economy-snapshot",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Machine Market Radar Snapshot"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-execution-blockers",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Execution Blockers"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-execution-plan/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-execution-shortlist",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Execution Shortlist"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-execution/alibaba-machine-translation-general",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Alibaba Machine Translation General"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-execution/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-first-safe-routes",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Machine First Safe Route Queue"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-market",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Machine Market Command Center"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-market-changelog",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Machine Market Changelog"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-market-map",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Machine Market Map"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-market/cards/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "machine-service card not found."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-no-claim-ledger",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Machine No-Claim Ledger"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-preflight",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Machine Preflight"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-proof-ladder",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Machine Market Proof Ladder"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-rail-coverage",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Machine Execution Rail Coverage"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-readiness-matrix",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Machine Readiness Matrix"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-receipts",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Machine Receipts"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-route-risk-matrix",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Route-Level Risk Matrix"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-service/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/machine-translation-evidence",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Machine Translation Evidence Plan"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/narratives",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Narrative Asset Intelligence"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/narratives/abundance-desk",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Abundance Desk"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/narratives/attention-market-watch",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Attention Market Watch"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/narratives/attention-markets",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Attention Markets"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/narratives/hermes-desk",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Hermes Desk"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/narratives/robinhood-chain",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "RH Chain Signal Desk"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/propagation/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Propagation Cluster Not Found"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/providers",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Providers"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/providers/provider_pay_sh_lattice",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Lattice Research Relay"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/providers/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Provider Not Found"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/radar/cards",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Preflight Card Index"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/radar/cards/benchmark/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "benchmark card not found."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/radar/cards/provider/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "provider card not found."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/radar/readiness/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Provider readiness card not found."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/receipts",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Receipts"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/receipts/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Receipt Not Found"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/receipts/receipt_001",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "receipt_001"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/revenue-receipts",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Infopunks Revenue Receipts"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/revenue-receipts/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Receipt not found."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-meme-pulse",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "RH Meme Pulse"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Know what is moving.Know what is real."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/100-receipts",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "100 Tokens. 100 Receipts. One Public Memory."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/4663-index",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "4663 Signal Index"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/clone-radar",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Clone & Impersonator Radar"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/daily-receipts",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Daily RH Chain Receipts"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/daily-receipts/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Daily RH Chain Receipt \u00b7 qualification-missing-record"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/discovery-queue",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Auto Discovery Queue"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/distribution-pack",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "RH Chain Distribution Pack"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/intelligence-receipts/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/launch-surfaces",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Launch Surface Watch"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/launchpad-observatory",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "RH Chain Launchpad Observatory"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/live-snapshot",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "RH Chain Live Snapshot"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/market",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Market structure is waiting for fresh pair evidence."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/market-structure",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "4663 Market Structure"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/market-structure/attention-quality",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Paid Attention Watch"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/market-structure/cross-layer",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Cross-Layer Assets"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/meme-pulse",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "RH Meme Pulse"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/projects",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/projects/claim",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "State the claim. Attach the evidence."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/projects/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/review-pipeline",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Review Pipeline"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/review-pipeline/day/2026-10-12",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Review Pipeline"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/review-queue",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "RH Chain Review Queue"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/risk-patterns",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Clone & Impersonator Radar"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/scout",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "RH Chain Scout Agent"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/scouts",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Signal Scouts"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/submit",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "RH Chain Signal Desk"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/rh-chain-signal-desk/tokens/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Unknown token"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/routes",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Routes"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/routes/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Route not found"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/routes/route_pay_sh_market_research_01",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "route_pay_sh_market_research_01"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/services",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Services"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/services/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Service not found"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/services/service_market_research",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "service_market_research"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/signal-hunt",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Signal Hunt"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/signal-hunt/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/signals/ansem",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Ansem"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/signals/black-bull",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "$ANSEM / The Black Bull"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/signals/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Intelligence before the wallet acts."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/signals/qualification-missing-record/updates/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Signal update not found."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/signals/troll",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/solana",
+      "run": "recovery-loading",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Proof before agent spend."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/spend-terminal",
+      "run": "recovery-spend-split",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Should this agent spend?"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/unicorn-radar",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Infopunks Unicorn Radar"
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    },
+    {
+      "route": "/unicorn-radar/qualification-missing-record",
+      "run": "recovery-canonical",
+      "identity": {
+        "headers": 1,
+        "footers": 1,
+        "signal": "#00eee4",
+        "headline": "Candidate not found."
+      },
+      "menuCheck": true,
+      "violations": [],
+      "errors": []
+    }
+  ],
+  "final_tests": {
+    "files_passed": 252,
+    "files_skipped": 9,
+    "tests_passed": 1867,
+    "tests_skipped": 19,
+    "failed": 0,
+    "runtime": "Node 24.21.0",
+    "workers": 2,
+    "command": "npm test -- --maxWorkers=2 --testTimeout=15000"
+  }
+}

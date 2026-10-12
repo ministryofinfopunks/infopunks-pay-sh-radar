@@ -7,7 +7,7 @@ Shared shell/token migration is implemented for every pattern below. Route-speci
 | Actual router pattern | Dispatcher | Shell / tokens | Mobile qualification |
 | --- | --- | --- | --- |
 | `/^\/(?:rh-chain-signal-desk\/meme-pulse&#124;rh-chain-meme-pulse)\/?$/` | src/web/radarApp.tsx:14431 | Implemented | See browser results and limitations |
-| `/^\/$/` | src/web/main.tsx:14 | Implemented | See browser results and limitations |
+| `/^\/$/` | src/web/main.tsx:15 | Implemented | See browser results and limitations |
 | `/^\/4663(?:\/(?:pulse&#124;today&#124;signals&#124;receipts)&#124;\/(?:print&#124;call&#124;resolution&#124;consensus&#124;signals&#124;proof&#124;campaign&#124;share)\/[^/]+)?\/?$/` | src/web/radarApp.tsx:14406 | Implemented | See browser results and limitations |
 | `/^\/4663\/call\/([^/]+)$/` | src/web/rh4663Pages.tsx:64 | Implemented | See browser results and limitations |
 | `/^\/4663\/campaign\/([^/]+)$/` | src/web/rh4663Pages.tsx:69 | Implemented | See browser results and limitations |

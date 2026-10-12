@@ -1,3 +1,9 @@
+# Canonical components / V2 update
+
+Current owners: RadarAppShell; ProductHeader / ProductWayfinding / ProductFooter; RadarSectionHeader; RadarStatus; RadarReceiptLifecycle; RadarEvidenceRow; RadarAsyncState; RadarDataTable. TerminalIcon and the approved Signal Lens asset are reused. radarTokens.css owns all global and legacy Robinhood palette aliases. SpendTerminalEntry lazy-loads the existing primary workflow.
+
+The inventory below describes the inherited baseline; the active V2 constitution and recovery report supersede its older identity assumptions.
+
 # Component inventory and future-page guide
 
 | Role | Existing implementation | Migration |

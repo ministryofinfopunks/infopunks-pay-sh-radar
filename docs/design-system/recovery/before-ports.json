@@ -1,0 +1,23 @@
+[
+  {
+    "port": 5178,
+    "h1": "After attention,intelligence.",
+    "css": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "bg": "rgba(0, 0, 0, 0)"
+  },
+  {
+    "port": 8799,
+    "h1": "Before your agent spends, check the evidence.",
+    "css": [
+      null,
+      "http://127.0.0.1:8799/assets/index-DB9tUcI9.css"
+    ],
+    "bg": "rgba(0, 0, 0, 0)"
+  }
+]

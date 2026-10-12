@@ -1,0 +1,25 @@
+
+> infopunks-pay-sh-radar@0.1.0 test:ui
+> node scripts/qualify-radar-ui.cjs
+
+Inventory: 137 concrete route/alias/detail examples from 129 router patterns
+recovery-canonical: 20/137 routes rendered
+recovery-canonical: 40/137 routes rendered
+recovery-canonical: 60/137 routes rendered
+recovery-canonical: 80/137 routes rendered
+recovery-canonical: 100/137 routes rendered
+recovery-canonical: 120/137 routes rendered
+{
+  "chromium": 137,
+  "webkit": 0,
+  "failures": [
+    {
+      "route": "/solana",
+      "errors": [],
+      "overflow": [],
+      "axe": [
+        "aria-prohibited-attr"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+[
+  {
+    "route": "/",
+    "violations": []
+  },
+  {
+    "route": "/solana",
+    "violations": [
+      {
+        "id": "color-contrast",
+        "nodes": [
+          {
+            "target": [
+              "article[aria-labelledby=\"solana-directory-intelligence\"] > .radar-directory-card-head > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.13 (foreground color: #068682, background color: #0d1618, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "article[aria-labelledby=\"solana-directory-agent-tools\"] > .radar-directory-card-head > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.13 (foreground color: #068682, background color: #0d1618, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "article[aria-labelledby=\"solana-directory-hermes\"] > .radar-directory-card-head > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.13 (foreground color: #068682, background color: #0d1618, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "article[aria-labelledby=\"solana-directory-commercial\"] > .radar-directory-card-head > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.13 (foreground color: #068682, background color: #0d1618, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".radar-directory-card[data-group-id=\"machine-economy\"] > .radar-directory-card-head > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.13 (foreground color: #068682, background color: #0d1618, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "article[aria-labelledby=\"solana-directory-developers\"] > .radar-directory-card-head > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.13 (foreground color: #068682, background color: #0d1618, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bundle-plan-card:nth-child(1) > p:nth-child(2) > .agent-chip-row"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.18 (foreground color: #607c6e, background color: #081113, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bundle-plan-card:nth-child(2) > p:nth-child(2) > .agent-chip-row"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.18 (foreground color: #607c6e, background color: #081113, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bundle-plan-card:nth-child(3) > p:nth-child(2) > .agent-chip-row"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.18 (foreground color: #607c6e, background color: #081113, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      },
+      {
+        "id": "scrollable-region-focusable",
+        "nodes": [
+          {
+            "target": [
+              ".comparison-results"
+            ],
+            "summary": "Fix any of the following:\n  Element should have focusable content\n  Element should be focusable"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/spend-terminal",
+    "violations": []
+  },
+  {
+    "route": "/routes",
+    "violations": []
+  },
+  {
+    "route": "/receipts/receipt_001",
+    "violations": []
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "violations": []
+  },
+  {
+    "route": "/4663/reflexive",
+    "violations": []
+  }
+]

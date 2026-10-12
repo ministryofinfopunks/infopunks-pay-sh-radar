@@ -1,0 +1,9 @@
+{
+  "candidate_views": 18,
+  "route_samples": 137,
+  "layout_cases": 959,
+  "protected_backend_diff": "empty",
+  "visual_approval": "REQUIRED",
+  "merge_release_verdict": "HOLD",
+  "qualified_runtime_sha": "f7fb3c8056d9c4e87dacee6070ffdb8e6de2af8f"
+}

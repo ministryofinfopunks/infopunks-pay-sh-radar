@@ -1,0 +1,88 @@
+
+> infopunks-pay-sh-radar@0.1.0 test
+> vitest run --maxWorkers=4 --testTimeout=15000
+
+
+ RUN  v4.1.5 /Users/ahdilm/.codex/worktrees/radar-terminal-identity-recovery/Infopunks Pay.sh Intelligence Terminal
+
+(node:33860) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33857) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/postgres-resilience-failure-matrix.test.ts (16 tests | 1 failed | 1 skipped) 20049ms
+     × keeps unrelated uncaught exceptions fatal in the real server entrypoint 10034ms
+(node:34583) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34595) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35396) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35411) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35435) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+stdout | tests/response-cache.test.ts > radar secondary route caching safety > keeps benchmark response values stable and returns quickly
+{"event":"hook_enter","hook":"onRequest","id":"req-1","method":"GET","route":"/v1/radar/benchmarks"}
+{"event":"request_start","id":"req-1","method":"GET","route":"/v1/radar/benchmarks","started_at":"2026-10-12T14:47:24.273Z"}
+{"event":"hook_exit","hook":"onRequest","id":"req-1"}
+
+stdout | tests/response-cache.test.ts > radar secondary route caching safety > keeps benchmark response values stable and returns quickly
+{"event":"radar_route_timing","route":"/v1/radar/benchmarks","duration_ms":133,"cache_hit":false,"status":"ok"}
+
+stdout | tests/response-cache.test.ts > radar secondary route caching safety > keeps benchmark response values stable and returns quickly
+{"event":"hook_enter","hook":"onResponse","id":"req-1","method":"GET","route":"/v1/radar/benchmarks"}
+{"event":"request_complete","request_id":"req-1","method":"GET","route":"/v1/radar/benchmarks","status_code":200,"duration_ms":189}
+{"event":"hook_exit","hook":"onResponse","id":"req-1"}
+
+stdout | tests/response-cache.test.ts
+{"event":"timing","stage":"propagation_build","duration_ms":0}
+{"event":"timing","stage":"interpretation_build","duration_ms":0}
+{"event":"ingestion_state","catalogSource":"fixture","ingestionEnabled":true,"dbMode":"memory","providerCount":0,"endpointCount":0,"lastIngestedAt":null,"catalogStatus":"warming_up"}
+
+stdout | tests/response-cache.test.ts
+{"event":"timing","stage":"propagation_build","duration_ms":0}
+{"event":"timing","stage":"interpretation_build","duration_ms":0}
+{"event":"ingestion_state","catalogSource":"fixture","ingestionEnabled":true,"dbMode":"memory","providerCount":0,"endpointCount":0,"lastIngestedAt":null,"catalogStatus":"warming_up"}
+
+ ❯ tests/response-cache.test.ts (7 tests | 1 failed) 7111ms
+     × keeps benchmark response values stable and returns quickly 5175ms
+(node:35585) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35758) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35773) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/postgres-resilience-failure-matrix.test.ts > process fatal boundary > keeps unrelated uncaught exceptions fatal in the real server entrypoint
+Error: Test timed out in 10000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/postgres-resilience-failure-matrix.test.ts:618:3
+    616|   }, 10_000);
+    617|
+    618|   it('keeps unrelated uncaught exceptions fatal in the real server ent…
+       |   ^
+    619|     const port = await freePort();
+    620|     const child = spawn(join(process.cwd(), 'node_modules', '.bin', 't…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/response-cache.test.ts > radar secondary route caching safety > keeps benchmark response values stable and returns quickly
+AssertionError: expected 1883 to be less than 300
+ ❯ tests/response-cache.test.ts:95:24
+     93|     expect(paysponge.success_rate).toBe(1);
+     94|     expect(paysponge.p95_latency_ms).toBe(7946);
+     95|     expect(durationMs).toBeLessThan(300);
+       |                        ^
+     96|
+     97|     await app.close();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 250 passed | 9 skipped (261)
+      Tests  2 failed | 1865 passed | 19 skipped (1886)
+   Start at  20:11:42
+   Duration  468.18s (transform 133.03s, setup 0ms, import 699.01s, tests 744.35s, environment 197.07s)
+

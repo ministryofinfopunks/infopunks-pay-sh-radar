@@ -1,0 +1,79 @@
+{
+  "lab_only": true,
+  "INP": "Not measured; TBT is not INP",
+  "field_p75": "Unavailable",
+  "runs": [
+    {
+      "view": "desktop",
+      "performance": 100,
+      "accessibility": 100,
+      "best_practices": 100,
+      "lcp_ms": 487.158,
+      "tbt_ms": 0,
+      "cls": 0,
+      "environment": {
+        "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+        "hostUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+        "benchmarkIndex": 2366,
+        "credits": {
+          "axe-core": "4.10.3"
+        }
+      },
+      "fetchTime": "2026-10-12T14:36:09.141Z"
+    },
+    {
+      "view": "mobile",
+      "performance": 99.0,
+      "accessibility": 100,
+      "best_practices": 100,
+      "lcp_ms": 1635.756500543213,
+      "tbt_ms": 13,
+      "cls": 0,
+      "environment": {
+        "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+        "hostUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+        "benchmarkIndex": 1931,
+        "credits": {
+          "axe-core": "4.10.3"
+        }
+      },
+      "fetchTime": "2026-10-12T14:36:55.965Z"
+    },
+    {
+      "view": "spend-mobile",
+      "performance": 55.00000000000001,
+      "accessibility": 100,
+      "best_practices": 100,
+      "lcp_ms": 4252.573,
+      "tbt_ms": 2941.499999999999,
+      "cls": 0,
+      "environment": {
+        "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+        "hostUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+        "benchmarkIndex": 1221.5,
+        "credits": {
+          "axe-core": "4.10.3"
+        }
+      },
+      "fetchTime": "2026-10-12T14:49:12.015Z"
+    },
+    {
+      "view": "spend-mobile-after",
+      "performance": 98.0,
+      "accessibility": 100,
+      "best_practices": 100,
+      "lcp_ms": 2411.7690000000002,
+      "tbt_ms": 7,
+      "cls": 0,
+      "environment": {
+        "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+        "hostUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+        "benchmarkIndex": 2652,
+        "credits": {
+          "axe-core": "4.10.3"
+        }
+      },
+      "fetchTime": "2026-10-12T14:51:54.485Z"
+    }
+  ]
+}
