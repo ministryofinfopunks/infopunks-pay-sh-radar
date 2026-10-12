@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { SignalGraphContextPanel, type SignalGraphContextNode } from './signalGraphContextPanel';
 import type { WalletSafetyIntegrationProfile } from '../data/walletSafetyIntegrations';
+import { RadarReceiptLifecycle, RadarStatus, RadarAsyncState, RadarEvidenceRow } from './radarDesignSystem';
 import { RadarContextHeader } from './radarNetworks';
 import {
   buildWalletSafetyIntegrationReadinessReport,
@@ -432,6 +433,7 @@ function DetailShell({
           <p className="copy">{copy}</p>
         </div>
       </section>
+      <CompatibilityEvidenceNote />
       <MetricsBand metrics={metrics} />
       <div className="builder-detail-stack">{children}</div>
     </main>
@@ -472,7 +474,7 @@ function LoadingShell({ title }: { title: string }) {
         <div>
           <p className="eyebrow">Pre-Spend Intelligence</p>
           <h1>{title}</h1>
-          <p className="copy">Loading evidence-backed detail.</p>
+          <RadarAsyncState kind="loading" title="Loading evidence-backed detail." />
         </div>
       </section>
     </main>
@@ -499,6 +501,10 @@ function useSignalGraphContext(entityType: SignalGraphEntityType, entityId: stri
   }, [entityId, entityType]);
 
   return node;
+}
+
+function CompatibilityEvidenceNote() {
+  return <aside className="radar-provenance" aria-label="Evidence provenance"><RadarStatus state="demonstration" /> Compatibility catalog includes seeded reference records. Catalog metrics and historical examples do not establish live execution or payment authorization.</aside>;
 }
 
 function MetricsBand({ metrics }: { metrics: Metrics | null }) {
@@ -607,20 +613,21 @@ export function SpendTerminalPage() {
           <span>No receipt, no trust</span>
         </div>
       </section>}
+      <CompatibilityEvidenceNote />
       {!isMonitorSurface && <MetricsBand metrics={metrics} />}
       <section className={`grid two builder-terminal-grid ${isMonitorSurface ? 'monitor-terminal-grid' : ''}`}>
         <form className="panel builder-form-panel" onSubmit={runCheck}>
           <div className="panel-head"><div><p className="section-kicker">Agent Intent</p><h2>Pre-spend input flow</h2></div></div>
           <p className="panel-caption">Run a receipt-backed preflight before any paid route call. No receipt, no trust.</p>
           <label><span>intent</span><input aria-label="intent" value={form.intent} onChange={(event) => setForm({ ...form, intent: event.target.value })} /></label>
-          <label><span>budget</span><input aria-label="budget" type="number" value={form.budget} onChange={(event) => setForm({ ...form, budget: Number(event.target.value) })} /></label>
+          <label><span>budget</span><input aria-label="budget" type="number" inputMode="decimal" min="0" step="any" value={form.budget} onChange={(event) => setForm({ ...form, budget: Number(event.target.value) })} /></label>
           <label><span>risk tolerance</span><select aria-label="risk tolerance" value={form.risk_tolerance} onChange={(event) => setForm({ ...form, risk_tolerance: event.target.value as RiskLevel })}><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="critical">critical</option></select></label>
           <label><span>preferred settlement</span><input aria-label="preferred settlement" value={form.preferred_settlement} onChange={(event) => setForm({ ...form, preferred_settlement: event.target.value })} /></label>
-          <label><span>required confidence</span><input aria-label="required confidence" type="number" value={form.required_confidence} onChange={(event) => setForm({ ...form, required_confidence: Number(event.target.value) })} /></label>
+          <label><span>required confidence</span><input aria-label="required confidence" type="number" inputMode="numeric" min="0" max="100" value={form.required_confidence} onChange={(event) => setForm({ ...form, required_confidence: Number(event.target.value) })} /></label>
           <button className="execute compact" type="submit" disabled={loading}>{loading ? 'Checking route' : 'Run pre-spend check'}</button>
-          {error && <p className="route-state error">{error}</p>}
+          {error && <p className="route-state error" role="alert">{error}</p>}
         </form>
-        <section className="panel builder-result-panel" aria-label="Decision result">
+        <section className="panel builder-result-panel" aria-label="Decision result" aria-live="polite" aria-busy={loading}>
           <div className="panel-head"><div><p className="section-kicker">Decision Output</p><h2>{result ? terminalCopy(result.decision) : 'Should this agent spend?'}</h2></div></div>
           {!result && <div className="empty-state polished-empty builder-terminal-empty">
             <strong>Awaiting pre-spend decision.</strong>
@@ -628,6 +635,7 @@ export function SpendTerminalPage() {
             <small>Should this agent spend? The terminal will not answer without route evidence, receipt references, and explicit rationale.</small>
           </div>}
           {result && <>
+            <RadarStatus state="judgment" detail={result.judgment?.decision ?? result.decision} />
             <div className={`builder-decision-banner ${resultTone}`}>
               <div>
                 <span className="section-kicker">Decision state</span>
@@ -681,6 +689,12 @@ export function SpendTerminalPage() {
           </>}
         </section>
       </section>
+      <RadarReceiptLifecycle records={result ? {
+        observation: { state: result.receipt_references.length ? 'recorded' : 'missing', detail: result.receipt_references.length ? 'Historical evidence references attached. Inspect validation on each record.' : 'No supporting receipt references supplied.' },
+        judgment: { state: result.judgment?.receipt_id ? 'judgment' : 'unavailable', detail: result.judgment?.decision ?? 'Canonical Judgment record unavailable.', ...(result.judgment?.receipt_id ? { recordId: result.judgment.receipt_id, href: receiptHref(result.judgment.receipt_id) } : {}) },
+        execution: { state: result.judgment?.outcome_status === 'PENDING' ? 'pending' : 'missing', detail: 'This pre-spend check supplies no execution-stage record.' },
+        evaluation: { state: 'missing', detail: 'This pre-spend check supplies no evaluation-stage record.' }
+      } : undefined} />
       {!isMonitorSurface && <PlaceholderMarketPanel />}
     </main>
   </div>;
@@ -814,7 +828,7 @@ Content-Type: application/json
             </div>
           </div>
           <p className="panel-caption">Import the SDK, create a client, and ask Infopunks whether the agent should spend before payment execution happens somewhere else.</p>
-          <pre className="builder-code-block"><code>{sdkExample}</code></pre>
+          <pre tabIndex={0} aria-label="Code or evidence record" className="builder-code-block"><code>{sdkExample}</code></pre>
         </section>
 
         <section className="panel builder-detail-panel" aria-labelledby="api-heading">
@@ -825,8 +839,8 @@ Content-Type: application/json
             </div>
           </div>
           <p className="panel-caption">Builders can call the HTTP endpoint directly when they do not want the SDK wrapper. The public contract is the intelligence layer before payment, not the payment client itself.</p>
-          <pre className="builder-code-block"><code>{apiRequest}</code></pre>
-          <pre className="builder-code-block"><code>{apiResponse}</code></pre>
+          <pre tabIndex={0} aria-label="Code or evidence record" className="builder-code-block"><code>{apiRequest}</code></pre>
+          <pre tabIndex={0} aria-label="Code or evidence record" className="builder-code-block"><code>{apiResponse}</code></pre>
         </section>
       </section>
 
@@ -1600,11 +1614,11 @@ await db.walletSafetyReceipts.insert(integrationReceipt);`;
       <section className="grid two builder-section-grid">
         <section className="panel builder-detail-panel" aria-labelledby="wallet-safety-request-json">
           <div className="panel-head"><div><p className="section-kicker">Request JSON</p><h2 id="wallet-safety-request-json">Spend intent input</h2></div></div>
-          <pre className="builder-code-block"><code>{requestJson}</code></pre>
+          <pre tabIndex={0} aria-label="Code or evidence record" className="builder-code-block"><code>{requestJson}</code></pre>
         </section>
         <section className="panel builder-detail-panel" aria-labelledby="wallet-safety-response-shape">
           <div className="panel-head"><div><p className="section-kicker">Response shape</p><h2 id="wallet-safety-response-shape">Bundled safety answer</h2></div></div>
-          <pre className="builder-code-block"><code>{responseShape}</code></pre>
+          <pre tabIndex={0} aria-label="Code or evidence record" className="builder-code-block"><code>{responseShape}</code></pre>
         </section>
       </section>
 
@@ -1657,7 +1671,7 @@ await db.walletSafetyReceipts.insert(integrationReceipt);`;
               <h2 id={snippet.kicker.toLowerCase().replaceAll(' ', '-')}>{snippet.title}</h2>
             </div>
           </div>
-          <pre className="builder-code-block"><code>{snippet.code}</code></pre>
+          <pre tabIndex={0} aria-label="Code or evidence record" className="builder-code-block"><code>{snippet.code}</code></pre>
         </section>
         <section className="panel builder-detail-panel" aria-label={`${snippet.kicker} explanation`}>
           <div className="panel-head"><div><p className="section-kicker">When to use it</p><h2>{snippet.kicker}</h2></div></div>
@@ -1691,18 +1705,18 @@ await db.walletSafetyReceipts.insert(integrationReceipt);`;
         </section>
         <section className="panel builder-detail-panel" aria-labelledby="integration-receipt-json">
           <div className="panel-head"><div><p className="section-kicker">JSON example</p><h2 id="integration-receipt-json">Persist a lightweight audit record.</h2></div></div>
-          <pre className="builder-code-block"><code>{integrationReceiptJson}</code></pre>
+          <pre tabIndex={0} aria-label="Code or evidence record" className="builder-code-block"><code>{integrationReceiptJson}</code></pre>
         </section>
       </section>
 
       <section className="grid two builder-section-grid">
         <section className="panel builder-detail-panel" aria-labelledby="integration-receipt-helper">
           <div className="panel-head"><div><p className="section-kicker">TypeScript helper</p><h2 id="integration-receipt-helper">Build the receipt right after the safety decision.</h2></div></div>
-          <pre className="builder-code-block"><code>{integrationReceiptHelper}</code></pre>
+          <pre tabIndex={0} aria-label="Code or evidence record" className="builder-code-block"><code>{integrationReceiptHelper}</code></pre>
         </section>
         <section className="panel builder-detail-panel" aria-labelledby="integration-receipt-usage">
           <div className="panel-head"><div><p className="section-kicker">Usage example</p><h2 id="integration-receipt-usage">Store the proof next to the wallet action.</h2></div></div>
-          <pre className="builder-code-block"><code>{integrationReceiptUsage}</code></pre>
+          <pre tabIndex={0} aria-label="Code or evidence record" className="builder-code-block"><code>{integrationReceiptUsage}</code></pre>
         </section>
       </section>
 
@@ -1748,11 +1762,11 @@ await db.walletSafetyReceipts.insert(integrationReceipt);`;
       <section className="grid two builder-section-grid">
         <section className="panel builder-detail-panel" aria-labelledby="wallet-safety-curl">
           <div className="panel-head"><div><p className="section-kicker">Example curl</p><h2 id="wallet-safety-curl">Call the public endpoint</h2></div></div>
-          <pre className="builder-code-block"><code>{curlExample}</code></pre>
+          <pre tabIndex={0} aria-label="Code or evidence record" className="builder-code-block"><code>{curlExample}</code></pre>
         </section>
         <section className="panel builder-detail-panel" aria-labelledby="wallet-safety-agent-code">
           <div className="panel-head"><div><p className="section-kicker">Example agent integration pseudocode</p><h2 id="wallet-safety-agent-code">Check before spend</h2></div></div>
-          <pre className="builder-code-block"><code>{pseudocode}</code></pre>
+          <pre tabIndex={0} aria-label="Code or evidence record" className="builder-code-block"><code>{pseudocode}</code></pre>
         </section>
       </section>
 
@@ -1849,6 +1863,7 @@ export function ClaimsPage() {
           <p className="copy">No claim without evidence. Claims are not votes. Claims are not token markets yet. Claims are structured signal objects backed by receipts.</p>
         </div>
       </section>
+      <CompatibilityEvidenceNote />
       <MetricsBand metrics={metrics} />
       <section className="grid two builder-section-grid">
         <form className="panel builder-form-panel" onSubmit={submit}>
@@ -1902,18 +1917,23 @@ export function ClaimsPage() {
 export function ClaimDetailPage({ claimId }: { claimId: string }) {
   const [detail, setDetail] = useState<ClaimDetail | null>(null);
   const [missing, setMissing] = useState(false);
+  const [requestError, setRequestError] = useState<'error' | 'permission-denied' | null>(null);
+  const [retry, setRetry] = useState(0);
   const signalGraphNode = useSignalGraphContext('claim', claimId);
 
   useEffect(() => {
     document.title = `${claimId} | Claim Detail`;
     setMissing(false);
+    setRequestError(null);
     api<{ data: ClaimDetail }>(`/v1/claims/${encodeURIComponent(claimId)}`)
       .then((response) => setDetail(response.data))
       .catch((error) => {
         if (isNotFoundError(error)) setMissing(true);
+        else setRequestError(error instanceof Error && / (401|403)$/.test(error.message) ? 'permission-denied' : 'error');
       });
-  }, [claimId]);
+  }, [claimId, retry]);
 
+  if (requestError) return <div className="shell builder-shell"><main><RadarAsyncState kind={requestError} title={requestError === 'permission-denied' ? 'Evidence access required' : 'Evidence request failed'} onRetry={() => setRetry(value => value + 1)}>The detail could not be retrieved. No verification is implied.</RadarAsyncState></main></div>;
   if (missing) return <DetailNotFound title="Claim not found" body={`No inspectable claim exists for ${claimId}.`} href="/claim" linkLabel="Back to claims" />;
   if (!detail) return <LoadingShell title="Claim detail" />;
 
@@ -1955,13 +1975,17 @@ export function RoutesIndexPage() {
   const [serviceFilter, setServiceFilter] = useState('all');
   const [sort, setSort] = useState<'risk' | 'confidence'>('confidence');
 
+  const [requestState, setRequestState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [retry, setRetry] = useState(0);
   useEffect(() => {
+    setRequestState('loading');
     document.title = 'Routes | Infopunks Builder';
     api<{ data: { routes: RouteIntelligence[]; metrics: Metrics } }>('/v1/routes').then((response) => {
       setRoutes(response.data.routes);
       setMetrics(response.data.metrics);
-    }).catch(() => undefined);
-  }, []);
+      setRequestState('ready');
+    }).catch(() => setRequestState('error'));
+  }, [retry]);
 
   const visible = useMemo(() => routes
     .filter((route) => serviceFilter === 'all' || route.service_id === serviceFilter)
@@ -1969,69 +1993,86 @@ export function RoutesIndexPage() {
       ? b.confidence_score - a.confidence_score
       : ['low', 'medium', 'high', 'critical'].indexOf(a.risk_level) - ['low', 'medium', 'high', 'critical'].indexOf(b.risk_level)), [routes, serviceFilter, sort]);
 
-  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page" aria-label="Routes"><section className="panel hero builder-hero"><div><p className="eyebrow">Receipt-backed route intelligence</p><h1>Routes</h1><p className="copy">Before your agent pays, inspect the route. These cards show known blockers, safer route posture, and the receipts behind each economic action.</p></div></section><MetricsBand metrics={metrics} /><section className="panel builder-filter-panel"><label><span>service type</span><select value={serviceFilter} onChange={(event) => setServiceFilter(event.target.value)}><option value="all">all</option>{Array.from(new Set(routes.map((route) => route.service_id))).map((serviceId) => <option key={serviceId} value={serviceId}>{serviceId}</option>)}</select></label><label><span>sort</span><select value={sort} onChange={(event) => setSort(event.target.value as 'risk' | 'confidence')}><option value="confidence">confidence sorting</option><option value="risk">risk sorting</option></select></label></section><section className="builder-card-grid" aria-label="Route cards">{visible.map((route) => <article className="panel builder-card" key={route.route_id}><a className="builder-card-anchor" href={routeHref(route.route_id)}><p className="section-kicker">{route.recommended_use_case}</p><h2>{route.route_id}</h2><p>{route.endpoint}</p><div className="builder-stat-list"><span>risk {route.risk_level}</span><span>confidence {route.confidence_score}</span><span>cost {route.estimated_cost}</span><span>latency range {route.latency_ms_p50}-{route.latency_ms_p95} ms</span><span>last successful run {formatDate(route.last_successful_run)}</span></div><p className="panel-caption">Known blockers: {joined(route.known_blockers)}</p><span className="builder-card-cta">Inspect route evidence graph</span></a></article>)}</section></main></div>;
+  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page" aria-label="Routes"><section className="panel hero builder-hero"><div><p className="eyebrow">Receipt-backed route intelligence</p><h1>Routes</h1><p className="copy">Before your agent pays, inspect the route. These cards show known blockers, safer route posture, and the receipts behind each economic action.</p></div></section><CompatibilityEvidenceNote /><MetricsBand metrics={metrics} /><section className="panel builder-filter-panel"><label><span>service type</span><select value={serviceFilter} onChange={(event) => setServiceFilter(event.target.value)}><option value="all">all</option>{Array.from(new Set(routes.map((route) => route.service_id))).map((serviceId) => <option key={serviceId} value={serviceId}>{serviceId}</option>)}</select></label><label><span>sort</span><select value={sort} onChange={(event) => setSort(event.target.value as 'risk' | 'confidence')}><option value="confidence">confidence sorting</option><option value="risk">risk sorting</option></select></label></section>{requestState !== 'ready' && <RadarAsyncState kind={requestState === 'error' ? 'error' : 'loading'} title={requestState === 'error' ? 'Evidence request failed' : 'Loading evidence'} onRetry={requestState === 'error' ? () => setRetry(value => value + 1) : undefined} />}{requestState === 'ready' && !routes.length && <RadarAsyncState kind="empty" title="No records available">No evidence records were returned for this view.</RadarAsyncState>}<section className="builder-card-grid" aria-label="Route cards">{visible.map((route) => <article className="panel builder-card" key={route.route_id}><a className="builder-card-anchor" href={routeHref(route.route_id)}><p className="section-kicker">{route.recommended_use_case}</p><h2>{route.route_id}</h2><p>{route.endpoint}</p><div className="builder-stat-list"><span>risk {route.risk_level}</span><span>confidence {route.confidence_score}</span><span>cost {route.estimated_cost}</span><span>latency range {route.latency_ms_p50}-{route.latency_ms_p95} ms</span><span>last successful run {formatDate(route.last_successful_run)}</span></div><p className="panel-caption">Known blockers: {joined(route.known_blockers)}</p><span className="builder-card-cta">Inspect route evidence graph</span></a></article>)}</section></main></div>;
 }
 
 export function ProvidersIndexPage() {
   const [providers, setProviders] = useState<ProviderIntelligence[]>([]);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
 
+  const [requestState, setRequestState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [retry, setRetry] = useState(0);
   useEffect(() => {
+    setRequestState('loading');
     document.title = 'Providers | Infopunks Builder';
     api<{ data: PreSpendProviderListResponse }>('/v1/pre-spend/providers').then((response) => {
       setProviders(response.data.providers);
       setMetrics(response.data.metrics);
-    }).catch(() => undefined);
-  }, []);
+      setRequestState('ready');
+    }).catch(() => setRequestState('error'));
+  }, [retry]);
 
-  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page" aria-label="Providers"><section className="panel hero builder-hero"><div><p className="eyebrow">Providers scored</p><h1>Providers</h1><p className="copy">Provider pages show receipt-backed route intelligence, human validation, dispute history, and whether the provider belongs in a pre-spend decision at all.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Provider cards">{providers.map((provider) => <article className="panel builder-card" key={provider.provider_id}><a className="builder-card-anchor" href={providerHref(provider.provider_id)}><p className="section-kicker">{provider.service_categories.join(', ')}</p><h2>{provider.name}</h2><div className="builder-stat-list"><span>reliability score {provider.reliability_score}</span><span>route coverage {provider.route_coverage}</span><span>receipt count {provider.recent_receipt_count}</span><span>validation status {provider.human_validation_status}</span></div><p className="panel-caption">Known risks: {joined(provider.known_risks)}</p><p className="panel-caption">Dispute history: {joined(provider.dispute_history)}</p><span className="builder-card-cta">Inspect provider trust</span></a></article>)}</section></main></div>;
+  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page" aria-label="Providers"><section className="panel hero builder-hero"><div><p className="eyebrow">Providers scored</p><h1>Providers</h1><p className="copy">Provider pages show receipt-backed route intelligence, human validation, dispute history, and whether the provider belongs in a pre-spend decision at all.</p></div></section><MetricsBand metrics={metrics} />{requestState !== 'ready' && <RadarAsyncState kind={requestState === 'error' ? 'error' : 'loading'} title={requestState === 'error' ? 'Evidence request failed' : 'Loading evidence'} onRetry={requestState === 'error' ? () => setRetry(value => value + 1) : undefined} />}{requestState === 'ready' && !providers.length && <RadarAsyncState kind="empty" title="No records available">No evidence records were returned for this view.</RadarAsyncState>}<section className="builder-card-grid" aria-label="Provider cards">{providers.map((provider) => <article className="panel builder-card" key={provider.provider_id}><a className="builder-card-anchor" href={providerHref(provider.provider_id)}><p className="section-kicker">{provider.service_categories.join(', ')}</p><h2>{provider.name}</h2><div className="builder-stat-list"><span>reliability score {provider.reliability_score}</span><span>route coverage {provider.route_coverage}</span><span>receipt count {provider.recent_receipt_count}</span><span>validation status {provider.human_validation_status}</span></div><p className="panel-caption">Known risks: {joined(provider.known_risks)}</p><p className="panel-caption">Dispute history: {joined(provider.dispute_history)}</p><span className="builder-card-cta">Inspect provider trust</span></a></article>)}</section></main></div>;
 }
 
 export function ServicesIndexPage() {
   const [services, setServices] = useState<ServiceDossier[]>([]);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
 
+  const [requestState, setRequestState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [retry, setRetry] = useState(0);
   useEffect(() => {
+    setRequestState('loading');
     document.title = 'Services | Infopunks Builder';
     api<{ data: { services: ServiceDossier[]; metrics: Metrics } }>('/v1/services').then((response) => {
       setServices(response.data.services);
       setMetrics(response.data.metrics);
-    }).catch(() => undefined);
-  }, []);
+      setRequestState('ready');
+    }).catch(() => setRequestState('error'));
+  }, [retry]);
 
-  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page" aria-label="Services"><section className="panel hero builder-hero"><div><p className="eyebrow">Service dossiers</p><h1>Services</h1><p className="copy">Service dossiers answer should this agent spend, which route is safer first, where the known blockers sit, and which receipt-backed alternatives remain available.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Service dossiers">{services.map((service) => <article className="panel builder-card" key={service.service_id}><a className="builder-card-anchor" href={serviceHref(service.service_id)}><p className="section-kicker">{service.category}</p><h2>{service.service_id}</h2><div className="builder-stat-list"><span>best observed route {service.best_observed_route ?? 'n/a'}</span><span>cheapest observed route {service.cheapest_observed_route ?? 'n/a'}</span><span>safest first attempt {service.safest_first_attempt ?? 'n/a'}</span><span>fastest repeatable route {service.fastest_repeatable_route ?? 'n/a'}</span><span>benchmark readiness {service.benchmark_readiness}</span></div><p className="panel-caption">Known blockers: {joined(service.known_blockers)}</p><p className="panel-caption">{service.pre_spend_recommendation}</p><span className="builder-card-cta">Inspect service dossier</span></a></article>)}</section><PlaceholderMarketPanel /></main></div>;
+  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page" aria-label="Services"><section className="panel hero builder-hero"><div><p className="eyebrow">Service dossiers</p><h1>Services</h1><p className="copy">Service dossiers answer should this agent spend, which route is safer first, where the known blockers sit, and which receipt-backed alternatives remain available.</p></div></section><MetricsBand metrics={metrics} />{requestState !== 'ready' && <RadarAsyncState kind={requestState === 'error' ? 'error' : 'loading'} title={requestState === 'error' ? 'Evidence request failed' : 'Loading evidence'} onRetry={requestState === 'error' ? () => setRetry(value => value + 1) : undefined} />}{requestState === 'ready' && !services.length && <RadarAsyncState kind="empty" title="No records available">No evidence records were returned for this view.</RadarAsyncState>}<section className="builder-card-grid" aria-label="Service dossiers">{services.map((service) => <article className="panel builder-card" key={service.service_id}><a className="builder-card-anchor" href={serviceHref(service.service_id)}><p className="section-kicker">{service.category}</p><h2>{service.service_id}</h2><div className="builder-stat-list"><span>best observed route {service.best_observed_route ?? 'n/a'}</span><span>cheapest observed route {service.cheapest_observed_route ?? 'n/a'}</span><span>safest first attempt {service.safest_first_attempt ?? 'n/a'}</span><span>fastest repeatable route {service.fastest_repeatable_route ?? 'n/a'}</span><span>benchmark readiness {service.benchmark_readiness}</span></div><p className="panel-caption">Known blockers: {joined(service.known_blockers)}</p><p className="panel-caption">{service.pre_spend_recommendation}</p><span className="builder-card-cta">Inspect service dossier</span></a></article>)}</section><PlaceholderMarketPanel /></main></div>;
 }
 
 export function ReceiptsIndexPage() {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
 
+  const [requestState, setRequestState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [retry, setRetry] = useState(0);
   useEffect(() => {
+    setRequestState('loading');
     document.title = 'Receipts | Infopunks Builder';
     api<{ data: { receipts: Receipt[]; metrics: Metrics } }>('/v1/receipts').then((response) => {
       setReceipts(response.data.receipts);
       setMetrics(response.data.metrics);
-    }).catch(() => undefined);
-  }, []);
+      setRequestState('ready');
+    }).catch(() => setRequestState('error'));
+  }, [retry]);
 
-  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page" aria-label="Receipts"><section className="panel hero builder-hero"><div><p className="eyebrow">Receipt-backed route intelligence</p><h1>Receipts</h1><p className="copy">Receipts are the proof layer behind route intelligence. No receipt, no trust. Every receipt should link back to route, provider, service, validation, and evidence graph context.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Receipt ledger rows">{receipts.map((receipt) => <article className="panel builder-card" key={receipt.receipt_id}><a className="builder-card-anchor" href={receiptHref(receipt.receipt_id)}><p className="section-kicker">{receipt.task_type}</p><h2>{receipt.receipt_id}</h2><div className="builder-stat-list"><span>status {receipt.status}</span><span>cost {receipt.cost}</span><span>latency {receipt.latency_ms} ms</span><span>validation state {receipt.validation_state}</span><span>linked route {receipt.route_id}</span><span>linked provider {receipt.provider_id}</span></div><p className="panel-caption">Failure reason: {receipt.failure_reason ?? 'none'}</p><p className="panel-caption">Evidence artifact: {receipt.evidence_artifact}</p><span className="builder-card-cta">Inspect receipt impact</span></a></article>)}</section></main></div>;
+  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page" aria-label="Receipts"><section className="panel hero builder-hero"><div><p className="eyebrow">Receipt-backed route intelligence</p><h1>Receipts</h1><p className="copy">Receipts are the proof layer behind route intelligence. No receipt, no trust. Every receipt should link back to route, provider, service, validation, and evidence graph context.</p></div></section><MetricsBand metrics={metrics} />{requestState !== 'ready' && <RadarAsyncState kind={requestState === 'error' ? 'error' : 'loading'} title={requestState === 'error' ? 'Evidence request failed' : 'Loading evidence'} onRetry={requestState === 'error' ? () => setRetry(value => value + 1) : undefined} />}{requestState === 'ready' && !receipts.length && <RadarAsyncState kind="empty" title="No records available">No evidence records were returned for this view.</RadarAsyncState>}<section className="builder-card-grid" aria-label="Receipt ledger rows">{receipts.map((receipt) => <article className="panel builder-card" key={receipt.receipt_id}><a className="builder-card-anchor" href={receiptHref(receipt.receipt_id)}><p className="section-kicker">{receipt.task_type}</p><h2>{receipt.receipt_id}</h2><div className="builder-stat-list"><span>status {receipt.status}</span><span>cost {receipt.cost}</span><span>latency {receipt.latency_ms} ms</span><span>validation state {receipt.validation_state}</span><span>linked route {receipt.route_id}</span><span>linked provider {receipt.provider_id}</span></div><p className="panel-caption">Failure reason: {receipt.failure_reason ?? 'none'}</p><p className="panel-caption">Evidence artifact: {receipt.evidence_artifact}</p><span className="builder-card-cta">Inspect receipt impact</span></a></article>)}</section></main></div>;
 }
 
 export function RouteDetailPage({ routeId }: { routeId: string }) {
   const [detail, setDetail] = useState<RouteDetail | null>(null);
   const [missing, setMissing] = useState(false);
+  const [requestError, setRequestError] = useState<'error' | 'permission-denied' | null>(null);
+  const [retry, setRetry] = useState(0);
   const signalGraphNode = useSignalGraphContext('route', routeId);
 
   useEffect(() => {
     document.title = `${routeId} | Route Detail`;
     setMissing(false);
+    setRequestError(null);
     api<{ data: RouteDetail }>(`/v1/routes/${encodeURIComponent(routeId)}`)
       .then((response) => setDetail(response.data))
       .catch((error) => {
         if (isNotFoundError(error)) setMissing(true);
+        else setRequestError(error instanceof Error && / (401|403)$/.test(error.message) ? 'permission-denied' : 'error');
       });
-  }, [routeId]);
+  }, [routeId, retry]);
 
+  if (requestError) return <div className="shell builder-shell"><main><RadarAsyncState kind={requestError} title={requestError === 'permission-denied' ? 'Evidence access required' : 'Evidence request failed'} onRetry={() => setRetry(value => value + 1)}>The detail could not be retrieved. No verification is implied.</RadarAsyncState></main></div>;
   if (missing) return <DetailNotFound title="Route not found" body={`No inspectable pre-spend route exists for ${routeId}.`} href="/routes" linkLabel="Back to routes" />;
   if (!detail) return <LoadingShell title="Route detail" />;
 
@@ -2098,17 +2139,22 @@ export function RouteDetailPage({ routeId }: { routeId: string }) {
 export function ProviderDetailPage({ providerId }: { providerId: string }) {
   const [detail, setDetail] = useState<ProviderDetail | null>(null);
   const [missing, setMissing] = useState(false);
+  const [requestError, setRequestError] = useState<'error' | 'permission-denied' | null>(null);
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     document.title = `${providerId} | Provider Detail`;
     setMissing(false);
+    setRequestError(null);
     api<{ data: ProviderDetail }>(`/v1/providers/${encodeURIComponent(providerId)}`)
       .then((response) => setDetail(response.data))
       .catch((error) => {
         if (isNotFoundError(error)) setMissing(true);
+        else setRequestError(error instanceof Error && / (401|403)$/.test(error.message) ? 'permission-denied' : 'error');
       });
-  }, [providerId]);
+  }, [providerId, retry]);
 
+  if (requestError) return <div className="shell builder-shell"><main><RadarAsyncState kind={requestError} title={requestError === 'permission-denied' ? 'Evidence access required' : 'Evidence request failed'} onRetry={() => setRetry(value => value + 1)}>The detail could not be retrieved. No verification is implied.</RadarAsyncState></main></div>;
   if (missing) return <DetailNotFound title="Provider not found" body={`No inspectable pre-spend provider exists for ${providerId}.`} href="/providers" linkLabel="Back to providers" />;
   if (!detail) return <LoadingShell title="Provider detail" />;
 
@@ -2152,17 +2198,22 @@ export function ProviderDetailPage({ providerId }: { providerId: string }) {
 export function ServiceDetailPage({ serviceId }: { serviceId: string }) {
   const [detail, setDetail] = useState<ServiceDetail | null>(null);
   const [missing, setMissing] = useState(false);
+  const [requestError, setRequestError] = useState<'error' | 'permission-denied' | null>(null);
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     document.title = `${serviceId} | Service Detail`;
     setMissing(false);
+    setRequestError(null);
     api<{ data: ServiceDetail }>(`/v1/services/${encodeURIComponent(serviceId)}`)
       .then((response) => setDetail(response.data))
       .catch((error) => {
         if (isNotFoundError(error)) setMissing(true);
+        else setRequestError(error instanceof Error && / (401|403)$/.test(error.message) ? 'permission-denied' : 'error');
       });
-  }, [serviceId]);
+  }, [serviceId, retry]);
 
+  if (requestError) return <div className="shell builder-shell"><main><RadarAsyncState kind={requestError} title={requestError === 'permission-denied' ? 'Evidence access required' : 'Evidence request failed'} onRetry={() => setRetry(value => value + 1)}>The detail could not be retrieved. No verification is implied.</RadarAsyncState></main></div>;
   if (missing) return <DetailNotFound title="Service not found" body={`No inspectable pre-spend service exists for ${serviceId}.`} href="/services" linkLabel="Back to services" />;
   if (!detail) return <LoadingShell title="Service detail" />;
 
@@ -2202,23 +2253,30 @@ export function ServiceDetailPage({ serviceId }: { serviceId: string }) {
 export function ReceiptDetailPage({ receiptId }: { receiptId: string }) {
   const [detail, setDetail] = useState<ReceiptDetail | null>(null);
   const [missing, setMissing] = useState(false);
+  const [requestError, setRequestError] = useState<'error' | 'permission-denied' | null>(null);
+  const [retry, setRetry] = useState(0);
   const signalGraphNode = useSignalGraphContext('receipt', receiptId);
 
   useEffect(() => {
     document.title = `${receiptId} | Receipt Detail`;
     setMissing(false);
+    setRequestError(null);
     api<{ data: ReceiptDetail }>(`/v1/receipts/${encodeURIComponent(receiptId)}`)
       .then((response) => setDetail(response.data))
       .catch((error) => {
         if (isNotFoundError(error)) setMissing(true);
+        else setRequestError(error instanceof Error && / (401|403)$/.test(error.message) ? 'permission-denied' : 'error');
       });
-  }, [receiptId]);
+  }, [receiptId, retry]);
 
+  if (requestError) return <div className="shell builder-shell"><main><RadarAsyncState kind={requestError} title={requestError === 'permission-denied' ? 'Evidence access required' : 'Evidence request failed'} onRetry={() => setRetry(value => value + 1)}>The detail could not be retrieved. No verification is implied.</RadarAsyncState></main></div>;
   if (missing) return <DetailNotFound title="Receipt not found" body={`No inspectable pre-spend receipt exists for ${receiptId}.`} href="/receipts" linkLabel="Back to receipts" />;
   if (!detail) return <LoadingShell title="Receipt detail" />;
 
   return <DetailShell title="Receipt detail" eyebrow="Pre-Spend Receipt Detail" headline={detail.receipt_id} copy="Inspect receipt evidence, linked route intelligence, and whether this run should change future pre-spend decisions." metrics={null}>
     {signalGraphNode && <SignalGraphContextPanel node={signalGraphNode} />}
+    <RadarReceiptLifecycle records={{ execution: { state: detail.status === 'failed' || detail.status === 'timed_out' ? 'failed' : 'recorded', detail: `Recorded attempt / ${detail.status}. Outcome validation / ${detail.validation_state}.`, recordId: detail.receipt_id, href: receiptHref(detail.receipt_id) } }} />
+    <RadarEvidenceRow title="Evidence artifact and provenance" state="recorded" provenance={detail.receipt_id}><p>{detail.evidence_artifact}</p><p>Validation / {detail.validation_state}. Record existence does not establish a separate evaluation receipt.</p></RadarEvidenceRow>
     <DetailTable title="Receipt evidence" rows={[
       ['receipt ID', detail.receipt_id],
       ['timestamp', formatDateTime(detail.timestamp)],

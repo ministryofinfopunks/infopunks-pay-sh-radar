@@ -182,7 +182,7 @@ function PreflightCardLayout({ card, backLabel }: { card: PreflightCardViewModel
             {copy.state.json === 'copied' ? 'Copied JSON' : copy.state.json === 'failed' ? 'JSON Copy Failed' : 'Copy JSON'}
           </button>
         </div>
-        <pre className="preflight-card-json" aria-label="Agent JSON preview"><code>{JSON.stringify(card.agentJson, null, 2)}</code></pre>
+        <pre tabIndex={0} className="preflight-card-json" aria-label="Agent JSON preview"><code>{JSON.stringify(card.agentJson, null, 2)}</code></pre>
         <p className="panel-caption preflight-card-footnote">
           Canonical card: <a href={card.canonicalPath}>{card.canonicalPath}</a>
         </p>

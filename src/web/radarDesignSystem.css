@@ -158,3 +158,14 @@ body { margin: 0; }
 .radar-app-shell .ipx-lab-shell input[readonly] { color: var(--muted); }
 .radar-app-shell .ipx-lab-shell .ipx-lab-nav { display: none; }
 .radar-app-shell .reflexive-main,.radar-app-shell .ipx-lab-main,.radar-app-shell .i4663-main { max-width: var(--content-width); }
+.radar-protocol-reference { width: min(var(--content-width), calc(100% - 2rem)); margin: 1rem auto; border-top: 1px solid var(--line); padding-top: 1rem; }
+.radar-protocol-reference > summary { min-height: 44px; padding-block: .75rem; color: var(--muted); font: .8125rem/1.6 var(--font-mono); cursor: pointer; }
+@media(max-width:768px) {
+ .radar-app-shell .preflight-console { margin-block: 1rem; }
+ .radar-app-shell .preflight-json { min-height: 10rem; font-size: 1rem; }
+ .radar-app-shell .radar-universal-hero { margin-bottom: 1rem; }
+}
+.radar-app-shell .builder-link { display: inline-flex; align-items: center; min-height: 24px; padding-block: .125rem; text-decoration: underline; }
+.radar-app-shell .panel-caption a { text-decoration: underline; }
+.radar-app-shell .market-pulse-page small { color: var(--muted); opacity: 1; }
+.radar-app-shell .ipx-lab-shell .selected > span { color: var(--text); }

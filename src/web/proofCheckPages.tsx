@@ -1,3 +1,4 @@
+import { RadarReceiptLifecycle } from './radarDesignSystem';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { RadarProductNavigation } from './radarNetworks';
@@ -199,7 +200,7 @@ export function MonitorPreSpendDecisionCard({ result }: { result: MonitorPreSpen
       <p><span>Intent</span><strong>{monitorIntentLabel(result.intent)}</strong></p>
       <p><span>Settlement</span><strong>{monitorSettlementLabel(result.preferred_settlement ?? 'tokenized_pltr')}</strong></p>
       <p><span>Confidence</span><strong>{result.confidence_score} / {result.required_confidence ?? 'n/a'}</strong></p>
-      <p><span>Canonical judgment</span><strong>{result.judgment?.decision ?? 'DEGRADE'}</strong></p>
+      <p><span>Canonical judgment</span><strong>{result.judgment?.decision ?? 'unavailable'}</strong></p>
       <p><span>Outcome</span><strong>{(result.judgment?.outcome_status ?? 'NOT_VERIFIED').replaceAll('_', ' ')}</strong></p>
       <p><span>Human approval</span><strong>{result.requires_human_approval ? 'required' : 'not required'}</strong></p>
     </div>
@@ -310,7 +311,7 @@ export function ProofCheckPage() {
           <p><a className="execute compact secondary" href={shareHref(result)}>Open public share page</a></p>
           <button className="execute compact secondary" type="button" onClick={copyShareText}>Copy share text</button>
           {copied && <p className="panel-caption">{copied}</p>}
-          <pre className="proof-share-block">{shareText}</pre>
+          <pre tabIndex={0} aria-label="Code or evidence record" className="proof-share-block">{shareText}</pre>
         </div>
       </section>}
 
@@ -330,6 +331,7 @@ export function ProofCheckPage() {
             </a>)}
           </div>}
       </section>
+      <RadarReceiptLifecycle reference />
     </main>
   </div>;
 }
@@ -386,6 +388,7 @@ export function ProofCheckDetailPage({ checkId }: { checkId: string }) {
         <h1>Proof check not found</h1>
         <p className="copy">No public proof check exists for {checkId}.</p>
       </section>
+      <RadarReceiptLifecycle reference />
     </main>
   </div>;
 
@@ -409,7 +412,7 @@ export function ProofCheckDetailPage({ checkId }: { checkId: string }) {
             <p><b>No receipt, no trust.</b></p>
             <button className="execute compact secondary" type="button" onClick={copyShareText}>Copy share text</button>
             {copyState && <p className="panel-caption">{copyState}</p>}
-            <pre className="proof-share-block">{check.share_text}</pre>
+            <pre tabIndex={0} aria-label="Code or evidence record" className="proof-share-block">{check.share_text}</pre>
           </aside>
         </section>
 
@@ -438,6 +441,7 @@ export function ProofCheckDetailPage({ checkId }: { checkId: string }) {
           </article>
         </section>
       </>}
+      <RadarReceiptLifecycle reference />
     </main>
   </div>;
 }

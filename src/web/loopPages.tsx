@@ -1,3 +1,4 @@
+import { RadarReceiptLifecycle } from './radarDesignSystem';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { ProofReceiptCard, type ProofCheckResult } from './proofCheckPages';
@@ -258,6 +259,7 @@ export function LoopsPage() {
           <section className="proof-check-grid" aria-label="Loop receipt cards">{loops.map((loop) => <LoopCard key={loop.id} loop={loop} />)}</section>
           <FailureWall loops={loops} />
         </>}
+      <RadarReceiptLifecycle reference />
     </main>
   </div>;
 }
@@ -300,6 +302,7 @@ export function LoopDetailPage({ loopId }: { loopId: string }) {
         <h1>Loop not found</h1>
         <p className="copy">No public loop exists for {loopId}.</p>
       </section>
+      <RadarReceiptLifecycle reference />
     </main>
   </div>;
 
@@ -356,6 +359,7 @@ export function LoopDetailPage({ loopId }: { loopId: string }) {
           </article>
         </section>
       </>}
+      <RadarReceiptLifecycle reference />
     </main>
   </div>;
 }

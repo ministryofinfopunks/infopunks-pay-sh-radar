@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { RadarStatus } from './radarDesignSystem';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import type { Rh4663CallReceipt, Rh4663RotationOption } from '../services/rh4663Service';
 import type { Rh4663ProofProfile } from '../services/rh4663ResolutionService';
@@ -11,7 +12,7 @@ type EvidenceState = 'VERIFIED' | 'MIXED' | 'WATCH' | 'UNRESOLVED' | 'BLOCK' | '
 
 function evidenceState(value?: string | null): EvidenceState {
   const state = (value ?? '').toUpperCase().replaceAll('-', '_').replaceAll(' ', '_');
-  if (state.includes('VERIFY') || state.includes('VERIFIED') || state === 'FRESH' || state === 'PUBLISHED' || state === 'AVAILABLE') return 'VERIFIED';
+  if (state === 'VERIFIED') return 'VERIFIED';
   if (state.includes('MIX')) return 'MIXED';
   if (state.includes('WATCH')) return 'WATCH';
   if (state.includes('BLOCK')) return 'BLOCK';
@@ -31,6 +32,8 @@ export function FreshnessBadge({ at, pending }: { at?: string | null; pending?: 
 }
 
 export function EvidenceBadge({ state }: { state?: string | null }) {
+  const raw = (state ?? '').toUpperCase();
+  if (['FRESH', 'PUBLISHED', 'AVAILABLE'].includes(raw)) return <RadarStatus state={raw === 'PUBLISHED' ? 'recorded' : 'unavailable'} detail={raw === 'PUBLISHED' ? 'Published · verification not established' : `${raw.toLowerCase()} · verification not established`} />;
   const label = evidenceState(state);
   return <span className={`fd-evidence fd-evidence-${label.toLowerCase().replaceAll(' ', '-')}`} data-evidence-state={label}>{label}</span>;
 }
@@ -400,7 +403,7 @@ function My4663Module({ data, my }: { data: Rh4663FrontdoorState | null; my: Ret
 }
 
 export function FrontdoorShell({ children, freshness }: { children: React.ReactNode; freshness?: string | null }) {
-  return <div className="fd-shell"><a className="fd-skip" href="#now">Skip to now</a><header className="fd-topbar"><a href="/4663" className="fd-mark" aria-label="Infopunks 4663 home"><span>INFOPUNKS</span><b>4663</b></a><div className="fd-topbar-status"><span><i aria-hidden="true" /> <FreshnessBadge at={freshness} /></span><a href="#call">Call</a></div></header><nav className="fd-nav" aria-label="Primary navigation"><a href="#now">Now</a><a href="#watch">Watch</a><a href="#call">Call</a><a href="#proof">Proof</a></nav>{children}</div>;
+  return <div className="fd-shell"><a className="fd-skip" href="#now">Skip to now</a><header className="fd-topbar"><a href="/4663" className="fd-mark" aria-label="Infopunks 4663 home"><span>INFOPUNKS</span><b>4663</b></a><div className="fd-topbar-status"><span><i aria-hidden="true" /> <FreshnessBadge at={freshness} /></span><a href="#call">Call</a></div></header><nav className="fd-nav" aria-label="4663 workspace navigation"><a href="#now">Now</a><a href="#watch">Watch</a><a href="#call">Call</a><a href="#proof">Proof</a></nav>{children}</div>;
 }
 
 export function Frontdoor({ data, status, message }: { data: Rh4663FrontdoorState | null; status: 'loading' | 'ready' | 'degraded'; message?: string }) {

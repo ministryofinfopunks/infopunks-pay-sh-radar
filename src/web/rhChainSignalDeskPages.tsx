@@ -867,7 +867,7 @@ function RankedIndexSection({ assets }: { assets: RhChain4663Asset[] }) {
         <p>Ranked by computed signal score across attention, volume, holders, durability, and deployer trust.</p>
       </div>
     </div>
-    <div className="rh-chain-4663-table" role="table" aria-label="4663 Signal Index ranked assets">
+    <div className="rh-chain-4663-table" tabIndex={0} role="table" aria-label="4663 Signal Index ranked assets">
       <div className="rh-chain-4663-table-row head" role="row">
         <span role="columnheader">Rank</span>
         <span role="columnheader">Ticker</span>
@@ -1236,7 +1236,7 @@ function MemePulseSection({
         <SourceLine source={asset.source} />
       </article>)}
     </div>}
-    <div className="rh-chain-table" role="table" aria-label="Robinhood Chain meme token watchlist">
+    <div className="rh-chain-table" tabIndex={0} role="table" aria-label="Robinhood Chain meme token watchlist">
       <div className="rh-chain-table-row head" role="row">
         <span role="columnheader">Rank</span>
         <span role="columnheader">Ticker</span>
@@ -1501,7 +1501,7 @@ function SubmitSignalSection() {
         <p><span>chain</span><strong>{packet.chain}</strong></p>
       </div>
       <div className="panel-actions"><a className="execute compact secondary" href="/rh-chain-signal-desk/review-queue">Open Review Queue</a></div>
-      <pre className="rh-chain-packet-pre">{packetText}</pre>
+      <pre tabIndex={0} aria-label="Code or evidence record" className="rh-chain-packet-pre">{packetText}</pre>
     </div>}
   </section>;
 }

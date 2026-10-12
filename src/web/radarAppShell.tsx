@@ -3,7 +3,7 @@ import { RadarProductNavigation } from './radarNetworks';
 import { RadarShellContext } from './radarShellContext';
 import { radarNetworkForPath } from './bootContext';
 import { radarPageIdentity, radarPageLabel } from './radarPageIdentity';
-import { RadarSectionHeader } from './radarDesignSystem';
+import { RadarSectionHeader, RadarReceiptLifecycle } from './radarDesignSystem';
 
 export function RadarAppShell({ children, path = typeof window === 'undefined' ? '/' : window.location.pathname }: { children: React.ReactNode; path?: string }) {
   const identity = radarPageIdentity(path);
@@ -17,6 +17,7 @@ export function RadarAppShell({ children, path = typeof window === 'undefined' ?
       <RadarSectionHeader {...identity} level="label" />
     </div>
     <div className="radar-route-content" id="radar-page-content" tabIndex={-1}>{children}</div>
+    <details className="radar-protocol-reference"><summary>Observation → Judgment → Execution → Evaluation</summary><RadarReceiptLifecycle reference /></details>
     <footer className="radar-app-footer"><strong>NO RECEIPT. NO TRUST.</strong><span>Intelligence before action. Proof after execution.</span><a href="/developers">Documentation</a><a href="/openapi.json">OpenAPI</a></footer>
   </div></RadarShellContext.Provider>;
 }
