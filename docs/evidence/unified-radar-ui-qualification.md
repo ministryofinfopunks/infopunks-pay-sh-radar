@@ -1,5 +1,7 @@
 # Unified Radar UI qualification
 
+Terminal-reference redesign follow-up: see [terminal UI qualification](terminal-ui-qualification.md). The SHA and screenshots below preserve the earlier qualification.
+
 Exact source: **d6112b5c8c56e75a8b33c238126a478277b3d0a1**. Date: 2026-10-12 (Asia/Colombo). Application: compiled API/static Vite build on `127.0.0.1:8799`, development API fixtures, ingestion/monitor/payment/execution/economic/publication activation disabled. No screenshot or local test establishes production operation or externally verified outcomes.
 
 Automated browser evidence: [results](unified-radar/browser/results.json), [navigation audit](unified-radar/browser/navigation-audit.json), [keyboard/reduced motion](unified-radar/browser/keyboard-reduced-motion.json), [failure recovery](unified-radar/browser/failure-recovery.json). Browser: installed Chrome for Testing via bundled Playwright; axe-core 4.10.3 with WCAG 2 A/AA, 2.1 AA and 2.2 AA tags. Lighthouse 12.8.2 is a local lab measurement. Automated zero findings is not a full WCAG certification or an Apple-level design certification.

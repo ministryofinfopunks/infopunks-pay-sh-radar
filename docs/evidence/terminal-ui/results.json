@@ -1,0 +1,2020 @@
+{
+  "source_sha": "6c2fd25ca3597cdb3f463373d260c6d15908ae69",
+  "working_tree_diff": " docs/evidence/unified-radar-ui-qualification.md | 2 ++\n docs/product/unified-radar-launch-audit.md      | 4 ++++\n 2 files changed, 6 insertions(+)\n",
+  "environment": "Local compiled API with development fixtures; payment/execution disabled. No external proof or readiness asserted.",
+  "reports": [
+    {
+      "name": "desktop",
+      "route": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "screenshot": "desktop-home.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 4
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 9
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 1440,
+        "width": 1440,
+        "title": "Infopunks Radar — Intelligence before the wallet acts",
+        "artworkRequests": [
+          "http://127.0.0.1:8799/artwork/signal-punk.webp"
+        ],
+        "h1": [
+          "Before your agent spends, check the evidence."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": [],
+      "initial_api_requests": []
+    },
+    {
+      "name": "desktop",
+      "route": "/solana",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "screenshot": "desktop-solana.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 53
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 3
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 1816
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 1440,
+        "width": 1440,
+        "title": "Solana Radar | Infopunks Radar",
+        "artworkRequests": [],
+        "h1": [
+          "Proof before agent spend."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "desktop",
+      "route": "/4663",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "screenshot": "desktop-4663.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 10
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 1
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 2
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 1440,
+        "width": 1440,
+        "title": "Infopunks // 4663 | Infopunks Radar",
+        "artworkRequests": [],
+        "h1": [
+          "Robinhood Chain,right now."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "desktop",
+      "route": "/rh-chain-signal-desk",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "screenshot": "desktop-rh-chain-signal-desk.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 1
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 58
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 1440,
+        "width": 1440,
+        "title": "RH Chain Signal Desk",
+        "artworkRequests": [],
+        "h1": [
+          "Know what is moving.Know what is real."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "desktop",
+      "route": "/spend-terminal",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "screenshot": "desktop-spend-terminal.png",
+      "axe": {
+        "violations": [],
+        "incomplete": []
+      },
+      "dom": {
+        "scrollWidth": 1440,
+        "width": 1440,
+        "title": "Spend Check | Infopunks Radar",
+        "artworkRequests": [],
+        "h1": [
+          "Should this agent spend?"
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "desktop",
+      "route": "/rh-chain-signal-desk/market",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "screenshot": "desktop-rh-chain-signal-desk-market.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 2
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 18
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 1440,
+        "width": 1440,
+        "title": "Robinhood Chain Market Pulse | Infopunks Radar",
+        "artworkRequests": [],
+        "h1": [
+          "Market structure is waiting for fresh pair evidence."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "desktop",
+      "route": "/radar/cards",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "screenshot": "desktop-radar-cards.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 4
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 73
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 1440,
+        "width": 1440,
+        "title": "Preflight Card Index",
+        "artworkRequests": [],
+        "h1": [
+          "Preflight Card Index"
+        ],
+        "nav": [],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "desktop",
+      "route": "/receipts",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "screenshot": "desktop-receipts.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 1
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 144
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 1440,
+        "width": 1440,
+        "title": "Receipts | Infopunks Builder",
+        "artworkRequests": [],
+        "h1": [
+          "Receipts"
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "desktop",
+      "route": "/receipts/receipt_001",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "screenshot": "desktop-receipts-receipt_001.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 1
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 73
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 1440,
+        "width": 1440,
+        "title": "receipt_001 | Receipt Detail",
+        "artworkRequests": [],
+        "h1": [
+          "receipt_001"
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "desktop",
+      "route": "/loops",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "screenshot": "desktop-loops.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 2
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 194
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 1440,
+        "width": 1440,
+        "title": "Infopunks Radar | Intelligence Across Solana and Robinhood Chain",
+        "artworkRequests": [],
+        "h1": [
+          "Where autonomous work becomes collective memory."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "desktop",
+      "route": "/developers",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "screenshot": "desktop-developers.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 3
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 102
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 1440,
+        "width": 1440,
+        "title": "Developers | Infopunks Radar",
+        "artworkRequests": [],
+        "h1": [
+          "Before your agent pays, it checks Infopunks."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "tablet",
+      "route": "/",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "screenshot": "tablet-home.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 4
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 4
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 768,
+        "width": 768,
+        "title": "Infopunks Radar — Intelligence before the wallet acts",
+        "artworkRequests": [
+          "http://127.0.0.1:8799/artwork/signal-punk.webp"
+        ],
+        "h1": [
+          "Before your agent spends, check the evidence."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": [],
+      "initial_api_requests": []
+    },
+    {
+      "name": "tablet",
+      "route": "/solana",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "screenshot": "tablet-solana.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 52
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 3
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 1828
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 768,
+        "width": 768,
+        "title": "Solana Radar | Infopunks Radar",
+        "artworkRequests": [],
+        "h1": [
+          "Proof before agent spend."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "tablet",
+      "route": "/4663",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "screenshot": "tablet-4663.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 10
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 1
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 2
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 768,
+        "width": 768,
+        "title": "Infopunks // 4663 | Infopunks Radar",
+        "artworkRequests": [],
+        "h1": [
+          "Robinhood Chain,right now."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "tablet",
+      "route": "/rh-chain-signal-desk",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "screenshot": "tablet-rh-chain-signal-desk.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 58
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 768,
+        "width": 768,
+        "title": "RH Chain Signal Desk",
+        "artworkRequests": [],
+        "h1": [
+          "Know what is moving.Know what is real."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "tablet",
+      "route": "/spend-terminal",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "screenshot": "tablet-spend-terminal.png",
+      "axe": {
+        "violations": [],
+        "incomplete": []
+      },
+      "dom": {
+        "scrollWidth": 768,
+        "width": 768,
+        "title": "Spend Check | Infopunks Radar",
+        "artworkRequests": [],
+        "h1": [
+          "Should this agent spend?"
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "tablet",
+      "route": "/rh-chain-signal-desk/market",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "screenshot": "tablet-rh-chain-signal-desk-market.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 1
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 18
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 768,
+        "width": 768,
+        "title": "Robinhood Chain Market Pulse | Infopunks Radar",
+        "artworkRequests": [],
+        "h1": [
+          "Market structure is waiting for fresh pair evidence."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "tablet",
+      "route": "/radar/cards",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "screenshot": "tablet-radar-cards.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 4
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 73
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 768,
+        "width": 768,
+        "title": "Preflight Card Index",
+        "artworkRequests": [],
+        "h1": [
+          "Preflight Card Index"
+        ],
+        "nav": [],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "tablet",
+      "route": "/receipts",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "screenshot": "tablet-receipts.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 144
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 768,
+        "width": 768,
+        "title": "Receipts | Infopunks Builder",
+        "artworkRequests": [],
+        "h1": [
+          "Receipts"
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "tablet",
+      "route": "/receipts/receipt_001",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "screenshot": "tablet-receipts-receipt_001.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 73
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 768,
+        "width": 768,
+        "title": "receipt_001 | Receipt Detail",
+        "artworkRequests": [],
+        "h1": [
+          "receipt_001"
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "tablet",
+      "route": "/loops",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "screenshot": "tablet-loops.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 2
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 3
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 194
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 768,
+        "width": 768,
+        "title": "Infopunks Radar | Intelligence Across Solana and Robinhood Chain",
+        "artworkRequests": [],
+        "h1": [
+          "Where autonomous work becomes collective memory."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "tablet",
+      "route": "/developers",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": 200,
+      "screenshot": "tablet-developers.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 2
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 102
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 768,
+        "width": 768,
+        "title": "Developers | Infopunks Radar",
+        "artworkRequests": [],
+        "h1": [
+          "Before your agent pays, it checks Infopunks."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "mobile",
+      "route": "/",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "screenshot": "mobile-home.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 4
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 390,
+        "width": 390,
+        "title": "Infopunks Radar — Intelligence before the wallet acts",
+        "artworkRequests": [],
+        "h1": [
+          "Before your agent spends, check the evidence."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": [],
+      "initial_api_requests": []
+    },
+    {
+      "name": "mobile",
+      "route": "/solana",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "screenshot": "mobile-solana.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 52
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 3
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 1828
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 390,
+        "width": 390,
+        "title": "Solana Radar | Infopunks Radar",
+        "artworkRequests": [],
+        "h1": [
+          "Proof before agent spend."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "mobile",
+      "route": "/4663",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "screenshot": "mobile-4663.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 10
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 1
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 2
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 390,
+        "width": 390,
+        "title": "Infopunks // 4663 | Infopunks Radar",
+        "artworkRequests": [],
+        "h1": [
+          "Robinhood Chain,right now."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "mobile",
+      "route": "/rh-chain-signal-desk",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "screenshot": "mobile-rh-chain-signal-desk.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 58
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 390,
+        "width": 390,
+        "title": "RH Chain Signal Desk",
+        "artworkRequests": [],
+        "h1": [
+          "Know what is moving.Know what is real."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "mobile",
+      "route": "/spend-terminal",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "screenshot": "mobile-spend-terminal.png",
+      "axe": {
+        "violations": [],
+        "incomplete": []
+      },
+      "dom": {
+        "scrollWidth": 390,
+        "width": 390,
+        "title": "Spend Check | Infopunks Radar",
+        "artworkRequests": [],
+        "h1": [
+          "Should this agent spend?"
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "mobile",
+      "route": "/rh-chain-signal-desk/market",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "screenshot": "mobile-rh-chain-signal-desk-market.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 1
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 18
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 390,
+        "width": 390,
+        "title": "Robinhood Chain Market Pulse | Infopunks Radar",
+        "artworkRequests": [],
+        "h1": [
+          "Market structure is waiting for fresh pair evidence."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": [
+          {
+            "tag": "P",
+            "class": "sr-only"
+          }
+        ]
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "mobile",
+      "route": "/radar/cards",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "screenshot": "mobile-radar-cards.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 4
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 73
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 390,
+        "width": 390,
+        "title": "Preflight Card Index",
+        "artworkRequests": [],
+        "h1": [
+          "Preflight Card Index"
+        ],
+        "nav": [],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "mobile",
+      "route": "/receipts",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "screenshot": "mobile-receipts.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 144
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 390,
+        "width": 390,
+        "title": "Receipts | Infopunks Builder",
+        "artworkRequests": [],
+        "h1": [
+          "Receipts"
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "mobile",
+      "route": "/receipts/receipt_001",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "screenshot": "mobile-receipts-receipt_001.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 73
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 390,
+        "width": 390,
+        "title": "receipt_001 | Receipt Detail",
+        "artworkRequests": [],
+        "h1": [
+          "receipt_001"
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "mobile",
+      "route": "/loops",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "screenshot": "mobile-loops.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 2
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 3
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 194
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 390,
+        "width": 390,
+        "title": "Infopunks Radar | Intelligence Across Solana and Robinhood Chain",
+        "artworkRequests": [],
+        "h1": [
+          "Where autonomous work becomes collective memory."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "mobile",
+      "route": "/developers",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "screenshot": "mobile-developers.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 2
+          },
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 102
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 390,
+        "width": 390,
+        "title": "Developers | Infopunks Radar",
+        "artworkRequests": [],
+        "h1": [
+          "Before your agent pays, it checks Infopunks."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": [
+          {
+            "tag": "CODE",
+            "class": ""
+          },
+          {
+            "tag": "CODE",
+            "class": ""
+          }
+        ]
+      },
+      "errors": [],
+      "failures": []
+    },
+    {
+      "name": "compact",
+      "route": "/",
+      "viewport": {
+        "width": 320,
+        "height": 800
+      },
+      "status": 200,
+      "screenshot": "compact-home.png",
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 4
+          }
+        ]
+      },
+      "dom": {
+        "scrollWidth": 320,
+        "width": 320,
+        "title": "Infopunks Radar — Intelligence before the wallet acts",
+        "artworkRequests": [],
+        "h1": [
+          "Before your agent spends, check the evidence."
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": [],
+      "initial_api_requests": []
+    },
+    {
+      "name": "compact",
+      "route": "/spend-terminal",
+      "viewport": {
+        "width": 320,
+        "height": 800
+      },
+      "status": 200,
+      "screenshot": "compact-spend-terminal.png",
+      "axe": {
+        "violations": [],
+        "incomplete": []
+      },
+      "dom": {
+        "scrollWidth": 320,
+        "width": 320,
+        "title": "Spend Check | Infopunks Radar",
+        "artworkRequests": [],
+        "h1": [
+          "Should this agent spend?"
+        ],
+        "nav": [
+          {
+            "label": "Radar",
+            "href": "/"
+          },
+          {
+            "label": "Solana",
+            "href": "/solana"
+          },
+          {
+            "label": "Robinhood Chain",
+            "href": "/rh-chain-signal-desk"
+          },
+          {
+            "label": "Proof",
+            "href": "/#proof"
+          },
+          {
+            "label": "Developers",
+            "href": "/developers"
+          }
+        ],
+        "overflowing": []
+      },
+      "errors": [],
+      "failures": []
+    }
+  ],
+  "interactions": {
+    "chainMenus": [
+      {
+        "route": "/solana",
+        "destinations": 5,
+        "dismissed": true
+      },
+      {
+        "route": "/rh-chain-signal-desk",
+        "destinations": 5,
+        "dismissed": true
+      },
+      {
+        "route": "/4663",
+        "destinations": 5,
+        "dismissed": true
+      }
+    ],
+    "mobileNav": 5,
+    "menuAxe": [],
+    "menuDismiss": true,
+    "evidenceExpanded": true,
+    "preservedSubject": "solana:mainnet:service_route:route/a?b=c&d=1",
+    "realResult": "Canonical JudgmentInsufficient evidenceFree assessment · no canonical receiptExecution: not authorized. Outcome: not verified.Required fresh, scoped, live evidence is missing.Confidence0/100Judgment fee0 USDCEvidence accepted0ReceiptNot issuedExpiryNo actionable validity windowInspect the canonical response{\n  \"judgment_id\": \"judgment_a77eed5f1bb0f0f2060846c2141eae9a64182414421625de0f0a41675cd1259b\",\n  \"decision\": \"insufficient_evidence\",\n  \"confidence\": 0,\n  \"issued_at\": \"2026-10-12T11:19:41.007Z\",\n  \"valid_until\": \"2026-10-12T11:20:41.007Z\",\n  \"reasons\": [\n    \"Required fresh, scoped, live evidence is missing.\"\n  ],\n  \"cited_observations\": [],\n  \"cost\": {\n    \"amount\": \"0\",\n    \"asset\": \"USDC\"\n  },\n  \"payment_required\": false,\n  \"receipt\": null\n}Inspect route evidence ↗",
+    "keyboardFocus": {
+      "tag": "A",
+      "text": "Skip to content",
+      "outline": "solid",
+      "scrollBehavior": "auto"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "source_sha": "6c2fd25ca3597cdb3f463373d260c6d15908ae69",
+  "environment": "Single local Chromium Lighthouse lab runs after completing test/browser jobs. Not field CWV or an SLO.",
+  "measurements": {
+    "desktop": {
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100
+      },
+      "fcp_ms": 445.96,
+      "lcp_ms": 568.94,
+      "tbt_ms": 0,
+      "cls": 0
+    },
+    "mobile": {
+      "scores": {
+        "performance": 97,
+        "accessibility": 100,
+        "best-practices": 100
+      },
+      "fcp_ms": 2106.33,
+      "lcp_ms": 2258.33,
+      "tbt_ms": 6,
+      "cls": 0
+    }
+  }
+}
