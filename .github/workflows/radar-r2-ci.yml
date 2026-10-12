@@ -24,7 +24,7 @@ jobs:
           POSTGRES_USER: radar
           POSTGRES_PASSWORD: radar-local-only
           POSTGRES_DB: radar_ci
-        ports: [5432:5432]
+        ports: ["5432:5432"]
         options: >-
           --health-cmd "pg_isready -U radar -d radar_ci"
           --health-interval 5s --health-timeout 5s --health-retries 20
@@ -70,7 +70,7 @@ jobs:
           POSTGRES_USER: radar
           POSTGRES_PASSWORD: radar-local-only
           POSTGRES_DB: radar_ci
-        ports: [5432:5432]
+        ports: ["5432:5432"]
         options: >-
           --health-cmd "pg_isready -U radar -d radar_ci"
           --health-interval 5s --health-timeout 5s --health-retries 20
