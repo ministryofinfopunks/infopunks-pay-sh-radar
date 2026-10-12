@@ -3,6 +3,21 @@ import { createApp } from '../src/api/app';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 
 describe('openapi discovery', () => {
+  it('documents the strict paid judgment and replay contract for both routes', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    try {
+      const spec = (await app.inject('/openapi.json')).json();
+      expect(spec.components.schemas.PreSpendCheckRequest.additionalProperties).toBe(false);
+      expect(spec.components.schemas.PreSpendCheckRequest.required).toContain('agent_id');
+      for (const path of ['/v1/pre-spend/check', '/v1/decide']) {
+        const operation = spec.paths[path].post;
+        expect(operation.responses['401']).toBeTruthy();
+        expect(operation.responses['403']).toBeTruthy();
+        expect(operation.parameters.find((p: { name: string }) => p.name === 'Idempotency-Key').schema.pattern).toBe('^[A-Za-z0-9_.:-]{1,128}$');
+        expect(operation.parameters.find((p: { name: string }) => p.name === 'PAYMENT-SIGNATURE').schema.maxLength).toBe(16384);
+      }
+    } finally { await app.close(); }
+  });
   it('serves valid OpenAPI JSON from /openapi.json', async () => {
     const app = await createApp(emptyIntelligenceStore());
     const response = await app.inject({ method: 'GET', url: '/openapi.json' });
