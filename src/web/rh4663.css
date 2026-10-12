@@ -342,3 +342,5 @@
 .fd-loop-progress { color: var(--fd-text-tertiary); font-size: .65rem; }
 .fd-call-changed small { color: var(--fd-text-tertiary); font-size: .66rem; line-height: 1.4; }
 @media (max-width: 720px) { .fd-return-summary { margin-bottom: var(--fd-space-4); }.fd-global-return h2 { font-size: 1.35rem; }.fd-loop { min-height: 0; }.fd-loop footer { align-items: flex-start; }.fd-change-list a span { align-items: flex-start; flex-direction: column; gap: .25rem; } }
+
+.fd-shell > .product-wayfinding, .i4663-app > .product-wayfinding { padding: 8px max(16px, calc((100% - 1180px) / 2)); border-bottom: 1px solid var(--radar-line); }

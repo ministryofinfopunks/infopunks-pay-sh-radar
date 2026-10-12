@@ -540,7 +540,7 @@ export function SpendTerminalPage() {
 
 export function DevelopersPage() {
   useEffect(() => {
-    document.title = 'Developers | Infopunks Builder';
+    document.title = 'Developers | Infopunks Radar';
   }, []);
 
   const sdkExample = `import { createInfopunksPreSpendClient } from "infopunks-pay-sh-radar/sdk";
@@ -555,8 +555,14 @@ const decision = await client.checkPreSpend({
   budget: 25,
   risk_tolerance: "low",
   preferred_settlement: "stablecoin",
-  required_confidence: 75
-});`;
+  required_confidence: 80
+});
+
+const judgment = decision.canonical_judgment;
+// Legacy labels are diagnostic. This code never executes.
+if (!judgment?.receipt) {
+  console.log("No issued canonical receipt. Do not act.");
+}`;
 
   const apiRequest = `POST /v1/pre-spend/check
 Content-Type: application/json
@@ -571,25 +577,20 @@ Content-Type: application/json
 }`;
 
   const apiResponse = `{
-  "data": {
-    "intent": "buy_market_research",
-    "decision": "approved_with_warning",
-    "recommended_route": "route_pay_sh_market_research_01",
-    "confidence_score": 82,
-    "risk_level": "medium",
-    "estimated_cost": "0.25 USDC",
-    "requires_human_approval": false,
-    "receipt_references": ["receipt_001"],
-    "known_blockers": ["occasional timeout under high load"]
-  }
+  "decision": "insufficient_evidence",
+  "confidence": 0,
+  "reasons": ["Required fresh, scoped evidence is missing."],
+  "cost": { "amount": "0", "asset": "USDC" },
+  "payment_required": false,
+  "receipt": null,
+  "execution_authorized": false
 }`;
 
-  const decisionStates: Array<{ state: DecisionState; copy: string }> = [
-    { state: 'approved', copy: 'Route can be used under the declared constraints.' },
-    { state: 'approved_with_warning', copy: 'Use is allowed, but the agent should surface caveats.' },
-    { state: 'use_with_caution', copy: 'Evidence is usable but fragile. Slow down and inspect the route.' },
-    { state: 'requires_human_approval', copy: 'The agent should stop and request an explicit human decision.' },
-    { state: 'do_not_use', copy: 'Observed evidence does not support spend on this route or counterparty.' }
+  const decisionStates = [
+    { state: 'proceed', tone: 'ok', copy: 'Policy-bound assessment. A valid canonical receipt and separate execution authorization are required before action.' },
+    { state: 'test_spend_first', tone: 'warn', copy: 'Only a policy-defined bounded test is justified. Execution remains separately authorized.' },
+    { state: 'do_not_spend', tone: 'error', copy: 'Reviewed evidence establishes a deterministic blocker.' },
+    { state: 'insufficient_evidence', tone: 'warn', copy: 'Abstain for free. Missing, stale, or unqualified evidence cannot authorize action.' }
   ];
 
   const resourceCards = [
@@ -651,7 +652,7 @@ Content-Type: application/json
             <p className="section-kicker">Step 3</p>
             <h2>Agent receives a decision.</h2>
             <div className="builder-chip-row" aria-label="Pre-spend decision states">
-              {decisionStates.map((item) => <span className={`builder-decision-chip ${decisionTone(item.state)}`} key={item.state}>{item.state}</span>)}
+              {decisionStates.map((item) => <span className={`builder-decision-chip ${item.tone}`} key={item.state}>{item.state}</span>)}
             </div>
           </article>
         </div>

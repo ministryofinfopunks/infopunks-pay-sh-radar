@@ -11049,14 +11049,15 @@ function EmptyState({ title, body }: { title: string; body: string }) {
 }
 
 function CompactChipList({ title, items, emptyLabel, limit = 10, wide = false }: { title: string; items: string[]; emptyLabel: string; limit?: number; wide?: boolean }) {
-  const visible = items.slice(0, limit);
-  const hiddenCount = Math.max(0, items.length - visible.length);
+  const uniqueItems = Array.from(new Set(items));
+  const visible = uniqueItems.slice(0, limit);
+  const hiddenCount = Math.max(0, uniqueItems.length - visible.length);
   return <section className={wide ? 'compact-chip-list wide' : 'compact-chip-list'}>
     <div className="compact-chip-list-head">
       <strong>{title}</strong>
-      <span>{items.length}</span>
+      <span>{uniqueItems.length}</span>
     </div>
-    {items.length === 0
+    {uniqueItems.length === 0
       ? <p>{emptyLabel}</p>
       : <div className="compact-chip-wrap">
         {visible.map((item) => <span key={item}>{item}</span>)}
@@ -11065,7 +11066,7 @@ function CompactChipList({ title, items, emptyLabel, limit = 10, wide = false }:
     {hiddenCount > 0 && <details className="compact-chip-details">
       <summary>View full list</summary>
       <div className="compact-chip-wrap full">
-        {items.map((item) => <span key={item}>{item}</span>)}
+        {uniqueItems.map((item) => <span key={item}>{item}</span>)}
       </div>
     </details>}
   </section>;

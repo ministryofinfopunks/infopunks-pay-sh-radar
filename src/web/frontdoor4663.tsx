@@ -1,3 +1,4 @@
+import { ProductWayfinding } from './productPrimitives';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import type { Rh4663CallReceipt, Rh4663RotationOption } from '../services/rh4663Service';
@@ -402,7 +403,7 @@ function My4663Module({ data, my }: { data: Rh4663FrontdoorState | null; my: Ret
 }
 
 export function FrontdoorShell({ children, freshness }: { children: React.ReactNode; freshness?: string | null }) {
-  return <div className="fd-shell"><a className="fd-skip" href="#now">Skip to now</a><header className="fd-topbar"><a href="/4663" className="fd-mark" aria-label="Infopunks 4663 home"><span>INFOPUNKS</span><b>4663</b></a><div className="fd-topbar-status"><span><i aria-hidden="true" /> <FreshnessBadge at={freshness} /></span><a href="#call">Call</a></div></header><nav className="fd-nav" aria-label="Primary navigation"><a href="#now">Now</a><a href="#watch">Watch</a><a href="#call">Call</a><a href="#proof">Proof</a></nav>{children}</div>;
+  return <div className="fd-shell"><a className="fd-skip" href="#now">Skip to now</a><header className="fd-topbar"><a href="/4663" className="fd-mark" aria-label="Infopunks Radar 4663 research"><span>INFOPUNKS RADAR</span><b>4663</b></a><div className="fd-topbar-status"><span><i aria-hidden="true" /> <FreshnessBadge at={freshness} /></span><a href="#call">Call</a></div></header><ProductWayfinding current="/rh-chain-signal-desk" /><nav className="fd-nav" aria-label="Primary navigation"><a href="#now">Now</a><a href="#watch">Watch</a><a href="#call">Call</a><a href="#proof">Proof</a></nav>{children}</div>;
 }
 
 export function Frontdoor({ data, status, message }: { data: Rh4663FrontdoorState | null; status: 'loading' | 'ready' | 'degraded'; message?: string }) {

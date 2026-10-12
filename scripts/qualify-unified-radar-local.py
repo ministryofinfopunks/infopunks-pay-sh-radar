@@ -43,7 +43,7 @@ def run(label, command, scoped_env=None, tolerated=False):
 run('runtime', ['node', '--version'])
 run('typecheck', ['npm', 'run', 'typecheck'])
 run('lint', ['npm', 'run', 'lint'])
-run('build', ['npm', 'run', 'build'])
+run('build', ['npm', 'run', 'build'], dict(env, NODE_ENV='production'))
 run('migration-inventory', ['npm', 'run', 'migrations:validate'])
 report = logs / 'full-tests.json'
 run('full-tests', ['npm', 'test', '--', '--maxWorkers=1', '--testTimeout=30000', '--reporter=default', '--reporter=json', '--outputFile=' + str(report)])

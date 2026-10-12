@@ -208,11 +208,8 @@ describe('pre-spend builder pages', () => {
     expect(text).toContain('createInfopunksPreSpendClient');
     expect(text).toContain('POST /v1/pre-spend/check');
     expect(text).toContain('https://radar.infopunks.fun');
-    expect(text).toContain('approved');
-    expect(text).toContain('approved_with_warning');
-    expect(text).toContain('use_with_caution');
-    expect(text).toContain('requires_human_approval');
-    expect(text).toContain('do_not_use');
+    for (const state of ['proceed', 'test_spend_first', 'do_not_spend', 'insufficient_evidence']) expect(text).toContain(state);
+    expect(text).toContain('No issued canonical receipt. Do not act.');
     expect(text).toContain('No receipt, no trust.');
     expect(text).toContain('Every decision should point back to receipts.');
     expect(text).toContain('Receipts capture route runs, cost, latency, status, validation, confidence delta, and evidence artifacts.');

@@ -51,6 +51,20 @@ for (const [viewportName, viewport] of Object.entries({ desktop: { width: 1440, 
     await page.close();
   }
 }
+const failureScenarios = [];
+for (const scenario of ['server_failure', 'timeout']) {
+  const failedPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await failedPage.route('**/v1/pre-spend/check', async route => {
+    if (scenario === 'server_failure') await route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"qualification_injected_failure"}' });
+    // An intentionally unanswered request exercises the real browser timeout. No success is fabricated.
+  });
+  await failedPage.goto(base + '/spend-terminal?subject=route_for_qualification&intent=quote');
+  await failedPage.getByRole('button', { name: 'Run a Check' }).click();
+  await failedPage.getByRole('alert').waitFor({ timeout: 16000 });
+  failureScenarios.push({ scenario, classification: 'INJECTED_LOCAL_FAILURE_ONLY', message: await failedPage.getByRole('alert').textContent(), retry_available: await failedPage.getByRole('button', { name: 'Retry check' }).isEnabled(), deep_link_subject: await failedPage.getByLabel('Subject or route identifier').inputValue() });
+  await failedPage.close();
+}
+await fs.writeFile(path.join(output, 'failure-recovery.json'), JSON.stringify({ source_sha: sourceSha, failureScenarios }, null, 2));
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
 await page.goto(base);
 const keyboard=[];
