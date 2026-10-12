@@ -113,6 +113,8 @@ import { assembleRhChainLaunchpadObservatory } from '../services/rhChainLaunchpa
 import { assembleRhChainScouts } from '../services/rhChainScoutsService';
 import { assembleRhChainDistributionPack } from '../services/rhChainDistributionPackService';
 import { assembleRhChainReceiptRelay } from '../services/rhChainReceiptRelayService';
+import { RhChainStockEvidenceService, qualifiedStockAssets } from '../services/rhChainStockEvidenceService';
+import { registerRhChainStockEvidenceRoutes } from './rhChainStockEvidenceRoutes';
 import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, PairV5OnchainVerifier, PostgresReflexiveStore, ReflexiveRadarService, stableId, type ReflexiveProvider } from '../services/rhChainReflexiveRadarService';
 import { InMemoryReflexiveWatchStore, ReflexiveMarketsWatchService, ReflexiveWatchError, type ReflexiveWatchClaimInput } from '../services/rhChainReflexiveWatchService';
 import { canonicalAssetsFromRhj, InMemoryRmmCategoryCensusStore, PostgresRmmCategoryCensusStore, RmmCategoryCensusService } from '../services/rmmCategoryCensusService';
@@ -702,6 +704,7 @@ export type CreateAppOptions = {
   ipxPltrShadowLabStore?: IpxPltrShadowLabStore;
   ipxPltrSnapshotResolver?: (observationId: string) => Promise<import('../services/rhChainPltrPreflightService').PltrPreflightState | null>;
   ipxPltrShadowObservation?: Partial<{ enabled: boolean; capacitySweepEnabled: boolean; intervalMs: number; now: () => Date }>;
+  reflexiveStore?: import('../services/rhChainReflexiveRadarService').ReflexiveStore;
   reflexiveWatchStore?: InMemoryReflexiveWatchStore;
   frontdoorChangeEventStore?: FrontdoorChangeEventStore;
   rh4663CampaignStore?: Rh4663CampaignStore;
@@ -826,7 +829,7 @@ export async function createApp(
     },
     async longAudit(asset) { return longDopplerVerifier ? longDopplerVerifier.observeAiNvda(asset) : null; }
   };
-  const reflexiveRadar = new ReflexiveRadarService(rhChainPostgresPool ? new PostgresReflexiveStore(rhChainPostgresPool) : new InMemoryReflexiveStore(), reflexiveProvider);
+  const reflexiveRadar = new ReflexiveRadarService(options.reflexiveStore ?? (rhChainPostgresPool ? new PostgresReflexiveStore(rhChainPostgresPool) : new InMemoryReflexiveStore()), reflexiveProvider);
   const reflexiveWatch = new ReflexiveMarketsWatchService(() => reflexiveRadar.snapshot(), options.reflexiveWatchStore);
   // A separate append-only breadth lane. It reads Radar's immutable observations but
   // never triggers inventory reconstruction, PLTR preflight, or shadow simulation.
@@ -1037,7 +1040,7 @@ export async function createApp(
     storageEnabled: rhChainMarketHistoryEnabled,
     maxObservationAgeMs: config.dexScreenerMaxStaleSeconds * 1000,
     // Snapshot history remains DEX Screener market data. Blockscout only adds exact-contract watchlist provenance/evidence.
-    watchlist: async () => [...new Set([...(await rhChainTokenRegistry.seedWatchlistFromBlockscout()).map((item) => item.contract), ...(rhChainDiscoveryQueue?.watchedContracts() ?? [])])],
+    watchlist: async () => [...new Set([...qualifiedStockAssets((await reflexiveRadar.snapshot()).assets).map((item) => item.canonical_contract), ...(await rhChainTokenRegistry.seedWatchlistFromBlockscout()).map((item) => item.contract), ...(rhChainDiscoveryQueue?.watchedContracts() ?? [])])],
     classificationFor: (contract) => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? []), ...(rhChainReviewPipeline?.marketStructureCandidates() ?? [])].find((classification) => classification.contract.toLowerCase() === contract.toLowerCase()) ?? null,
     ...options.rhChainMarketSnapshotOptions
   });
@@ -3379,6 +3382,7 @@ export async function createApp(
     return { data: safeJsonExport(await rh4663Intelligence.rotation(req.query.since ? new Date(req.query.since).toISOString() : undefined)) };
   });
   // RMM observations are public evidence objects, never receipt protocol objects.
+  await registerRhChainStockEvidenceRoutes(app, new RhChainStockEvidenceService({ snapshot: () => reflexiveRadar.snapshot(), markets: (contracts) => rhChainMarketSnapshots.getLatestSnapshotsForContracts(contracts) }));
   app.get('/v1/4663/reflexive', async () => ({ data: safeJsonExport(await reflexiveRadar.snapshot()) }));
   app.get('/v1/4663/reflexive/watch', async () => ({ data: safeJsonExport({ ...await reflexiveWatch.snapshot(), rmm_category_census: await rmmCensus.latest() }) }));
   app.get('/v1/4663/reflexive/census', async (_req, reply) => { const census = await rmmCensus.latest(); return census ? { data: safeJsonExport(census) } : reply.code(409).send({ error: 'rmm_census_not_refreshed' }); });
