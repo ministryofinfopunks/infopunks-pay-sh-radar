@@ -28,7 +28,7 @@ Journey qualification at 320px exercises: failed request → retry → empty rec
 
 ## Commands
 
-- Baseline: `npm run typecheck`, `npm run build`, `npm test` (251 files passed, 9 skipped; 1855 tests passed, 19 skipped).
+- Before edits: `npm run typecheck`, `npm run build` passed on dfe089b. The first migration test sweep passed 251 files / 1855 tests, with 9 files / 19 tests skipped; it was run during implementation and is not claimed as an untouched-baseline test run.
 - Migration: `npm run check:design`, `npm run typecheck`, `npm run lint`, `npm run build`, `git diff --check`.
 - Regression qualification: `npm test -- --maxWorkers=4 --testTimeout=15000`; 252 files passed, 9 skipped; 1869 tests passed, 19 skipped. Exact counts are recorded in evidence/validation-summary.json. Earlier runs exposed stale navigation expectations, repaired to test the actual Services destination and /solana documentation anchors. One overloaded concurrent run hit the existing 5-second test timeout; final qualification uses 15 seconds.
 - `RADAR_UI_BROWSERS=chromium npm run test:ui`: initial 136 URLs × seven viewport sizes, plus //4663 in scoped follow-up. Targeted follow-ups use RADAR_UI_ROUTES and RADAR_UI_RUN_LABEL; results retained.
