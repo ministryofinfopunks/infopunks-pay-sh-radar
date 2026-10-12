@@ -6,6 +6,7 @@ import './spendTerminal.css';
 
 const labels = { proceed: 'Proceed under policy', test_spend_first: 'Test spend first', do_not_spend: 'Do not spend', insufficient_evidence: 'Insufficient evidence' };
 export function SpendTerminalPage() {
+  const [apiKey, setApiKey] = useState('');
   const [form, setForm] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return { agent_id: 'radar-browser', intent: params.get('intent') ?? 'buy_market_research', budget: '25', risk_tolerance: 'low' as 'low' | 'medium' | 'high' | 'critical', preferred_settlement: 'stablecoin', required_confidence: '80', subject_id: params.get('subject') ?? '' };
@@ -25,7 +26,7 @@ export function SpendTerminalPage() {
     const abort = new AbortController(); controller.current = abort;
     const timeout = setTimeout(() => abort.abort(), 12_000);
     setLoading(true); setError(null); setResult(null);
-    try { setResult(await requestJudgment(input, attempt.current!.key, abort.signal)); }
+    try { setResult(await requestJudgment(input, attempt.current!.key, abort.signal, apiKey)); }
     catch (err) { if (controller.current === abort) setError(abort.signal.aborted ? 'The check timed out. Retry the same check safely; your wallet has not been used.' : err instanceof Error ? err.message : 'Check unavailable. Try again.'); }
     finally { clearTimeout(timeout); if (controller.current === abort) { controller.current = null; setLoading(false); } }
   }
@@ -40,6 +41,8 @@ export function SpendTerminalPage() {
           <h2>Run a Check</h2>
           <fieldset disabled={loading}>
           <label>Agent identity<input value={form.agent_id} required maxLength={128} onChange={e => setForm({ ...form, agent_id: e.target.value })} /></label>
+          <label>Tenant access key<input aria-label="Tenant access key" type="password" autoComplete="off" value={apiKey} onChange={e => setApiKey(e.target.value)} /></label>
+          <p className="spend-form-note">Your operator-issued key stays in this tab's memory. Check does not authorize payment or execute an action.</p>
           <label>Intent<input value={form.intent} required maxLength={256} onChange={e => setForm({ ...form, intent: e.target.value })} /></label>
           <label>Subject or route identifier <small>Optional · preserved in deep links</small><input value={form.subject_id} maxLength={256} onChange={e => setForm({ ...form, subject_id: e.target.value })} /></label>
           <div className="spend-form-pair"><label>Budget<input type="number" min="0" step="0.01" required value={form.budget} onChange={e => setForm({ ...form, budget: e.target.value })} /></label><label>Risk tolerance<select value={form.risk_tolerance} onChange={e => setForm({ ...form, risk_tolerance: e.target.value as typeof form.risk_tolerance })}><option>low</option><option>medium</option><option>high</option><option>critical</option></select></label></div>

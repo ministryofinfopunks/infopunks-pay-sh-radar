@@ -6,8 +6,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--node-bin', help='Directory containing the qualified Node/npm executables')
 args = parser.parse_args()
 root = Path.cwd()
-out = root / 'docs/evidence/unified-radar/system'
-logs = root / 'output/unified-radar/final-logs'
+out = root / os.environ.get('RADAR_QUALIFICATION_OUTPUT_DIR', 'docs/evidence/radar-r2/2026-10-12/r2-1/system')
+logs = root / os.environ.get('RADAR_QUALIFICATION_LOG_DIR', 'output/radar-r2/r2-1/final-logs')
 out.mkdir(parents=True, exist_ok=True)
 logs.mkdir(parents=True, exist_ok=True)
 env = dict(os.environ)

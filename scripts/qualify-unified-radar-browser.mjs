@@ -14,11 +14,20 @@ await fs.mkdir(output, { recursive: true });
 const browser = await chromium.launch({ headless: true, ...(process.env.RADAR_QA_CHROMIUM ? { executablePath: process.env.RADAR_QA_CHROMIUM } : {}) });
 const sourceSha = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 const reports = [];
+const checkRequestKeys = new Map();
 const routes = ['/', '/solana', '/4663', '/rh-chain-signal-desk', '/spend-terminal', '/rh-chain-signal-desk/market', '/radar/cards', '/receipts', '/receipts/receipt_001', '/loops', '/developers'];
 for (const [viewportName, viewport] of Object.entries({ desktop: { width: 1440, height: 1000 }, tablet: { width: 768, height: 1024 }, mobile: { width: 390, height: 844 } })) {
   for (const route of routes) {
     const page = await browser.newPage({ viewport });
-    const network = [], errors = [];
+    const network = [], errors = []; let checkRequestCount = 0;
+    page.on('request', request => {
+      const url = new URL(request.url());
+      if (request.method() === 'POST' && url.pathname === '/v1/pre-spend/check') {
+        checkRequestCount++;
+        const requestKey = request.headers()['idempotency-key'];
+        if (requestKey) checkRequestKeys.set(viewportName, requestKey);
+      }
+    });
     page.on('pageerror', error => errors.push({ type: 'exception', message: error.message }));
     page.on('console', message => { if (['error','warning'].includes(message.type())) errors.push({ type: message.type(), message: message.text() }); });
     page.on('response', response => { if (response.url().includes('/v1/') || response.status() >= 400) network.push({ path: new URL(response.url()).pathname, status: response.status() }); });
@@ -28,6 +37,7 @@ for (const [viewportName, viewport] of Object.entries({ desktop: { width: 1440, 
     await page.waitForSelector('h1, [role="alert"]', { timeout: 15000 }).catch(() => {});
     await page.waitForTimeout(1400);
     if (route === '/spend-terminal') {
+      if (process.env.RADAR_QA_TENANT_KEY) await page.getByLabel('Tenant access key').fill(process.env.RADAR_QA_TENANT_KEY);
       await page.getByRole('button', { name: 'Run a Check' }).click();
       await page.getByRole('heading', { name: 'Insufficient evidence' }).waitFor({ timeout: 15000 });
     }
@@ -61,7 +71,10 @@ for (const [viewportName, viewport] of Object.entries({ desktop: { width: 1440, 
     const screenshot = `${viewportName}-${route === '/' ? 'home' : route.slice(1).replaceAll('/', '-')}.png`;
     await page.evaluate(() => { document.activeElement?.blur(); window.scrollTo(0, 0); });
     await page.screenshot({ path: path.join(output, screenshot), fullPage: route === '/' || route === '/spend-terminal' });
-    reports.push({ viewportName, viewport, route, http_status: response.status(), elapsed_ms: Date.now()-began, screenshot, dom, accessibility, network, errors });
+    const credentialExposure = route === '/spend-terminal' && process.env.RADAR_QA_TENANT_KEY
+      ? await page.evaluate(key => ({ url_contains_key: location.href.includes(key), local_storage_contains_key: Object.values(localStorage).some(value => value.includes(key)), password_input: document.querySelector('input[aria-label="Tenant access key"]')?.getAttribute('type') === 'password' }), process.env.RADAR_QA_TENANT_KEY)
+      : null;
+    reports.push({ viewportName, viewport, route, http_status: response.status(), elapsed_ms: Date.now()-began, screenshot, dom, accessibility, network, errors, ...(route === '/spend-terminal' ? { check_request_count: checkRequestCount, credential_exposure: credentialExposure } : {}) });
     await fs.writeFile(path.join(output,'results.json'), JSON.stringify({ source_sha: sourceSha, environment: 'Local compiled API; development fixtures; no paid/execution/signing capability enabled. No external verification asserted.', reports }, null, 2));
     console.log(viewportName, route, 'overflow', dom.scrollWidth > viewport.width, 'axe', accessibility.violations.length);
     await page.close();
@@ -111,6 +124,34 @@ const keyboard=[];
 for(let i=0;i<8;i++){await page.keyboard.press('Tab');keyboard.push(await page.evaluate(()=>({tag:document.activeElement.tagName,text:document.activeElement.textContent,outline:getComputedStyle(document.activeElement).outlineStyle})));}
 const keyboardReducedMotion = { source_sha: sourceSha, keyboard, reduced_motion: await page.evaluate(() => ({ requested: matchMedia('(prefers-reduced-motion: reduce)').matches, scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior })) };
 await fs.writeFile(path.join(output,'keyboard-reduced-motion.json'),JSON.stringify(keyboardReducedMotion,null,2));
+let authenticatedBrowser = null;
+if (process.env.RADAR_QA_TENANT_KEY) {
+  const requiredKeys = ['RADAR_QA_OTHER_TENANT_KEY', 'RADAR_QA_WRONG_AGENT_KEY', 'RADAR_QA_EXPIRED_KEY'];
+  if (requiredKeys.some(name => !process.env[name])) throw new Error('synthetic_tenant_matrix_configuration_missing');
+  const requestKey = checkRequestKeys.get('desktop');
+  if (!requestKey) throw new Error('authenticated_check_idempotency_key_missing');
+  const authPage = await browser.newPage();
+  await authPage.goto(base + '/spend-terminal');
+  authenticatedBrowser = await authPage.evaluate(async ({ tenantA, tenantB, wrongAgent, expired, requestKey }) => {
+    const get = async (path, token) => {
+      const response = await fetch(path, { headers: token ? { authorization: `Bearer ${token}` } : {}, cache: 'no-store' });
+      const body = await response.json().catch(() => null);
+      return { status: response.status, state: body?.data?.state ?? null, error: body?.error ?? null };
+    };
+    const proof = `/v1/judgments/requests/${encodeURIComponent(requestKey)}`;
+    return {
+      tenant_a_own_request: await get(proof, tenantA),
+      tenant_b_denied_tenant_a: await get(proof, tenantB),
+      same_tenant_wrong_agent: await get(proof, wrongAgent),
+      invalid_credential: await get('/v1/judgment/session', 'invalid-synthetic-credential'),
+      expired_credential: await get('/v1/judgment/session', expired),
+      missing_credential: await get('/v1/judgment/session', null),
+      credential_exposure: { url_contains_credential: [tenantA, tenantB, wrongAgent, expired].some(key => location.href.includes(key)), local_storage_contains_credential: [tenantA, tenantB, wrongAgent, expired].some(key => Object.values(localStorage).some(value => value.includes(key))) }
+    };
+  }, { tenantA: process.env.RADAR_QA_TENANT_KEY, tenantB: process.env.RADAR_QA_OTHER_TENANT_KEY, wrongAgent: process.env.RADAR_QA_WRONG_AGENT_KEY, expired: process.env.RADAR_QA_EXPIRED_KEY, requestKey });
+  await fs.writeFile(path.join(output, 'authenticated-tenant-browser.json'), JSON.stringify({ source_sha: sourceSha, environment: 'synthetic tenant credentials; disposable PostgreSQL; payment disabled', results: authenticatedBrowser }, null, 2));
+  await authPage.close();
+}
 await browser.close();
 const failures = [];
 for (const report of reports) {
@@ -124,6 +165,8 @@ for (const report of zoomReports) {
   if (report.http_status !== 200 || report.overflowing || report.code_regions.some(region => !region.bounded || !region.scrollable || !region.label || region.tabIndex !== '0')) failures.push(`${report.zoom_equivalent}:${report.route}:reflow_or_code_scroll_failure`);
 }
 if (!keyboardReducedMotion.reduced_motion.requested || keyboard.some(item => item.tag === 'BODY' || item.outline === 'none')) failures.push('keyboard_or_reduced_motion_failure');
+if (process.env.RADAR_QA_TENANT_KEY && reports.filter(r => r.route === '/spend-terminal').some(r => r.check_request_count !== 1 || !r.credential_exposure?.password_input || r.credential_exposure.url_contains_key || r.credential_exposure.local_storage_contains_key)) failures.push('authenticated_check_request_or_credential_exposure');
+if (authenticatedBrowser && (authenticatedBrowser.tenant_a_own_request.status !== 200 || authenticatedBrowser.tenant_a_own_request.state !== 'assessed_free' || authenticatedBrowser.tenant_b_denied_tenant_a.status !== 404 || authenticatedBrowser.same_tenant_wrong_agent.status !== 404 || authenticatedBrowser.invalid_credential.status !== 401 || authenticatedBrowser.expired_credential.status !== 401 || authenticatedBrowser.missing_credential.status !== 401 || authenticatedBrowser.credential_exposure.url_contains_credential || authenticatedBrowser.credential_exposure.local_storage_contains_credential)) failures.push('authenticated_tenant_browser_failure');
 const summary = { source_sha: sourceSha, route_count: reports.length, viewport_count: new Set(reports.map(r => r.viewportName)).size, http_failures: reports.filter(r => r.http_status !== 200).length, document_overflow_failures: reports.filter(r => r.dom.scrollWidth > r.viewport.width || r.dom.overflowing.length).length, axe_violation_count: reports.reduce((sum, r) => sum + r.accessibility.violations.length, 0), axe_incomplete_node_count: reports.reduce((sum, r) => sum + r.accessibility.incomplete.reduce((n, item) => n + item.nodes, 0), 0), private_request_failures: failures.filter(f => f.includes('anonymous_private_request')).length, reflow_reports: zoomReports.length, keyboard_reduced_motion_recorded: true, failures };
 await fs.writeFile(path.join(output,'summary.json'),JSON.stringify(summary,null,2));
 if (failures.length) throw new Error(`browser_qualification_failed:${failures.join(',')}`);

@@ -24,6 +24,20 @@ describe('canonical spend presentation and honest proof states', () => {
     const init = fetch.mock.calls[0][1]!;
     expect(init.headers).not.toHaveProperty('PAYMENT-SIGNATURE');
     expect(init.headers).toHaveProperty('Idempotency-Key');
+    expect(init.headers).not.toHaveProperty('Authorization');
+    expect(container.querySelector('input[aria-label="Tenant access key"]')?.getAttribute('type')).toBe('password');
+    expect(container.textContent).toContain("stays in this tab's memory");
+  });
+  it('sends the tenant credential only as an authorization header for the explicit check', async () => {
+    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify(response), { status: 200 }));
+    mount(<SpendTerminalPage />);
+    const key = container.querySelector('input[aria-label="Tenant access key"]') as HTMLInputElement;
+    act(() => { const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!; setter.call(key, 'synthetic-tenant-key'); key.dispatchEvent(new Event('input', { bubbles: true })); });
+    await act(async () => { container.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
+    const init = fetch.mock.calls[0][1]!;
+    expect(init.headers).toHaveProperty('Authorization', 'Bearer synthetic-tenant-key');
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(window.localStorage?.length ?? 0).toBe(0);
   });
   it('displays an unpaid quote and never automatically retries with a payment', async () => {
     const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ ...response, decision: 'test_spend_first', cost: { amount: '0.01', asset: 'USDC' }, payment_required: true }), { status: 402 }));
