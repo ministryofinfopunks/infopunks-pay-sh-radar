@@ -1,45 +1,85 @@
 {
-  "source_sha": "00d847379a1530848a8789f33cc075bd0a25095e",
+  "source_sha": "095b3b43365fb0bf890568b891074eceaeff74fe",
   "keyboard": [
     {
       "tag": "A",
       "text": "Skip to content",
-      "outline": "solid"
+      "focusVisible": true,
+      "outline": "solid",
+      "outlineWidth": "2px",
+      "boxShadow": "none",
+      "visibleIndicator": true,
+      "tabAttempts": 1
     },
     {
       "tag": "A",
       "text": "InfopunksRadar",
-      "outline": "solid"
+      "focusVisible": true,
+      "outline": "solid",
+      "outlineWidth": "2px",
+      "boxShadow": "none",
+      "visibleIndicator": true,
+      "tabAttempts": 1
     },
     {
       "tag": "A",
       "text": "Radar",
-      "outline": "solid"
+      "focusVisible": true,
+      "outline": "solid",
+      "outlineWidth": "2px",
+      "boxShadow": "none",
+      "visibleIndicator": true,
+      "tabAttempts": 1
     },
     {
       "tag": "A",
       "text": "Solana",
-      "outline": "solid"
+      "focusVisible": true,
+      "outline": "solid",
+      "outlineWidth": "2px",
+      "boxShadow": "none",
+      "visibleIndicator": true,
+      "tabAttempts": 1
     },
     {
       "tag": "A",
       "text": "Robinhood Chain",
-      "outline": "solid"
+      "focusVisible": true,
+      "outline": "solid",
+      "outlineWidth": "2px",
+      "boxShadow": "none",
+      "visibleIndicator": true,
+      "tabAttempts": 1
     },
     {
       "tag": "A",
       "text": "Proof",
-      "outline": "solid"
+      "focusVisible": true,
+      "outline": "solid",
+      "outlineWidth": "2px",
+      "boxShadow": "none",
+      "visibleIndicator": true,
+      "tabAttempts": 1
     },
     {
       "tag": "A",
       "text": "Developers",
-      "outline": "solid"
+      "focusVisible": true,
+      "outline": "solid",
+      "outlineWidth": "2px",
+      "boxShadow": "none",
+      "visibleIndicator": true,
+      "tabAttempts": 1
     },
     {
       "tag": "A",
       "text": "Run a Check ↗",
-      "outline": "solid"
+      "focusVisible": true,
+      "outline": "solid",
+      "outlineWidth": "2px",
+      "boxShadow": "none",
+      "visibleIndicator": true,
+      "tabAttempts": 1
     }
   ],
   "reduced_motion": {

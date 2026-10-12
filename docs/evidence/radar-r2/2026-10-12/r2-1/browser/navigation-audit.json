@@ -1,5 +1,5 @@
 {
-  "source_sha": "00d847379a1530848a8789f33cc075bd0a25095e",
+  "source_sha": "095b3b43365fb0bf890568b891074eceaeff74fe",
   "links": [
     {
       "from": "/",
@@ -1480,56 +1480,56 @@
     },
     {
       "from": "/solana",
-      "href": "/radar/readiness/agentmail",
+      "href": "/radar/readiness/speech",
       "label": "Open readiness card",
       "external": false,
       "checked_fragment": null
     },
     {
       "from": "/solana",
-      "href": "/radar/readiness/agentmail",
+      "href": "/radar/readiness/speech",
       "label": "Share card",
       "external": false,
       "checked_fragment": null
     },
     {
       "from": "/solana",
-      "href": "/radar/readiness/alibaba-speech",
+      "href": "/radar/readiness/translate",
       "label": "Open readiness card",
       "external": false,
       "checked_fragment": null
     },
     {
       "from": "/solana",
-      "href": "/radar/readiness/alibaba-speech",
+      "href": "/radar/readiness/translate",
       "label": "Share card",
       "external": false,
       "checked_fragment": null
     },
     {
       "from": "/solana",
-      "href": "/radar/readiness/google-speech",
+      "href": "/radar/readiness/dtelecom",
       "label": "Open readiness card",
       "external": false,
       "checked_fragment": null
     },
     {
       "from": "/solana",
-      "href": "/radar/readiness/google-speech",
+      "href": "/radar/readiness/dtelecom",
       "label": "Share card",
       "external": false,
       "checked_fragment": null
     },
     {
       "from": "/solana",
-      "href": "/radar/readiness/quicknode",
+      "href": "/radar/readiness/factchecktools",
       "label": "Open readiness card",
       "external": false,
       "checked_fragment": null
     },
     {
       "from": "/solana",
-      "href": "/radar/readiness/quicknode",
+      "href": "/radar/readiness/factchecktools",
       "label": "Share card",
       "external": false,
       "checked_fragment": null
@@ -1543,7 +1543,7 @@
     },
     {
       "from": "/solana",
-      "href": "/interpretations/interpretation-04dabcf23e96b6590fd1d5e9",
+      "href": "/interpretations/interpretation-fd7427fb6216479b9aaeda37",
       "label": "view full receipts",
       "external": false,
       "checked_fragment": null
@@ -1564,7 +1564,7 @@
     },
     {
       "from": "/solana",
-      "href": "/propagation/prop-b8e990713dd2d55b",
+      "href": "/propagation/prop-09a5ee29e3523e05",
       "label": "view full receipts",
       "external": false,
       "checked_fragment": null

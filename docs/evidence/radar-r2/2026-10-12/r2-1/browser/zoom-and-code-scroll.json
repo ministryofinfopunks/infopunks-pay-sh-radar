@@ -1,5 +1,5 @@
 {
-  "source_sha": "00d847379a1530848a8789f33cc075bd0a25095e",
+  "source_sha": "095b3b43365fb0bf890568b891074eceaeff74fe",
   "method": "Equivalent CSS viewport widths at 100% browser zoom: 720px (200% of 1440 CSS px) and 360px (400% of 1440 CSS px). This is reflow coverage, not browser zoom UI automation.",
   "reports": [
     {
@@ -35,7 +35,7 @@
       "keyboard_scroll": {
         "focused": true,
         "before": 0,
-        "after": 26,
+        "after": 19,
         "advanced": true
       }
     },
@@ -99,7 +99,7 @@
       "keyboard_scroll": {
         "focused": true,
         "before": 0,
-        "after": 26,
+        "after": 27,
         "advanced": true
       }
     },

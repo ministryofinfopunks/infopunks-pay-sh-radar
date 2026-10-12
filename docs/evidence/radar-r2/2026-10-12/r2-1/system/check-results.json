@@ -1,11 +1,11 @@
 {
-  "source_sha": "00d847379a1530848a8789f33cc075bd0a25095e",
-  "platform": "macOS-14.4.1-arm64-arm-64bit",
+  "source_sha": "095b3b43365fb0bf890568b891074eceaeff74fe",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
   "databases": [
-    "unified_radar_75a308d649af",
-    "unified_radar_75a308d649af_resilience",
-    "unified_radar_75a308d649af_migration",
-    "unified_radar_75a308d649af_restore"
+    "unified_radar_cbb524d80b3c",
+    "unified_radar_cbb524d80b3c_resilience",
+    "unified_radar_cbb524d80b3c_migration",
+    "unified_radar_cbb524d80b3c_restore"
   ],
   "scope": "disposable localhost only; no external payment or production data",
   "checks": [
@@ -16,7 +16,7 @@
         "--version"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.015,
+      "elapsed_seconds": 0.004,
       "raw_log": "output/radar-r2/r2-1/final-logs/runtime.log"
     },
     {
@@ -27,7 +27,7 @@
         "typecheck"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 16.873,
+      "elapsed_seconds": 16.083,
       "raw_log": "output/radar-r2/r2-1/final-logs/typecheck.log"
     },
     {
@@ -38,7 +38,7 @@
         "lint"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 16.872,
+      "elapsed_seconds": 16.08,
       "raw_log": "output/radar-r2/r2-1/final-logs/lint.log"
     },
     {
@@ -49,7 +49,7 @@
         "build"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 6.457,
+      "elapsed_seconds": 7.524,
       "raw_log": "output/radar-r2/r2-1/final-logs/build.log"
     },
     {
@@ -60,7 +60,7 @@
         "migrations:validate"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.329,
+      "elapsed_seconds": 0.279,
       "raw_log": "output/radar-r2/r2-1/final-logs/migration-inventory.log"
     },
     {
@@ -73,10 +73,10 @@
         "--testTimeout=30000",
         "--reporter=default",
         "--reporter=json",
-        "--outputFile=/Users/ahdilm/.codex/worktrees/radar-release-integration-r2/Infopunks Pay.sh Intelligence Terminal/output/radar-r2/r2-1/final-logs/full-tests.json"
+        "--outputFile=/home/runner/work/infopunks-pay-sh-radar/infopunks-pay-sh-radar/output/radar-r2/r2-1/final-logs/full-tests.json"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 168.089,
+      "elapsed_seconds": 187.404,
       "raw_log": "output/radar-r2/r2-1/final-logs/full-tests.log"
     },
     {
@@ -88,7 +88,7 @@
         "--json"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.772,
+      "elapsed_seconds": 0.329,
       "raw_log": "output/radar-r2/r2-1/final-logs/audit-production.log"
     },
     {
@@ -99,7 +99,7 @@
         "--json"
       ],
       "exit_code": 1,
-      "elapsed_seconds": 1.541,
+      "elapsed_seconds": 0.323,
       "raw_log": "output/radar-r2/r2-1/final-logs/audit-all.log"
     },
     {
@@ -109,7 +109,7 @@
         "dist/server/cli/runPostgresMigrations.js"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.316,
+      "elapsed_seconds": 0.203,
       "raw_log": "output/radar-r2/r2-1/final-logs/migration-first.log"
     },
     {
@@ -120,7 +120,7 @@
         "--validate"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.067,
+      "elapsed_seconds": 0.057,
       "raw_log": "output/radar-r2/r2-1/final-logs/migration-check.log"
     },
     {
@@ -130,7 +130,7 @@
         "dist/server/cli/runPostgresMigrations.js"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.068,
+      "elapsed_seconds": 0.066,
       "raw_log": "output/radar-r2/r2-1/final-logs/migration-repeat.log"
     },
     {
@@ -143,60 +143,32 @@
         "seed"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.451,
+      "elapsed_seconds": 0.545,
       "raw_log": "output/radar-r2/r2-1/final-logs/recovery-seed.log"
     },
     {
       "name": "backup",
       "command": [
-        "docker",
-        "run",
-        "--rm",
-        "-v",
-        "/Users/ahdilm/.codex/worktrees/radar-release-integration-r2/Infopunks Pay.sh Intelligence Terminal:/workspace",
-        "-e",
-        "PGHOST=host.docker.internal",
-        "-e",
-        "PGPORT",
-        "-e",
-        "PGUSER",
-        "-e",
-        "PGPASSWORD",
-        "postgres@sha256:21f6013073bc6b92830a2129570e2f5ec42a6c734b5a985a41e83aa58f54c3c1",
         "pg_dump",
         "--format=custom",
         "--no-owner",
-        "--file=/workspace/output/radar-r2/r2-1/final-logs/local-recovery.dump",
-        "unified_radar_75a308d649af_migration"
+        "--file=/home/runner/work/infopunks-pay-sh-radar/infopunks-pay-sh-radar/output/radar-r2/r2-1/final-logs/local-recovery.dump",
+        "unified_radar_cbb524d80b3c_migration"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.426,
+      "elapsed_seconds": 0.158,
       "raw_log": "output/radar-r2/r2-1/final-logs/backup.log"
     },
     {
       "name": "restore",
       "command": [
-        "docker",
-        "run",
-        "--rm",
-        "-v",
-        "/Users/ahdilm/.codex/worktrees/radar-release-integration-r2/Infopunks Pay.sh Intelligence Terminal:/workspace",
-        "-e",
-        "PGHOST=host.docker.internal",
-        "-e",
-        "PGPORT",
-        "-e",
-        "PGUSER",
-        "-e",
-        "PGPASSWORD",
-        "postgres@sha256:21f6013073bc6b92830a2129570e2f5ec42a6c734b5a985a41e83aa58f54c3c1",
         "pg_restore",
         "--no-owner",
-        "--dbname=unified_radar_75a308d649af_restore",
-        "/workspace/output/radar-r2/r2-1/final-logs/local-recovery.dump"
+        "--dbname=unified_radar_cbb524d80b3c_restore",
+        "/home/runner/work/infopunks-pay-sh-radar/infopunks-pay-sh-radar/output/radar-r2/r2-1/final-logs/local-recovery.dump"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.524,
+      "elapsed_seconds": 0.256,
       "raw_log": "output/radar-r2/r2-1/final-logs/restore.log"
     },
     {
@@ -209,7 +181,7 @@
         "verify"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.305,
+      "elapsed_seconds": 0.423,
       "raw_log": "output/radar-r2/r2-1/final-logs/recovery-verify.log"
     },
     {
@@ -220,7 +192,7 @@
         "--check"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.012,
+      "elapsed_seconds": 0.226,
       "raw_log": "output/radar-r2/r2-1/final-logs/diff-check.log"
     }
   ]
