@@ -19,3 +19,7 @@ When generating a launch video:
 # Radar product interface
 
 Read `docs/design-system/constitution.md` before frontend changes. `src/web/radarTokens.css` owns global tokens; do not introduce a second theme or new root definitions in workflow stylesheets. `main.tsx` provides `RadarAppShell` for every UI page. Reuse navigation, indexed headers, explicit status vocabulary and `RadarReceiptLifecycle`. Preserve canonical decisions, permissions and receipt boundaries. Availability or freshness is not verification. Demonstrations must be labeled. Add route inventory and responsive coverage for new pages. Critical mobile usability failures block UI migration qualification; never claim completion using screenshots or tests that were not executed.
+
+## Canonical Radar identity V2
+
+All UI work must follow docs/design-system/constitution.md and the supplied reference under docs/design-system/references/. Use RadarAppShell, radarTokens.css and radarDesignSystem primitives. The cyan portrait terminal is canonical; the green editorial homepage is retired. Keep workflow layouts and truthful evidence states. Do not add another theme or copied global navigation. Never update visual baselines automatically. Homepage and remaining-route screenshot checkpoints require review before merge. No merge or deployment without user authorization.

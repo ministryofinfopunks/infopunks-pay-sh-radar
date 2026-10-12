@@ -1,4 +1,4 @@
-# INFOPUNKS RADAR // DESIGN SYSTEM V1
+# INFOPUNKS RADAR // CANONICAL CYAN TERMINAL V2
 
 Intelligence before action. Proof after execution.
 
@@ -6,7 +6,7 @@ Intelligence before action. Proof after execution.
 
 Baseline: dfe089b (clean main, 2026-10-12). Read `.agents/skills/apple-design/SKILL.md`: purpose, agency, familiarity, responsive hierarchy, direct feedback, readable typography, reduced motion, contrast and transparency preferences. Existing project guidance is AGENTS.md; no additional frontend engineering instructions were found.
 
-The actual entry is `main.tsx` → lightweight `homepage.tsx`, with the remaining routes lazily dispatched by `radarApp.tsx`. The requested literal `[ 01 ] INFOPUNKS RADAR / TWO ECONOMIES` was absent in this baseline. Preserve the actual homepage's editorial manifesto, economic sequence, two economy cards, restrained green, monospaced metadata, system display typography, dark canvas and fine framing; restore indexed grammar without replacing the homepage. No new artwork or fonts.
+The approved supplied reference is `references/infopunks-radar-canonical-cyan-terminal.png`. It is authoritative. The green editorial homepage is retired. Recovery baseline is 068df23; approved cyan presentation and 74,906-byte Signal Lens asset are reused from 205e3c9 without its backend changes. Root cause and exact source-to-port mapping are in recovery/root-cause.md.
 
 ## Architecture
 
@@ -16,12 +16,12 @@ The design system is part of `src/web`. One entry-level `RadarAppShell` owns glo
 
 ## Visual constitution
 
-- Canvas: near black; evidence panels: subdued dark green; typography: bone cream; muted text remains legible.
-- Preserve #7effb0 brand green. Cyan identifies action/selection, purple identifies policy-relative Judgment, amber uncertainty/warning, red validation failure. Text and labels always accompany colors.
+- Canvas: near black; evidence panels: near-black cool surfaces; typography: bone cream; muted text remains legible.
+- Use approved #050b0c canvas, #081113 panels, #f1f0e5 bone text, #a0c2d0 muted text, #4e737d terminal borders, #00eee4 cyan action/selection, #dc91ff policy-relative Judgment. Green is reserved for verified semantic success via --ok; amber pending/warning; red failure; neutral missing evidence. Text and labels always accompany colors.
 - Fine borders and aligned rows establish structure. Avoid glows, animated telemetry, gradients on controls, nested shadows and decorative charts.
 - Use existing font roles: UI/display and mono for identifiers, timestamps and metadata. Body ≥ 1rem; secondary labels ≥ .75rem. Fluid display sizes, tight display tracking and comfortable body leading. Identifiers wrap; code and wide tables scroll locally.
 - Use the existing rem spatial scale, control/surface/panel radii, motion and density aliases. Terminal panels use restrained .25rem corners; 44px primary touch controls.
-- Layout maximum 1180px. One shared alignment edge. Split workflows on desktop; task → input → action → Judgment → evidence → lifecycle → supporting navigation on mobile.
+- Layout maximum 1560px. One shared alignment edge. Split workflows on desktop; task → input → action → Judgment → evidence → lifecycle → supporting navigation on mobile.
 
 ## Indexed grammar
 
@@ -50,3 +50,11 @@ WCAG 2.2 AA target. Visible focus; skip link; semantic landmarks and heading hie
 A: record routes, foundations, components and baseline. B: shell/tokens/status/lifecycle. C: homepage/Solana/spend. D: intelligence/proof/operations. E: RH/reflexive/PLTR. F: existing typecheck, lint, tests, build, browser render, axe, keyboard, reduced motion, failure and mobile checks. Each boundary is a reviewable commit. No backend contract, authentication, ownership, payment authority or security gate changes. No deploy or merge.
 
 Mobile qualification is release-blocking: evaluate every route family at 320/375/390/430/768/1024/1440, preserve complete evidence, eliminate page overflow and document real-device/virtual-keyboard limitations. Automated emulation is not device testing. Do not call the migration complete when critical mobile issues or an unqualified essential journey remain. See route inventory and qualification report for actual implementation/test status.
+
+## Mandatory identity governance
+
+One entry-level RadarAppShell owns ProductHeader (RADAR, SOLANA, ROBINHOOD CHAIN, PROOF, DEVELOPERS), indexed route framing and ProductFooter. Existing network directories remain beneath it as progressive disclosure; no copied global headers. Every router entry inherits the shell; tables, panels and forms retain their appropriate layouts. RadarReceiptLifecycle serves the homepage and all receipt workflows. No second root token file; new work uses radarTokens.css. Green-named compatibility aliases resolve to cyan actions, never verification.
+
+Run check:design, typecheck, build, test:ui and test:ui:journeys. New route patterns require regenerated inventory and coverage. Screenshots produced by tests are candidates: human approval of checkpoint 1 (homepage) and checkpoint 2 (remaining routes) is required before merge. Never automatically update visual baselines or merge/deploy. Missing device, evidence, field performance or accessibility verification is HOLD, not PASS.
+
+Official guidance: https://developer.apple.com/design/human-interface-guidelines/accessibility ; https://developer.apple.com/design/human-interface-guidelines/layout ; https://web.dev/articles/vitals ; https://web.dev/learn/accessibility/ . Web Vitals must report field p75 separately from labs; Lighthouse TBT cannot certify INP.

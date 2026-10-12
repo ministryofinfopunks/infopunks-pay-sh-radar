@@ -84,6 +84,6 @@ describe('root Radar error containment', () => {
     const source = await readFile(join(process.cwd(), 'src/web/main.tsx'), 'utf8');
     expect(source).toContain("lazy(() => import('./radarApp'))");
     expect(source).not.toContain("from './radarApp'");
-    expect(source).toContain('<AppErrorBoundary><App /></AppErrorBoundary>');
+    expect(await readFile(join(process.cwd(), 'src/web/radarAppShell.tsx'), 'utf8')).toContain('<AppErrorBoundary>{children}</AppErrorBoundary>');
   });
 });

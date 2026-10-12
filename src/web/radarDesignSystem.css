@@ -65,9 +65,10 @@ body { margin: 0; }
 .radar-route-content :where(table) { border-collapse: collapse; }
 .radar-route-content :where(th,td) { text-align: left; padding: .75rem; }
 .radar-status { display: inline-flex; flex-wrap: wrap; gap: .4rem; align-items: center; font: 600 .8125rem/1.5 var(--font-mono); color: var(--muted); }
-.radar-status-verified { color: var(--green); }
+.radar-status-verified { color: var(--ok); }
 .radar-status-judgment { color: var(--signal-judgment); }
-.radar-status-pending,.radar-status-missing { color: var(--amber); }
+.radar-status-pending { color: var(--amber); }
+.radar-status-missing,.radar-status-unavailable,.radar-status-unverified { color: var(--muted); }
 .radar-status-failed { color: var(--red); }
 .radar-status-demonstration { border: 1px dashed var(--muted); padding: .25rem .5rem; }
 .radar-lifecycle { margin-block: 1.5rem; padding-block: 1rem; border-block: 1px solid var(--line); }
@@ -87,11 +88,6 @@ body { margin: 0; }
 .radar-app-footer { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; padding-block: 1.5rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .8125rem; }
 .radar-app-footer strong { color: var(--green); font-family: var(--font-mono); }
 .radar-app-footer a { min-height: 44px; display: inline-flex; align-items: center; }
-.radar-app-shell .radar-home-shell { padding-top: 1.5rem; }
-.radar-app-shell .radar-home-shell > .radar-live-status { margin-left: 0; font-size: .8125rem; }
-.radar-app-shell .radar-home-hero { min-height: 0; padding-top: 2rem; }
-.radar-app-shell .radar-homepage { overflow: visible; }
-.radar-app-shell .radar-home-skip { display: none; }
 .radar-app-shell .i4663-header { display: none; }
 .radar-app-shell .i4663-footer { display: none; }
 .radar-app-shell .reflexive-shell > header { display: none; }
@@ -126,7 +122,6 @@ body { margin: 0; }
  .radar-route-content .radar-universal-copy h1 { font-size: clamp(2rem,8vw,3rem); }
  .radar-route-content .radar-system-note { display: none; }
  .radar-app-footer { flex-direction: column; align-items: flex-start; gap: .5rem; }
- .radar-app-shell .radar-home-hero h1 { font-size: clamp(2.6rem,11vw,4rem); line-height: 1; }
 }
 @media (max-width: 360px) {
  .radar-app-header .global-toolbar { gap: .4rem; }
@@ -145,8 +140,6 @@ body { margin: 0; }
 @media (prefers-contrast: more) {
  .radar-app-shell { --line: #a8b5aa; --muted: #d3dace; }
 }
-.radar-app-shell .radar-home-entry .radar-section-header { font: 600 .8125rem/1.6 var(--font-mono); letter-spacing: .04em; margin-bottom: 1rem; }
-.radar-app-shell .radar-home-shell > .radar-live-status { width: auto; max-width: none; text-align: left; padding-left: 1rem; }
 .radar-app-shell .hero::before,.radar-app-shell .hero::after { content: none; }
 .radar-app-shell .fd-topbar { display: none; }
 .radar-app-shell .fd-nav { background: var(--bg); border-radius: var(--radius-control); }
@@ -183,3 +176,65 @@ body { margin: 0; }
 @media(max-width:768px) {
  .radar-app-shell :where(.machine-service-table,.machine-receipt-table,.reflexive-table,.observatory-table-wrap)::before { content: 'Scroll horizontally for all columns →'; display: block; padding: .75rem; color: var(--muted); font: .75rem/1.5 var(--font-mono); }
 }
+
+/* Approved shared header, footer and protocol icons. */
+.product-wayfinding { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; }
+.product-wayfinding a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; color: var(--radar-muted); text-decoration: none; font: 12px/1.4 var(--radar-mono); }
+.product-wayfinding a:hover, .product-wayfinding a[aria-current] { color: var(--radar-signal); }
+.product-evidence-scope { padding: 16px 20px; border: 1px solid var(--radar-line); border-radius: var(--radar-radius); background: var(--radar-surface); color: var(--radar-muted); font: 14px/1.6 var(--radar-font); }
+:where(a, button, input, select, summary):focus-visible { outline: 2px solid var(--radar-signal); outline-offset: 4px; }
+.terminal-icon { width: 24px; height: 24px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.product-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; border: 1px solid var(--radar-line); border-radius: var(--radar-radius); padding: 8px 20px; min-height: 70px; background: var(--radar-bg); }
+.product-brand { display: flex; align-items: center; gap: 10px; min-height: 44px; color: var(--radar-text); text-decoration: none; font: 750 23px/1.1 var(--radar-mono); letter-spacing: -.045em; }
+.product-brand .terminal-icon { width: 31px; height: 40px; }
+.product-brand small { display: block; color: var(--radar-muted); font: 9px/1.6 var(--radar-mono); letter-spacing: .22em; }
+.product-header .product-wayfinding { gap: 12px; }
+.product-header .product-wayfinding a { position: relative; text-transform: uppercase; font-size: 11px; }
+.product-header .product-wayfinding a[aria-current]::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--radar-signal); }
+.product-header-note { color: var(--radar-muted); font: 10px var(--radar-mono); letter-spacing: .04em; }
+.product-menu-toggle { display: none; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid var(--radar-line); border-radius: var(--radar-radius); color: var(--radar-text); background: var(--radar-surface); cursor: pointer; }
+@media (max-width: 1100px) { .product-header-note { display: none; } }
+@media (max-width: 680px) {
+  .product-header { padding: 8px 12px; gap: 4px; min-height: 64px; }
+  .product-brand { font-size: 20px; }
+  .product-menu-toggle { display: inline-flex; }
+  .product-header .product-wayfinding { display: none; flex-basis: 100%; padding: 12px 0 4px; gap: 4px 20px; border-top: 1px solid var(--radar-line-soft); }
+  .product-header.is-open .product-wayfinding { display: flex; }
+}
+@media (max-width: 680px) {
+  .product-header .product-brand small { font-size: 9px; letter-spacing: .06em; }
+}
+
+.radar-app-shell { padding: 16px; }
+.radar-app-header { width: 100%; max-width: var(--content-width); padding: 0; border: 0; }
+.radar-page-heading { width: 100%; max-width: var(--content-width); }
+.radar-route-content { max-width: var(--content-width); margin-inline: auto; }
+.radar-route-content .shell { width: 100%; }
+.radar-app-footer { width: 100%; max-width: var(--content-width); }
+.radar-specialized-nav { max-width: var(--content-width); margin: .75rem auto; border-bottom: 1px solid var(--line); }
+.radar-specialized-nav > summary { padding: .5rem 0; color: var(--muted); min-height: 44px; cursor: pointer; font: .8125rem/1.6 var(--font-mono); }
+.radar-specialized-nav .global-toolbar { padding-block: .5rem; }
+.radar-specialized-nav .nav-brand { display: none; }
+.radar-app-shell[data-radar-home] .radar-route-content { min-height: 0; }
+.radar-app-shell[data-radar-home] .radar-homepage { padding: 0; }
+.radar-app-shell[data-radar-home] .radar-page-heading { display: none; }
+.radar-app-shell .product-brand { color: var(--text); }
+.radar-app-shell .product-brand small { color: var(--muted); }
+.product-wayfinding a[aria-current] { color: var(--signal-action); }
+.product-menu-toggle:active { background: var(--surface-raised); }
+@media(max-width:680px) { .radar-app-shell { padding: 10px; } }
+
+.radar-lifecycle ol { gap: 1rem; }
+.radar-lifecycle li { flex-direction: row; align-items: flex-start; padding: .75rem; border: 1px solid var(--line); border-radius: var(--radius-panel); }
+.radar-lifecycle li > .terminal-icon { color: var(--signal-action); width: 2rem; height: 2rem; }
+.radar-lifecycle li:nth-child(2) > .terminal-icon,.radar-lifecycle li:nth-child(3) > .terminal-icon { color: var(--signal-judgment); }
+.radar-lifecycle li > div { min-width: 0; border-left: 1px solid var(--radar-line-soft); padding-left: .75rem; }
+.radar-lifecycle li strong { color: var(--signal-action); font: .75rem/1.5 var(--font-mono); }
+.radar-lifecycle li:nth-child(2) strong { color: var(--signal-judgment); }
+.radar-lifecycle li p { color: var(--muted); font: .75rem/1.6 var(--font-mono); margin-bottom: 0; }
+
+.radar-app-shell:not([data-radar-home]) h1 { font: 750 clamp(2rem,4vw,3.5rem)/1.1 var(--font-mono); letter-spacing: -.04em; }
+.radar-app-shell:not([data-radar-home]) h2 { line-height: 1.2; letter-spacing: -.025em; }
+.radar-app-shell:not([data-radar-home]) :where(.ipx-lab-hero,.reflexive-hero,.i4663-hero) { min-height: 0; padding-block: 2rem; }
+.radar-app-shell .product-header .product-wayfinding a { color: var(--muted); }
+.radar-app-shell .product-header .product-wayfinding a[aria-current],.radar-app-shell .product-header .product-wayfinding a:hover { color: var(--signal-action); }

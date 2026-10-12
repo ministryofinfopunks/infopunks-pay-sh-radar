@@ -1,11 +1,10 @@
 import React, { lazy, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { UniversalHomepage } from './homepage';
-import { AppErrorBoundary } from './appErrorBoundary';
 import { installDevelopmentPerformanceSummary, markHtmlShellReady } from './performanceSummary';
-import './homepage.css';
 import './radarTokens.css';
 import './radarDesignSystem.css';
+import './homepage.css';
 import { RadarAppShell } from './radarAppShell';
 import { RadarAsyncState } from './radarDesignSystem';
 
@@ -19,4 +18,4 @@ export function App() {
 markHtmlShellReady();
 installDevelopmentPerformanceSummary();
 const rootElement = typeof document === 'undefined' ? null : document.getElementById('root');
-if (rootElement) createRoot(rootElement).render(<AppErrorBoundary><App /></AppErrorBoundary>);
+if (rootElement) createRoot(rootElement).render(<App />);

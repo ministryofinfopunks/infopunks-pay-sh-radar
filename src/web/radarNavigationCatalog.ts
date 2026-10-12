@@ -296,3 +296,15 @@ export const RADAR_NAVIGATION: Readonly<Record<RadarNavigationContext, NetworkNa
     ]
   }
 };
+
+export const PRODUCT_LINKS = [
+  { href: '/', label: 'Radar' },
+  { href: '/solana', label: 'Solana' },
+  { href: '/rh-chain-signal-desk', label: 'Robinhood Chain' },
+  { href: '/receipts', label: 'Proof' },
+  { href: '/developers', label: 'Developers' }
+] as const;
+export const ECONOMY_ENTRIES = [
+  { id: 'solana', label: 'Solana Radar', title: 'Should this agent spend?', description: 'Evaluate services, providers, payment routes, costs, execution evidence, and agent readiness before committing funds.', href: '/spend-terminal', action: 'Check a Spend Route', scope: 'Advisory checks · execution separately authorized' },
+  { id: 'rh', label: 'Robinhood Chain', title: 'Does this market deserve trust?', description: 'Inspect contracts, liquidity, stock-token relationships, counterparties, risk, and evidence before taking action.', href: '/rh-chain-signal-desk/market', action: 'Inspect a Market', scope: 'Read-only inspection · trading policy unqualified' }
+] as const;

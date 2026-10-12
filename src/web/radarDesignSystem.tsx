@@ -1,4 +1,5 @@
 import React, { useId } from 'react';
+import { TerminalIcon, type TerminalIconName } from './terminalIcon';
 
 export type RadarEvidenceState = 'verified' | 'judgment' | 'pending' | 'missing' | 'recorded' | 'unavailable' | 'failed' | 'demonstration' | 'unverified';
 const STATUS_LABELS: Record<RadarEvidenceState, string> = {
@@ -18,17 +19,18 @@ export function RadarSectionHeader({ index, title, subtitle, id, level = 2 }: { 
 }
 export type RadarReceiptStage = 'observation' | 'judgment' | 'execution' | 'evaluation';
 export type RadarStageRecord = { state: RadarEvidenceState; detail: string; href?: string; recordId?: string };
+const stageIcons: TerminalIconName[] = ['eye', 'judgment', 'execution', 'evaluation'];
 const STAGES: readonly RadarReceiptStage[] = ['observation', 'judgment', 'execution', 'evaluation'];
 export function RadarReceiptLifecycle({ records, reference = false }: { records?: Partial<Record<RadarReceiptStage, RadarStageRecord>>; reference?: boolean }) {
   return <section className="radar-lifecycle" aria-label="Four-receipt lifecycle">
     <p className="radar-lifecycle-caption">{reference ? 'Architecture reference · no stage records claimed' : 'Receipt lifecycle · inspect each stage independently'}</p>
     <ol>{STAGES.map((stage, index) => {
       const record = records?.[stage];
-      return <li key={stage}><strong><span aria-hidden="true">{String(index + 1).padStart(2, '0')} / </span>{stage.toUpperCase()}</strong>
+      return <li key={stage}><TerminalIcon name={stageIcons[index]} /><div><strong><span aria-hidden="true">{String(index + 1).padStart(2, '0')} / </span>{stage.toUpperCase()}</strong>
         {!reference && <RadarStatus state={record?.state ?? 'missing'} />}
-        <p>{reference ? ['Source-bound evidence', 'Policy-relative decision', 'Recorded execution attempt', 'Established service outcome'][index] : record?.detail ?? 'No stage record supplied.'}</p>
+        <p>{reference ? ['Collect evidence. Preserve provenance and gaps.', 'Apply frozen policy. Make an evidence-bound decision.', 'Separate authorization. Independently verify what happened.', 'Attest outcomes. Eligible evaluations inform future checks.'][index] : record?.detail ?? 'No stage record supplied.'}</p>
         {record?.href && <a href={record.href}>Inspect {record.recordId ?? `${stage} record`} ↗</a>}
-      </li>;
+      </div></li>;
     })}</ol>
   </section>;
 }

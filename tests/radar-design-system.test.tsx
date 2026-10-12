@@ -33,7 +33,7 @@ describe('Radar universal identity and evidence boundaries', () => {
  });
  it('owns one global navigation and uses RH context on //4663 detail routes',()=>{
   render(<RadarAppShell path="/4663/reflexive"><RadarContextHeader/><main><h1>Reflexive market evidence</h1></main></RadarAppShell>);
-  expect(el.querySelectorAll('.radar-product-navigation')).toHaveLength(1);
+  expect(el.querySelectorAll('.product-header')).toHaveLength(1);expect(el.querySelectorAll('.radar-product-navigation')).toHaveLength(1);
   expect(el.querySelector('.radar-section-header')?.textContent).toContain('[ 12 ]');
   expect(el.querySelector('.radar-network-trigger')?.textContent).toContain('RH Chain');
   expect(el.querySelector('.radar-app-skip')?.getAttribute('href')).toBe('#radar-page-content');
