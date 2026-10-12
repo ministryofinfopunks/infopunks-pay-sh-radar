@@ -1,15 +1,15 @@
 @import './designTokens.css';
 
 :root {
-  --bg: #050806;
-  --panel: rgba(9, 18, 14, 0.82);
-  --line: rgba(126, 255, 176, 0.2);
-  --green: #7effb0;
-  --amber: #f6d06f;
-  --red: #ff6b6b;
-  --blue: #7cc7ff;
-  --text: #e8fff0;
-  --muted: #87a393;
+  --bg: var(--radar-bg);
+  --panel: var(--radar-surface);
+  --line: var(--radar-line-soft);
+  --green: var(--radar-signal);
+  --amber: var(--radar-caution);
+  --red: var(--radar-blocked);
+  --blue: var(--radar-muted);
+  --text: var(--radar-text);
+  --muted: var(--radar-muted);
 }
 
 /* RH Chain Signal Desk */

@@ -1,15 +1,17 @@
 :root {
-  --radar-bg: #101110;
-  --radar-surface: #191b19;
-  --radar-raised: #222522;
-  --radar-text: #eeeadd;
-  --radar-muted: #b6b9ad;
-  --radar-line: #42483f;
-  --radar-signal: #bee59a;
-  --radar-caution: #e8c98f;
+  --radar-bg: #050b0c;
+  --radar-surface: #081113;
+  --radar-raised: #102024;
+  --radar-text: #f1f0e5;
+  --radar-muted: #a0c2d0;
+  --radar-line: #4e737d;
+  --radar-signal: #00eee4;
+  --radar-caution: #f3ca57;
   --radar-blocked: #f0a09a;
-  --radar-unknown: #b6b9ad;
-  --radar-radius: 12px;
+  --radar-unknown: #a0c2d0;
+  --radar-judgment: #dc91ff;
+  --radar-line-soft: #253d43;
+  --radar-radius: 5px;
   --radar-space-1: 8px;
   --radar-space-2: 16px;
   --radar-space-3: 24px;
@@ -18,10 +20,30 @@
   --radar-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --radar-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
   --radar-motion: 140ms;
+  --radar-shadow: 0 0 0 1px #00eee40a, 0 4px 20px #00000030;
 }
 .product-wayfinding { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; }
-.product-wayfinding a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; color: var(--radar-muted); text-decoration: none; font-size: 13px; }
-.product-wayfinding a:hover, .product-wayfinding a[aria-current] { color: var(--radar-text); }
+.product-wayfinding a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; color: var(--radar-muted); text-decoration: none; font: 12px/1.4 var(--radar-mono); }
+.product-wayfinding a:hover, .product-wayfinding a[aria-current] { color: var(--radar-signal); }
 .product-evidence-scope { padding: 16px 20px; border: 1px solid var(--radar-line); border-radius: var(--radar-radius); background: var(--radar-surface); color: var(--radar-muted); font: 14px/1.6 var(--radar-font); }
 :where(a, button, input, select, summary):focus-visible { outline: 2px solid var(--radar-signal); outline-offset: 4px; }
 @media (prefers-reduced-motion: reduce) { :root { --radar-motion: 0ms; } html { scroll-behavior: auto !important; } }
+.terminal-icon { width: 24px; height: 24px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.product-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; border: 1px solid var(--radar-line); border-radius: var(--radar-radius); padding: 8px 20px; min-height: 70px; background: var(--radar-bg); }
+.product-brand { display: flex; align-items: center; gap: 10px; min-height: 44px; color: var(--radar-text); text-decoration: none; font: 750 23px/1.1 var(--radar-mono); letter-spacing: -.045em; }
+.product-brand .terminal-icon { width: 31px; height: 40px; }
+.product-brand small { display: block; color: var(--radar-muted); font: 9px/1.6 var(--radar-mono); letter-spacing: .22em; }
+.product-header .product-wayfinding { gap: 12px; }
+.product-header .product-wayfinding a { position: relative; text-transform: uppercase; font-size: 11px; }
+.product-header .product-wayfinding a[aria-current]::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--radar-signal); }
+.product-header-note { color: var(--radar-muted); font: 10px var(--radar-mono); letter-spacing: .04em; }
+.product-menu-toggle { display: none; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid var(--radar-line); border-radius: var(--radar-radius); color: var(--radar-text); background: var(--radar-surface); cursor: pointer; }
+@media (max-width: 1100px) { .product-header-note { display: none; } }
+@media (max-width: 680px) {
+  .product-header { padding: 8px 12px; gap: 4px; min-height: 64px; }
+  .product-brand { font-size: 20px; }
+  .product-menu-toggle { display: inline-flex; }
+  .product-header .product-wayfinding { display: none; flex-basis: 100%; padding: 12px 0 4px; gap: 4px 20px; border-top: 1px solid var(--radar-line-soft); }
+  .product-header.is-open .product-wayfinding { display: flex; }
+}
+@media (prefers-contrast: more) { :root { --radar-line: #a0c2d0; --radar-muted: #d4e9ef; } }
