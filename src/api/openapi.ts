@@ -6,6 +6,7 @@ import { JudgmentIssuerKeySchema } from '../security/judgmentIssuer';
 import { EconomicJobSchema, ExecutionAuthorizationSchema, EconomicOperationSchema, HarnessEventSchema } from '../schemas/economicEngine';
 import { z } from 'zod';
 import { CanonicalJudgmentResponseSchema } from '../schemas/preSpend';
+import { PreSpendCheckRequestSchema } from '../schemas/entities';
 import { DecisionContextSchema } from '../schemas/decisionContext';
 import { EvaluateRequestSchema } from '../schemas/evaluate';
 import { ScoreProjectionSchema } from '../schemas/scoreProjection';
@@ -1531,7 +1532,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('post', '/v1/pre-spend/check', {
     tags: ['Pre-Spend Intelligence'],
     summary: 'Run pre-spend decision check',
-    description: 'Canonical paid judgment boundary. Top-level decision is proceed, test_spend_first, do_not_spend or insufficient_evidence. The legacy data envelope is preserved with additive canonical_judgment. Insufficient evidence returns 200 with zero cost and no receipt or challenge. Sufficient judgments require x402 V2 PAYMENT-REQUIRED / PAYMENT-SIGNATURE / PAYMENT-RESPONSE. Accepts Idempotency-Key; paid retries replay one receipt. Typed radar-judgment-context.v1 requests bind namespaced subject type/network, versioned domain policy, evidence references, fee settlement network and expiry. Subject network is independent of the fee rail and service payment preference. RH inspection always abstains until its action policy is qualified. Native Solana fee settlement is unsupported. Paid production checks require an authenticated operator; no transaction is signed or authorized.',
+    description: 'Canonical paid judgment boundary. Top-level decision is proceed, test_spend_first, do_not_spend or insufficient_evidence. The legacy data envelope is preserved with additive canonical_judgment. Insufficient evidence returns 200 with zero cost and no receipt or challenge. Sufficient judgments require x402 V2 PAYMENT-REQUIRED / PAYMENT-SIGNATURE / PAYMENT-RESPONSE. Unknown request fields are rejected. Paid retries require the original verified PAYMENT-SIGNATURE and replay one receipt without another verification or settlement; missing replay proof returns 401 and different or malformed proof returns 403. Typed radar-judgment-context.v1 requests bind namespaced subject type/network, versioned domain policy, evidence references, fee settlement network and expiry. Subject network is independent of the fee rail and service payment preference. RH inspection always abstains until its action policy is qualified. Native Solana fee settlement is unsupported. Paid production checks require an authenticated operator; no transaction is signed or authorized. Responses are private, no-store.',
     requestBody: jsonRequest({ $ref: '#/components/schemas/PreSpendCheckRequest' }, {
       agent_id: 'infopunks_launch_surface',
       intent: 'allocate_to_pltr_paired_narrative_token',
@@ -1566,13 +1567,16 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   const canonicalEnvelopeSchema = z.toJSONSchema(CanonicalJudgmentResponseSchema.extend({ data: z.record(z.string(), z.json()) }), { target: 'draft-2020-12' });
   const preSpendOperation = (paths['/v1/pre-spend/check'] as { post: Record<string, unknown> }).post;
   preSpendOperation.parameters = [
-    { name: 'Idempotency-Key', in: 'header', required: false, schema: { type: 'string', maxLength: 128 } },
-    { name: 'PAYMENT-SIGNATURE', in: 'header', required: false, description: 'Official base64 x402 V2 payment payload.', schema: stringSchema() }
+    { name: 'Idempotency-Key', in: 'header', required: false, schema: { type: 'string', minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9_.:-]{1,128}$' } },
+    { name: 'PAYMENT-SIGNATURE', in: 'header', required: false, description: 'Official base64 x402 V2 payment payload. Retain and resend the original proof for every paid retry, including receipt recovery after a timeout.', schema: { type: 'string', minLength: 1, maxLength: 16384 } }
   ];
   preSpendOperation.responses = {
     '200': { description: 'Canonical judgment or free insufficient evidence, with the compatible legacy data envelope.', headers: { 'PAYMENT-RESPONSE': { description: 'Present only after successful settlement.', schema: stringSchema() } }, content: { 'application/json': { schema: canonicalEnvelopeSchema } } },
     '402': { description: 'Sufficient judgment requires payment. No authoritative judgment receipt has been issued.', headers: { 'PAYMENT-REQUIRED': { required: true, schema: stringSchema() } }, content: { 'application/json': { schema: canonicalEnvelopeSchema } } },
-    '401': errorResponse('judgment_authentication_required'), '400': errorResponse('invalid_payment_signature'), '409': errorResponse('idempotency_conflict'), '429': errorResponse('judgment_rate_limited'), '503': errorResponse('judgment_payment_unavailable')
+    '400': errorResponse('invalid_payment_signature'),
+    '401': { description: 'Operator authentication is required for paid Judgment, or a settled replay omitted its original payment proof.', content: { 'application/json': { schema: { oneOf: [errorResponse('judgment_authentication_required').content['application/json'].schema, errorResponse('paid_judgment_replay_proof_required').content['application/json'].schema] } } } },
+    '403': errorResponse('paid_judgment_replay_proof_invalid'),
+    '409': errorResponse('idempotency_conflict'), '429': errorResponse('judgment_rate_limited'), '503': errorResponse('judgment_payment_unavailable')
   };
   add('post', '/v1/decide', {
     ...preSpendOperation, summary: 'Purchase a canonical economic assessment',
@@ -4978,17 +4982,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       confidence_delta: { type: 'number', minimum: -100, maximum: 100 },
       evidence_artifact: stringSchema()
     }),
-    PreSpendCheckRequest: objectSchema({
-      agent_id: stringSchema(),
-      intent: stringSchema(),
-      budget: { type: 'number', minimum: 0 },
-      risk_tolerance: enumSchema(['low', 'medium', 'high', 'critical']),
-      preferred_settlement: stringSchema(),
-      required_confidence: { type: 'number', minimum: 0, maximum: 100 },
-      subject_id: { oneOf: [stringSchema(), { type: 'null' }] },
-      linked_check_id: { oneOf: [stringSchema(), { type: 'null' }] },
-      judgment_context: z.toJSONSchema(JudgmentDomainContextSchema, { target: 'draft-2020-12' })
-    }),
+    PreSpendCheckRequest: z.toJSONSchema(PreSpendCheckRequestSchema.strict(), { target: 'draft-2020-12' }),
     PreSpendCheckResponse: objectSchema({
       subject: { oneOf: [stringSchema(), { type: 'null' }] },
       intent: stringSchema(),
