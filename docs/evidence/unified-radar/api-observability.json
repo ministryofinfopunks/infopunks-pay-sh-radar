@@ -1,0 +1,45 @@
+{
+  "scope": "Single supplied log only; not a replica-wide metric or production SLO.",
+  "request_volume": 766,
+  "judgment_request_volume": 3,
+  "decision_distribution": null,
+  "insufficient_evidence_rate": null,
+  "unsupported_policy_events": 0,
+  "rejection_codes": {},
+  "http_status_distribution": {
+    "200": 740,
+    "202": 18,
+    "401": 6,
+    "404": 2
+  },
+  "api_latency": {
+    "samples": 427,
+    "p50_ms": 1,
+    "p95_ms": 10,
+    "p99_ms": 22
+  },
+  "database_query_latency": null,
+  "sample_window": "Last 10000 observed durations per metric; deterministic bounded memory.",
+  "samples_seen": {
+    "api": 427,
+    "database": 0
+  },
+  "proof_verification_failures": 0,
+  "payment_stages": null,
+  "evidence_freshness": null,
+  "telemetry_gaps": [
+    "No cross-replica collector is configured.",
+    "Real RPC/settlement/evaluation/capacity baselines require approved staging bindings."
+  ],
+  "relevant_event_counts": {
+    "timing": 4,
+    "ingestion_state": 1,
+    "request_start": 760,
+    "request_complete": 766,
+    "route_timing_start": 12,
+    "route_timing_end": 12,
+    "radar_route_timing": 15,
+    "rh4663_frontdoor_request": 3,
+    "rh4663_campaign_funnel": 18
+  }
+}

@@ -12,7 +12,7 @@ describe.skipIf(!url)('upgrade from supported migration 017 history', () => {
   let close: (() => Promise<void>) | undefined;
   afterEach(async () => { await close?.(); close = undefined; });
 
-  it('preserves a signed v1 judgment and legacy CALL payload through migrations 018–021', async () => {
+  it('preserves a signed v1 judgment and legacy CALL payload through migrations 018–022', async () => {
     const prior = readdirSync('migrations').filter((file) => file.endsWith('.up.sql') && Number(file.match(/_(\d{3})_/)?.[1]) <= 17)
       .sort().map((file) => file.replace(/\.up\.sql$/, ''));
     const database = await createCanonicalTestDatabase(url!, 'legacy_upgrade', prior);
@@ -44,7 +44,7 @@ describe.skipIf(!url)('upgrade from supported migration 017 history', () => {
     const before = await database.pool.query('select receipt from judgment_receipts where judgment_id=$1', [signed.judgment_id]);
     const callBefore = await database.pool.query('select payload from rh_4663_pulse_calls where receipt_id=$1', [legacyCall.receipt_id]);
 
-    for (const migration of ['20261008_018_decision_context', '20261008_019_execution_score_eligibility', '20261008_020_receipt_acceptance', '20261008_021_free_assessment_attempts']) {
+    for (const migration of ['20261008_018_decision_context', '20261008_019_execution_score_eligibility', '20261008_020_receipt_acceptance', '20261008_021_free_assessment_attempts', '20261008_022_publication_boundaries']) {
       await database.pool.query(readFileSync(`migrations/${migration}.up.sql`, 'utf8'));
     }
     const after = await database.pool.query('select receipt from judgment_receipts where judgment_id=$1', [signed.judgment_id]);

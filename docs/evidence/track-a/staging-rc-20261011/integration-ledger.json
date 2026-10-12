@@ -1,0 +1,265 @@
+{
+  "base": "f6b5de64e96da4e5bacbfba39f6cdf6940d2aa79",
+  "main": "dfe089bb71c6b4c52acdfb0e8e5b8cc331a13a2f",
+  "entries": [
+    {
+      "source_sha": "1c06aa286626cf12287de4e2842e359c78828e9d",
+      "candidate_sha": "03eac1dc79d63634ccb3cf91175de5470a7edeb5",
+      "status": "already_incorporated",
+      "source_files": [
+        "docs/evidence/ipx-a2-completion-2026-10-08.md",
+        "docs/evidence/ipx-a2-file-plan-2026-10-08.md",
+        "migrations/20261008_018_decision_context.down.sql",
+        "migrations/20261008_018_decision_context.up.sql",
+        "scripts/verify-decision-context.ts",
+        "src/api/app.ts",
+        "src/api/openapi.ts",
+        "src/persistence/canonicalReceiptStore.ts",
+        "src/repositories/judgmentRequestRepository.ts",
+        "src/schemas/decisionContext.ts",
+        "src/schemas/preSpend.ts",
+        "src/schemas/receipts/judgmentReceipt.ts",
+        "src/security/judgmentIssuer.ts",
+        "src/services/decisionContextService.ts",
+        "src/services/derivedScoreService.ts",
+        "src/services/judgmentService.ts",
+        "src/services/receiptAuthorityService.ts",
+        "tests/decision-context.test.ts",
+        "tests/integration/execute-proof.test.ts",
+        "tests/integration/execution-proof-durability.test.ts",
+        "tests/integration/judgment-issuer-durability.test.ts",
+        "tests/integration/judgment-payment-durability.test.ts",
+        "tests/integration/rh-usdg-accounting-durability.test.ts",
+        "tests/unit/execution-proof-service.test.ts"
+      ]
+    },
+    {
+      "source_sha": "745c98c6523da57887e71e9bd3214ad37722f9f5",
+      "candidate_sha": "1e607a16bccc1ef6cc640b2f156737e6dc766791",
+      "status": "already_incorporated",
+      "source_files": [
+        "docs/evidence/ipx-a3-score-eligibility-2026-10-08.md",
+        "docs/evidence/ipx-execution-ledger-2026-10-08.md",
+        "migrations/20261008_019_execution_score_eligibility.down.sql",
+        "migrations/20261008_019_execution_score_eligibility.up.sql",
+        "src/api/app.ts",
+        "src/schemas/receipts/executionReceipt.ts",
+        "src/services/derivedScoreService.ts",
+        "src/services/executionProofService.ts",
+        "src/services/receiptAuthorityService.ts",
+        "tests/decision-context.test.ts",
+        "tests/execution-score-eligibility.test.ts",
+        "tests/helpers/canonicalReceipts.ts",
+        "tests/integration/evaluate.test.ts",
+        "tests/integration/evaluation-judgment-feedback.test.ts",
+        "tests/integration/execution-proof-durability.test.ts",
+        "tests/unit/derived-score-service.test.ts"
+      ]
+    },
+    {
+      "source_sha": "c56ca7e60efafb68a792223a173c2840cd274c50",
+      "candidate_sha": "5e298beebed69f5135318953e30893c31cc28d92",
+      "status": "already_incorporated",
+      "source_files": [
+        "tests/receipt-spine.test.ts"
+      ]
+    },
+    {
+      "source_sha": "37399eeccb2d21aae0da4a9c0717ea874462efde",
+      "candidate_sha": "68c2148af1dbac83c1d90a3eca0f5501e48d82a5",
+      "status": "already_incorporated",
+      "source_files": [
+        "docs/evidence/ipx-a4-a5-completion-2026-10-08.md",
+        "docs/evidence/ipx-a4-file-plan-2026-10-08.md",
+        "docs/evidence/ipx-execution-ledger-2026-10-08.md",
+        "migrations/20261008_020_receipt_acceptance.down.sql",
+        "migrations/20261008_020_receipt_acceptance.up.sql",
+        "src/api/app.ts",
+        "src/persistence/canonicalReceiptStore.ts",
+        "src/schemas/decisionContext.ts",
+        "src/schemas/evaluate.ts",
+        "src/schemas/receipts/evaluationReceipt.ts",
+        "src/services/decisionContextService.ts",
+        "src/services/derivedScoreService.ts",
+        "src/services/evaluationClassificationService.ts",
+        "src/services/evaluationService.ts",
+        "src/services/judgmentService.ts",
+        "src/services/receiptAuthorityService.ts",
+        "tests/acceptance-history.test.ts",
+        "tests/decision-context.test.ts",
+        "tests/evaluation-classification.test.ts",
+        "tests/execution-score-eligibility.test.ts",
+        "tests/helpers/canonicalReceipts.ts",
+        "tests/integration/acceptance-history-durability.test.ts",
+        "tests/integration/derived-score-projection.test.ts",
+        "tests/integration/economic-engine-durability.test.ts",
+        "tests/integration/evaluation-judgment-feedback.test.ts",
+        "tests/integration/execution-proof-durability.test.ts",
+        "tests/integration/judgment-issuer-durability.test.ts",
+        "tests/integration/judgment-payment-durability.test.ts",
+        "tests/integration/migration-014.test.ts",
+        "tests/integration/rh-usdg-accounting-durability.test.ts",
+        "tests/receipt-spine.test.ts",
+        "tests/unit/derived-score-service.test.ts"
+      ]
+    },
+    {
+      "source_sha": "094826f12a7ca94362a60cd80f78e6b5b62d68c6",
+      "candidate_sha": "bd0dd80580845db91da19a0bc5ad7ff4e827187b",
+      "status": "already_incorporated",
+      "source_files": [
+        "docs/evidence/ipx-a6-local-proof-2026-10-08.md",
+        "docs/evidence/ipx-execution-ledger-2026-10-08.md",
+        "migrations/20261008_021_free_assessment_attempts.down.sql",
+        "migrations/20261008_021_free_assessment_attempts.up.sql",
+        "scripts/verify-ipx-causal-witness.ts",
+        "src/api/app.ts",
+        "src/api/openapi.ts",
+        "src/repositories/judgmentRequestRepository.ts",
+        "src/security/judgmentIssuer.ts",
+        "src/services/causalTapeService.ts",
+        "src/services/causalWitnessOfflineVerifier.ts",
+        "src/services/causalWitnessService.ts",
+        "src/services/judgmentService.ts",
+        "tests/causal-tape-witness.test.ts",
+        "tests/helpers/judgments.ts",
+        "tests/integration/execution-proof-durability.test.ts",
+        "tests/integration/free-assessment-attempts-durability.test.ts",
+        "tests/integration/judgment-issuer-durability.test.ts",
+        "tests/integration/judgment-payment-durability.test.ts",
+        "tests/integration/rh-usdg-accounting-durability.test.ts"
+      ]
+    },
+    {
+      "source_sha": "17dc30745d326de38fc4e584c691643b142a13ae",
+      "candidate_sha": "8cb38babcd189771b64c41424165e9ae45ce210c",
+      "status": "integrated",
+      "source_files": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "source_sha": "dea57e07fde19c50d616fa996e873c1d7b2167d9",
+      "candidate_sha": "40a6a021b01ab68af29907a195f3380de43367e1",
+      "status": "integrated_with_stronger_base_test_preserved",
+      "source_files": [
+        "src/api/app.ts",
+        "src/persistence/canonicalReceiptStore.ts",
+        "src/services/causalTapeService.ts",
+        "src/services/receiptAuthorityService.ts",
+        "tests/acceptance-history.test.ts",
+        "tests/receipt-authority.test.ts"
+      ]
+    },
+    {
+      "source_sha": "d9065dc1682a22fc73c87b0d2a63bc4f0229e235",
+      "candidate_sha": "f270956a06911eaa743d489b043afb009aaf6193",
+      "status": "integrated",
+      "source_files": [
+        "src/api/app.ts"
+      ]
+    },
+    {
+      "source_sha": "eeee995e964240e6ef2c659f18c83875c140a221",
+      "candidate_sha": "db5df81a1affc02e5af8628d824b24e8f380af00",
+      "status": "ported_security_only_with_additive_migration_022",
+      "source_files": [
+        "docs/evidence/ipx-a6-local-proof-2026-10-08.md",
+        "migrations/20261008_022_publication_boundaries.down.sql",
+        "migrations/20261008_022_publication_boundaries.up.sql",
+        "src/api/app.ts",
+        "src/api/openapi.ts",
+        "src/persistence/canonicalReceiptStore.ts",
+        "src/repositories/judgmentRequestRepository.ts",
+        "src/services/causalTapeService.ts",
+        "src/services/receiptAuthorityService.ts",
+        "tests/causal-tape-witness.test.ts",
+        "tests/integration/acceptance-history-durability.test.ts",
+        "tests/integration/free-assessment-attempts-durability.test.ts"
+      ]
+    },
+    {
+      "source_sha": "b9597fc0388d5f08ea1a611b50e12fcab7102fd9",
+      "candidate_sha": null,
+      "status": "excluded_independent_review_and_migration_collision",
+      "source_files": [
+        ".env.example",
+        "docs/evaluation-reviewer-authority-e1.md",
+        "migrations/20261009_018_evaluation_reviewer_attestations.down.sql",
+        "migrations/20261009_018_evaluation_reviewer_attestations.up.sql",
+        "scripts/audit-decisions-history.ts",
+        "src/api/app.ts",
+        "src/api/openapi.ts",
+        "src/config/env.ts",
+        "src/persistence/canonicalReceiptStore.ts",
+        "src/schemas/evaluationReviewAttestation.ts",
+        "src/security/evaluationReviewerTrust.ts",
+        "src/services/decisionsEvidenceAudit.ts",
+        "src/services/derivedScoreService.ts",
+        "src/services/evaluationScorePolicy.ts",
+        "src/services/evaluationService.ts",
+        "src/services/judgmentService.ts",
+        "src/services/receiptAuthorityService.ts",
+        "tests/helpers/evaluationReview.ts",
+        "tests/integration/evaluate.test.ts",
+        "tests/integration/evaluation-judgment-feedback.test.ts",
+        "tests/integration/evaluation-review-postgres.test.ts",
+        "tests/receipt-spine.test.ts",
+        "tests/unit/evaluation-review-authority.test.ts"
+      ]
+    },
+    {
+      "source_sha": "b640edfafc1e30e20309d0441e1153da3688faea",
+      "candidate_sha": null,
+      "status": "excluded_public_inspector_and_harness_feature",
+      "source_files": [
+        "docs/phase5-closed-loop-proof.md",
+        "docs/phase6a-isolated-main-integration.md",
+        "package.json",
+        "scripts/phase5/closedLoop.ts",
+        "scripts/phase5/localInfrastructure.ts",
+        "scripts/run-phase5-closed-loop.ts",
+        "scripts/validate-phase5.ts",
+        "src/api/app.ts",
+        "src/services/receiptChainInspector.ts",
+        "src/web/preSpendBuilderPages.tsx",
+        "src/web/receiptChainInspector.tsx",
+        "tests/integration/phase5-closed-loop.test.ts",
+        "tests/integration/phase6-migrations.test.ts",
+        "tests/integration/phase6-route-security.test.ts",
+        "tests/receipt-chain-inspector-page.test.tsx",
+        "tests/receipt-chain-inspector.test.ts"
+      ]
+    },
+    {
+      "source_sha": "d0d6081cbb9e965571dda53d268c9cfddf35d6b2",
+      "candidate_sha": null,
+      "status": "historical_preflight_evidence_only",
+      "source_files": [
+        "docs/phase6b1-staging-preflight.md"
+      ]
+    },
+    {
+      "source_sha": "11bbaa4f39af9067758c33861073dcc5e0d28993",
+      "candidate_sha": null,
+      "status": "excluded_pr6_public_data_authorization_gate",
+      "source_files": [
+        "docs/radar-intelligent-ui-v1.md",
+        "src/api/app.ts",
+        "src/api/decisionViewRoutes.ts",
+        "src/api/openapi.ts",
+        "src/schemas/decisionView.ts",
+        "src/services/decisionViewService.ts",
+        "src/web/intelligentDecision.css",
+        "src/web/intelligentDecisionPage.tsx",
+        "src/web/radarApp.tsx",
+        "tests/decision-view-api.test.ts",
+        "tests/decision-view.test.ts",
+        "tests/integration/causal-context-durability.test.ts",
+        "tests/intelligent-decision-page.test.tsx",
+        "tests/receipt-spine.test.ts"
+      ]
+    }
+  ]
+}

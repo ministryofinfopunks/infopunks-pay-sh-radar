@@ -1,0 +1,45 @@
+{
+  "keyboard": [
+    {
+      "tag": "A",
+      "text": "Skip to content",
+      "outline": "solid"
+    },
+    {
+      "tag": "A",
+      "text": "InfopunksRadar",
+      "outline": "solid"
+    },
+    {
+      "tag": "A",
+      "text": "Radar",
+      "outline": "solid"
+    },
+    {
+      "tag": "A",
+      "text": "Solana",
+      "outline": "solid"
+    },
+    {
+      "tag": "A",
+      "text": "Robinhood Chain",
+      "outline": "solid"
+    },
+    {
+      "tag": "A",
+      "text": "Proof",
+      "outline": "solid"
+    },
+    {
+      "tag": "A",
+      "text": "Developers",
+      "outline": "solid"
+    },
+    {
+      "tag": "A",
+      "text": "Run a Check ↗",
+      "outline": "solid"
+    }
+  ],
+  "scrollBehavior": "auto"
+}

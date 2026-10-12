@@ -1,0 +1,10 @@
+{
+  "source_sha": "2559c69d0bccdec2e5ceac80a2e929026d45829c",
+  "host_platform": "macOS-14.4.1-arm64-arm-64bit",
+  "docker_cli_available": true,
+  "docker_daemon_status": "unavailable",
+  "docker_info_exit_code": 1,
+  "qualification": "not_run",
+  "reason": "Docker CLI could not connect to the local Docker daemon; no Linux container runtime qualification was possible.",
+  "raw_log": "logs/linux-runtime-attempt.txt"
+}

@@ -1,3 +1,5 @@
+import type { PltrPreflightState } from './rhChainPltrPreflightService';
+import { normalizeRhMarketEvidence, serviceDiagnosticRequest } from './judgmentEvidenceAdapters';
 import { ECONOMIC_RAILS, EconomicNetworkSchema } from '../security/economicRails';
 import type { JudgmentIssuer } from '../security/judgmentIssuer';
 import { z } from 'zod';
@@ -22,13 +24,21 @@ export type JudgmentServiceOptions = {
   store: ReceiptAppendStore; journal: JudgmentRequestRepository;
   legacyCheck(input: z.infer<typeof PreSpendCheckRequestSchema>): PreSpendCheckResponse;
   observations(subject: string, intentHash: string): Promise<ObservationReceipt[]>;
+  marketEvidence?(input: z.infer<typeof PreSpendCheckRequestSchema>): Promise<PltrPreflightState | null>;
   threshold: number; ttlMs: number; amount: string; gateway: JudgmentPaymentGateway | null;
   issuer?: JudgmentIssuer | null;
+  /** Existing receipts replay unchanged; new production decisions cannot consume unreviewed history. */
+  requireIndependentEvaluationReview?: boolean;
+  onPaymentEvent?(event: 'challenge' | 'verified' | 'settled' | 'duplicate_prevented'): void;
+  onEvidence?(freshness: { observations: number; fresh: number; stale: number }): void;
   now?: () => Date;
   onTiming?: (timing: { local_ms: number; payment_ms: number; total_ms: number }) => void;
 };
 export function createJudgmentService(options: JudgmentServiceOptions) {
   const now = options.now ?? (() => new Date());
+  function paymentEvent(stage: 'challenge' | 'verified' | 'settled' | 'duplicate_prevented') {
+    try { options.onPaymentEvent?.(stage); } catch { /* Telemetry cannot interrupt settlement journaling. */ }
+  }
   const authority = createReceiptAuthorityService(options.store, options.threshold, options.issuer);
   const scores = createDerivedScoreService(options.store, options.threshold);
   async function complete(key: string, record: JudgmentRequestRecord) {
@@ -56,6 +66,17 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
     record.response.receipt = receipt; record.state = 'complete'; await options.journal.save(key, record);
     return { status: 200, headers: { 'PAYMENT-RESPONSE': encodePaymentResponseHeader(record.settlement!) }, response: record.response, legacy: record.legacy };
   }
+  // A caller-controlled agent_id / idempotency key is not authorization to read a paid receipt.
+  // Replays must present the exact payment proof previously verified before settlement.
+  // This does not re-settle or invoke the facilitator, preserving recovery after HTTP timeouts.
+  function assertPaidReplayProof(record: JudgmentRequestRecord, signature?: string) {
+    if (!signature) throw new JudgmentError(401, 'paid_judgment_replay_proof_required');
+    try {
+      const payment = decodePaymentSignatureHeader(signature);
+      if (payment?.x402Version !== 2 || !record.payment_hash || hashCanonical(payment) !== record.payment_hash ||
+        !record.settlement?.success || !record.settlement.transaction) throw new Error('invalid_replay_proof');
+    } catch { throw new JudgmentError(403, 'paid_judgment_replay_proof_invalid'); }
+  }
   return {
     async check(raw: unknown, suppliedKey?: string, signature?: string): Promise<JudgmentCheckResult> {
       const started = performance.now();
@@ -65,9 +86,10 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
         try { return await run(); } finally { paymentMs += performance.now() - begin; }
       }
       try {
-      const input = PreSpendCheckRequestSchema.parse(raw);
-      if (suppliedKey && !/^[A-Za-z0-9_.:-]{1,128}$/.test(suppliedKey)) throw new JudgmentError(400, 'invalid_idempotency_key');
-      if (signature && signature.length > 16384) throw new JudgmentError(400, 'payment_signature_too_large');
+      // Do not silently discard an unsupported chain, policy or settlement selector.
+      const input = PreSpendCheckRequestSchema.strict().parse(raw);
+      if (suppliedKey !== undefined && !/^[A-Za-z0-9_.:-]{1,128}$/.test(suppliedKey)) throw new JudgmentError(400, 'invalid_idempotency_key');
+      if (signature !== undefined && (signature.length === 0 || signature.length > 16384)) throw new JudgmentError(400, 'invalid_payment_signature_length');
       const requestHash = hashCanonical(input);
       const key = hashCanonical({ agent: input.agent_id, key: suppliedKey ?? requestHash });
       const priorFree = await options.journal.getFreeAttempt?.(key);
@@ -77,21 +99,35 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
       }
       let record = await options.journal.get(key);
       if (record && record.request_hash !== requestHash) throw new JudgmentError(409, 'idempotency_conflict');
-      if (record?.state === 'complete' || record?.state === 'settled') return await complete(key, record);
+      if (record?.state === 'complete' || record?.state === 'settled') {
+        assertPaidReplayProof(record, signature);
+        return await complete(key, record);
+      }
       if (record?.state === 'settling') throw new JudgmentError(409, 'payment_pending_reconciliation');
       if (!record) {
-        const legacy = options.legacyCheck(input);
+        const legacy = options.legacyCheck(serviceDiagnosticRequest(input));
         const subject = input.subject_id ?? legacy.recommended_route ?? '';
         const intentHash = hashCanonical(input);
         const at = now();
         const observations = subject ? await options.observations(subject, intentHash) : [];
+        const fresh = observations.filter(o => o.freshness_expires_at && Date.parse(o.freshness_expires_at) > at.getTime()).length;
+        try { options.onEvidence?.({ observations: observations.length, fresh, stale: observations.length - fresh }); } catch { /* Telemetry is not decision authority. */ }
         const policy = { engine_version: 'pre-spend-decision.v2' as const, threshold: options.threshold,
           veto_threshold: -10 as const, ttl_ms: options.ttlMs, amount: options.amount,
           asset: options.gateway?.asset === 'USDG' ? 'USDG' as const : 'USDC' as const };
-        const preliminary = assessFrozenDecision(input, legacy, observations, null, at, policy);
+        const railMismatch = input.judgment_context && input.judgment_context.settlement_network !== options.gateway?.requirements[0]?.network;
+        const market = input.judgment_context?.policy.id === 'rh.market-inspection'
+          ? normalizeRhMarketEvidence(input.judgment_context, await options.marketEvidence?.(input).catch(() => null) ?? null, at) : null;
+        const preliminary = market
+          ? { decision: 'insufficient_evidence' as const, confidence: 0, reasons: [...market.blockers, ...(railMismatch ? ['requested_settlement_network_unavailable'] : [])], valid_until: at.toISOString() }
+          : railMismatch
+          ? { decision: 'insufficient_evidence' as const, confidence: 0, reasons: ['requested_settlement_network_unavailable'], valid_until: at.toISOString() }
+          : assessFrozenDecision(input, legacy, observations, null, at, policy);
         const boundary = preliminary.decision === 'insufficient_evidence' ? null : await options.store.acceptanceBoundary?.();
         if (preliminary.decision !== 'insufficient_evidence' && !boundary) throw new JudgmentError(503, 'acceptance_boundary_unavailable');
         const history = preliminary.decision === 'insufficient_evidence' ? null : await scores.project(observations[0].subject_type, subject, boundary!.sequence);
+        if (options.requireIndependentEvaluationReview && history?.contributing_evaluation_ids.length)
+          throw new JudgmentError(503, 'independent_evaluation_history_review_unavailable');
         const output = history ? assessFrozenDecision(input, legacy, observations, history, at, policy) : preliminary;
         const response: CanonicalJudgmentResponse = {
           judgment_id: 'judgment_' + key.slice(7), decision: output.decision, confidence: output.confidence, issued_at: at.toISOString(),
@@ -124,6 +160,7 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
           score_projection: history, legacy: frozenLegacy, legacy_hash: hashCanonical(frozenLegacy),
           policy, policy_hash: hashCanonical(policy), output });
         response.decision_context_hash = context.context_hash;
+        paymentEvent('challenge');
         record = await options.journal.quote(key, { request_hash: requestHash, state: 'quoted', response, legacy,
           subject_type: observations[0].subject_type, subject_id: subject, intent_hash: intentHash,
           decision_context: context, challenge: await options.gateway.challenge() });
@@ -138,9 +175,20 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
       if (!signature) return { status: 402, headers: { 'PAYMENT-REQUIRED': encodePaymentRequiredHeader(record.challenge) }, response: record.response, legacy: record.legacy };
       if (!options.gateway) throw new JudgmentError(503, 'judgment_payment_unavailable');
       let payment;
-      try { payment = decodePaymentSignatureHeader(signature); } catch { throw new JudgmentError(400, 'invalid_payment_signature'); }
-      if (payment.x402Version !== 2) throw new JudgmentError(400, 'x402_v2_required');
-      const requirement = record.challenge.accepts.find(r => canonicalSerialize(r) === canonicalSerialize(payment.accepted));
+      let paymentHash: string;
+      let accepted: string;
+      try {
+        payment = decodePaymentSignatureHeader(signature);
+        // The official header decoder parses JSON; it does not validate its shape.
+        if (!payment || typeof payment !== 'object' || Array.isArray(payment)) throw new Error('invalid_payment_payload');
+        if (payment.x402Version !== 2) throw new JudgmentError(400, 'x402_v2_required');
+        accepted = canonicalSerialize(payment.accepted);
+        paymentHash = hashCanonical(payment);
+      } catch (error) {
+        if (error instanceof JudgmentError) throw error;
+        throw new JudgmentError(400, 'invalid_payment_signature');
+      }
+      const requirement = record.challenge.accepts.find(r => canonicalSerialize(r) === accepted);
       if (!requirement) throw new JudgmentError(400, 'payment_requirements_mismatch');
       let verified = false;
       try { verified = await paymentCall(() => options.gateway!.verify(signature, requirement)); } catch { throw new JudgmentError(400, 'payment_verification_failed'); }
@@ -148,12 +196,16 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
       if (Date.parse(record.response.valid_until) <= now().getTime()) throw new JudgmentError(409, 'judgment_quote_expired');
       if (options.store.judgmentTrust?.requireSigned && !options.issuer) throw new JudgmentError(503, 'judgment_signing_unavailable');
       if (options.issuer) { try { options.issuer.assertCanSign(record.response.issued_at, record.response.valid_until); } catch { throw new JudgmentError(503, 'judgment_signing_unavailable'); } }
-      const paymentHash = hashCanonical(payment);
-      if (!await options.journal.claim(key, paymentHash)) throw new JudgmentError(409, 'payment_already_claimed');
+      paymentEvent('verified');
+      if (!await options.journal.claim(key, paymentHash)) {
+        paymentEvent('duplicate_prevented');
+        throw new JudgmentError(409, 'payment_already_claimed');
+      }
       record.state = 'settling'; record.payment_hash = paymentHash;
       // An ambiguous failure stays settling: a retry must never re-submit settlement.
       const settlement = await paymentCall(() => options.gateway!.settle(signature, requirement));
       if (!settlement.success || !settlement.transaction || settlement.network !== requirement.network) throw new JudgmentError(402, 'payment_settlement_failed');
+      paymentEvent('settled');
       record.settlement = settlement; record.state = 'settled'; await options.journal.save(key, record);
       return await complete(key, record);
       } finally {

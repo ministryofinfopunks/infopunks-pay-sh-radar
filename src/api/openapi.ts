@@ -1,9 +1,12 @@
+import { JudgmentDomainContextSchema } from '../schemas/judgmentDomain';
+import { requiresOperatorProofRead } from '../security/proofReadBoundary';
 import { IpxCallRequestSchema } from '../schemas/ipxLaunch';
 import { IpxCostsSchema } from '../services/ipxRevenueLedger';
 import { JudgmentIssuerKeySchema } from '../security/judgmentIssuer';
 import { EconomicJobSchema, ExecutionAuthorizationSchema, EconomicOperationSchema, HarnessEventSchema } from '../schemas/economicEngine';
 import { z } from 'zod';
 import { CanonicalJudgmentResponseSchema } from '../schemas/preSpend';
+import { PreSpendCheckRequestSchema } from '../schemas/entities';
 import { DecisionContextSchema } from '../schemas/decisionContext';
 import { EvaluateRequestSchema } from '../schemas/evaluate';
 import { ScoreProjectionSchema } from '../schemas/scoreProjection';
@@ -1529,7 +1532,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('post', '/v1/pre-spend/check', {
     tags: ['Pre-Spend Intelligence'],
     summary: 'Run pre-spend decision check',
-    description: 'Canonical paid judgment boundary. Top-level decision is proceed, test_spend_first, do_not_spend or insufficient_evidence. The legacy data envelope is preserved with additive canonical_judgment. Insufficient evidence returns 200 with zero cost and no receipt or challenge. Sufficient judgments require x402 V2 PAYMENT-REQUIRED / PAYMENT-SIGNATURE / PAYMENT-RESPONSE. Accepts Idempotency-Key; paid retries replay one receipt. Settlement is disabled until an operational Base USDC facilitator and durable journal are configured. Solana is unsupported.',
+    description: 'Canonical paid judgment boundary. Top-level decision is proceed, test_spend_first, do_not_spend or insufficient_evidence. The legacy data envelope is preserved with additive canonical_judgment. Insufficient evidence returns 200 with zero cost and no receipt or challenge. Sufficient judgments require x402 V2 PAYMENT-REQUIRED / PAYMENT-SIGNATURE / PAYMENT-RESPONSE. Unknown request fields are rejected. Paid retries require the original verified PAYMENT-SIGNATURE and replay one receipt without another verification or settlement; missing replay proof returns 401 and different or malformed proof returns 403. Typed radar-judgment-context.v1 requests bind namespaced subject type/network, versioned domain policy, evidence references, fee settlement network and expiry. Subject network is independent of the fee rail and service payment preference. RH inspection always abstains until its action policy is qualified. Native Solana fee settlement is unsupported. Paid production checks require an authenticated operator; no transaction is signed or authorized. Responses are private, no-store.',
     requestBody: jsonRequest({ $ref: '#/components/schemas/PreSpendCheckRequest' }, {
       agent_id: 'infopunks_launch_surface',
       intent: 'allocate_to_pltr_paired_narrative_token',
@@ -1564,13 +1567,16 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   const canonicalEnvelopeSchema = z.toJSONSchema(CanonicalJudgmentResponseSchema.extend({ data: z.record(z.string(), z.json()) }), { target: 'draft-2020-12' });
   const preSpendOperation = (paths['/v1/pre-spend/check'] as { post: Record<string, unknown> }).post;
   preSpendOperation.parameters = [
-    { name: 'Idempotency-Key', in: 'header', required: false, schema: { type: 'string', maxLength: 128 } },
-    { name: 'PAYMENT-SIGNATURE', in: 'header', required: false, description: 'Official base64 x402 V2 payment payload.', schema: stringSchema() }
+    { name: 'Idempotency-Key', in: 'header', required: false, schema: { type: 'string', minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9_.:-]{1,128}$' } },
+    { name: 'PAYMENT-SIGNATURE', in: 'header', required: false, description: 'Official base64 x402 V2 payment payload. Retain and resend the original proof for every paid retry, including receipt recovery after a timeout.', schema: { type: 'string', minLength: 1, maxLength: 16384 } }
   ];
   preSpendOperation.responses = {
     '200': { description: 'Canonical judgment or free insufficient evidence, with the compatible legacy data envelope.', headers: { 'PAYMENT-RESPONSE': { description: 'Present only after successful settlement.', schema: stringSchema() } }, content: { 'application/json': { schema: canonicalEnvelopeSchema } } },
     '402': { description: 'Sufficient judgment requires payment. No authoritative judgment receipt has been issued.', headers: { 'PAYMENT-REQUIRED': { required: true, schema: stringSchema() } }, content: { 'application/json': { schema: canonicalEnvelopeSchema } } },
-    '400': errorResponse('invalid_payment_signature'), '409': errorResponse('idempotency_conflict'), '429': errorResponse('judgment_rate_limited'), '503': errorResponse('judgment_payment_unavailable')
+    '400': errorResponse('invalid_payment_signature'),
+    '401': { description: 'Operator authentication is required for paid Judgment, or a settled replay omitted its original payment proof.', content: { 'application/json': { schema: { oneOf: [errorResponse('judgment_authentication_required').content['application/json'].schema, errorResponse('paid_judgment_replay_proof_required').content['application/json'].schema] } } } },
+    '403': errorResponse('paid_judgment_replay_proof_invalid'),
+    '409': errorResponse('idempotency_conflict'), '429': errorResponse('judgment_rate_limited'), '503': errorResponse('judgment_payment_unavailable')
   };
   add('post', '/v1/decide', {
     ...preSpendOperation, summary: 'Purchase a canonical economic assessment',
@@ -1620,9 +1626,10 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       '404': errorResponse('canonical_receipt_not_found'), '503': errorResponse('decision_context_missing') }
   });
   add('get', '/v1/receipt-spine/tape', { tags: ['Pre-Spend Intelligence'], summary: 'Page the canonical causal receipt tape',
-    description: 'Returns O/J/X/E receipt pages, full parent closure and decision contexts, acceptance labels, an immutable content hash manifest, and free insufficient-evidence attempts. Synthetic records remain inspectable but never count as verified causal revisions.',
+    description: 'Returns O/J/X/E receipt pages, full parent closure and decision contexts, acceptance labels, a content hash manifest, and free insufficient-evidence attempts. Replay the exact manifest with all three returned boundaries: accepted_through, free_attempts_through and quarantine_through. Passing accepted_through alone selects a stable receipt-only view. Synthetic records remain inspectable but never count as verified causal revisions.',
     responses: { '200': { description: 'Bounded read-only causal tape and manifest.' }, '400': errorResponse('invalid_tape_request') } });
   add('get', '/v1/receipt-spine/attempts', { tags: ['Pre-Spend Intelligence'], summary: 'Page free insufficient-evidence assessment attempts',
+    description: 'The returned manifest includes three publication boundaries. Pass them back when paging to keep the attempt view fixed as new attempts arrive.',
     responses: { '200': { description: 'Append-only failed/unproven assessment attempts.' }, '400': errorResponse('invalid_attempt_pagination') } });
   add('get', '/v1/receipt-spine/witness/{j1}/{evaluation}/{j2}', { tags: ['Pre-Spend Intelligence'], summary: 'Export signed bounded causal witness',
     description: 'Exports J1, X, E, J2, frozen contexts and a same-input-minus-E counterfactual. A signature authenticates the bundle; real-route status remains unproven without independent external source review.',
@@ -1652,7 +1659,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   });
   add('post', '/v1/evaluate', {
     tags: ['Pre-Spend Intelligence'], summary: 'Evaluate a verified execution outcome',
-    description: 'Requires authenticated canonical admin provenance: evaluator type internal, id canonical-admin. External signatures are unsupported and fail closed. Score policy V1 computes confirmed +5, weakened -2, contradicted -15. Client deltas are rejected. One append-only evaluation per execution; identical idempotency retries replay, changed content returns 409.',
+    description: 'Disabled in production pending independent reviewer approval; controlled staging denies mutation routes. Development compatibility requires authenticated canonical admin provenance: evaluator type internal, id canonical-admin. External signatures are unsupported and fail closed. Score policy V1 computes confirmed +5, weakened -2, contradicted -15. Client deltas are rejected. One append-only evaluation per execution; identical idempotency retries replay, changed content returns 409.',
     parameters: [{ name: 'Authorization', in: 'header', required: true, schema: stringSchema() }],
     requestBody: { required: true, content: { 'application/json': { schema: z.toJSONSchema(EvaluateRequestSchema, { target: 'draft-2020-12' }) } } },
     responses: {
@@ -3671,6 +3678,17 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('post', '/internal/rh-chain/projects/{project_id}/verdicts/{verdict_id}/reject', reviewConsole('Reject verdict draft', 'Retains the private draft and attached evidence, but makes it permanently unpublishable.', 'RhChainProjectVerdictPayload', { verdict_id: 'rhverdict_example', verdict_state: 'rejected' }, verdictParams, jsonRequest(objectSchema({ expected_version: { type: 'integer', minimum: 1 }, rejection_reason: stringSchema() }, ['expected_version', 'rejection_reason']), { expected_version: 1, rejection_reason: 'Required evidence is incomplete.' })));
   add('post', '/internal/rh-chain/projects/{project_id}/intelligence-receipts/{receipt_id}/reject', reviewConsole('Reject intelligence receipt draft', 'Retains the private receipt draft, but permanently prevents publication. Published receipts are never editable or rejectable.', 'RhChainIntelligenceReceiptPayload', { receipt_id: 'rhir_example', reviewer_publication_state: 'rejected' }, receiptParams, jsonRequest(objectSchema({ expected_version: { type: 'integer', minimum: 1 }, rejection_reason: stringSchema() }, ['expected_version', 'rejection_reason']), { expected_version: 1, rejection_reason: 'The draft needs stronger source support.' })));
 
+  for (const [path, operations] of Object.entries(paths)) {
+    if (!requiresOperatorProofRead(path)) continue;
+    if (!operations || typeof operations !== 'object') continue;
+    for (const operation of Object.values(operations)) {
+      if (!operation || typeof operation !== 'object') continue;
+      const privateOperation = operation as Record<string, unknown>;
+      privateOperation.security = [{ bearerAuth: [] }];
+      privateOperation.description = 'Authorized operator only; private, no-store. No tenant or general public publication authority is inferred. ' + String(privateOperation.description ?? '');
+      privateOperation.responses = { ...(privateOperation.responses as Record<string, unknown>), '401': errorResponse('proof_read_authorization_required') };
+    }
+  }
   return {
     openapi: '3.1.0',
     info: {
@@ -3709,7 +3727,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
-          bearerFormat: 'JWT'
+          bearerFormat: 'Operator token'
         }
       },
       schemas: componentSchemas()
@@ -4964,16 +4982,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       confidence_delta: { type: 'number', minimum: -100, maximum: 100 },
       evidence_artifact: stringSchema()
     }),
-    PreSpendCheckRequest: objectSchema({
-      agent_id: stringSchema(),
-      intent: stringSchema(),
-      budget: { type: 'number', minimum: 0 },
-      risk_tolerance: enumSchema(['low', 'medium', 'high', 'critical']),
-      preferred_settlement: stringSchema(),
-      required_confidence: { type: 'number', minimum: 0, maximum: 100 },
-      subject_id: { oneOf: [stringSchema(), { type: 'null' }] },
-      linked_check_id: { oneOf: [stringSchema(), { type: 'null' }] }
-    }),
+    PreSpendCheckRequest: z.toJSONSchema(PreSpendCheckRequestSchema.strict(), { target: 'draft-2020-12' }),
     PreSpendCheckResponse: objectSchema({
       subject: { oneOf: [stringSchema(), { type: 'null' }] },
       intent: stringSchema(),

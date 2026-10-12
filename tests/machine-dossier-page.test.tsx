@@ -140,7 +140,7 @@ describe('machine dossier page', () => {
     installDossierFetch(observedDossier);
     root = await renderPath(container, `/machine-dossier/${encodeURIComponent(machineId)}`);
 
-    const link = container.querySelector('a[href="/#methodology"]');
+    const link = container.querySelector('a[href="/solana#methodology"]');
     expect(link?.textContent).toBe('Methodology: Machine Economy evidence ladder');
   });
 });

@@ -1,3 +1,4 @@
+import { domainPolicyBlockers } from './judgmentEvidenceAdapters';
 import type { PreSpendCheckRequest, PreSpendCheckResponse } from './preSpendDecisionService';
 import type { DecisionState } from './preSpendDecisionService';
 import type { ObservationReceipt, EvaluationReceipt, JudgmentReceipt } from '../schemas/receipts';
@@ -25,6 +26,8 @@ export function adaptDecision(state: string, bounded: boolean, veto = false): Ca
 /** This pure rule is shared by issuance and offline replay of the frozen inputs. */
 export function assessFrozenDecision(input: PreSpendCheckRequest, legacy: PreSpendCheckResponse,
   observations: ObservationReceipt[], history: ScoreProjection | null, at: Date, policy: DecisionPolicy): DecisionOutput {
+  const domainBlockers = domainPolicyBlockers(input, legacy, observations, at);
+  if (domainBlockers.length) return { decision: 'insufficient_evidence', confidence: 0, reasons: domainBlockers, valid_until: at.toISOString() };
   const subject = input.subject_id ?? legacy.recommended_route ?? '';
   const intentHash = hashCanonical(input);
   const facts = observations.map(o => JudgmentFactsSchema.safeParse(o.payload));
@@ -51,7 +54,7 @@ export function assessFrozenDecision(input: PreSpendCheckRequest, legacy: PreSpe
     historyReasons.push('historical_execution_performance_degraded', 'derived_score_below_policy_threshold');
     if (history.outcome_counts.contradicted > 0) historyReasons.push('contradicted_evaluation_in_history');
   }
-  const valid = new Date(Math.min(at.getTime() + policy.ttl_ms, ...observations.filter(o => o.freshness_expires_at).map(o => Date.parse(o.freshness_expires_at!))));
+  const valid = new Date(Math.min(at.getTime() + policy.ttl_ms, ...(input.judgment_context ? [Date.parse(input.judgment_context.expires_at)] : []), ...observations.filter(o => o.freshness_expires_at).map(o => Date.parse(o.freshness_expires_at!))));
   return { decision, confidence,
     reasons: sufficient ? [...policies.flatMap(f => f.reasons), ...historyReasons] : ['Required fresh, scoped, live evidence is missing.'],
     valid_until: valid.getTime() > at.getTime() ? valid.toISOString() : at.toISOString() };

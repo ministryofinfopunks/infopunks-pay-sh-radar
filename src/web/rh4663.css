@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 
 :root { --i4663-black: #050605; --i4663-ink: #f2f5f0; --i4663-green: #74ff9b; --i4663-muted: #919991; --i4663-line: #282d29; --i4663-soft: #0b0e0c; }
 /* 4663 Front Door tokens. The research pages above retain their established visual contract. */
@@ -8,7 +7,7 @@
   --fd-surface-raised: #171a1d;
   --fd-text: #f4f5f6;
   --fd-text-secondary: #a8adb4;
-  --fd-text-tertiary: #747a83;
+  --fd-text-tertiary: #9aA1a9;
   --fd-line: rgba(255, 255, 255, .10);
   --fd-accent: #9dd9ff;
   --fd-positive: #a9e3bc;
@@ -343,3 +342,5 @@
 .fd-loop-progress { color: var(--fd-text-tertiary); font-size: .65rem; }
 .fd-call-changed small { color: var(--fd-text-tertiary); font-size: .66rem; line-height: 1.4; }
 @media (max-width: 720px) { .fd-return-summary { margin-bottom: var(--fd-space-4); }.fd-global-return h2 { font-size: 1.35rem; }.fd-loop { min-height: 0; }.fd-loop footer { align-items: flex-start; }.fd-change-list a span { align-items: flex-start; flex-direction: column; gap: .25rem; } }
+
+.fd-shell > .product-wayfinding, .i4663-app > .product-wayfinding { padding: 8px max(16px, calc((100% - 1180px) / 2)); border-bottom: 1px solid var(--radar-line); }

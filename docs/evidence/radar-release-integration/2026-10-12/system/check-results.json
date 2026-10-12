@@ -1,0 +1,199 @@
+{
+  "source_sha": "2559c69d0bccdec2e5ceac80a2e929026d45829c",
+  "platform": "macOS-14.4.1-arm64-arm-64bit",
+  "databases": [
+    "unified_radar_8d7398af3a57",
+    "unified_radar_8d7398af3a57_resilience",
+    "unified_radar_8d7398af3a57_migration",
+    "unified_radar_8d7398af3a57_restore"
+  ],
+  "scope": "disposable localhost only; no external payment or production data",
+  "checks": [
+    {
+      "name": "runtime",
+      "command": [
+        "node",
+        "--version"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.086,
+      "raw_log": "output/unified-radar/final-logs/runtime.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 20.766,
+      "raw_log": "output/unified-radar/final-logs/typecheck.log"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 41.213,
+      "raw_log": "output/unified-radar/final-logs/lint.log"
+    },
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 25.241,
+      "raw_log": "output/unified-radar/final-logs/build.log"
+    },
+    {
+      "name": "migration-inventory",
+      "command": [
+        "npm",
+        "run",
+        "migrations:validate"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.407,
+      "raw_log": "output/unified-radar/final-logs/migration-inventory.log"
+    },
+    {
+      "name": "full-tests",
+      "command": [
+        "npm",
+        "test",
+        "--",
+        "--maxWorkers=1",
+        "--testTimeout=30000",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=/Users/ahdilm/.codex/worktrees/radar-release-integration/output/unified-radar/final-logs/full-tests.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 209.467,
+      "raw_log": "output/unified-radar/final-logs/full-tests.log"
+    },
+    {
+      "name": "audit-production",
+      "command": [
+        "npm",
+        "audit",
+        "--omit=dev",
+        "--json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.794,
+      "raw_log": "output/unified-radar/final-logs/audit-production.log"
+    },
+    {
+      "name": "audit-all",
+      "command": [
+        "npm",
+        "audit",
+        "--json"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 0.618,
+      "raw_log": "output/unified-radar/final-logs/audit-all.log"
+    },
+    {
+      "name": "migration-first",
+      "command": [
+        "node",
+        "dist/server/cli/runPostgresMigrations.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.327,
+      "raw_log": "output/unified-radar/final-logs/migration-first.log"
+    },
+    {
+      "name": "migration-check",
+      "command": [
+        "node",
+        "dist/server/cli/runPostgresMigrations.js",
+        "--validate"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.069,
+      "raw_log": "output/unified-radar/final-logs/migration-check.log"
+    },
+    {
+      "name": "migration-repeat",
+      "command": [
+        "node",
+        "dist/server/cli/runPostgresMigrations.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.07,
+      "raw_log": "output/unified-radar/final-logs/migration-repeat.log"
+    },
+    {
+      "name": "recovery-seed",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "scripts/qualify-unified-radar-recovery.mjs",
+        "seed"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.649,
+      "raw_log": "output/unified-radar/final-logs/recovery-seed.log"
+    },
+    {
+      "name": "backup",
+      "command": [
+        "pg_dump",
+        "--format=custom",
+        "--no-owner",
+        "--file=/Users/ahdilm/.codex/worktrees/radar-release-integration/output/unified-radar/final-logs/local-recovery.dump",
+        "unified_radar_8d7398af3a57_migration"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.534,
+      "raw_log": "output/unified-radar/final-logs/backup.log"
+    },
+    {
+      "name": "restore",
+      "command": [
+        "pg_restore",
+        "--no-owner",
+        "--dbname=unified_radar_8d7398af3a57_restore",
+        "/Users/ahdilm/.codex/worktrees/radar-release-integration/output/unified-radar/final-logs/local-recovery.dump"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.237,
+      "raw_log": "output/unified-radar/final-logs/restore.log"
+    },
+    {
+      "name": "recovery-verify",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "scripts/qualify-unified-radar-recovery.mjs",
+        "verify"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.389,
+      "raw_log": "output/unified-radar/final-logs/recovery-verify.log"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.026,
+      "raw_log": "output/unified-radar/final-logs/diff-check.log"
+    }
+  ]
+}

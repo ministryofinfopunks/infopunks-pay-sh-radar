@@ -1,0 +1,19 @@
+{
+  "source_sha": "d6112b5c8c56e75a8b33c238126a478277b3d0a1",
+  "failureScenarios": [
+    {
+      "scenario": "server_failure",
+      "classification": "INJECTED_LOCAL_FAILURE_ONLY",
+      "message": "Check unavailable. Your wallet has not been used. Try again.",
+      "retry_available": true,
+      "deep_link_subject": "route_for_qualification"
+    },
+    {
+      "scenario": "timeout",
+      "classification": "INJECTED_LOCAL_FAILURE_ONLY",
+      "message": "The check timed out. Retry the same check safely; your wallet has not been used.",
+      "retry_available": true,
+      "deep_link_subject": "route_for_qualification"
+    }
+  ]
+}

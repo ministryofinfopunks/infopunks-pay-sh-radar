@@ -487,7 +487,7 @@ function MoverCard({ asset }: { asset: RhChain4663Asset }) {
   return <article className="rh-v2-mover-card">
     <header><span>{String(asset.rank).padStart(2, '0')}</span><EvidenceStateBadge state={asset.freshness_state ?? asset.source.data_mode} /></header>
     <div className="rh-v2-mover-identity"><div><h3>{asset.ticker}</h3><p>{asset.name}</p></div><div className="rh-v2-score" style={{ '--score': `${asset.signal_score}%` } as React.CSSProperties}><strong>{asset.signal_score}</strong><span>/ 100</span></div></div>
-    <div className="rh-v2-score-line" aria-label={`Signal score ${asset.signal_score} out of 100`}><i style={{ width: `${asset.signal_score}%` }} /></div>
+    <div className="rh-v2-score-line" role="img" aria-label={`Signal score ${asset.signal_score} out of 100`}><i style={{ width: `${asset.signal_score}%` }} /></div>
     <p className="rh-v2-classification">{formatLabel(asset.classification)}</p>
     <p className="rh-v2-mover-verdict">{asset.infopunks_verdict}</p>
     <p className="rh-v2-mover-risk"><span>Primary risk</span>{formatLabel(asset.risk_state)}</p>
