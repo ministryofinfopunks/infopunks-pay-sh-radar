@@ -32,7 +32,7 @@ if(process.argv.includes('--check')) {
  const main = readFileSync('src/web/main.tsx','utf8');
  if (!main.includes('<RadarAppShell>')) throw Error('Every entry must inherit RadarAppShell.');
  const home = readFileSync('src/web/homepage.tsx','utf8');
- if (!home.includes('Before your agent spends, check the evidence.') || /After attention|radar-category-sequence/.test(home)) throw Error('Retired editorial homepage reintroduced.');
+ if (!home.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').includes('Before your agent spends, check the evidence.') || /After attention|radar-category-sequence/.test(home)) throw Error('Retired editorial homepage reintroduced.');
  if (/<ProductHeader|<footer/.test(home)) throw Error('Homepage must inherit shared header/footer.');
  for (const required of ['NO CHECK RUN','AWAITING EVIDENCE','NOT CHECKED','NOT ISSUED']) if (!home.includes(required)) throw Error(`Missing truthful preview: ${required}`);
  console.log(`Design drift check passed: ${patterns.length} router patterns; no workflow root tokens.`);
