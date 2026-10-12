@@ -136,15 +136,20 @@ const page = await browser.newPage({ viewport: { width: 390, height: 844 }, redu
 await page.goto(base);
 const keyboard=[];
 for(let i=0;i<8;i++){
-  await page.keyboard.press('Tab');
-  keyboard.push(await page.evaluate(()=>{
-    const active = document.activeElement;
-    const style = getComputedStyle(active);
-    const outlineVisible = style.outlineStyle !== 'none' && style.outlineWidth !== '0px';
-    const shadowAlphas = [...style.boxShadow.matchAll(/rgba\([^)]*,\s*([0-9.]+)\s*\)/g)].map(([, alpha]) => Number(alpha));
-    const shadowVisible = style.boxShadow !== 'none' && (shadowAlphas.length === 0 || shadowAlphas.some(alpha => alpha > 0));
-    return { tag:active.tagName,text:active.textContent,focusVisible:active.matches(':focus-visible'),outline:style.outlineStyle,outlineWidth:style.outlineWidth,boxShadow:style.boxShadow,visibleIndicator:outlineVisible || shadowVisible };
-  }));
+  let probe = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    await page.keyboard.press('Tab');
+    probe = await page.evaluate(tabAttempts => {
+      const active = document.activeElement;
+      const style = getComputedStyle(active);
+      const outlineVisible = style.outlineStyle !== 'none' && style.outlineWidth !== '0px';
+      const shadowAlphas = [...style.boxShadow.matchAll(/rgba\([^)]*,\s*([0-9.]+)\s*\)/g)].map(([, alpha]) => Number(alpha));
+      const shadowVisible = style.boxShadow !== 'none' && (shadowAlphas.length === 0 || shadowAlphas.some(alpha => alpha > 0));
+      return { tag:active.tagName,text:active.textContent,focusVisible:active.matches(':focus-visible'),outline:style.outlineStyle,outlineWidth:style.outlineWidth,boxShadow:style.boxShadow,visibleIndicator:outlineVisible || shadowVisible,tabAttempts };
+    }, attempt);
+    if (probe.tag !== 'BODY') break;
+  }
+  keyboard.push(probe);
 }
 const keyboardReducedMotion = { source_sha: sourceSha, keyboard, reduced_motion: await page.evaluate(() => ({ requested: matchMedia('(prefers-reduced-motion: reduce)').matches, scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior })) };
 await fs.writeFile(path.join(output,'keyboard-reduced-motion.json'),JSON.stringify(keyboardReducedMotion,null,2));
