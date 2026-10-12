@@ -9,10 +9,12 @@ import { RadarAppShell } from './radarAppShell';
 import { RadarAsyncState } from './radarDesignSystem';
 
 const LazyRadarApp = lazy(() => import('./radarApp'));
+const LazySpendTerminal = lazy(() => import('./spendTerminalEntry'));
 
 export function App() {
   if (typeof window !== 'undefined' && /^\/$/.test(window.location.pathname)) return <RadarAppShell><UniversalHomepage /></RadarAppShell>;
-  return <RadarAppShell><Suspense fallback={<main><RadarAsyncState kind="loading" title="Opening Radar surface…" /></main>}><LazyRadarApp /></Suspense></RadarAppShell>;
+  const Surface = typeof window !== 'undefined' && window.location.pathname.replace(/\/$/, '') === '/spend-terminal' ? LazySpendTerminal : LazyRadarApp;
+  return <RadarAppShell><Suspense fallback={<main><RadarAsyncState kind="loading" title="Opening Radar surface…" /></main>}><Surface /></Suspense></RadarAppShell>;
 }
 
 markHtmlShellReady();
