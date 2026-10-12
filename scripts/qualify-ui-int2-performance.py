@@ -12,7 +12,7 @@ for label,port in [('target',5184),('candidate',5183)]:
   if desktop:args+=['--preset=desktop']
   subprocess.run(args,env=env,check=True,timeout=120)
   data=json.loads(report.read_text());a=data['audits'];runs.append({'baseline':label,'page':page,'LCP_ms':a['largest-contentful-paint']['numericValue'],'TBT_ms':a['total-blocking-time']['numericValue'],'CLS':a['cumulative-layout-shift']['numericValue'],'performance':data['categories']['performance']['score']*100,'accessibility':data['categories']['accessibility']['score']*100,'fetch_time':data['fetchTime'],'lighthouse_version':data['lighthouseVersion'],'environment':data['environment']});print(name,runs[-1]['LCP_ms'],flush=True)
-  (out/'summary.json').write_text(json.dumps({'source_sha':sha,'target_sha':'4bcaf5731cdadf1d5229ab93faea3a90fa9b17de','scope':'Sequential localhost Lighthouse laboratory; default simulated mobile throttling or desktop preset; one run per journey/viewport. No real-user p75 data. TBT is a responsiveness proxy, NOT INP.','runs':runs},indent=2)+'\n')
+  (out/'summary.json').write_text(json.dumps({'source_sha':sha,'target_sha':'2c2fe64db173c63048e70353ae926aa199792d1b','scope':'Sequential localhost Lighthouse laboratory; default simulated mobile throttling or desktop preset; one run per journey/viewport. No real-user p75 data. TBT is a responsiveness proxy, NOT INP.','runs':runs},indent=2)+'\n')
 bundles={}
 for label,folder in [('target','output/ui-int2/target-client'),('candidate','dist/client')]:
  bundles[label]=[{'file':p.name,'bytes':p.stat().st_size,'gzip_bytes':len(gzip.compress(p.read_bytes()))}for p in sorted((root/folder/'assets').glob('*')) if p.suffix in ['.js','.css']]
