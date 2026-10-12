@@ -30,7 +30,9 @@
     "typecheck": "tsc --noEmit",
     "verify:production": "tsx scripts/verify-production.ts",
     "check:design": "node scripts/radar-design-inventory.mjs --check",
-    "test:ui:visuals": "node scripts/capture-radar-visuals.cjs && node scripts/compare-radar-visuals.cjs"
+    "test:ui:visuals": "node scripts/compare-ui-int2-visuals.cjs",
+    "test:ui": "node scripts/qualify-ui-int2-routes.cjs",
+    "test:ui:journeys": "node scripts/qualify-ui-int2-journeys.cjs"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",

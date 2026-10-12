@@ -258,3 +258,7 @@ body { margin: 0; }
 .canonical-receipt-page label { display: grid; gap: .5rem; }
 .canonical-receipt-page input { padding: .75rem; width: min(100%,32rem); }
 .canonical-receipt-page pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+/* Evidence stage names remain readable inside narrow functional panels. */
+@media (max-width: 680px) {
+ .radar-lifecycle ol { grid-template-columns: minmax(0,1fr); }
+}
