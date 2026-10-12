@@ -67,7 +67,7 @@ export const RADAR_NETWORKS: Readonly<Record<RadarNetworkId, RadarNetwork>> = {
     description: 'Pre-spend intelligence for services, providers, routes, projects and machine payments.',
     selectorDescription: 'Agent routes, Pay.sh and project intelligence',
     href: '/solana',
-    statusLabel: 'Core network',
+    statusLabel: 'Service evidence',
     features: [
       'Pre-Spend Intelligence',
       'Providers and endpoints',
@@ -85,7 +85,7 @@ export const RADAR_NETWORKS: Readonly<Record<RadarNetworkId, RadarNetwork>> = {
     description: 'Evidence-led intelligence for tokens, memes, liquidity, launchpads and emerging Robinhood Chain markets.',
     selectorDescription: 'Tokens, memes and ecosystem signals',
     href: '/rh-chain-signal-desk',
-    statusLabel: 'New network',
+    statusLabel: 'Market inspection',
     features: [
       'Meme Pulse',
       'Token dossiers',
@@ -193,7 +193,7 @@ export const SOLANA_SURFACE_GROUPS: readonly (NavigationGroup & { id: RadarSurfa
       { id: 'developer-documentation', href: '/developers', label: 'Developer Documentation', description: 'Integration guides and examples', featured: true, activePrefixes: ['/developers/'] },
       { id: 'hermes-json', href: '/v1/hermes', label: 'Hermes JSON', description: 'Machine-readable Hermes state', featured: true, external: true },
       { id: 'hermes-health', href: '/v1/hermes/health', label: 'Hermes Health', description: 'Service health endpoint', featured: true, external: true },
-      { id: 'methodology', href: '/#methodology', label: 'Methodology', description: 'How Radar forms judgment', featured: true },
+      { id: 'methodology', href: '/#proof', label: 'Methodology', description: 'How Radar forms judgment', featured: true },
       { id: 'events', href: '/#events', label: 'Events', description: 'Recent evidence events' }
     ]
   }
@@ -207,8 +207,8 @@ export const RADAR_NAVIGATION: Readonly<Record<RadarNavigationContext, NetworkNa
   universal: {
     networkId: 'universal',
     primaryItems: [
-      { id: 'universal-overview', href: '/', label: 'Overview', compactPriority: true },
-      { id: 'universal-networks', href: '/#radar-network-entry-title', label: 'Networks', compactPriority: true }
+      { id: 'universal-overview', href: '/', label: 'Radar', compactPriority: true },
+      { id: 'universal-networks', href: '/#economies', label: 'Economies', compactPriority: true }
     ],
     overflowGroups: [
       {
@@ -223,7 +223,7 @@ export const RADAR_NAVIGATION: Readonly<Record<RadarNavigationContext, NetworkNa
         id: 'reference',
         label: 'Reference',
         items: [
-          { id: 'universal-methodology', href: '/#methodology', label: 'Methodology', description: 'How Radar forms judgment' },
+          { id: 'universal-methodology', href: '/#proof', label: 'Methodology', description: 'How Radar forms judgment' },
           { id: 'universal-developers', href: '/developers', label: 'Developer Documentation', description: 'Integration guides and examples' },
           { id: 'universal-api', href: '/openapi.json', label: 'API', description: 'OpenAPI specification', external: true }
         ]

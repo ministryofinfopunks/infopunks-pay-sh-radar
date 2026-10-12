@@ -1,3 +1,5 @@
+import type { PltrPreflightState } from './rhChainPltrPreflightService';
+import { normalizeRhMarketEvidence, serviceDiagnosticRequest } from './judgmentEvidenceAdapters';
 import { ECONOMIC_RAILS, EconomicNetworkSchema } from '../security/economicRails';
 import type { JudgmentIssuer } from '../security/judgmentIssuer';
 import { z } from 'zod';
@@ -22,6 +24,7 @@ export type JudgmentServiceOptions = {
   store: ReceiptAppendStore; journal: JudgmentRequestRepository;
   legacyCheck(input: z.infer<typeof PreSpendCheckRequestSchema>): PreSpendCheckResponse;
   observations(subject: string, intentHash: string): Promise<ObservationReceipt[]>;
+  marketEvidence?(input: z.infer<typeof PreSpendCheckRequestSchema>): Promise<PltrPreflightState | null>;
   threshold: number; ttlMs: number; amount: string; gateway: JudgmentPaymentGateway | null;
   issuer?: JudgmentIssuer | null;
   /** Existing receipts replay unchanged; new production decisions cannot consume unreviewed history. */
@@ -82,7 +85,7 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
       if (record?.state === 'complete' || record?.state === 'settled') return await complete(key, record);
       if (record?.state === 'settling') throw new JudgmentError(409, 'payment_pending_reconciliation');
       if (!record) {
-        const legacy = options.legacyCheck(input);
+        const legacy = options.legacyCheck(serviceDiagnosticRequest(input));
         const subject = input.subject_id ?? legacy.recommended_route ?? '';
         const intentHash = hashCanonical(input);
         const at = now();
@@ -90,7 +93,14 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
         const policy = { engine_version: 'pre-spend-decision.v2' as const, threshold: options.threshold,
           veto_threshold: -10 as const, ttl_ms: options.ttlMs, amount: options.amount,
           asset: options.gateway?.asset === 'USDG' ? 'USDG' as const : 'USDC' as const };
-        const preliminary = assessFrozenDecision(input, legacy, observations, null, at, policy);
+        const railMismatch = input.judgment_context && input.judgment_context.settlement_network !== options.gateway?.requirements[0]?.network;
+        const market = input.judgment_context?.policy.id === 'rh.market-inspection'
+          ? normalizeRhMarketEvidence(input.judgment_context, await options.marketEvidence?.(input).catch(() => null) ?? null, at) : null;
+        const preliminary = market
+          ? { decision: 'insufficient_evidence' as const, confidence: 0, reasons: [...market.blockers, ...(railMismatch ? ['requested_settlement_network_unavailable'] : [])], valid_until: at.toISOString() }
+          : railMismatch
+          ? { decision: 'insufficient_evidence' as const, confidence: 0, reasons: ['requested_settlement_network_unavailable'], valid_until: at.toISOString() }
+          : assessFrozenDecision(input, legacy, observations, null, at, policy);
         const boundary = preliminary.decision === 'insufficient_evidence' ? null : await options.store.acceptanceBoundary?.();
         if (preliminary.decision !== 'insufficient_evidence' && !boundary) throw new JudgmentError(503, 'acceptance_boundary_unavailable');
         const history = preliminary.decision === 'insufficient_evidence' ? null : await scores.project(observations[0].subject_type, subject, boundary!.sequence);

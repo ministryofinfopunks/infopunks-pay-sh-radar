@@ -34,10 +34,11 @@ describe('controlled staging authority boundary', () => {
       const denied = await app.inject({ method: 'POST', url: '/v1/decide', payload: request, headers: { 'payment-signature': 'pretend' } });
       expect(denied.statusCode).toBe(403);
       for (const url of ['/v1/score/provider_test', '/v1/receipt-spine/scores/provider/provider_test']) {
-        expect((await app.inject(url)).statusCode).toBe(503);
+        expect((await app.inject({ url, headers: { authorization: 'Bearer staging-test-only' } })).statusCode).toBe(503);
       }
       expect((await app.inject('/v1/routes')).statusCode).toBe(200);
-      expect((await app.inject('/v1/decision-views/nonexistent')).statusCode).toBe(404);
+      expect((await app.inject('/v1/decision-views/nonexistent')).statusCode).toBe(401);
+      expect((await app.inject({ url: '/v1/decision-views/nonexistent', headers: { authorization: 'Bearer staging-test-only' } })).statusCode).toBe(404);
       const headers = { 'idempotency-key': 'staging-free' };
       const first = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: request, headers });
       const retry = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: request, headers });

@@ -21,18 +21,18 @@ describe('pre-spend HTTP payment lifecycle', () => {
         provenance: { catalog_source: 'live' }, payload: { ...facts, route_id: route }
       } });
       expect(seed.statusCode).toBe(200);
-      const unpaid = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input, headers: { 'idempotency-key': 'paid' } });
+      const unpaid = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input, headers: { authorization: 'Bearer reviewer', 'idempotency-key': 'paid' } });
       expect(unpaid.statusCode).toBe(402);
       const challenge = decodePaymentRequiredHeader(String(unpaid.headers['payment-required']));
       const signature = encodePaymentSignatureHeader({ x402Version: 2, accepted: challenge.accepts[0], payload: { signature: 'test-only' } });
-      const invalid = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input, headers: { 'idempotency-key': 'paid', 'payment-signature': 'invalid' } });
+      const invalid = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input, headers: { authorization: 'Bearer reviewer', 'idempotency-key': 'paid', 'payment-signature': 'invalid' } });
       expect(invalid.statusCode).toBe(400);
-      const paid = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input, headers: { 'idempotency-key': 'paid', 'payment-signature': signature } });
+      const paid = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input, headers: { authorization: 'Bearer reviewer', 'idempotency-key': 'paid', 'payment-signature': signature } });
       expect(paid.statusCode).toBe(200); expect(decodePaymentResponseHeader(String(paid.headers['payment-response'])).success).toBe(true);
       expect(paid.json().receipt).toMatchObject({ decision: 'proceed', payment_required: true });
-      const replay = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input, headers: { 'idempotency-key': 'paid', 'payment-signature': signature } });
+      const replay = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input, headers: { authorization: 'Bearer reviewer', 'idempotency-key': 'paid', 'payment-signature': signature } });
       expect(replay.json().receipt.receipt_hash).toBe(paid.json().receipt.receipt_hash); expect(f.facilitator.settle).toHaveBeenCalledTimes(1);
-      expect((await app.inject('/v1/receipt-spine/scores/route/' + input.subject_id)).json().data.score).toBe(0);
+      expect((await app.inject({ url: '/v1/receipt-spine/scores/route/' + input.subject_id, headers: { authorization: 'Bearer reviewer' } })).json().data.score).toBe(0);
     } finally { await app.close(); }
   });
 });

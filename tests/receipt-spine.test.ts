@@ -31,10 +31,10 @@ describe('receipt spine API integration', () => {
         expect(written.statusCode, written.body).toBe(200);
         expect(written.headers['cache-control']).toBe('private, no-store');
         const data = written.json().data;
-        const read = await app.inject({ method: 'GET', url: `/v1/receipt-spine/${kind}/${Object.values(inputs[kind])[0]}` });
+        const read = await app.inject({ method: 'GET', url: `/v1/receipt-spine/${kind}/${Object.values(inputs[kind])[0]}`, headers });
         expect(read.statusCode).toBe(200); expect(read.json().data).toEqual(data);
       }
-      expect((await app.inject('/v1/receipt-spine/scores/provider/provider_test')).json().data).toEqual({ subject_type: 'provider', subject_id: 'provider_test', score: 0, authority: 'EvaluationReceipt' });
+      expect((await app.inject({ url: '/v1/receipt-spine/scores/provider/provider_test', headers: { authorization: 'Bearer test-receipt-authority' } })).json().data).toEqual({ subject_type: 'provider', subject_id: 'provider_test', score: 0, authority: 'EvaluationReceipt' });
       expect((await app.inject('/v1/receipts')).statusCode).toBe(200);
       expect((await app.inject('/v1/claims')).statusCode).toBe(200);
       expect((await app.inject('/v1/checks')).statusCode).toBe(200);
@@ -60,7 +60,7 @@ describe('receipt spine API integration', () => {
         expect(response.statusCode, response.body).toBe(400);
         expect(response.json()).toEqual({ error: 'score_delta_authoring_forbidden' });
       }
-      expect((await app.inject('/v1/receipt-spine/scores/provider/provider_test')).json().data.score).toBe(0);
+      expect((await app.inject({ url: '/v1/receipt-spine/scores/provider/provider_test', headers: { authorization: 'Bearer test-receipt-authority' } })).json().data.score).toBe(0);
     } finally { await app.close(); }
   });
 });

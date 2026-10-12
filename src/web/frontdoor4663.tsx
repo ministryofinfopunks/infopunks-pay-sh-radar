@@ -11,7 +11,9 @@ type EvidenceState = 'VERIFIED' | 'MIXED' | 'WATCH' | 'UNRESOLVED' | 'BLOCK' | '
 
 function evidenceState(value?: string | null): EvidenceState {
   const state = (value ?? '').toUpperCase().replaceAll('-', '_').replaceAll(' ', '_');
-  if (state.includes('VERIFY') || state.includes('VERIFIED') || state === 'FRESH' || state === 'PUBLISHED' || state === 'AVAILABLE') return 'VERIFIED';
+  // Availability/publication/freshness and UNVERIFIED never imply verified proof.
+  if (state === 'VERIFIED') return 'VERIFIED';
+  if (state === 'UNVERIFIED' || state === 'DISCOVERED_UNVERIFIED') return 'UNRESOLVED';
   if (state.includes('MIX')) return 'MIXED';
   if (state.includes('WATCH')) return 'WATCH';
   if (state.includes('BLOCK')) return 'BLOCK';
@@ -24,9 +26,9 @@ function evidenceState(value?: string | null): EvidenceState {
 export function FreshnessBadge({ at, pending }: { at?: string | null; pending?: boolean }) {
   if (pending) return <span className="fd-freshness" aria-label="Freshness: D7 pending">D7 pending</span>;
   const timestamp = at ? new Date(at).getTime() : NaN;
-  if (Number.isNaN(timestamp)) return <span className="fd-freshness" aria-label="Freshness: insufficient data">—</span>;
+  if (!Number.isFinite(timestamp) || timestamp > Date.now()) return <span className="fd-freshness" aria-label="Freshness: insufficient data">—</span>;
   const minutes = Math.max(0, Math.floor((Date.now() - timestamp) / 60_000));
-  const label = minutes < 2 ? 'LIVE' : minutes < 60 ? `${minutes}m` : minutes < 1_440 ? `${Math.floor(minutes / 60)}h` : `${Math.floor(minutes / 1_440)}d`;
+  const label = minutes < 2 ? 'Just observed' : minutes < 60 ? `${minutes}m` : minutes < 1_440 ? `${Math.floor(minutes / 60)}h` : `${Math.floor(minutes / 1_440)}d`;
   return <time className="fd-freshness" dateTime={at ?? undefined} aria-label={`Freshness: ${label}`}>{label}</time>;
 }
 

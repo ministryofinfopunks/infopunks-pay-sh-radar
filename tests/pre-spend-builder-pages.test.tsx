@@ -147,7 +147,7 @@ describe('pre-spend builder pages', () => {
       if (path === '/v1/claims/claim_001') return json({ ...claim, challenges: [] });
       if (path === '/v1/claims/missing-claim') return Promise.resolve(new Response(JSON.stringify({ error: 'claim_not_found' }), { status: 404 }));
       if (path === '/v1/claims/claim_001/challenges') return json({ claim_id: 'claim_001', challenges: [] });
-      if (path === '/v1/pre-spend/check') return json(decision);
+      if (path === '/v1/pre-spend/check') return Promise.resolve(new Response(JSON.stringify({ judgment_id: 'test-check', decision: 'insufficient_evidence', confidence: 0, issued_at: '2026-10-07T00:00:02Z', valid_until: '2026-10-07T00:00:02Z', reasons: ['Required fresh evidence is missing.'], cited_observations: [], cost: { amount: '0', asset: 'USDC' }, payment_required: false, receipt: null, data: decision }), { status: 200 }));
       return Promise.resolve(new Response('{}', { status: 404 }));
     });
   });
@@ -168,16 +168,17 @@ describe('pre-spend builder pages', () => {
     await act(async () => {
       await Promise.resolve();
     });
-    expect(container.textContent).toContain('approved_with_warning');
-    expect(container.querySelector('a[href="/routes/route_pay_sh_market_research_01"]')).toBeTruthy();
-    expect(container.querySelector('a[href="/receipts/receipt_001"]')).toBeTruthy();
+    expect(container.textContent).toContain('Insufficient evidence');
+    expect(container.textContent).toContain('Free assessment · no canonical receipt');
+    expect(container.querySelector('a[href="/routes"]')).toBeTruthy();
+    expect(container.querySelector('a[href="/receipts"]')).toBeTruthy();
     root.unmount();
   });
 
   it('preloads MONITOR from the public spend-terminal query surface', async () => {
     const { root, container } = await render('/spend-terminal?intent=allocate_to_pltr_paired_narrative_token&subject=monitor');
-    expect((container.querySelector('input[aria-label="intent"]') as HTMLInputElement).value).toBe('allocate_to_pltr_paired_narrative_token');
-    expect((container.querySelector('input[aria-label="preferred settlement"]') as HTMLInputElement).value).toBe('tokenized_pltr');
+    expect((container.querySelector('input[maxlength="256"]') as HTMLInputElement).value).toBe('allocate_to_pltr_paired_narrative_token');
+    expect((container.querySelector('input[maxlength="64"]') as HTMLInputElement).value).toBe('stablecoin');
 
     const form = container.querySelector('form')!;
     await act(async () => {
@@ -194,9 +195,8 @@ describe('pre-spend builder pages', () => {
     expect(JSON.parse(String(request?.body))).toMatchObject({
       intent: 'allocate_to_pltr_paired_narrative_token',
       subject_id: 'monitor',
-      linked_check_id: 'monitor',
-      preferred_settlement: 'tokenized_pltr',
-      required_confidence: 75
+      preferred_settlement: 'stablecoin',
+      required_confidence: 80
     });
     root.unmount();
   });

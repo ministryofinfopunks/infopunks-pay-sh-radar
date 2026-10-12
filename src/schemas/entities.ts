@@ -1,3 +1,4 @@
+import { JudgmentDomainContextSchema } from './judgmentDomain';
 import { z } from 'zod';
 
 export const SeveritySchema = z.enum(['critical', 'warning', 'informational', 'unknown']);
@@ -1377,7 +1378,8 @@ export const PreSpendCheckRequestSchema = z.object({
   preferred_settlement: z.string().min(1),
   required_confidence: z.number().min(0).max(100),
   subject_id: z.string().min(1).optional(),
-  linked_check_id: z.string().min(1).optional()
+  linked_check_id: z.string().min(1).optional(),
+  judgment_context: JudgmentDomainContextSchema.optional()
 });
 
 export const PreSpendCheckResponseSchema = z.object({

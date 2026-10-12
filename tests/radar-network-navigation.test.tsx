@@ -71,7 +71,7 @@ describe('Radar network architecture', () => {
     const trigger = container.querySelector<HTMLButtonElement>('button[aria-label="Explore Radar destinations"]')!;
     act(() => trigger.click());
     const menu = container.querySelector<HTMLElement>('[role="menu"][aria-label="Radar destination directory"]')!;
-    for (const href of ['/solana', '/rh-chain-signal-desk', '/#methodology', '/developers', '/openapi.json']) {
+    for (const href of ['/solana', '/rh-chain-signal-desk', '/#proof', '/developers', '/openapi.json']) {
       expect(menu.querySelector(`a[href="${href}"]`)).not.toBeNull();
     }
     for (const href of ['/providers', '/routes', '/graph', '/machine-market']) {

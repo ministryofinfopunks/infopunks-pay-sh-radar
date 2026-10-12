@@ -1,3 +1,5 @@
+import { JudgmentDomainContextSchema } from '../schemas/judgmentDomain';
+import { requiresOperatorProofRead } from '../security/proofReadBoundary';
 import { IpxCallRequestSchema } from '../schemas/ipxLaunch';
 import { IpxCostsSchema } from '../services/ipxRevenueLedger';
 import { JudgmentIssuerKeySchema } from '../security/judgmentIssuer';
@@ -1529,7 +1531,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('post', '/v1/pre-spend/check', {
     tags: ['Pre-Spend Intelligence'],
     summary: 'Run pre-spend decision check',
-    description: 'Canonical paid judgment boundary. Top-level decision is proceed, test_spend_first, do_not_spend or insufficient_evidence. The legacy data envelope is preserved with additive canonical_judgment. Insufficient evidence returns 200 with zero cost and no receipt or challenge. Sufficient judgments require x402 V2 PAYMENT-REQUIRED / PAYMENT-SIGNATURE / PAYMENT-RESPONSE. Accepts Idempotency-Key; paid retries replay one receipt. Settlement is disabled until an operational Base USDC facilitator and durable journal are configured. Solana is unsupported.',
+    description: 'Canonical paid judgment boundary. Top-level decision is proceed, test_spend_first, do_not_spend or insufficient_evidence. The legacy data envelope is preserved with additive canonical_judgment. Insufficient evidence returns 200 with zero cost and no receipt or challenge. Sufficient judgments require x402 V2 PAYMENT-REQUIRED / PAYMENT-SIGNATURE / PAYMENT-RESPONSE. Accepts Idempotency-Key; paid retries replay one receipt. Typed radar-judgment-context.v1 requests bind namespaced subject type/network, versioned domain policy, evidence references, fee settlement network and expiry. Subject network is independent of the fee rail and service payment preference. RH inspection always abstains until its action policy is qualified. Native Solana fee settlement is unsupported. Paid production checks require an authenticated operator; no transaction is signed or authorized.',
     requestBody: jsonRequest({ $ref: '#/components/schemas/PreSpendCheckRequest' }, {
       agent_id: 'infopunks_launch_surface',
       intent: 'allocate_to_pltr_paired_narrative_token',
@@ -1570,7 +1572,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   preSpendOperation.responses = {
     '200': { description: 'Canonical judgment or free insufficient evidence, with the compatible legacy data envelope.', headers: { 'PAYMENT-RESPONSE': { description: 'Present only after successful settlement.', schema: stringSchema() } }, content: { 'application/json': { schema: canonicalEnvelopeSchema } } },
     '402': { description: 'Sufficient judgment requires payment. No authoritative judgment receipt has been issued.', headers: { 'PAYMENT-REQUIRED': { required: true, schema: stringSchema() } }, content: { 'application/json': { schema: canonicalEnvelopeSchema } } },
-    '400': errorResponse('invalid_payment_signature'), '409': errorResponse('idempotency_conflict'), '429': errorResponse('judgment_rate_limited'), '503': errorResponse('judgment_payment_unavailable')
+    '401': errorResponse('judgment_authentication_required'), '400': errorResponse('invalid_payment_signature'), '409': errorResponse('idempotency_conflict'), '429': errorResponse('judgment_rate_limited'), '503': errorResponse('judgment_payment_unavailable')
   };
   add('post', '/v1/decide', {
     ...preSpendOperation, summary: 'Purchase a canonical economic assessment',
@@ -3672,6 +3674,17 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('post', '/internal/rh-chain/projects/{project_id}/verdicts/{verdict_id}/reject', reviewConsole('Reject verdict draft', 'Retains the private draft and attached evidence, but makes it permanently unpublishable.', 'RhChainProjectVerdictPayload', { verdict_id: 'rhverdict_example', verdict_state: 'rejected' }, verdictParams, jsonRequest(objectSchema({ expected_version: { type: 'integer', minimum: 1 }, rejection_reason: stringSchema() }, ['expected_version', 'rejection_reason']), { expected_version: 1, rejection_reason: 'Required evidence is incomplete.' })));
   add('post', '/internal/rh-chain/projects/{project_id}/intelligence-receipts/{receipt_id}/reject', reviewConsole('Reject intelligence receipt draft', 'Retains the private receipt draft, but permanently prevents publication. Published receipts are never editable or rejectable.', 'RhChainIntelligenceReceiptPayload', { receipt_id: 'rhir_example', reviewer_publication_state: 'rejected' }, receiptParams, jsonRequest(objectSchema({ expected_version: { type: 'integer', minimum: 1 }, rejection_reason: stringSchema() }, ['expected_version', 'rejection_reason']), { expected_version: 1, rejection_reason: 'The draft needs stronger source support.' })));
 
+  for (const [path, operations] of Object.entries(paths)) {
+    if (!requiresOperatorProofRead(path)) continue;
+    if (!operations || typeof operations !== 'object') continue;
+    for (const operation of Object.values(operations)) {
+      if (!operation || typeof operation !== 'object') continue;
+      const privateOperation = operation as Record<string, unknown>;
+      privateOperation.security = [{ bearerAuth: [] }];
+      privateOperation.description = 'Authorized operator only; private, no-store. No tenant or general public publication authority is inferred. ' + String(privateOperation.description ?? '');
+      privateOperation.responses = { ...(privateOperation.responses as Record<string, unknown>), '401': errorResponse('proof_read_authorization_required') };
+    }
+  }
   return {
     openapi: '3.1.0',
     info: {
@@ -3710,7 +3723,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
-          bearerFormat: 'JWT'
+          bearerFormat: 'Operator token'
         }
       },
       schemas: componentSchemas()
@@ -4973,7 +4986,8 @@ function componentSchemas(): Record<string, JsonSchema> {
       preferred_settlement: stringSchema(),
       required_confidence: { type: 'number', minimum: 0, maximum: 100 },
       subject_id: { oneOf: [stringSchema(), { type: 'null' }] },
-      linked_check_id: { oneOf: [stringSchema(), { type: 'null' }] }
+      linked_check_id: { oneOf: [stringSchema(), { type: 'null' }] },
+      judgment_context: z.toJSONSchema(JudgmentDomainContextSchema, { target: 'draft-2020-12' })
     }),
     PreSpendCheckResponse: objectSchema({
       subject: { oneOf: [stringSchema(), { type: 'null' }] },

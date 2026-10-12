@@ -36,9 +36,9 @@ describe('POST /v1/execute-proof', () => {
       const conflict = await app.inject({ method: 'POST', url: '/v1/execute-proof', payload: { ...submittedProof, latency_ms: 99 } }); expect(conflict.statusCode).toBe(409);
       expect(vi.mocked(f.facilitator.settle).mock.calls.length).toBe(paidBefore);
       expect(externalRequests).not.toHaveBeenCalled();
-      expect((await app.inject('/v1/receipt-spine/scores/provider/provider_test')).json().data.score).toBe(0);
-      // Public reads need no wallet or signature.
-      expect((await app.inject('/v1/receipt-spine/execution/' + result.json().data.execution_id)).statusCode).toBe(200);
+      expect((await app.inject({ url: '/v1/receipt-spine/scores/provider/provider_test', headers: { authorization: 'Bearer reviewer' } })).json().data.score).toBe(0);
+      // Proof reads require operator authorization; no wallet signature is required.
+      expect((await app.inject({ url: '/v1/receipt-spine/execution/' + result.json().data.execution_id, headers: { authorization: 'Bearer reviewer' } })).statusCode).toBe(200);
     } finally { await app.close(); }
   });
   it('rejects malformed free write requests and enforces the write rate limit', async () => {

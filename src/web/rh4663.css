@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 
 :root { --i4663-black: #050605; --i4663-ink: #f2f5f0; --i4663-green: #74ff9b; --i4663-muted: #919991; --i4663-line: #282d29; --i4663-soft: #0b0e0c; }
 /* 4663 Front Door tokens. The research pages above retain their established visual contract. */
@@ -8,7 +7,7 @@
   --fd-surface-raised: #171a1d;
   --fd-text: #f4f5f6;
   --fd-text-secondary: #a8adb4;
-  --fd-text-tertiary: #747a83;
+  --fd-text-tertiary: #9aA1a9;
   --fd-line: rgba(255, 255, 255, .10);
   --fd-accent: #9dd9ff;
   --fd-positive: #a9e3bc;

@@ -72,9 +72,12 @@ describe('production readiness gates', () => {
         expect(denied.statusCode).toBe(503);
         expect(denied.json().error).toBe('independent_evaluation_review_unavailable');
       }
-      for (const url of ['/v1/receipts', '/v1/validation/submit']) {
+      for (const url of ['/v1/receipts', '/v1/validation/submit', '/v1/claims', '/v1/claims/private-id/challenges']) {
         expect((await app.inject({ method: 'POST', url, payload: {} })).statusCode).toBe(401);
         expect((await app.inject({ method: 'POST', url, payload: {}, headers: { authorization: 'Bearer wrong' } })).statusCode).toBe(401);
+        const authorized = await app.inject({ method: 'POST', url, payload: {}, headers: { authorization: 'Bearer secret' } });
+        expect(authorized.statusCode).toBe(503);
+        expect(authorized.json().error).toBe('legacy_publication_and_durability_unqualified');
       }
       expect((await app.inject('/v1/score/provider_test')).statusCode).toBe(503);
     } finally { await app.close(); }

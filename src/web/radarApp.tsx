@@ -1,4 +1,5 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { EvidenceScope } from './productPrimitives';
 import { MethodologyDrawer } from './methodology';
 import { formatCatalogPrice } from './pricingDisplay';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
@@ -91,10 +92,10 @@ function SolanaRadarHomepageHero() {
       <h1 id="radar-home-title">Proof before agent spend.</h1>
       <p className="radar-universal-lede">Route intelligence, provider evidence, narrative memory and machine-market infrastructure for the Solana economy.</p>
       <div className="panel-actions radar-universal-actions">
-        <a className="execute compact" href="#global-pulse">Open Radar</a>
-        <a className="execute compact secondary" href="#preflight">Run Preflight</a>
+        <a className="execute compact" href="/spend-terminal">Check a Spend Route</a>
+        <a className="execute compact secondary" href="#explore-solana-radar">Explore the Radar</a>
       </div>
-      <p className="radar-hero-supporting-line">Pay.sh is the spend rail. Radar is the evidence layer.</p>
+      <p className="radar-hero-supporting-line">Pay.sh is a spend rail. Radar is the evidence layer.</p><EvidenceScope kind="service" />
     </div>
     <aside className="radar-system-note" aria-label="Solana Radar doctrine">
       <span className="radar-system-mark" aria-hidden="true" />
@@ -10917,7 +10918,7 @@ export function ComparisonPanel({
       </select>
     </div>}
     {!result && <EmptyState title="No comparison selected." body="Select two or three providers or endpoints, then run Compare." />}
-    {result && <div className="endpoint-list has-rows comparison-results">{visibleRows.map((row) => {
+    {result && <div className="endpoint-list has-rows comparison-results" tabIndex={0} role="region" aria-label="Comparison results">{visibleRows.map((row) => {
       const routeState = comparisonRouteState(row);
       return <div className={`endpoint ${routeState.tone === 'degraded' ? 'degraded-card' : ''}`} key={row.id}>
       <strong>{row.name}</strong>
@@ -10997,7 +10998,7 @@ function CostPerformancePanel({
       <ScopeLabel scope="GLOBAL" />
       <h2>Cost / Performance Intelligence</h2>
     </div>
-    <div className="endpoint-list has-rows comparison-results">
+    <div className="endpoint-list has-rows comparison-results" tabIndex={0} role="region" aria-label="Comparison results">
       {rows.map(({ endpoint, est, conf, value, benchmark }) => <div key={endpoint.endpoint_id} className={`endpoint ${endpoint.route_eligibility ? '' : 'degraded-card'}`}>
         <strong>{endpoint.provider_name ?? endpoint.provider_id} / {endpoint.endpoint_name ?? endpoint.endpoint_id}</strong>
         <small>category {endpoint.category ?? 'unknown'} / trust {endpoint.provider_trust_score ?? 'unknown'} / signal {endpoint.provider_signal_score ?? 'unknown'}</small>

@@ -1,3 +1,4 @@
+import { requiresOperatorProofRead } from '../security/proofReadBoundary';
 import { controlledStagingRequestError } from '../config/controlledStaging';
 import { timingSafeEqual } from 'node:crypto';
 import { registerIpxLaunchRoutes } from './ipxLaunchRoutes';
@@ -752,6 +753,14 @@ export async function createApp(
     if (error) return reply.code(403).send({ error });
     if (req.headers['payment-signature']) return reply.code(403).send({ error: 'controlled_staging_payment_forbidden' });
   });
+  app.addHook('onRequest', async (req, reply) => {
+    const route = safeRequestPath(req.url);
+    if (config.isProduction && req.method === 'POST' && (['/v1/receipts', '/v1/validation/submit', '/v1/claims'].includes(route) || /^\/v1\/claims\/[^/]+\/challenges$/.test(route))) {
+      reply.header('Cache-Control', 'private, no-store');
+      if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'legacy_intake_authorization_required' });
+      return reply.code(503).send({ error: 'legacy_publication_and_durability_unqualified' });
+    }
+  });
   const rh4663CampaignTelemetry = new Rh4663CampaignTelemetry();
   const rh4663FrontdoorTelemetry = new Rh4663FrontdoorTelemetry();
   const rhChainPostgresPool = config.databaseUrl
@@ -1371,6 +1380,12 @@ export async function createApp(
     strictPreflight: true
   });
   const requestStartedAt = new WeakMap<FastifyRequest, number>();
+  app.addHook('onRequest', async (req, reply) => {
+    if (requiresOperatorProofRead(safeRequestPath(req.url))) {
+      reply.header('Cache-Control', 'private, no-store');
+      if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'proof_read_authorization_required' });
+    }
+  });
   app.addHook('onRequest', async (req, _reply) => {
     const startedAtMs = Date.now();
     requestStartedAt.set(req, startedAtMs);
@@ -1407,6 +1422,7 @@ export async function createApp(
   app.addHook('onSend', async (req, reply, payload) => {
     // Safe defaults for API responses. CSP is intentionally owned by the HTML
     // shell, where nonces can be applied without weakening the policy.
+    if (requiresOperatorProofRead(safeRequestPath(req.url))) reply.header('Cache-Control', 'private, no-store');
     reply.header('X-Content-Type-Options', 'nosniff');
     reply.header('Referrer-Policy', 'strict-origin-when-cross-origin');
     reply.header('X-Frame-Options', 'SAMEORIGIN');
@@ -1802,10 +1818,18 @@ export async function createApp(
   const judgmentRateLimiter = new RhChainPublicRateLimiter(true, 60_000, 30);
   const handleJudgmentAssessment = async (req: FastifyRequest, reply: FastifyReply) => {
     const started = performance.now();
+    reply.header('Cache-Control', 'private, no-store');
+    // Authenticated tenant-bound payment authority is not implemented. Only the operator may use the enabled paid boundary.
+    if ((config.isProduction && config.judgmentPaymentEnabled || req.headers['payment-signature']) && !isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'judgment_authentication_required' });
     const rate = judgmentRateLimiter.consume(req.ip);
     if (!rate.allowed) return reply.code(429).header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).send({ error: 'judgment_rate_limited' });
-    const parsed = (req.routeOptions.url === '/v1/decide' ? PreSpendCheckRequestSchema.strict() : PreSpendCheckRequestSchema).safeParse(req.body);
-    if (!parsed.success) return reply.code(400).send({ error: 'invalid_pre_spend_check_request', details: parsed.error.flatten() });
+    // A typed extension is strict; misspelled policy/subject fields cannot silently become legacy approval.
+    const typed = req.body && typeof req.body === 'object' && ['judgment_context', 'subject_network', 'settlement_network', 'subject_type', 'policy'].some(key => key in (req.body as object));
+    const parsed = (typed || req.routeOptions.url === '/v1/decide' ? PreSpendCheckRequestSchema.strict() : PreSpendCheckRequestSchema).safeParse(req.body);
+    if (!parsed.success) {
+      req.log.info({ event: 'judgment_request_rejected', request_id: req.id, reason: parsed.error.issues.some(issue => issue.path.includes('policy')) ? 'unsupported_policy' : 'invalid_request' });
+      return reply.code(400).send({ error: 'invalid_pre_spend_check_request', details: parsed.error.flatten() });
+    }
     try {
       const key = req.headers['idempotency-key'];
       const signature = req.headers['payment-signature'];
@@ -1813,11 +1837,16 @@ export async function createApp(
       const stableKey = key ?? hashCanonical(parsed.data);
       reply.header('Idempotency-Key', stableKey);
       const result = await judgments.check(parsed.data, stableKey, signature);
+      if (result.response.payment_required && !isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'judgment_authentication_required' });
+      req.log.info({ event: 'judgment_assessed', request_id: req.id, decision: result.response.decision,
+        policy: parsed.data.judgment_context?.policy.id ?? 'legacy.service-spend',
+        domain: parsed.data.judgment_context?.subject.network ?? 'legacy', payment_required: result.response.payment_required,
+        evidence_count: result.response.cited_observations.length, outcome: result.response.decision === 'insufficient_evidence' ? 'abstained' : 'assessed' });
       for (const [name, value] of Object.entries(result.headers)) if (value) reply.header(name, value);
       reply.header('Server-Timing', `judgment;dur=${(performance.now() - started).toFixed(2)}`);
       // Preserve the original SDK envelope; canonical fields are also available at the top level.
       return reply.code(result.status).send(safeJsonExport({ ...result.response,
-        ...(req.routeOptions.url === '/v1/decide' ? { execution_authorization: null, execution_authorized: false } : {}),
+        execution_authorization: null, execution_authorized: false,
         data: { ...result.legacy, canonical_judgment: result.response } }));
     } catch (error) {
       if (error instanceof JudgmentError) return reply.code(error.statusCode).send({ error: error.code });
@@ -4495,6 +4524,11 @@ export async function createApp(
     ttlMs: config.judgmentTtlMs, amount: config.judgmentPriceUsdc,
     requireIndependentEvaluationReview: config.isProduction || config.controlledStaging,
     onTiming: timing => app.log.info({ event: 'judgment_hot_path_timing', ...timing }),
+    marketEvidence: async () => {
+      // Stored public inspection evidence only: no refresh/RPC/provider request in a judgment's critical path.
+      const snapshot = await reflexiveRadar.snapshot();
+      return snapshot.pltr_preflight_states.slice().sort((a, b) => Date.parse(b.observation?.observed_at ?? '') - Date.parse(a.observation?.observed_at ?? ''))[0] ?? null;
+    },
     observations: async (subject, intentHash) => {
       // The latest scoped materialized policy supersedes historical snapshots.
       // Do not filter out negative/stale latest states to find an older approval.
