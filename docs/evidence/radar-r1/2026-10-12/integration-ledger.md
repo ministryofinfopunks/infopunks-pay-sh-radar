@@ -29,7 +29,7 @@ PR #7 is an ancestor of PR #8. The integration worktree started at `fefaa8e0dcda
 
 - Both upstream pull requests remain drafts. Neither had an independent approval or recorded CI checks at inspection. No missing approval or draft gate was bypassed.
 - No independent reviewer has approved the combined candidate. The candidate must not be called independently security-reviewed or release-qualified.
-- The combined code keeps tenant identity server-owned, keeps request/payment evidence private, uses strict paid proof replay, and leaves execution authorization false. The authorization integration has unresolved regressions noted below.
+- The combined code keeps tenant identity server-owned, keeps request/payment evidence private, uses strict paid proof replay, and leaves execution authorization false. The authorization integration was adjusted after the initial run; the final exact-commit full-suite failures and focused follow-up results are recorded below.
 - Repository branch-protection lookup returned no configured rule for the examined base. This does not waive the user's explicit requirement to retain draft status and obtain independent review.
 - Production payment enablement, deployment, IPX operations, and live Judgment qualification were not performed.
 
@@ -41,7 +41,7 @@ Environment: local macOS host, Node `v25.6.0` (package requires Node `>=24.21 <2
 - `npm run typecheck` — passed after integration edits.
 - `npm run migrations:validate` — passed; 22 migration entries validated.
 - `git diff --cached --check` — passed at integration review.
-- Full `CANONICAL_RECEIPT_TEST_URL=postgresql:///radar_r1_test npm test` — failed: 281 test files, 249 passed, 31 failed, 1 skipped; 2,046 tests, 1,995 passed, 49 failed, 2 skipped. The run included timeout failures under the default parallel load and functional failures; it is not a qualification pass.
+- Exact implementation commit `1cc2e8c5f043b45f4758e6f129d454ec569e8858`: full `CANONICAL_RECEIPT_TEST_URL=postgresql:///radar_r1_test npm test` — failed: 281 test files, 270 passed, 10 failed, 1 skipped; 2,046 tests, 2,027 passed, 17 failed, 2 skipped. Failures included 2 migration baseline adoption tests, 2 old operator-only proof-read expectation tests, 3 fixed-July Judgment context tests, 4 UI/legacy expectation tests, and 4 default-parallel timeout failures (some test files contained multiple failures). This is not a qualification pass.
 - Serial focused run for pre-spend, Judgment, SDK, privacy, PostgreSQL, replay, and migration suites — failed: 9 files, 4 passed, 5 failed; 68 tests, 53 passed, 15 failed.
 - Follow-up serial SDK/privacy/PostgreSQL subset after fixing the earlier global receipt-read gate — SDK and PostgreSQL DX suites passed; owner-access suite still failed two assertions (expected identity-unavailable 503 but got 401, and expected cross-tenant 404 but got 401).
 - Migration runner upgrade tests — failed for both pinned 017 and 020 baselines with `historical_baseline_schema_mismatch`. The runner failed closed; the evidence does not support claiming a compatible upgrade/replay path.
@@ -51,9 +51,13 @@ Environment: local macOS host, Node `v25.6.0` (package requires Node `>=24.21 <2
 ## Release blockers and decision
 
 1. Draft PR #7 and #8 have no independent approvals or CI qualification.
-2. The combined full suite is failing; owner authorization assertions remain unresolved.
-3. PostgreSQL historical upgrade/adoption at baselines 017 and 020 fails closed.
+2. The combined full suite has 17 failures on the implementation commit. Focused SDK, privacy and PostgreSQL DX coverage passed, but this does not replace the full run.
+3. PostgreSQL historical upgrade/adoption at baselines 017 and 020 fails closed with `historical_baseline_schema_mismatch`.
 4. Linux runtime and exact-SHA desktop/mobile workflows have not been qualified.
 5. No independent security review of the combined candidate exists.
 
 **Staging decision: HOLD.** Do not promote this candidate to staging or production. Keep paid production payments disabled and IPX operations inactive. Do not claim a live qualified Judgment. Reopen qualification only after the blockers above are resolved and evidence is generated from the frozen combined SHA.
+
+## Frozen integration commit
+
+Implementation commit: `1cc2e8c5f043b45f4758e6f129d454ec569e8858` (merge of PR #8 atop PR #7 and the locally qualified unified-radar commit). The evidence ledger is committed separately so the implementation SHA remains fixed while the review packet is updated. The final branch head includes this ledger-only commit; qualification results above were executed against the implementation commit with identical application, schema, and test sources.
