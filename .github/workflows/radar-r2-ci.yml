@@ -125,15 +125,6 @@ jobs:
           docker build --tag radar-r2-browser:${RADAR_CANDIDATE_SHA} .
           docker image inspect radar-r2-browser:${RADAR_CANDIDATE_SHA} --format 'os={{.Os}} architecture={{.Architecture}} configured_user={{.Config.User}}' | tee output/ci-browser/container-image.txt
           docker run --rm --entrypoint /bin/sh radar-r2-browser:${RADAR_CANDIDATE_SHA} -c 'set -eu; . /etc/os-release; test "$ID" = debian; test "$VERSION_CODENAME" = bookworm; printf "os=%s version=%s codename=%s\\n" "$ID" "$VERSION_ID" "$VERSION_CODENAME"; node --version; test "$(id -u)" != 0; dpkg-query -W | sort' > output/ci-browser/container-os-packages.txt
-      - name: Generate container OS and runtime SBOM
-        uses: anchore/sbom-action@0b8327a2637811e512362912957ffefab15470c6 # Syft image scan, pinned commit
-        with:
-          image: radar-r2-browser:${{ env.RADAR_CANDIDATE_SHA }}
-          format: cyclonedx-json
-          output-file: output/ci-browser/container-image-sbom.cdx.json
-          syft-version: v1.54.1
-          upload-artifact: false
-          upload-release-assets: false
           docker run --detach --name radar-r2-container-smoke --add-host=host.docker.internal:host-gateway --publish 127.0.0.1:10000:10000 --env NODE_ENV=production --env PORT=10000 --env DATABASE_URL=postgresql://radar:radar-local-only@host.docker.internal:5432/radar_ci --env PAYSH_CATALOG_SOURCE=live --env PAY_SH_CATALOG_URL=https://catalog.invalid/providers --env PAYSH_ALLOW_FIXTURE_FALLBACK=false --env PAYSH_BOOTSTRAP_ENABLED=false --env INGESTION_ENABLED=false radar-r2-browser:${RADAR_CANDIDATE_SHA}
           trap 'docker rm --force radar-r2-container-smoke >/dev/null 2>&1 || true' EXIT
           test "$(docker exec radar-r2-container-smoke id -u)" != "0"
@@ -143,6 +134,15 @@ jobs:
           done
           docker logs radar-r2-container-smoke
           exit 1
+      - name: Generate container OS and runtime SBOM
+        uses: anchore/sbom-action@0b8327a2637811e512362912957ffefab15470c6 # Syft image scan, pinned commit
+        with:
+          image: radar-r2-browser:${{ env.RADAR_CANDIDATE_SHA }}
+          format: cyclonedx-json
+          output-file: output/ci-browser/container-image-sbom.cdx.json
+          syft-version: v1.54.1
+          upload-artifact: false
+          upload-release-assets: false
       - name: Start local compiled app
         run: |
           npm start > /tmp/radar-server.log 2>&1 & echo $! > /tmp/radar-server.pid
