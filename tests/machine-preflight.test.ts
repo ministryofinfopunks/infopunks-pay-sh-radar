@@ -269,8 +269,8 @@ describe('machine preflight API', () => {
     const receiptRead = vi.spyOn(PostgresMachinePreflightReceiptStorageAdapter.prototype, 'listMachinePreflightReceipts').mockResolvedValue([]);
     const recent = await app.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent' });
     receiptRead.mockRestore();
-    expect(recent.statusCode).toBe(200);
-    expect(recent.json().data.receipts).toHaveLength(0);
+    expect(recent.statusCode).toBe(503);
+    expect(recent.json()).toEqual({ error:'judgment_identity_unavailable' });
 
     await app.close();
   });

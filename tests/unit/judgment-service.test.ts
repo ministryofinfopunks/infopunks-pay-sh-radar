@@ -1,8 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import { adaptDecision, judgmentExpired } from '../../src/services/judgmentService';
 import { request, setupJudgment } from '../helpers/judgments';
+import { hashCanonical } from '../../src/services/receiptIntegrityService';
 
 describe('canonical judgment policy', () => {
+  it('keeps token-market evidence outside the service-provider policy even if every generic fact is sufficient', async () => {
+    const f = await setupJudgment({}, { subject_type: 'token' });
+    expect((await f.service.check(request)).response).toMatchObject({ decision: 'insufficient_evidence', payment_required: false, cost: { amount: '0' } });
+    expect(f.facilitator.settle).not.toHaveBeenCalled();
+  });
+  it('does not reinterpret a tokenized settlement preference as qualified service policy', async () => {
+    const market = { ...request, preferred_settlement: 'tokenized_pltr' };
+    const f = await setupJudgment({ settlement: 'tokenized_pltr' }, { intent_hash: hashCanonical(market) });
+    expect((await f.service.check(market)).response).toMatchObject({ decision: 'insufficient_evidence', payment_required: false, cost: { amount: '0' } });
+    expect(f.facilitator.settle).not.toHaveBeenCalled();
+  });
   it.each([{ subject_network: 'eip155:4663' }, { settlement_network: 'solana:mainnet' }, { policy_id: 'unsupported' }])('rejects unsupported request selectors %j at the service boundary', async (selector) => {
     const f = await setupJudgment();
     await expect(f.service.check({ ...request, ...selector })).rejects.toThrow();

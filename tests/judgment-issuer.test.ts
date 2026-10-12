@@ -97,7 +97,7 @@ describe('judgment issuer authentication', () => {
       expect(write.statusCode, write.body).toBe(200); expect(write.json().data.issuer_signature.key_id).toBe('key-1');
       const spoof = await app.inject({ method: 'POST', url: '/internal/receipt-spine/judgment', headers, payload: { ...judgmentInput(), issuer_signature: write.json().data.issuer_signature } });
       expect(spoof.statusCode).toBe(400);
-      const checked = await app.inject('/v1/receipt-spine/judgment/j1/verify');
+      const checked = await app.inject({ url:'/v1/receipt-spine/judgment/j1/verify', headers });
       expect(checked.json().data).toMatchObject({ ancestry_valid: true, issuer_signature_valid: true, within_validity_window: false, execution_authorized: false });
     } finally { await app.close(); }
   });

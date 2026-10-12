@@ -1,0 +1,2852 @@
+{
+  "version": "judgment-route-policy-inventory.v1",
+  "note": "Classifier plus explicit route handlers determine authority; owner session/check/state/history handlers require tenant credentials directly. Published market-resolution/share projections are distinct from private paid Judgment records.",
+  "routes": [
+    {
+      "path": "/v1/ipx/launch",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/ipx/genesis/cohort",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/ipx/economy/receipts",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/ipx/economy/summary",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/ipx/genesis/payload",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/ipx/genesis/calls",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/ipx/genesis/identity-mapping",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/internal/ipx/economy/revenue",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/internal/ipx/economy/contribution",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/internal/ipx/economy/burn-proof",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/internal/ipx/evidence/solana/scan",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/internal/ipx/genesis/commitment",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/health",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/status",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/version",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/pulse",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/pulse/summary",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/propagation",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/propagation/{cluster_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/events/{id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/events/recent",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/receipts/{event_id}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/receipts",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/receipts",
+      "method": "POST",
+      "production_classifier": "operator",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/validation/submit",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/check",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/checks",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/checks/{check_id}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/loops",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/loops/{loop_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/loops/check",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/graph",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/graph/clusters",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/graph/clusters/{cluster_id}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/graph/nodes/{node_id}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/graph/entities/{entity_type}/{entity_id}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/graph/ripples",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/graph/check",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/skill-pack",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/spend-policy",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/spend-policy/example",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/spend-policy/check",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/spend-policy/check/{check_id}/receipt-preview",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/hermes/spend-policy/check/{check_id}/receipt",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/spend-policy/check/{check_id}/reconciliation-preview",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/spend-policy/check/{check_id}/outcome",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/memory-loop",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/memory-loop/{loop_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/wallet-audit-trail",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/hermes/wallet-audit-trail/{trail_id}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/hermes/wallet-risk-score",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/wallet-risk-score/{score_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/wallet-safety/check",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/wallet-safety/example",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/wallet-safety/integrations",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/wallet-safety/integrations/{integration_id}/readiness",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/wallet-safety/integrations/{integration_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/skill-pack/skills",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/skill-pack/skills/{skill_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/reputation-ledger",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/hermes/reputation-ledger/providers",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/hermes/reputation-ledger/routes",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/hermes/pre-spend-decision",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/pre-spend-decision/example",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/pre-spend-decision/{decision_id}/receipt",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/pre-spend-decision/{decision_id}/outcome",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/reputation-ledger/{target_type}/{target_id}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/hermes/runs",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/hermes/runs/{run_id}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/hermes/runs/{run_id}/receipt",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/runs/{run_id}/receipt-preview",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/hermes/runs/{run_id}/claim/promote",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/runs/{run_id}/claim/promotion-preview",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/hermes/pre-spend-run",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/skills",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/hermes/health",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/claims",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/claims",
+      "method": "POST",
+      "production_classifier": "operator",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/claims/{claim_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/claims/{claim_id}/challenges",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/claims/{claim_id}/challenges",
+      "method": "POST",
+      "production_classifier": "operator",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/providers",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/routes",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/routes/{route_id}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/providers/featured",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/providers/{id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/pre-spend/providers",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/pre-spend/providers/{provider_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/services",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/services/{service_id}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/pre-spend/check",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "JudgmentTenantKey": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/judgment/session",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "JudgmentTenantKey": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/judgments/history",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "JudgmentTenantKey": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/judgments/requests/{key}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "JudgmentTenantKey": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/judgments/{id}/reconcile",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/decide",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "JudgmentTenantKey": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/judgment-issuer/keys",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/execution-authorization/keys",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/internal/economic-engine/decide",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/economic-engine/recover-assessment",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/economic-engine/execute",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/economic-engine/reconcile",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/economic-engine/revoke",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/economic-engine/trace-events",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/receipt-spine/judgment/{id}/verify",
+      "method": "GET",
+      "production_classifier": "owner",
+      "openapi_security": [
+        {
+          "JudgmentTenantKey": []
+        },
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/receipt-spine/judgment/{id}/context",
+      "method": "GET",
+      "production_classifier": "owner",
+      "openapi_security": [
+        {
+          "JudgmentTenantKey": []
+        },
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/receipt-spine/tape",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/receipt-spine/attempts",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/receipt-spine/witness/{j1}/{evaluation}/{j2}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/economics/revenue",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/attribution",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/economics/reconcile/{id}",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/internal/economics/costs",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/execute-proof",
+      "method": "POST",
+      "production_classifier": "owner",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/evaluate",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/score/{subject}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/providers/{id}/history",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/providers/{id}/intelligence",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/endpoints",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/endpoints/{id}/history",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/endpoints/{id}/monitor",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/monitor/runs/recent",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/trust/{entity_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/signal/{entity_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/narratives",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/attention-market-watch",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/attention-market-watch/intake/requirements",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/attention-market-watch/intake",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/attention-market-watch/{slug}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/signal-desk",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/signal-desk/candidates",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/signal-desk/candidates/{candidateId}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/signal-hunt",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/signal-hunt/{signalId}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/signal-hunt/submit",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/signal-hunt/{signalId}/verify",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/unicorn-radar",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/unicorn-radar/candidates",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/unicorn-radar/candidates/{candidateId}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/unicorn-radar/submit",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/unicorn-radar/request-evaluation",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/evaluation-request",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/unicorn-radar/revenue-receipts",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/revenue-receipts",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/revenue-receipts/{receiptId}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/narratives/{slug}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/signals",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/signals/{slug}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/signals/{slug}/updates",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/signals/{slug}/updates/{updateId}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/search",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/recommend-route",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/preflight",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/preflight/schema",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/scored-catalog",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/providers",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/endpoints",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/routes/candidates",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/mappings",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/mapping-targets",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/machine-market/services",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/machine-market/summary",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/abundance",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/abundance/claims",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/abundance/receipts",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/machine-policies/templates",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/machine-policies/{policy_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/machine-preflight",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/machine-preflight/receipts/recent",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/machine-execution/receipts/ingest",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/machine-execution/bigquery/fixtures/bounded-query",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/machine-execution/bigquery/fixtures/ingest",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/machine-execution/bigquery/run-bounded-query",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/machine-execution/repeatability/{service_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/machine-execution/benchmark-readiness",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/machine-execution/comparable-routes",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/machine-execution/benchmark-methodology",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/machine-execution/benchmark-gate",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/machine-execution/stableupload/fixtures/tiny-fixture",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/machine-execution/stableupload/fixtures/ingest",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/machine-execution/naver/fixtures/geocode",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/machine-execution/naver/fixtures/geocode/ingest",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/machine-execution/cloud-translation/fixtures/safe-phrase",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/machine-execution/cloud-translation/fixtures/safe-phrase/ingest",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/machine-preflight/coverage-run",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/machine-preflight/coverage-runs/recent",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/machine-preflight/coverage-runs/{run_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/preflight",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/preflight/batch",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/compare",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/superiority-readiness",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmark-readiness",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmark-summary",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/evidence-ledger",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/evidence-ledger/brief",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/agent-readiness",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/agent-readiness/{provider_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/bundles",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/bundles/{bundle_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/bundles/{bundle_id}/runs",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/bundles/{bundle_id}/runs/{run_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/bundles/{bundle_id}/plan",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmarks",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmarks/finance-data-sol-price",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmarks/finance-data-token-search",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmarks/finance-data-token-metadata",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmarks/communications-email-delivery",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmarks/solana-infra-account-balance",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmarks/social-data-reddit-post-search",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmarks/maps-place-search-results",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmarks/audio-speech-transcription",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmarks/document-ocr-text-extraction",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmarks/data-web-search-results",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmarks/finance-data-sol-price/history",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmark-history",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmark-history/{benchmark_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmark-history/{benchmark_id}/routes",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmark-history/{benchmark_id}/routes/{route_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmark-artifacts",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/benchmark-artifacts/{artifact_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/history/providers/{provider_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/history/endpoints/{endpoint_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/history/ecosystem",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/risk/providers/{provider_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/risk/endpoints/{endpoint_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/risk/ecosystem",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/export/providers.csv",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/export/endpoints.csv",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/export/route-candidates.csv",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/radar/export/degradations.csv",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/memes",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/signals",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/receipts",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/rh-chain/4663-index",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/campaigns/100-receipts",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/rh-chain/today-on-4663",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/daily-receipts",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/rh-chain/daily-receipts/{receipt_id}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/rh-chain/meme-pulse",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/launch-surfaces",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/launchpad-observatory",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/live-snapshot",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/live-snapshot/token/{contract}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/classifications",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/projects",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/projects/{project_id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/projects/{project_id}/claims",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/projects/{project_id}/observations",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/projects/{project_id}/receipts",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/rh-chain/projects/claims",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/intelligence-receipts",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/rh-chain/intelligence-receipts/{receipt_id}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/rh-chain/market/provider-status",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/market",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/market/tokens",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/market/tokens/{contract}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/market/boosts",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/market/attention",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/market/snapshots/capture",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/market/snapshots/{contract}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/market/attention-quality/{contract}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/market-structure",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/market-structure/cross-layer",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/market-structure/attention-quality",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/attention-quality/receipts/{receipt_id}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/rh-chain/review-pipeline",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/review-pipeline/start-daily-review",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/review-pipeline/{contract}/classify",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/review-pipeline/{contract}/promote-to-market-structure",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/review-pipeline/{contract}/promote-to-100-receipts",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/review-pipeline/{contract}/add-to-daily-draft",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/review-pipeline/{contract}/set-outcome-check",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/review-pipeline/daily-summary",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/tokens/{contract}/dossier",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/review-queue",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/clone-radar",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/scouts",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/distribution-pack",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/receipt-relay",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/rh-chain/signals/submissions",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/signals/submit",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/rh-chain/scout/query",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/frontdoor",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/share/{shareObjectId}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/me/call",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/4663/me/proof",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/4663/me/changes",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/4663/me",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/4663/prints/latest",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/prints",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/prints/{printId}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/prints/{printId}/share",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/print-candidate",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/observations",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/internal/4663/observations/utc-day/{date}/refresh",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/campaign/events",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/campaigns/{campaignId}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/pulse",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/pulse/payload",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/pulse/calls",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/pulse/windows/{windowId}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/pulse/windows/{windowId}/resolution",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/pulse/receipts/{receiptId}/proof",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/4663/pulse/receipts/{receiptId}/share",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/4663/pulse/windows/{windowId}/share",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/pulse/reputation/{wallet}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/4663/proof/{wallet}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/4663/today",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/today/archive",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/today/{date}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/signals",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/signals",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/signals/{signalId}/evidence",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/signals/{signalId}/evidence",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/signals/{signalId}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/lenses/{lens}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/rotation",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/events",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/receipts",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/4663/receipts/{receiptId}",
+      "method": "GET",
+      "production_classifier": "operator",
+      "openapi_security": [
+        {
+          "AdminBearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/v1/4663/reflexive",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/watch",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/watch/cases",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/watch/cases/{id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/watch/claims",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/census",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/census/pairs",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/census/stocks/{symbol}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/pairs",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/pairs/{id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/stocks/{symbol}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/stocks/PLTR/preflight",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/preflight/ipx-pltr/simulate",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/preflight/ipx-pltr/simulations/{id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/preflight/ipx-pltr/shadow/candidates",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/preflight/ipx-pltr/shadow/status",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/preflight/ipx-pltr/shadow/replay",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/preflight/ipx-pltr/shadow/series/{configuration_hash}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/preflight/ipx-pltr/capacity-sweeps",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/preflight/ipx-pltr/capacity-sweeps/{id}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/events",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/thesis",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/v1/4663/reflexive/audits/long-ai-nvda",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/internal/4663/reflexive/refresh",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/internal/4663/reflexive/census/refresh",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/internal/4663/reflexive/watch/claims",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/internal/4663/reflexive/watch/audit-targets",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": null
+    },
+    {
+      "path": "/internal/4663/campaigns",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/campaigns",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/campaigns/{campaignId}/schedule",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/campaigns/{campaignId}/activate",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/campaigns/{campaignId}/complete",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/product-intelligence",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/campaigns/{campaignId}/readiness",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/campaign-rehearsal/preview",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/pulse/windows/{windowId}/resolve",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/prints/{candidateId}/freeze",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/pulse/windows/{windowId}/publish",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/intelligence/run",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/intelligence/observations",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/intelligence/candidates",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/intelligence/candidates/{candidateId}/action",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/intelligence/signals/{signalId}/corrections",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/intelligence/signals/{signalId}/distribution",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/intelligence/backtest",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/intelligence/metrics",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/4663/intelligence/activation",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/classifications",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/classifications",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/classifications/{contract}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/classifications/{contract}/approve",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/classifications/{contract}/reject",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/classifications/{contract}/supersede",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/classifications/{contract}/audit",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/market-structure/cross-layer/conflicts",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/attention-quality/assessments",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/attention-quality/assessments/{contract}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/attention-quality/assessments/{contract}/receipts",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/attention-quality/receipts/{receipt_id}/publish",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/attention-quality/receipts/{receipt_id}/reject",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/review-console/submissions",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/operational-readiness",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/review-console/submissions/{submissionId}",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/review-console/submissions/{submissionId}",
+      "method": "PATCH",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/projects/{project_id}/contracts",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/projects/{project_id}/contracts",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/projects/{project_id}/contracts/{relationship_id}/verify",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/projects/{project_id}/contracts/{relationship_id}/supersede",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/projects/{project_id}/contracts/{relationship_id}/audit",
+      "method": "GET",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/projects/{project_id}/verdicts/{verdict_id}/reject",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    },
+    {
+      "path": "/internal/rh-chain/projects/{project_id}/intelligence-receipts/{receipt_id}/reject",
+      "method": "POST",
+      "production_classifier": "public",
+      "openapi_security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+.git
+node_modules
+dist
+.env
+.env.*
+!.env.example
+.data
+.runtime
+output
+artifacts
+coverage
+*.log
+brag-output-*
+launch-assets
+.DS_Store

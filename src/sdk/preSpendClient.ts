@@ -89,13 +89,11 @@ export function createInfopunksPreSpendClient(options: CreateInfopunksPreSpendCl
   }
 
   async function post<TInput, TOutput>(path: string, input: TInput, responseSchema: z.ZodType<TOutput>) {
+    const headers = new Headers(options.headers);
+    headers.set('accept', 'application/json'); headers.set('content-type', 'application/json');
     const response = await fetchImpl(joinUrl(baseUrl, path), {
       method: 'POST',
-      headers: {
-        accept: 'application/json',
-        'content-type': 'application/json',
-        ...options.headers
-      },
+      headers: Object.fromEntries(headers),
       body: JSON.stringify(input)
     });
 
@@ -130,7 +128,7 @@ export function createInfopunksPreSpendClient(options: CreateInfopunksPreSpendCl
 
   return {
     async checkPreSpend(input: PreSpendCheckRequest) {
-      const payload = PreSpendCheckRequestSchema.parse(input);
+      const payload = PreSpendCheckRequestSchema.strict().parse(input);
       const envelope = await post('/v1/pre-spend/check', payload, PreSpendCheckEnvelopeSchema);
       return envelope.data;
     }

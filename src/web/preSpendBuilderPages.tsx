@@ -1,3 +1,4 @@
+import { JudgmentCheckPanel } from './judgmentCheckPanel';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { SignalGraphContextPanel, type SignalGraphContextNode } from './signalGraphContextPanel';
@@ -536,154 +537,8 @@ function PlaceholderMarketPanel() {
 }
 
 export function SpendTerminalPage() {
-  const [metrics, setMetrics] = useState<Metrics | null>(null);
-  const [result, setResult] = useState<PreSpendCheckResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState(() => {
-    const params = new URLSearchParams(window.location.search);
-    const subject = params.get('subject') || undefined;
-    return {
-      agent_id: subject ? 'infopunks_launch_surface' : 'agent_001',
-      intent: params.get('intent') || 'buy_market_research',
-      budget: 25,
-      risk_tolerance: 'low' as RiskLevel,
-      preferred_settlement: subject ? 'tokenized_pltr' : 'stablecoin',
-      required_confidence: 75,
-      subject_id: subject,
-      linked_check_id: subject
-    };
-  });
-
-  useEffect(() => {
-    document.title = 'Pre-Spend Intelligence | Infopunks Builder';
-    api<{ data: { metrics: Metrics } }>('/v1/routes').then((response) => setMetrics(response.data.metrics)).catch(() => undefined);
-  }, []);
-
-  async function requestDecision() {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await api<{ data: PreSpendCheckResponse }>('/v1/pre-spend/check', {
-        method: 'POST',
-        body: JSON.stringify(form)
-      });
-      setResult(response.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'pre-spend check failed');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    if (form.subject_id !== 'monitor') return;
-    void requestDecision();
-  }, [form.subject_id]);
-
-  async function runCheck(event: React.FormEvent) {
-    event.preventDefault();
-    await requestDecision();
-  }
-
-  const resultTone = result ? decisionTone(result.decision) : 'warn';
-  const hasReceipts = Boolean(result?.receipt_references.length);
-  const hasWarnings = Boolean(result && (result.known_blockers.length || result.do_not_use.length || result.requires_human_approval || result.decision !== 'approved'));
-  const isMonitorSurface = form.subject_id === 'monitor';
-
-  return <div className="shell builder-shell">
-    <RadarContextHeader />
-    <main className="builder-page spend-terminal-page" aria-label="Pre-Spend Intelligence Terminal">
-      {!isMonitorSurface && <section className="panel hero builder-hero">
-        <div>
-          <p className="eyebrow">Pre-Spend Intelligence</p>
-          <h1>Should this agent spend?</h1>
-          <p className="copy">Decision Terminal for agentic finance preflight. Interrogate route evidence, inspect blockers, and decide whether this agent should spend here, now, on this route, with this provider, under these conditions.</p>
-        </div>
-        <div className="ticker" aria-label="Decision terminal copy">
-          <span>Should this agent spend?</span>
-          <span>Receipt-backed route intelligence</span>
-          <span>Verified Pre-Spend Decisions</span>
-          <span>No receipt, no trust</span>
-        </div>
-      </section>}
-      {!isMonitorSurface && <MetricsBand metrics={metrics} />}
-      <section className={`grid two builder-terminal-grid ${isMonitorSurface ? 'monitor-terminal-grid' : ''}`}>
-        <form className="panel builder-form-panel" onSubmit={runCheck}>
-          <div className="panel-head"><div><p className="section-kicker">Agent Intent</p><h2>Pre-spend input flow</h2></div></div>
-          <p className="panel-caption">Run a receipt-backed preflight before any paid route call. No receipt, no trust.</p>
-          <label><span>intent</span><input aria-label="intent" value={form.intent} onChange={(event) => setForm({ ...form, intent: event.target.value })} /></label>
-          <label><span>budget</span><input aria-label="budget" type="number" value={form.budget} onChange={(event) => setForm({ ...form, budget: Number(event.target.value) })} /></label>
-          <label><span>risk tolerance</span><select aria-label="risk tolerance" value={form.risk_tolerance} onChange={(event) => setForm({ ...form, risk_tolerance: event.target.value as RiskLevel })}><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="critical">critical</option></select></label>
-          <label><span>preferred settlement</span><input aria-label="preferred settlement" value={form.preferred_settlement} onChange={(event) => setForm({ ...form, preferred_settlement: event.target.value })} /></label>
-          <label><span>required confidence</span><input aria-label="required confidence" type="number" value={form.required_confidence} onChange={(event) => setForm({ ...form, required_confidence: Number(event.target.value) })} /></label>
-          <button className="execute compact" type="submit" disabled={loading}>{loading ? 'Checking route' : 'Run pre-spend check'}</button>
-          {error && <p className="route-state error">{error}</p>}
-        </form>
-        <section className="panel builder-result-panel" aria-label="Decision result">
-          <div className="panel-head"><div><p className="section-kicker">Decision Output</p><h2>{result ? terminalCopy(result.decision) : 'Should this agent spend?'}</h2></div></div>
-          {!result && <div className="empty-state polished-empty builder-terminal-empty">
-            <strong>Awaiting pre-spend decision.</strong>
-            <span>Set agent intent, risk tolerance, settlement preference, and required confidence, then interrogate the route before any economic action.</span>
-            <small>Should this agent spend? The terminal will not answer without route evidence, receipt references, and explicit rationale.</small>
-          </div>}
-          {result && <>
-            <div className={`builder-decision-banner ${resultTone}`}>
-              <div>
-                <span className="section-kicker">Decision state</span>
-                <strong>{decisionLabel(result.decision)}</strong>
-                <p>{result.recommended_route
-                  ? <>Recommended route: <BuilderLink href={routeHref(result.recommended_route)}>{result.recommended_route}</BuilderLink></>
-                  : 'No route cleared for spend.'}</p>
-              </div>
-              <div className="builder-banner-meta">
-                <span>confidence {result.confidence_score}</span>
-                <span>risk {result.risk_level}</span>
-                <span>human approval {result.requires_human_approval ? 'required' : 'not required'}</span>
-              </div>
-            </div>
-            {!hasReceipts && <p className="route-state error">No receipt, no trust. No recent successful receipt is attached to this recommendation.</p>}
-            {hasWarnings && <p className={`route-state ${resultTone === 'error' ? 'error' : 'warn'}`}>
-              {result.requires_human_approval
-                ? 'Human approval is required before spend.'
-                : result.known_blockers.length
-                  ? 'Known blockers are active. Review them before spend.'
-                  : result.do_not_use.length
-                    ? 'Unsafe providers were flagged for this intent.'
-                    : 'Decision is not a silent approval. Review rationale before spend.'}
-            </p>}
-            <div className="builder-result-grid">
-              <article><span>subject</span><strong>{result.subject ?? 'none'}</strong></article>
-              <article><span>intent</span><strong>{result.intent}</strong></article>
-              <article><span>settlement</span><strong>{result.preferred_settlement ?? form.preferred_settlement}</strong></article>
-              <article><span>required confidence</span><strong>{result.required_confidence ?? form.required_confidence}</strong></article>
-              <article><span>decision</span><strong>{result.decision}</strong></article>
-              <article><span>canonical judgment</span><strong>{result.judgment?.decision ?? 'unavailable'}</strong></article>
-              <article><span>recommended route</span><strong>{result.recommended_route ? <BuilderLink href={routeHref(result.recommended_route)}>{result.recommended_route}</BuilderLink> : 'none'}</strong></article>
-              <article><span>confidence score</span><strong>{result.confidence_score}</strong></article>
-              <article><span>judgment receipt</span><strong>{result.judgment?.receipt_id ?? 'unavailable'}</strong></article>
-              <article><span>outcome status</span><strong>{result.judgment?.outcome_status ?? 'unavailable'}</strong></article>
-              <article><span>risk level</span><strong>{result.risk_level}</strong></article>
-              <article><span>estimated cost</span><strong>{result.estimated_cost ?? 'n/a'}</strong></article>
-              <article><span>last successful run</span><strong>{formatDate(result.last_successful_run)}</strong></article>
-              <article><span>human approval</span><strong>{result.requires_human_approval ? 'required' : 'not required'}</strong></article>
-              <article><span>receipts</span><strong><LinkedIds items={result.receipt_references} buildHref={receiptHref} /></strong></article>
-              <article className="wide"><span>linked Proof Check</span><strong>{result.proof_check_reference
-                ? <BuilderLink href={result.proof_check_reference}>{result.linked_check_id ?? result.proof_check_reference}</BuilderLink>
-                : result.linked_check_id ?? 'none'}</strong></article>
-              <article className="wide"><span>known blockers</span><strong>{joined(result.known_blockers)}</strong></article>
-              <article className="wide"><span>safer alternatives</span><strong><LinkedIds items={result.safer_alternatives} buildHref={routeHref} /></strong></article>
-              <article className="wide"><span>do-not-use warnings</span><strong>{result.do_not_use.length
-                ? <div className="builder-note-stack">{result.do_not_use.map((item) => <span key={`${item.provider}:${item.reason}`}>{item.provider.startsWith('provider_') ? <><BuilderLink href={providerHref(item.provider)}>{item.provider}</BuilderLink>: {item.reason}</> : `${item.provider}: ${item.reason}`}</span>)}</div>
-                : 'none'}</strong></article>
-              <article className="wide"><span>rationale</span><strong>{result.rationale.join(' ')}</strong></article>
-            </div>
-          </>}
-        </section>
-      </section>
-      {!isMonitorSurface && <PlaceholderMarketPanel />}
-    </main>
-  </div>;
+  useEffect(() => { document.title = 'Check | Infopunks Radar'; }, []);
+  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page spend-terminal-page" aria-label="Pre-Spend Intelligence Terminal"><JudgmentCheckPanel /></main></div>;
 }
 
 export function DevelopersPage() {
@@ -691,20 +546,23 @@ export function DevelopersPage() {
     document.title = 'Developers | Infopunks Builder';
   }, []);
 
-  const sdkExample = `import { createInfopunksPreSpendClient } from "infopunks-pay-sh-radar/sdk";
+  const sdkExample = `import { createInfopunksClient } from "infopunks-pay-sh-radar/sdk";
 
-const client = createInfopunksPreSpendClient({
-  baseUrl: "https://radar.infopunks.fun"
+// wallet supplies a bounded policy and an explicit authorize callback.
+const radar = createInfopunksClient({
+  apiKey: process.env.INFOPUNKS_API_KEY,
+  payment: wallet
 });
 
-const decision = await client.checkPreSpend({
-  agent_id: "agent_001",
-  intent: "buy_market_research",
-  budget: 25,
-  risk_tolerance: "low",
-  preferred_settlement: "stablecoin",
-  required_confidence: 75
-});`;
+const decision = await radar.judge({
+  intent: "buy market research",
+  budget: 0.20,
+  subject: "route:market-research"
+});
+
+// After a timeout, retain the session and inspect durable state.
+// await radar.resume(error.sessionId);
+// Legacy createInfopunksPreSpendClient/checkPreSpend remains available.`;
 
   const apiRequest = `POST /v1/pre-spend/check
 Content-Type: application/json
@@ -719,17 +577,20 @@ Content-Type: application/json
 }`;
 
   const apiResponse = `{
-  "data": {
-    "intent": "buy_market_research",
-    "decision": "approved_with_warning",
-    "recommended_route": "route_pay_sh_market_research_01",
-    "confidence_score": 82,
-    "risk_level": "medium",
-    "estimated_cost": "0.25 USDC",
-    "requires_human_approval": false,
-    "receipt_references": ["receipt_001"],
-    "known_blockers": ["occasional timeout under high load"]
-  }
+  "decision": "insufficient_evidence",
+  "confidence": 0,
+  "reasons": ["Required fresh, scoped, live evidence is missing."],
+  "cited_observations": [],
+  "payment_required": false,
+  "cost": { "amount": "0", "asset": "USDC" },
+  "receipt": null,
+  "presentation": {
+    "version": "judgment-presentation.v1",
+    "authoritative": false,
+    "summary": "Evidence is insufficient to approve this spend.",
+    "next_action": "collect_evidence"
+  },
+  "data": { "canonical_judgment": "same canonical assessment" }
 }`;
 
   const decisionStates: Array<{ state: DecisionState; copy: string }> = [
@@ -767,7 +628,7 @@ Content-Type: application/json
           <p className="eyebrow">Developer Surface</p>
           <h1>Before your agent pays, it checks Infopunks.</h1>
           <p className="copy">Infopunks is the pre-spend intelligence layer before payment. It returns receipt-backed route intelligence, known blockers, safer alternatives, and validation context before economic action.</p>
-          <p className="copy">Infopunks is not executing payment. The SDK calls POST /v1/pre-spend/check against https://radar.infopunks.fun.</p>
+          <p className="copy">The SDK handles an explicitly authorized Judgment fee and safe recovery. It never executes the requested task or trade. Legacy createInfopunksPreSpendClient remains available. The boundary is POST /v1/pre-spend/check at https://radar.infopunks.fun.</p>
         </div>
         <div className="ticker" aria-label="Developer page signals">
           <span>pre-spend intelligence</span>
