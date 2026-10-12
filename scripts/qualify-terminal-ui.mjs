@@ -29,6 +29,7 @@ for (const [name, viewport] of Object.entries({ desktop: { width: 1440, height: 
     });
     const dom = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, width: innerWidth, title: document.title, h1: [...document.querySelectorAll('h1')].map(n => n.textContent), nav: [...document.querySelectorAll('.product-wayfinding a')].map(a => ({ label: a.textContent, href: a.getAttribute('href') })), overflowing: [...document.querySelectorAll('body *')].filter(el => { const r=el.getBoundingClientRect(); return r.width && (r.right > innerWidth+2 || r.left < -2) && getComputedStyle(el).position !== 'fixed'; }).slice(0,8).map(el => ({ tag: el.tagName, class: el.className })) }));
     const screenshot = `${name}-${route === '/' ? 'home' : route.slice(1).replaceAll('/', '-')}.png`;
+    await page.evaluate(() => { document.activeElement?.blur(); window.scrollTo(0, 0); });
     await page.screenshot({ path: path.join(out, screenshot), fullPage: route === '/' || route === '/spend-terminal' });
     reports.push({ name, route, viewport, status: response.status(), screenshot, axe, dom, errors, failures, initial_api_requests: route === '/' ? api : undefined });
     console.log(name, route, 'axe', axe.violations.length, 'overflow', dom.scrollWidth > viewport.width, 'errors', errors.length);
