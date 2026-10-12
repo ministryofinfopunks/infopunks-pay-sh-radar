@@ -1,0 +1,674 @@
+{
+  "fixture_only": true,
+  "production_observations": false,
+  "route": "/v1/rh-chain/market/snapshots/0x1111111111111111111111111111111111111111",
+  "injected_clock": "2026-10-12T00:05:00.000Z",
+  "before": {
+    "data": {
+      "token": {
+        "contract": "0x1111111111111111111111111111111111111111"
+      },
+      "snapshots": [],
+      "latest_snapshot": null,
+      "snapshot_count": 0,
+      "freshness": {
+        "state": "unavailable",
+        "observed_at": null,
+        "time_basis": "provider_fetch",
+        "age_ms": null
+      },
+      "caveats": [
+        "Snapshots are low-frequency provider observations and do not change reviewed classification, receipts, or approved-signal status. Stored freshness is the state at capture; current age is reported separately."
+      ]
+    },
+    "meta": {
+      "source_policy": "Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.",
+      "record_count": null,
+      "provider_status": [
+        {
+          "provider_name": "DefiLlama",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "DexScreener",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "CoinGecko",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "Blockscout",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "Dune",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "X/social signals",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        }
+      ],
+      "live_indexing_enabled": false
+    },
+    "sources": [],
+    "generated_at": "2026-07-09T03:45:00.000Z",
+    "data_mode": "seeded",
+    "disclaimer": "Independent Infopunks intelligence surface. Not affiliated with, endorsed by, or partnered with Robinhood. No buy, sell, or listing recommendation."
+  },
+  "capture": {
+    "captured": [
+      {
+        "collection_gaps": [
+          "provider_timestamp_missing",
+          "market_cap",
+          "fdv",
+          "txns_h6_buys",
+          "txns_h6_sells",
+          "price_change_h6",
+          "price_change_h1",
+          "paid_attention_not_observed"
+        ],
+        "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+        "captured_at": "2026-10-12T00:05:00.000Z",
+        "provider": "dexscreener",
+        "chain_id": "robinhood",
+        "token_address": "0x1111111111111111111111111111111111111111",
+        "ticker": null,
+        "pair_address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "dex_id": "uniswap",
+        "price_usd": 1,
+        "liquidity_usd": 1000,
+        "market_cap": null,
+        "fdv": null,
+        "volume_h24": 300,
+        "volume_h6": 90,
+        "volume_h1": 10,
+        "txns_h24_buys": 5,
+        "txns_h24_sells": 2,
+        "txns_h6_buys": null,
+        "txns_h6_sells": null,
+        "price_change_h24": 5,
+        "price_change_h6": null,
+        "price_change_h1": null,
+        "pair_created_at": null,
+        "active_boosts": null,
+        "paid_order_types": [],
+        "paid_order_statuses": [],
+        "base_token": {
+          "address": "0x1111111111111111111111111111111111111111",
+          "name": "Shared symbol",
+          "symbol": "SAME",
+          "decimals": 18
+        },
+        "pair_labels": [],
+        "websites": [],
+        "socials": [],
+        "provider_timestamp": null,
+        "freshness_state": "fresh",
+        "raw_data_version": "legacy-v1",
+        "cache_status": "unavailable",
+        "cache_provenance": "provider",
+        "data_mode": "live_cached",
+        "source_url": "https://dexscreener.com/robinhood/example",
+        "paid_attention_available": false
+      }
+    ],
+    "status": "captured",
+    "storage": {
+      "enabled": true,
+      "adapter": "memory",
+      "durable": false,
+      "written": 1
+    },
+    "requested_contracts": 1,
+    "failures": [],
+    "caveats": [
+      "Stored market samples are provider observations, not reviewed judgments. Observation age is never reset by a cache read."
+    ]
+  },
+  "replay": {
+    "captured": [
+      {
+        "collection_gaps": [
+          "provider_timestamp_missing",
+          "market_cap",
+          "fdv",
+          "txns_h6_buys",
+          "txns_h6_sells",
+          "price_change_h6",
+          "price_change_h1",
+          "paid_attention_not_observed"
+        ],
+        "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+        "captured_at": "2026-10-12T00:05:00.000Z",
+        "provider": "dexscreener",
+        "chain_id": "robinhood",
+        "token_address": "0x1111111111111111111111111111111111111111",
+        "ticker": null,
+        "pair_address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "dex_id": "uniswap",
+        "price_usd": 1,
+        "liquidity_usd": 1000,
+        "market_cap": null,
+        "fdv": null,
+        "volume_h24": 300,
+        "volume_h6": 90,
+        "volume_h1": 10,
+        "txns_h24_buys": 5,
+        "txns_h24_sells": 2,
+        "txns_h6_buys": null,
+        "txns_h6_sells": null,
+        "price_change_h24": 5,
+        "price_change_h6": null,
+        "price_change_h1": null,
+        "pair_created_at": null,
+        "active_boosts": null,
+        "paid_order_types": [],
+        "paid_order_statuses": [],
+        "base_token": {
+          "address": "0x1111111111111111111111111111111111111111",
+          "name": "Shared symbol",
+          "symbol": "SAME",
+          "decimals": 18
+        },
+        "pair_labels": [],
+        "websites": [],
+        "socials": [],
+        "provider_timestamp": null,
+        "freshness_state": "fresh",
+        "raw_data_version": "legacy-v1",
+        "cache_status": "unavailable",
+        "cache_provenance": "provider",
+        "data_mode": "live_cached",
+        "source_url": "https://dexscreener.com/robinhood/example",
+        "paid_attention_available": false
+      }
+    ],
+    "status": "captured",
+    "storage": {
+      "enabled": true,
+      "adapter": "memory",
+      "durable": false,
+      "written": 0
+    },
+    "requested_contracts": 1,
+    "failures": [],
+    "caveats": [
+      "Stored market samples are provider observations, not reviewed judgments. Observation age is never reset by a cache read."
+    ]
+  },
+  "after": {
+    "data": {
+      "token": {
+        "contract": "0x1111111111111111111111111111111111111111"
+      },
+      "snapshots": [
+        {
+          "collection_gaps": [
+            "provider_timestamp_missing",
+            "market_cap",
+            "fdv",
+            "txns_h6_buys",
+            "txns_h6_sells",
+            "price_change_h6",
+            "price_change_h1",
+            "paid_attention_not_observed"
+          ],
+          "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+          "captured_at": "2026-10-12T00:05:00.000Z",
+          "provider": "dexscreener",
+          "chain_id": "robinhood",
+          "token_address": "0x1111111111111111111111111111111111111111",
+          "ticker": null,
+          "pair_address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "dex_id": "uniswap",
+          "price_usd": 1,
+          "liquidity_usd": 1000,
+          "market_cap": null,
+          "fdv": null,
+          "volume_h24": 300,
+          "volume_h6": 90,
+          "volume_h1": 10,
+          "txns_h24_buys": 5,
+          "txns_h24_sells": 2,
+          "txns_h6_buys": null,
+          "txns_h6_sells": null,
+          "price_change_h24": 5,
+          "price_change_h6": null,
+          "price_change_h1": null,
+          "pair_created_at": null,
+          "active_boosts": null,
+          "paid_order_types": [],
+          "paid_order_statuses": [],
+          "base_token": {
+            "address": "0x1111111111111111111111111111111111111111",
+            "name": "Shared symbol",
+            "symbol": "SAME",
+            "decimals": 18
+          },
+          "quote_token": null,
+          "pair_labels": [],
+          "websites": [],
+          "socials": [],
+          "provider_timestamp": null,
+          "freshness_state": "fresh",
+          "raw_data_version": "legacy-v1",
+          "cache_status": "unavailable",
+          "cache_provenance": "provider",
+          "data_mode": "live_cached",
+          "source_url": "https://dexscreener.com/robinhood/example",
+          "paid_attention_available": false
+        }
+      ],
+      "latest_snapshot": {
+        "collection_gaps": [
+          "provider_timestamp_missing",
+          "market_cap",
+          "fdv",
+          "txns_h6_buys",
+          "txns_h6_sells",
+          "price_change_h6",
+          "price_change_h1",
+          "paid_attention_not_observed"
+        ],
+        "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+        "captured_at": "2026-10-12T00:05:00.000Z",
+        "provider": "dexscreener",
+        "chain_id": "robinhood",
+        "token_address": "0x1111111111111111111111111111111111111111",
+        "ticker": null,
+        "pair_address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "dex_id": "uniswap",
+        "price_usd": 1,
+        "liquidity_usd": 1000,
+        "market_cap": null,
+        "fdv": null,
+        "volume_h24": 300,
+        "volume_h6": 90,
+        "volume_h1": 10,
+        "txns_h24_buys": 5,
+        "txns_h24_sells": 2,
+        "txns_h6_buys": null,
+        "txns_h6_sells": null,
+        "price_change_h24": 5,
+        "price_change_h6": null,
+        "price_change_h1": null,
+        "pair_created_at": null,
+        "active_boosts": null,
+        "paid_order_types": [],
+        "paid_order_statuses": [],
+        "base_token": {
+          "address": "0x1111111111111111111111111111111111111111",
+          "name": "Shared symbol",
+          "symbol": "SAME",
+          "decimals": 18
+        },
+        "quote_token": null,
+        "pair_labels": [],
+        "websites": [],
+        "socials": [],
+        "provider_timestamp": null,
+        "freshness_state": "fresh",
+        "raw_data_version": "legacy-v1",
+        "cache_status": "unavailable",
+        "cache_provenance": "provider",
+        "data_mode": "live_cached",
+        "source_url": "https://dexscreener.com/robinhood/example",
+        "paid_attention_available": false
+      },
+      "snapshot_count": 1,
+      "freshness": {
+        "state": "fresh",
+        "observed_at": "2026-10-12T00:05:00.000Z",
+        "time_basis": "provider_fetch",
+        "age_ms": 0
+      },
+      "caveats": [
+        "Snapshots are low-frequency provider observations and do not change reviewed classification, receipts, or approved-signal status. Stored freshness is the state at capture; current age is reported separately."
+      ]
+    },
+    "meta": {
+      "source_policy": "Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.",
+      "record_count": null,
+      "provider_status": [
+        {
+          "provider_name": "DefiLlama",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "DexScreener",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "CoinGecko",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "Blockscout",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "Dune",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "X/social signals",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        }
+      ],
+      "live_indexing_enabled": false
+    },
+    "sources": [],
+    "generated_at": "2026-07-09T03:45:00.000Z",
+    "data_mode": "seeded",
+    "disclaimer": "Independent Infopunks intelligence surface. Not affiliated with, endorsed by, or partnered with Robinhood. No buy, sell, or listing recommendation."
+  },
+  "daily_aggregates": [
+    {
+      "version": "rh-market-history-v1",
+      "resolution": "day",
+      "bucket_start": "2026-10-12T00:00:00.000Z",
+      "bucket_end": "2026-10-13T00:00:00.000Z",
+      "token_address": "0x1111111111111111111111111111111111111111",
+      "pair_address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provider": "dexscreener",
+      "chain_id": "robinhood",
+      "sample_count": 1,
+      "snapshot_ids": [
+        "rhms_65f62e917397f5054d27ff57b63bed62"
+      ],
+      "first_snapshot": {
+        "collection_gaps": [
+          "provider_timestamp_missing",
+          "market_cap",
+          "fdv",
+          "txns_h6_buys",
+          "txns_h6_sells",
+          "price_change_h6",
+          "price_change_h1",
+          "paid_attention_not_observed"
+        ],
+        "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+        "captured_at": "2026-10-12T00:05:00.000Z",
+        "provider": "dexscreener",
+        "chain_id": "robinhood",
+        "token_address": "0x1111111111111111111111111111111111111111",
+        "ticker": null,
+        "pair_address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "dex_id": "uniswap",
+        "price_usd": 1,
+        "liquidity_usd": 1000,
+        "market_cap": null,
+        "fdv": null,
+        "volume_h24": 300,
+        "volume_h6": 90,
+        "volume_h1": 10,
+        "txns_h24_buys": 5,
+        "txns_h24_sells": 2,
+        "txns_h6_buys": null,
+        "txns_h6_sells": null,
+        "price_change_h24": 5,
+        "price_change_h6": null,
+        "price_change_h1": null,
+        "pair_created_at": null,
+        "active_boosts": null,
+        "paid_order_types": [],
+        "paid_order_statuses": [],
+        "base_token": {
+          "address": "0x1111111111111111111111111111111111111111",
+          "name": "Shared symbol",
+          "symbol": "SAME",
+          "decimals": 18
+        },
+        "pair_labels": [],
+        "websites": [],
+        "socials": [],
+        "provider_timestamp": null,
+        "freshness_state": "fresh",
+        "raw_data_version": "legacy-v1",
+        "cache_status": "unavailable",
+        "cache_provenance": "provider",
+        "data_mode": "live_cached",
+        "source_url": "https://dexscreener.com/robinhood/example",
+        "paid_attention_available": false
+      },
+      "last_snapshot": {
+        "collection_gaps": [
+          "provider_timestamp_missing",
+          "market_cap",
+          "fdv",
+          "txns_h6_buys",
+          "txns_h6_sells",
+          "price_change_h6",
+          "price_change_h1",
+          "paid_attention_not_observed"
+        ],
+        "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+        "captured_at": "2026-10-12T00:05:00.000Z",
+        "provider": "dexscreener",
+        "chain_id": "robinhood",
+        "token_address": "0x1111111111111111111111111111111111111111",
+        "ticker": null,
+        "pair_address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "dex_id": "uniswap",
+        "price_usd": 1,
+        "liquidity_usd": 1000,
+        "market_cap": null,
+        "fdv": null,
+        "volume_h24": 300,
+        "volume_h6": 90,
+        "volume_h1": 10,
+        "txns_h24_buys": 5,
+        "txns_h24_sells": 2,
+        "txns_h6_buys": null,
+        "txns_h6_sells": null,
+        "price_change_h24": 5,
+        "price_change_h6": null,
+        "price_change_h1": null,
+        "pair_created_at": null,
+        "active_boosts": null,
+        "paid_order_types": [],
+        "paid_order_statuses": [],
+        "base_token": {
+          "address": "0x1111111111111111111111111111111111111111",
+          "name": "Shared symbol",
+          "symbol": "SAME",
+          "decimals": 18
+        },
+        "pair_labels": [],
+        "websites": [],
+        "socials": [],
+        "provider_timestamp": null,
+        "freshness_state": "fresh",
+        "raw_data_version": "legacy-v1",
+        "cache_status": "unavailable",
+        "cache_provenance": "provider",
+        "data_mode": "live_cached",
+        "source_url": "https://dexscreener.com/robinhood/example",
+        "paid_attention_available": false
+      },
+      "metrics": {
+        "price_usd": {
+          "covered_samples": 1,
+          "min": {
+            "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+            "captured_at": "2026-10-12T00:05:00.000Z",
+            "provider_timestamp": null,
+            "source_url": "https://dexscreener.com/robinhood/example",
+            "value": 1
+          },
+          "max": {
+            "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+            "captured_at": "2026-10-12T00:05:00.000Z",
+            "provider_timestamp": null,
+            "source_url": "https://dexscreener.com/robinhood/example",
+            "value": 1
+          }
+        },
+        "liquidity_usd": {
+          "covered_samples": 1,
+          "min": {
+            "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+            "captured_at": "2026-10-12T00:05:00.000Z",
+            "provider_timestamp": null,
+            "source_url": "https://dexscreener.com/robinhood/example",
+            "value": 1000
+          },
+          "max": {
+            "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+            "captured_at": "2026-10-12T00:05:00.000Z",
+            "provider_timestamp": null,
+            "source_url": "https://dexscreener.com/robinhood/example",
+            "value": 1000
+          }
+        },
+        "market_cap": {
+          "covered_samples": 0,
+          "min": null,
+          "max": null
+        },
+        "fdv": {
+          "covered_samples": 0,
+          "min": null,
+          "max": null
+        },
+        "volume_h24": {
+          "covered_samples": 1,
+          "min": {
+            "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+            "captured_at": "2026-10-12T00:05:00.000Z",
+            "provider_timestamp": null,
+            "source_url": "https://dexscreener.com/robinhood/example",
+            "value": 300
+          },
+          "max": {
+            "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+            "captured_at": "2026-10-12T00:05:00.000Z",
+            "provider_timestamp": null,
+            "source_url": "https://dexscreener.com/robinhood/example",
+            "value": 300
+          }
+        },
+        "volume_h6": {
+          "covered_samples": 1,
+          "min": {
+            "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+            "captured_at": "2026-10-12T00:05:00.000Z",
+            "provider_timestamp": null,
+            "source_url": "https://dexscreener.com/robinhood/example",
+            "value": 90
+          },
+          "max": {
+            "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+            "captured_at": "2026-10-12T00:05:00.000Z",
+            "provider_timestamp": null,
+            "source_url": "https://dexscreener.com/robinhood/example",
+            "value": 90
+          }
+        },
+        "volume_h1": {
+          "covered_samples": 1,
+          "min": {
+            "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+            "captured_at": "2026-10-12T00:05:00.000Z",
+            "provider_timestamp": null,
+            "source_url": "https://dexscreener.com/robinhood/example",
+            "value": 10
+          },
+          "max": {
+            "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+            "captured_at": "2026-10-12T00:05:00.000Z",
+            "provider_timestamp": null,
+            "source_url": "https://dexscreener.com/robinhood/example",
+            "value": 10
+          }
+        },
+        "txns_h24_buys": {
+          "covered_samples": 1,
+          "min": {
+            "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+            "captured_at": "2026-10-12T00:05:00.000Z",
+            "provider_timestamp": null,
+            "source_url": "https://dexscreener.com/robinhood/example",
+            "value": 5
+          },
+          "max": {
+            "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+            "captured_at": "2026-10-12T00:05:00.000Z",
+            "provider_timestamp": null,
+            "source_url": "https://dexscreener.com/robinhood/example",
+            "value": 5
+          }
+        },
+        "txns_h24_sells": {
+          "covered_samples": 1,
+          "min": {
+            "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+            "captured_at": "2026-10-12T00:05:00.000Z",
+            "provider_timestamp": null,
+            "source_url": "https://dexscreener.com/robinhood/example",
+            "value": 2
+          },
+          "max": {
+            "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+            "captured_at": "2026-10-12T00:05:00.000Z",
+            "provider_timestamp": null,
+            "source_url": "https://dexscreener.com/robinhood/example",
+            "value": 2
+          }
+        },
+        "txns_h6_buys": {
+          "covered_samples": 0,
+          "min": null,
+          "max": null
+        },
+        "txns_h6_sells": {
+          "covered_samples": 0,
+          "min": null,
+          "max": null
+        },
+        "price_change_h24": {
+          "covered_samples": 1,
+          "min": {
+            "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+            "captured_at": "2026-10-12T00:05:00.000Z",
+            "provider_timestamp": null,
+            "source_url": "https://dexscreener.com/robinhood/example",
+            "value": 5
+          },
+          "max": {
+            "snapshot_id": "rhms_65f62e917397f5054d27ff57b63bed62",
+            "captured_at": "2026-10-12T00:05:00.000Z",
+            "provider_timestamp": null,
+            "source_url": "https://dexscreener.com/robinhood/example",
+            "value": 5
+          }
+        },
+        "price_change_h6": {
+          "covered_samples": 0,
+          "min": null,
+          "max": null
+        },
+        "price_change_h1": {
+          "covered_samples": 0,
+          "min": null,
+          "max": null
+        }
+      }
+    }
+  ]
+}

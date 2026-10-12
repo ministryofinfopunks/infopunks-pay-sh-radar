@@ -1,0 +1,131 @@
+{
+  "scope": "RH-PIPELINE-1A",
+  "fixture_only": true,
+  "production_qualified": false,
+  "local_date": "2026-10-13",
+  "base_sha": "dfe089bb71c6b4c52acdfb0e8e5b8cc331a13a2f",
+  "tests": {
+    "files": 262,
+    "passed": 1912,
+    "failed": 0,
+    "skipped": 0,
+    "success": true,
+    "focused_files": [
+      {
+        "file": "tests/rh-chain-attention-quality.test.ts",
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "file": "tests/rh-chain-automation.test.ts",
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "file": "tests/rh-chain-dexscreener-provider.test.ts",
+        "passed": 10,
+        "failed": 0
+      },
+      {
+        "file": "tests/rh-chain-market-pulse.test.ts",
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "file": "tests/rh-chain-market-snapshot.test.ts",
+        "passed": 15,
+        "failed": 0
+      },
+      {
+        "file": "tests/rh-chain-production-readiness.test.ts",
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "file": "tests/rh-market-collection.test.ts",
+        "passed": 26,
+        "failed": 0
+      },
+      {
+        "file": "tests/rh-market-history-postgres.test.ts",
+        "passed": 12,
+        "failed": 0
+      }
+    ]
+  },
+  "local_postgres": "14.20",
+  "node": "25.6.1",
+  "migration_rehearsal": {
+    "all_up_migrations_applied": 18,
+    "empty_rollback_reapply": true,
+    "legacy_backfill_replay": true,
+    "concurrent_insert_replay": true,
+    "raw_aggregate_atomicity": true,
+    "populated_rollback_refused": true,
+    "trigger_disable_blocks_collection": true,
+    "one_connection_fails_closed_two_connections_collect": true
+  },
+  "retention_fixture": {
+    "initial_five_minute_samples": 601,
+    "raw_after_48h_cutoff": 577,
+    "daily_sample_counts": [
+      1,
+      288,
+      288,
+      25
+    ],
+    "hourly_retention_days": 90,
+    "daily_durable": true
+  },
+  "test_command": "CANONICAL_RECEIPT_TEST_URL=<disposable-local-postgres> ECONOMIC_ENGINE_TEST_URL=<disposable-local-postgres> POSTGRES_RESILIENCE_TEST_URL=<disposable-local-postgres> npm test -- --maxWorkers=1 --testTimeout=30000 --hookTimeout=30000 --reporter=default --reporter=json",
+  "source_log_hashes": {
+    "full-tests-final.log": "e941fc0495a99b2771badc579b913223390020668bf9522a9bcdccac45b85b75",
+    "full-tests-final.json": "dc2b6a03f83855cbd864e79b3c9bba0a0f026dc13869897822d8eb6ccfddb444",
+    "typecheck-final.log": "8c130045816136582deedcf711e910a2396c6e4c0739b0f5719548e764414970",
+    "lint-final.log": "d03a558579d6c5bf7d9941dab14d20d6960b6011bd01717758fa05f6a0063285",
+    "build-final.log": "99fd57c166c8a989b5a4d1a46c73afd33eec108caf1fec2554dcf6651a4b9867",
+    "pool-qualification.log": "4886577d7574f85bddbbbfa7211151f60a58a1c7632cae1c2bb9340df7e20466"
+  },
+  "code_sha": "ced2bdeb5ddf4a8bb0514c3ae9962f52cbd42977",
+  "source_changed_files": [
+    ".env.example",
+    "migrations/20261012_024_rh_market_observation_history.down.sql",
+    "migrations/20261012_024_rh_market_observation_history.up.sql",
+    "src/api/app.ts",
+    "src/config/env.ts",
+    "src/providers/dexscreenerProvider.ts",
+    "src/services/rhChainAttentionQualityService.ts",
+    "src/services/rhChainAutomationService.ts",
+    "src/services/rhChainMarketHistory.ts",
+    "src/services/rhChainMarketScheduler.ts",
+    "src/services/rhChainMarketSnapshotService.ts",
+    "src/services/rhChainMarketStructureService.ts",
+    "src/services/rhChainProductionReadiness.ts",
+    "tests/helpers/rhMarketObservations.ts",
+    "tests/rh-chain-automation.test.ts",
+    "tests/rh-chain-market-snapshot.test.ts",
+    "tests/rh-chain-production-readiness.test.ts",
+    "tests/rh-market-collection.test.ts",
+    "tests/rh-market-history-postgres.test.ts"
+  ],
+  "verdicts": {
+    "collection_and_memory_local": "PASS",
+    "overall_rh_pipeline_1": "HOLD",
+    "production_activation": "HOLD"
+  },
+  "checks": {
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "server_and_client_build": "PASS",
+    "git_diff_check": "PASS",
+    "browser_device_release_qualification": "DEFERRED_TO_1D"
+  },
+  "local_activation": {
+    "scheduler_enabled": false,
+    "production_flags_changed": false,
+    "minimum_database_pool": 2,
+    "public_publishing_activated": false,
+    "pushed": false,
+    "deployed": false
+  }
+}
