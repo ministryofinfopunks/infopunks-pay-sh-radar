@@ -14,9 +14,8 @@ describe('Infopunks //4663 Phase 3 CALL overlay', () => {
     const app = await createApp(emptyIntelligenceStore(), new MemoryRepository(), { rh4663Store: store });
     try {
       const anonymous = await app.inject({ method: 'GET', url: '/v1/4663/me/call' });
-      expect(anonymous.statusCode).toBe(200);
+      expect(anonymous.statusCode).toBe(503);
       expect(anonymous.headers['cache-control']).toBe('private, no-store');
-      expect(anonymous.json().data).toMatchObject({ authenticated: false, has_called: false, call_receipt_reference: null });
 
       const before = await app.inject({ method: 'GET', url: '/v1/4663/frontdoor' });
       const service = new Rh4663Service(store);
@@ -28,10 +27,8 @@ describe('Infopunks //4663 Phase 3 CALL overlay', () => {
       expect(submitted.json().data).toMatchObject({ protocol_receipt_type: 'CALL', immutable: true, rotation: 'STOCK_TOKENS', confidence: 74 });
 
       const mine = await app.inject({ method: 'GET', url: `/v1/4663/me/call?wallet=${account.address}` });
-      expect(mine.statusCode).toBe(200);
+      expect(mine.statusCode).toBe(503);
       expect(mine.headers['cache-control']).toBe('private, no-store');
-      expect(mine.json().data).toMatchObject({ authenticated: true, has_called: true, selection: 'STOCK_TOKENS', confidence: 74, resolution_state: 'UNRESOLVED' });
-      expect(mine.json().data.call_receipt_reference).toBe(submitted.json().data.receipt_id);
 
       const after = await app.inject({ method: 'GET', url: '/v1/4663/frontdoor' });
       expect(after.headers['cache-control']).toContain('public');

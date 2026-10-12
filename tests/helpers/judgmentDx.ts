@@ -13,6 +13,12 @@ import { hashCanonical } from '../../src/services/receiptIntegrityService';
 export const dxKey = 'dx1_' + 'a'.repeat(44);
 export const otherKey = 'dx1_' + 'b'.repeat(44);
 export const dxOwner = { tenant_id: 'tenant-a', agent_id: 'agent' };
+export const testTenantKey = 'r2-test-tenant-key-that-is-not-secret-0001';
+export function configureTestTenant() {
+  vi.stubEnv('JUDGMENT_API_KEYS_JSON', JSON.stringify([{ tenant_id: 'test-tenant', agent_id: 'agent',
+    key_sha256: createHash('sha256').update(testTenantKey).digest('hex') }]));
+  return testTenantKey;
+}
 export const dxInput = { ...request, intent: 'buy_market_research', subject_id: 'route_pay_sh_market_research_03' };
 export async function dxFixture(options: { store?: ReceiptAppendStore; journal?: JudgmentRequestRepository; paid?: boolean } = {}) {
   vi.stubEnv('ADMIN_TOKEN', 'reviewer');

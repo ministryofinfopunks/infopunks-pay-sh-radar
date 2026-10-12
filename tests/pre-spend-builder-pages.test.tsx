@@ -205,11 +205,12 @@ describe('pre-spend builder pages', () => {
     const { root, container } = await render('/developers');
     const text = container.textContent ?? '';
     expect(text).toContain('Before your agent pays, it checks Infopunks.');
-    expect(text).toContain('createInfopunksPreSpendClient');
+    expect(text).toContain('createInfopunksClient');
+    expect(text).toContain('createX402WalletPayment');
     expect(text).toContain('POST /v1/pre-spend/check');
     expect(text).toContain('https://radar.infopunks.fun');
     for (const state of ['proceed', 'test_spend_first', 'do_not_spend', 'insufficient_evidence']) expect(text).toContain(state);
-    expect(text).toContain('No issued canonical receipt. Do not act.');
+    expect(text).toContain('This browser check has no payment adapter.');
     expect(text).toContain('No receipt, no trust.');
     expect(text).toContain('Every decision should point back to receipts.');
     expect(text).toContain('Receipts capture route runs, cost, latency, status, validation, confidence delta, and evidence artifacts.');

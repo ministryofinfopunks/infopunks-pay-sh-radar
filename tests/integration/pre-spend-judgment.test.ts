@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../../src/api/app';
 import { createInfopunksPreSpendClient } from '../../src/sdk';
 import { request } from '../helpers/judgments';
+import { configureTestTenant, testTenantKey } from '../helpers/judgmentDx';
 
 afterEach(() => vi.unstubAllEnvs());
 describe('canonical pre-spend HTTP and SDK boundary', () => {
@@ -34,23 +35,25 @@ describe('canonical pre-spend HTTP and SDK boundary', () => {
   });
   it('rejects invalid caller-controlled headers before echoing the key', async () => {
     vi.stubEnv('ADMIN_TOKEN', 'reviewer');
+    configureTestTenant();
+    const tenantAuthorization = 'Bearer ' + testTenantKey;
     const app = await createApp();
     try {
       for (const url of ['/v1/pre-spend/check', '/v1/decide']) {
         for (const key of ['', 'unsafe*key', 'a'.repeat(129)]) {
-          const response = await app.inject({ method: 'POST', url, payload: request, headers: { 'idempotency-key': key } });
+          const response = await app.inject({ method: 'POST', url, payload: request, headers: { authorization: tenantAuthorization, 'idempotency-key': key } });
           expect(response.statusCode).toBe(400);
           expect(response.json().error).toBe('invalid_idempotency_key');
           expect(response.headers['idempotency-key']).toBeUndefined();
           expect(response.headers['cache-control']).toBe('private, no-store');
         }
         for (const proof of ['', 'a'.repeat(16385)]) {
-          const response = await app.inject({ method: 'POST', url, payload: request, headers: { authorization: 'Bearer reviewer', 'idempotency-key': 'valid', 'payment-signature': proof } });
+          const response = await app.inject({ method: 'POST', url, payload: request, headers: { authorization: tenantAuthorization, 'idempotency-key': 'valid', 'payment-signature': proof } });
           expect(response.statusCode).toBe(400);
           expect(response.json().error).toBe('invalid_payment_signature_length');
           expect(response.headers['idempotency-key']).toBeUndefined();
         }
-        const valid = await app.inject({ method: 'POST', url, payload: request, headers: { 'idempotency-key': 'A'.repeat(128) } });
+        const valid = await app.inject({ method: 'POST', url, payload: request, headers: { authorization: tenantAuthorization, 'idempotency-key': 'A'.repeat(128) } });
         expect(valid.statusCode).toBe(200);
         expect(valid.headers['idempotency-key']).toBe('A'.repeat(128));
       }

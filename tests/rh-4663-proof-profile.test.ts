@@ -44,15 +44,14 @@ describe('Infopunks //4663 Phase 4 PROOF_PROFILE', () => {
     expect(profile).not.toHaveProperty('score'); expect(profile).not.toHaveProperty('points'); expect(profile).not.toHaveProperty('rewards');
   });
 
-  it('keeps anonymous/private profiles separate and exposes a public receipt-backed profile with an OG card', async () => {
+  it('keeps legacy wallet-selector profiles and images closed without credential-bound ownership', async () => {
     const phase1 = new InMemoryRh4663Store(); const calls = new Rh4663Service(phase1, () => new Date('2026-08-13T12:00:00.000Z')); const resolutions = new InMemoryRh4663ResolutionStore(); const phase2 = new Rh4663ResolutionService(phase1, resolutions, resolutionSigner, new DeterministicTestRh4663AnchorAdapter(), () => new Date(), () => undefined);
     const input = { wallet: account.address, rotation: 'MEMES' as const, confidence: 80 }; const payload = calls.pulsePayload(input); const signature = await account.signMessage({ message: payload.canonical_serialization }); await calls.call({ ...input, signature });
     const app = await createApp(emptyIntelligenceStore(), new MemoryRepository(), { rh4663Store: phase1, rh4663ResolutionStore: resolutions, rh4663ResolutionSigner: resolutionSigner });
     try {
-      const anonymous = await app.inject({ method: 'GET', url: '/v1/4663/me/proof' }); expect(anonymous.statusCode).toBe(200); expect(anonymous.headers['cache-control']).toBe('private, no-store'); expect(anonymous.json().data).toEqual({ authenticated: false, profile: null, my_4663_version: '0' });
-      const mine = await app.inject({ method: 'GET', url: `/v1/4663/me/proof?wallet=${account.address}` }); expect(mine.statusCode).toBe(200); expect(mine.headers['cache-control']).toBe('private, no-store'); expect(mine.json().data.profile.object_type).toBe('PROOF_PROFILE');
-      const publicProfile = await app.inject({ method: 'GET', url: `/v1/4663/proof/${account.address}` }); expect(publicProfile.statusCode).toBe(200); expect(publicProfile.headers['cache-control']).toBe('private, no-store'); expect(publicProfile.json().data).not.toHaveProperty('balance');
-      const image = await app.inject({ method: 'GET', url: `/og/4663/proof/${account.address}.png` }); expect(image.statusCode).toBe(200); expect(image.headers['content-type']).toContain('image/png');
+      for (const url of ['/v1/4663/me/proof', `/v1/4663/me/proof?wallet=${account.address}`, `/v1/4663/proof/${account.address}`, `/og/4663/proof/${account.address}.png`]) {
+        const response = await app.inject({ method: 'GET', url }); expect(response.statusCode).toBe(503); expect(response.headers['cache-control']).toBe('private, no-store');
+      }
     } finally { await app.close(); }
   });
 });

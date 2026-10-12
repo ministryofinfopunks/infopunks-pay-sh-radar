@@ -45,7 +45,7 @@ describe('MY 4663 relevance projection', () => {
       const follows = encodeURIComponent(JSON.stringify([{ subject_type: 'STOCK_TOKEN', subject_id: 'PLTR', created_at: at }]));
       const mine = await app.inject({ method: 'GET', url: `/v1/4663/me?follows=${follows}` });
       const publicState = await app.inject({ method: 'GET', url: '/v1/4663/frontdoor', headers: { cookie: 'private-follows=PLTR' } });
-      expect(mine.statusCode).toBe(200); expect(mine.headers['cache-control']).toBe('private, no-store'); expect(mine.json().data.follows[0]).toMatchObject({ subject_type: 'STOCK_TOKEN', subject_id: 'PLTR' });
+      expect(mine.statusCode).toBe(503); expect(mine.headers['cache-control']).toBe('private, no-store');
       expect(publicState.statusCode).toBe(200); expect(publicState.headers['cache-control']).toContain('public'); expect(JSON.stringify(publicState.json().data)).not.toContain('MY_4663_FOLLOW');
     } finally { await app.close(); }
   });

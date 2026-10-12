@@ -9,6 +9,7 @@ import { verifyDecisionContext } from '../src/services/decisionContextService';
 import { hashCanonical } from '../src/services/receiptIntegrityService';
 import { normalizeRhMarketEvidence } from '../src/services/judgmentEvidenceAdapters';
 import { request, legacy, setupJudgment } from './helpers/judgments';
+import { configureTestTenant, testTenantKey } from './helpers/judgmentDx';
 
 afterEach(() => vi.unstubAllEnvs());
 const context = {
@@ -88,6 +89,7 @@ describe('one Judgment authority with reviewed domain admission', () => {
 
 it('routes the namespaced Solana subject into the existing catalog without dropping canonical scope', async () => {
   vi.stubEnv('ADMIN_TOKEN', 'domain-test-authority');
+  configureTestTenant();
   const f = await setupJudgment();
   const app = await createApp(undefined, undefined, { judgmentGateway: f.gateway });
   try {
@@ -95,7 +97,8 @@ it('routes the namespaced Solana subject into the existing catalog without dropp
     const at = new Date();
     const scoped = { ...context, subject: { ...context.subject, id: `solana:mainnet:service_route:${route}` }, expires_at: new Date(at.getTime() + 60000).toISOString() };
     const input = { ...request, intent: 'buy_market_research', subject_id: scoped.subject.id, judgment_context: scoped };
-    const diagnostic = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input, headers: { 'idempotency-key': 'typed-diagnostic' } });
+    const tenantAuthorization = 'Bearer ' + testTenantKey;
+    const diagnostic = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input, headers: { authorization: tenantAuthorization, 'idempotency-key': 'typed-diagnostic' } });
     expect(diagnostic.json().data.recommended_route).toBe(route);
     const headers = { authorization: 'Bearer domain-test-authority' };
     const seed = await app.inject({ method: 'POST', url: '/internal/receipt-spine/observation', headers, payload: {
@@ -105,7 +108,7 @@ it('routes the namespaced Solana subject into the existing catalog without dropp
       payload: { ...f.observation.payload as object, route_id: route }
     } });
     expect(seed.statusCode).toBe(200);
-    const check = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input, headers: { ...headers, 'idempotency-key': 'typed-qualified' } });
+    const check = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input, headers: { authorization: tenantAuthorization, 'idempotency-key': 'typed-qualified' } });
     expect(check.statusCode, check.body).toBe(402);
     expect(check.json()).toMatchObject({ decision: 'proceed', execution_authorized: false, receipt: null });
     const anonymous = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input, headers: { 'idempotency-key': 'typed-private-quote' } });

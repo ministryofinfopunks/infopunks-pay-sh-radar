@@ -7,6 +7,7 @@ import { createJudgmentService } from '../../src/services/judgmentService';
 import { createEvaluationService } from '../../src/services/evaluationService';
 import { classifiedArtifact, qualifyingClassifiedExecution } from '../helpers/canonicalReceipts';
 import { evaluationRequest } from '../helpers/evaluations';
+import { configureTestTenant, testTenantKey } from '../helpers/judgmentDx';
 
 afterEach(() => vi.unstubAllEnvs());
 describe('controlled staging authority boundary', () => {
@@ -20,6 +21,7 @@ describe('controlled staging authority boundary', () => {
   });
   it('blocks public, admin and unknown mutations before body parsing and rejects payment headers', async () => {
     vi.stubEnv('RADAR_CONTROLLED_STAGING', 'true'); vi.stubEnv('ADMIN_TOKEN', 'staging-test-only');
+    configureTestTenant();
     const app = await createApp();
     try {
       for (const url of ['/v1/receipts', '/v1/validation/submit', '/v1/evaluate', '/v1/execute-proof',
@@ -39,7 +41,7 @@ describe('controlled staging authority boundary', () => {
       expect((await app.inject('/v1/routes')).statusCode).toBe(200);
       expect((await app.inject('/v1/decision-views/nonexistent')).statusCode).toBe(401);
       expect((await app.inject({ url: '/v1/decision-views/nonexistent', headers: { authorization: 'Bearer staging-test-only' } })).statusCode).toBe(404);
-      const headers = { 'idempotency-key': 'staging-free' };
+      const headers = { authorization: 'Bearer ' + testTenantKey, 'idempotency-key': 'staging-free' };
       const first = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: request, headers });
       const retry = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: request, headers });
       expect(first.statusCode).toBe(200); expect(retry.json()).toEqual(first.json());
@@ -47,10 +49,10 @@ describe('controlled staging authority boundary', () => {
       expect(first.headers['payment-required']).toBeUndefined();
       const conflict = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: { ...request, intent: 'unsupported-new-intent' }, headers });
       expect(conflict.statusCode).toBe(409);
-      const unsupported = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: { ...request, intent: 'unsupported-new-intent' } });
+      const unsupported = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: { ...request, intent: 'unsupported-new-intent' }, headers: { authorization: 'Bearer ' + testTenantKey } });
       expect(unsupported.json()).toMatchObject({ decision: 'insufficient_evidence', payment_required: false, receipt: null });
-      for (let n = 0; n < 27; n++) await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: request });
-      expect((await app.inject({ method: 'POST', url: '/v1/decide', payload: request })).statusCode).toBe(429);
+      for (let n = 0; n < 27; n++) await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: request, headers: { authorization: 'Bearer ' + testTenantKey } });
+      expect((await app.inject({ method: 'POST', url: '/v1/decide', payload: request, headers: { authorization: 'Bearer ' + testTenantKey } })).statusCode).toBe(429);
     } finally { await app.close(); }
   });
   it('refuses unreviewed classified history before challenge, settlement or new judgment', async () => {
