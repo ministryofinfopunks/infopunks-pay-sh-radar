@@ -1,0 +1,327 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Benchmarks
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- main "Public benchmark registry":
+  - paragraph: Infopunks Pay.sh Radar
+  - heading "Radar Evidence Ledger" [level=1]
+  - paragraph: 5 recorded lanes · 5 explored lanes · 0 winner claims
+  - paragraph: Radar records benchmark evidence for Pay.sh routes before agents spend. It exposes artifacts, route timelines, caveats, evidence health, and winner-claim status without crowning routes.
+  - generic "Radar evidence ledger metrics":
+    - generic: "5"
+    - text: recorded benchmarks
+    - generic: "10"
+    - text: proven paid routes
+    - generic: "40"
+    - text: recorded route-runs
+    - generic: "6"
+    - text: artifacts
+    - generic: "0"
+    - text: winner claims
+  - paragraph: Recorded means paid route evidence exists. It does not mean a winner was crowned.
+  - paragraph: Scaffold lanes are not failed benchmarks. They are lanes where Radar found insufficient comparable paid evidence.
+  - paragraph: Radar does not rewrite uncertainty. It records it, fixes it, and shows the delta.
+  - paragraph:
+    - code: winner_claimed=false
+    - text: and
+    - code: winner_status=no_clear_winner
+    - text: mean Radar shows evidence without route winner claims.
+  - generic "Benchmark evidence summary":
+    - generic: public evidence ledger
+    - generic: artifact-backed route evidence
+    - generic: route timelines
+    - generic: structured caveats
+    - generic: no winner claims
+  - region "Recorded Pay.sh benchmarks":
+    - heading "Recorded Benchmark Lanes" [level=2]
+    - paragraph: Evidence ledger rows for recorded benchmarks. No winner claimed means Radar does not infer a route winner.
+    - 'link "finance/data SOL Price state: recorded artifact count: 1 2 proven paid routes 5 recorded route-runs recorded evidence winner_status: no_clear_winner winner_claimed=false latest artifact id: finance-data-sol-price-benchmark-runs-2026-05-16 route timeline: available evidence health: recorded evidence Open benchmark evidence detail"':
+      - /url: /benchmarks/finance-data-sol-price
+      - paragraph: finance/data
+      - heading "SOL Price" [level=2]
+      - generic: "state: recorded"
+      - generic: "artifact count: 1"
+      - generic: 2 proven paid routes
+      - generic: 5 recorded route-runs
+      - generic: recorded evidence
+      - generic: "winner_status: no_clear_winner"
+      - generic: winner_claimed=false
+      - generic: "latest artifact id: finance-data-sol-price-benchmark-runs-2026-05-16"
+      - generic: "route timeline: available"
+      - generic: "evidence health: recorded evidence"
+      - paragraph: Open benchmark evidence detail
+    - 'link "finance/data Token Search state: recorded artifact count: 1 2 proven paid routes 5 recorded route-runs recorded evidence winner_status: no_clear_winner winner_claimed=false latest artifact id: finance-data-token-search-benchmark-runs-2026-05-17 route timeline: available evidence health: recorded evidence Open benchmark evidence detail"':
+      - /url: /benchmarks/finance-data-token-search
+      - paragraph: finance/data
+      - heading "Token Search" [level=2]
+      - generic: "state: recorded"
+      - generic: "artifact count: 1"
+      - generic: 2 proven paid routes
+      - generic: 5 recorded route-runs
+      - generic: recorded evidence
+      - generic: "winner_status: no_clear_winner"
+      - generic: winner_claimed=false
+      - generic: "latest artifact id: finance-data-token-search-benchmark-runs-2026-05-17"
+      - generic: "route timeline: available"
+      - generic: "evidence health: recorded evidence"
+      - paragraph: Open benchmark evidence detail
+    - 'link "finance/data Token Metadata state: recorded artifact count: 2 2 proven paid routes 10 recorded route-runs recorded evidence winner_status: no_clear_winner winner_claimed=false latest artifact id: finance-data-token-metadata-benchmark-runs-2026-05-19 route timeline: available evidence health: recorded evidence Open benchmark evidence detail"':
+      - /url: /benchmarks/finance-data-token-metadata
+      - paragraph: finance/data
+      - heading "Token Metadata" [level=2]
+      - generic: "state: recorded"
+      - generic: "artifact count: 2"
+      - generic: 2 proven paid routes
+      - generic: 10 recorded route-runs
+      - generic: recorded evidence
+      - generic: "winner_status: no_clear_winner"
+      - generic: winner_claimed=false
+      - generic: "latest artifact id: finance-data-token-metadata-benchmark-runs-2026-05-19"
+      - generic: "route timeline: available"
+      - generic: "evidence health: recorded evidence"
+      - paragraph: Open benchmark evidence detail
+    - 'link "document-ai Document OCR Text Extraction state: recorded artifact count: 1 2 proven paid routes 10 recorded route-runs recorded evidence winner_status: no_clear_winner winner_claimed=false latest artifact id: document-ocr-text-extraction-benchmark-runs-2026-05-19 route timeline: available evidence health: recorded evidence Open benchmark evidence detail"':
+      - /url: /benchmarks/document-ocr-text-extraction
+      - paragraph: document-ai
+      - heading "Document OCR Text Extraction" [level=2]
+      - generic: "state: recorded"
+      - generic: "artifact count: 1"
+      - generic: 2 proven paid routes
+      - generic: 10 recorded route-runs
+      - generic: recorded evidence
+      - generic: "winner_status: no_clear_winner"
+      - generic: winner_claimed=false
+      - generic: "latest artifact id: document-ocr-text-extraction-benchmark-runs-2026-05-19"
+      - generic: "route timeline: available"
+      - generic: "evidence health: recorded evidence"
+      - paragraph: Open benchmark evidence detail
+    - 'link "web-search Web Search Results state: recorded artifact count: 1 2 proven paid routes 10 recorded route-runs recorded evidence winner_status: no_clear_winner winner_claimed=false latest artifact id: data-web-search-results-benchmark-runs-2026-05-19 route timeline: available evidence health: recorded evidence Open benchmark evidence detail"':
+      - /url: /benchmarks/data-web-search-results
+      - paragraph: web-search
+      - heading "Web Search Results" [level=2]
+      - generic: "state: recorded"
+      - generic: "artifact count: 1"
+      - generic: 2 proven paid routes
+      - generic: 10 recorded route-runs
+      - generic: recorded evidence
+      - generic: "winner_status: no_clear_winner"
+      - generic: winner_claimed=false
+      - generic: "latest artifact id: data-web-search-results-benchmark-runs-2026-05-19"
+      - generic: "route timeline: available"
+      - generic: "evidence health: recorded evidence"
+      - paragraph: Open benchmark evidence detail
+  - region "Planned benchmark scaffolds":
+    - heading "Explored, Not Promoted" [level=2]
+    - paragraph: Scaffold lanes are not failed benchmarks. They are lanes where Radar found insufficient comparable paid evidence.
+    - 'link "communications Communications Email Delivery Benchmark Scaffold routes: 0 artifacts: 0 winner_status: not_evaluated winner_claimed=false StableEmail paid-executed, verified/proven but caveated AgentMail blocked / no second comparable route no benchmark artifact Explored lane. Failure-to-promote reasons are preserved as structured caveats."':
+      - /url: /benchmarks/communications-email-delivery
+      - paragraph: communications
+      - heading "Communications Email Delivery" [level=2]
+      - generic: Benchmark Scaffold
+      - generic: "routes: 0"
+      - generic: "artifacts: 0"
+      - generic: "winner_status: not_evaluated"
+      - generic: winner_claimed=false
+      - generic: StableEmail paid-executed, verified/proven but caveated
+      - generic: AgentMail blocked / no second comparable route
+      - generic: no benchmark artifact
+      - paragraph: Explored lane. Failure-to-promote reasons are preserved as structured caveats.
+    - 'link "solana-infra Solana Account Balance Benchmark Scaffold routes: 0 artifacts: 0 winner_status: not_evaluated winner_claimed=false QuickNode unpaid 402 confirmed paid run failed no second comparable route no benchmark artifact Explored lane. Failure-to-promote reasons are preserved as structured caveats."':
+      - /url: /benchmarks/solana-infra-account-balance
+      - paragraph: solana-infra
+      - heading "Solana Account Balance" [level=2]
+      - generic: Benchmark Scaffold
+      - generic: "routes: 0"
+      - generic: "artifacts: 0"
+      - generic: "winner_status: not_evaluated"
+      - generic: winner_claimed=false
+      - generic: QuickNode unpaid 402 confirmed
+      - generic: paid run failed
+      - generic: no second comparable route
+      - generic: no benchmark artifact
+      - paragraph: Explored lane. Failure-to-promote reasons are preserved as structured caveats.
+    - 'link "social-data Reddit Post Search Benchmark Scaffold routes: 0 artifacts: 0 winner_status: not_evaluated winner_claimed=false StableEnrich paid-proven but caveated StableSocial paid-compatible but semantic proof failed no second paid-proven comparable route no benchmark artifact Explored lane. Failure-to-promote reasons are preserved as structured caveats."':
+      - /url: /benchmarks/social-data-reddit-post-search
+      - paragraph: social-data
+      - heading "Reddit Post Search" [level=2]
+      - generic: Benchmark Scaffold
+      - generic: "routes: 0"
+      - generic: "artifacts: 0"
+      - generic: "winner_status: not_evaluated"
+      - generic: winner_claimed=false
+      - generic: StableEnrich paid-proven but caveated
+      - generic: StableSocial paid-compatible but semantic proof failed
+      - generic: no second paid-proven comparable route
+      - generic: no benchmark artifact
+      - paragraph: Explored lane. Failure-to-promote reasons are preserved as structured caveats.
+    - 'link "maps Maps Place Search Results Benchmark Scaffold routes: 0 artifacts: 0 winner_status: not_evaluated winner_claimed=false StableEnrich paid-proven but degraded (missing names/addresses/coordinates, location unconfirmed) Google Places paid-executed and one paid diagnostic retry (includedType=cafe) still returned zero recognizable place candidates no second paid-proven comparable route no benchmark artifact Explored lane. Failure-to-promote reasons are preserved as structured caveats."':
+      - /url: /benchmarks/maps-place-search-results
+      - paragraph: maps
+      - heading "Maps Place Search Results" [level=2]
+      - generic: Benchmark Scaffold
+      - generic: "routes: 0"
+      - generic: "artifacts: 0"
+      - generic: "winner_status: not_evaluated"
+      - generic: winner_claimed=false
+      - generic: StableEnrich paid-proven but degraded (missing names/addresses/coordinates, location unconfirmed)
+      - generic: Google Places paid-executed and one paid diagnostic retry (includedType=cafe) still returned zero recognizable place candidates
+      - generic: no second paid-proven comparable route
+      - generic: no benchmark artifact
+      - paragraph: Explored lane. Failure-to-promote reasons are preserved as structured caveats.
+    - 'link "audio-ai Audio Speech Transcription Benchmark Scaffold routes: 0 artifacts: 0 winner_status: not_evaluated winner_claimed=false Google Speech paid-executed and received one shape diagnostic paid retry; transcript semantics still not proven Alibaba Speech paid-executed and received one shape diagnostic paid retry; transcript semantics still not proven both routes remain candidate/unproven with degraded evidence no benchmark artifact Explored lane. Failure-to-promote reasons are preserved as structured caveats."':
+      - /url: /benchmarks/audio-speech-transcription
+      - paragraph: audio-ai
+      - heading "Audio Speech Transcription" [level=2]
+      - generic: Benchmark Scaffold
+      - generic: "routes: 0"
+      - generic: "artifacts: 0"
+      - generic: "winner_status: not_evaluated"
+      - generic: winner_claimed=false
+      - generic: Google Speech paid-executed and received one shape diagnostic paid retry; transcript semantics still not proven
+      - generic: Alibaba Speech paid-executed and received one shape diagnostic paid retry; transcript semantics still not proven
+      - generic: both routes remain candidate/unproven with degraded evidence
+      - generic: no benchmark artifact
+      - paragraph: Explored lane. Failure-to-promote reasons are preserved as structured caveats.
+  - region "Agent route timeline API":
+    - heading "Agent Route Timeline API" [level=2]
+    - paragraph: Agents can inspect route-level benchmark evidence before routing through Pay.sh. Radar exposes evidence health, caveats, latest benchmark metrics, artifact references, and winner-claim status without crowning routes.
+    - paragraph: "Agents should ask: what evidence exists, how fresh is it, what caveats apply, was a winner claimed, and which artifact recorded this. Radar answers those questions without crowning routes."
+    - paragraph:
+      - generic: GET /v1/radar/evidence-ledger
+      - generic: Compact agent-readable evidence ledger before spend.
+    - paragraph:
+      - generic: GET /v1/radar/benchmark-summary
+      - generic: Compact proof state for recorded benchmarks, proven paid routes, recorded route-runs, artifacts, and no winner claims.
+    - paragraph:
+      - generic: GET /v1/radar/benchmark-history
+      - generic: Aggregate artifact-backed route evidence ledger.
+    - paragraph:
+      - generic: GET /v1/radar/benchmark-history/finance-data-token-metadata/routes
+      - generic: Route-level timeline rollup for one benchmark.
+    - paragraph:
+      - generic: "GET /v1/radar/benchmark-history/finance-data-token-metadata/routes/{route_id}"
+      - generic: Evidence timeline for one route across artifacts.
+    - paragraph:
+      - generic: route_id encoding
+      - code: route_id
+      - text: may contain slashes or colons. URL-encode
+      - code: route_id
+      - text: before calling the detail endpoint.
+    - paragraph:
+      - generic: evidence_health
+      - generic: recorded | caveated | stale | degraded | unverified | scaffold
+    - paragraph:
+      - generic: recorded/scaffold lanes
+      - generic: Recorded lanes contain artifact-backed evidence. Scaffold lanes preserve blocked or insufficient evidence.
+    - paragraph:
+      - generic: caveat_objects
+      - text: Machine-readable caveats with
+      - code: code
+      - text: ","
+      - code: severity
+      - text: ","
+      - code: message
+      - text: ","
+      - code: evidence_field
+      - text: ", and"
+      - code: value
+      - text: .
+    - paragraph:
+      - generic: winner_claimed
+      - code: "false"
+      - text: means agents should not infer a winner.
+    - paragraph:
+      - generic: status_evidence
+      - text: Explains proof context when HTTP status is unavailable, especially
+      - code: pay_cli
+      - text: mode.
+    - paragraph:
+      - generic: latest_artifact_id
+      - generic: The benchmark artifact backing the latest route evidence.
+    - paragraph:
+      - generic: timeline
+      - generic: Route-level evidence history across benchmark artifacts.
+    - generic "View route timeline response example"
+    - paragraph: "Recorded with info caveat: HTTP status hidden by pay_cli mode."
+  - region "Benchmark History":
+    - heading "Benchmark History" [level=2]
+    - paragraph: Artifact-backed evidence timeline. No raw proofs exposed.
+    - article:
+      - paragraph: finance-data-sol-price
+      - heading "SOL price" [level=2]
+      - generic: "first recorded: 2026-05-16"
+      - generic: "latest recorded: 2026-05-16"
+      - generic: "artifact count: 1"
+      - generic: "total runs: 5"
+      - generic: "winner claimed: false"
+    - article:
+      - paragraph: finance-data-token-search
+      - heading "Token search" [level=2]
+      - generic: "first recorded: 2026-05-17"
+      - generic: "latest recorded: 2026-05-17"
+      - generic: "artifact count: 1"
+      - generic: "total runs: 5"
+      - generic: "winner claimed: false"
+    - article:
+      - paragraph: finance-data-token-metadata
+      - heading "Token metadata" [level=2]
+      - generic: "first recorded: 2026-05-18"
+      - generic: "latest recorded: 2026-05-19"
+      - generic: "artifact count: 2"
+      - generic: "total runs: 10"
+      - generic: "winner claimed: false"
+    - article:
+      - paragraph: document-ocr-text-extraction
+      - heading "Document OCR Text Extraction" [level=2]
+      - generic: "first recorded: 2026-05-19"
+      - generic: "latest recorded: 2026-05-19"
+      - generic: "artifact count: 1"
+      - generic: "total runs: 10"
+      - generic: "winner claimed: false"
+    - article:
+      - paragraph: data-web-search-results
+      - heading "Web Search Results" [level=2]
+      - generic: "first recorded: 2026-05-19"
+      - generic: "latest recorded: 2026-05-19"
+      - generic: "artifact count: 1"
+      - generic: "total runs: 10"
+      - generic: "winner claimed: false"
+  - region "Agent Evidence benchmark summary demo":
+    - paragraph: Agent Evidence demo
+    - heading "Agent Evidence Demo" [level=2]
+    - code: GET /v1/radar/benchmark-summary
+    - paragraph:
+      - generic: winner_claimed=false
+      - generic: means agents should not infer a route winner.
+    - paragraph:
+      - generic: routes_count
+      - generic: shows comparable proven routes per benchmark.
+    - paragraph:
+      - generic: recorded_runs
+      - generic: shows recorded route-run evidence.
+    - paragraph: "Current proof state: 5 recorded benchmarks · 10 proven paid routes · 40 recorded route-runs · 6 artifacts · 0 winner claims"
+    - generic "View live summary JSON"
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

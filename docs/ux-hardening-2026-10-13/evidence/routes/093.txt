@@ -1,0 +1,250 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: rh chain meme pulse
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#meme-pulse-content"
+- main:
+  - paragraph: RH Chain attention memory
+  - heading "RH Meme Pulse" [level=1]
+  - paragraph: What’s moving. What’s risky. What the market is trying to say.
+  - paragraph: Most see noise. Infopunks keeps the receipt.
+  - link "Read attention assets":
+    - /url: "#top-attention"
+  - link "Open receipts":
+    - /url: /rh-chain-signal-desk/daily-receipts
+  - complementary:
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Manual snapshot
+      - generic: Status
+      - strong: Stale
+      - generic: Observed
+      - strong: Jul 9, 2026, 3:45 AM UTC
+      - generic: Relative age
+      - strong: Updated 96 days ago
+      - generic: Sources
+      - strong: "2"
+      - generic: Source policy
+      - paragraph: Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - paragraph: RH Meme Pulse is public market memory for attention assets, not a trading dashboard, endorsement, safety claim, listing, or Robinhood partnership.
+  - region "Read the surface":
+    - paragraph: Pulse Snapshot
+    - heading "Read the surface" [level=2]
+    - article:
+      - paragraph: flagship signal
+      - strong: ROUTE · active_speculation
+    - article:
+      - paragraph: top volume rotation
+      - strong: ROUTE · volume score 13/25
+    - article:
+      - paragraph: highest risk attention
+      - strong: DIVY · do_not_touch_yet
+    - article:
+      - paragraph: strongest narrative mutation
+      - strong: "RH Chain is maturing from meme rocket ship into a multi-layer attention market: memes onboard users, RWAs create institutional gravity, and agents become the next automation primitive."
+    - article:
+      - paragraph: latest receipt
+      - strong: rh_daily_006 · Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers
+    - article:
+      - paragraph: last updated
+      - strong: 2026-07-09T03:45:00.000Z · External snapshot unavailable or disabled; receipt memory governs.
+  - region "Memory before momentum":
+    - paragraph: Top Attention Assets
+    - heading "Memory before momentum" [level=2]
+    - paragraph: Ranked desk context drawn from 4663, receipts, review states, and snapshot availability.
+    - link "Pulse JSON":
+      - /url: /v1/rh-chain/meme-pulse
+    - article:
+      - paragraph: ai_native_finance · stock_token_spillover
+      - heading "ROUTE" [level=3]
+      - paragraph: Route Memory
+      - generic: low watch
+      - term: Signal score
+      - definition: "60"
+      - term: Launch surface
+      - definition: Unknown / manual
+      - term: Receipt state
+      - definition: approved signal
+      - paragraph: Active speculation with usable desk memory. External receipts still required.
+    - article:
+      - paragraph: stock_token_spillover · solana_rotation
+      - heading "RAILS" [level=3]
+      - paragraph: Wall Street Rails
+      - generic: medium watch
+      - term: Signal score
+      - definition: "55"
+      - term: Launch surface
+      - definition: Unknown / manual
+      - term: Receipt state
+      - definition: under receipt check
+      - paragraph: Strong watch shape, but still receipt-gated. Liquidity and deployer proof decide.
+    - article:
+      - paragraph: stock_token_spillover · robinhood_brand_mutation
+      - heading "HOOD" [level=3]
+      - paragraph: Hood Rail
+      - generic: source required
+      - term: Signal score
+      - definition: "51"
+      - term: Launch surface
+      - definition: Unknown / manual
+      - term: Receipt state
+      - definition: queued for manual review
+      - paragraph: Active speculation. Familiar ticker language is attention, not proof.
+    - article:
+      - paragraph: stock_token_spillover · liquidity_mirage
+      - heading "IPO" [level=3]
+      - paragraph: Meme IPO Desk
+      - generic: source required
+      - term: Signal score
+      - definition: "46"
+      - term: Launch surface
+      - definition: Unknown / manual
+      - term: Receipt state
+      - definition: needs more evidence
+      - paragraph: High-risk attention until contract, pool, and non-affiliation receipts exist.
+    - article:
+      - paragraph: mascot_meta · solana_rotation
+      - heading "TICKR" [level=3]
+      - paragraph: Ticker Memory
+      - generic: medium watch
+      - term: Signal score
+      - definition: "44"
+      - term: Launch surface
+      - definition: Unknown / manual
+      - term: Receipt state
+      - definition: watch only
+      - paragraph: Watch-only memory object. Useful for signal tracking, not conviction.
+    - article:
+      - paragraph: robinhood_brand_mutation · deployer_cluster_risk · liquidity_mirage
+      - heading "SHERW" [level=3]
+      - paragraph: Sherwood Loop
+      - generic: high risk
+      - term: Signal score
+      - definition: "30"
+      - term: Launch surface
+      - definition: Unknown / manual
+      - term: Receipt state
+      - definition: do not touch yet
+      - paragraph: Do not touch yet. Risk evidence outruns signal evidence.
+  - region "Launch-surface fragmentation watch":
+    - paragraph: Launchpad Stress
+    - heading "Launch-surface fragmentation watch" [level=2]
+    - paragraph: Context is tracked conservatively while primary evidence catches up.
+    - article:
+      - generic: source required
+      - heading "Meme / RWA divergence" [level=3]
+      - paragraph: Meme liquidity remains dominant, but leadership narrative is re-centering RWAs and agents. Narrative reassertion is not usage proof.
+    - article:
+      - generic: source required
+      - heading "Launchpad Economics" [level=3]
+      - paragraph: NOXA creator-fee shift, rival surface rotation, direct Uniswap migration, and source-required fee/burn claims are tracked as context until primary evidence exists.
+    - article:
+      - generic: source required
+      - heading "NOXA disruption" [level=3]
+      - paragraph: Reported degradation is manual, source-dependent context only; it does not establish misconduct or intent.
+    - article:
+      - generic: source required
+      - heading "Rival surface rotation" [level=3]
+      - paragraph: flap.sh, trensh.today, bankr, tokeny.fun, vlad.fun, and robindotmarket are watched as source-required context unless primary evidence is attached.
+    - article:
+      - generic: medium watch
+      - heading "Direct Uniswap liquidity migration" [level=3]
+      - paragraph: Direct-pool attention can move before reserves, LP status, and exit depth are independently receipted.
+    - article:
+      - generic: source required
+      - heading "Competitor claims" [level=3]
+      - paragraph: Competitor activity and share claims remain source_required; no exact figures are inferred from desk memory.
+  - region "Pause before narrative":
+    - paragraph: Risk Strip
+    - heading "Pause before narrative" [level=2]
+    - paragraph: These are verification gates, not calls to action.
+    - article:
+      - generic: do not touch yet
+      - heading "Unverified Contracts" [level=3]
+      - paragraph: Any RH Chain meme slot without a verified contract remains a claim, not a market signal.
+    - article:
+      - generic: high risk
+      - heading "Low-Liquidity Traps" [level=3]
+      - paragraph: Thin pools can make attention look like liquidity while exits remain fragile.
+    - article:
+      - generic: high risk
+      - heading "Deployer Cluster Watch" [level=3]
+      - paragraph: Copycat deployers may wrap stock-token language in familiar ticker bait.
+    - article:
+      - generic: do not touch yet
+      - heading "Duplicate tickers and clone/pair ambiguity" [level=3]
+      - paragraph: A ticker, launch label, or pair screenshot does not establish canonical identity.
+    - article:
+      - generic: source required
+      - heading "Paid attention and fragmented liquidity" [level=3]
+      - paragraph: Surface visibility can be paid or split across venues before conviction, depth, or provenance is reviewed.
+    - article:
+      - generic: source required
+      - heading "Unverified RWA and agent activity" [level=3]
+      - paragraph: Narrative claims can outrun backing proof or operational evidence.
+  - region "What the meme might be saying":
+    - paragraph: Meme → Market Translation
+    - heading "What the meme might be saying" [level=2]
+    - paragraph: Interpretation is not prediction.
+    - article:
+      - paragraph: Hood meta
+      - heading "Brand-adjacent attention is competing for a familiar retail shorthand." [level=3]
+      - paragraph: Familiarity is not affiliation, verification, or safety.
+    - article:
+      - paragraph: Cat meta
+      - heading "Mascot repetition is concentrating attention into easily copied symbols." [level=3]
+      - paragraph: Clone risk rises faster than identity certainty.
+    - article:
+      - paragraph: Stock-token spillover
+      - heading "Markets are testing whether meme attention can point toward tokenized-equity narratives." [level=3]
+      - paragraph: Narrative interest is not proof of product usage or partnership.
+    - article:
+      - paragraph: Leadership RWA Reassertion
+      - heading "Leadership narrative is re-centering programmable assets, tokenized finance, and agentic activity while memes remain the visible flow engine." [level=3]
+      - paragraph: Exact quotes and agent-volume figures are source_required unless primary links are attached.
+    - article:
+      - paragraph: Solana rotation
+      - heading "Cross-chain attention may be looking for the next familiar liquidity pattern." [level=3]
+      - paragraph: Rotation is context only; routes and liquidity require receipts.
+    - article:
+      - paragraph: AI-agent angle
+      - heading "Agentic finance framing is entering meme language as a distribution story." [level=3]
+      - paragraph: No agent claim upgrades a token or market-memory record.
+    - article:
+      - paragraph: Robinhood retail onboarding
+      - heading "Retail onboarding is the durable question under the attention layer." [level=3]
+      - paragraph: Infopunks is independent and does not imply a Robinhood relationship.
+  - region "RH Meme Pulse actions":
+    - paragraph: Keep the desk honest
+    - heading "Context is external. Judgment stays accountable." [level=2]
+    - link "Submit source evidence":
+      - /url: /rh-chain-signal-desk/submit
+    - link "View Review Queue":
+      - /url: /rh-chain-signal-desk/review-queue
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

@@ -1,0 +1,1040 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Hermes Desk
+- paragraph:
+  - generic: "[ 15 ]"
+  - text: HERMES / WALLET MEMORY
+- link "Skip to content":
+  - /url: "#hermes-content"
+- main:
+  - paragraph: Optional Agent Sidecar
+  - heading "Hermes Desk" [level=1]
+  - paragraph: Agentic investigations before money moves.
+  - paragraph: Hermes runs the loop. Infopunks keeps the receipts.
+  - link "Open JSON Surface":
+    - /url: /v1/hermes
+  - link "Open Skill Pack":
+    - /url: /hermes/skill-pack
+  - link "Read Narrative":
+    - /url: /narratives/hermes-desk
+  - paragraph: Sidecar state
+  - paragraph: mode=mock enabled=false live_http_allowed=false
+  - paragraph: "Bridge status: mock (mock)"
+  - paragraph: Hermes Agent is not vendored here and is not required for deploy, build, tests, or smoke checks.
+  - region "Hermes Desk summary":
+    - article:
+      - text: runs
+      - strong: "3"
+      - text: seeded investigations
+    - article:
+      - text: active
+      - strong: "1"
+      - text: queued or running
+    - article:
+      - text: completed
+      - strong: "2"
+      - text: finished runs
+    - article:
+      - text: sidecar
+      - strong: disabled
+      - text: optional runtime
+  - region "Wallet Safety Integration Registry":
+    - paragraph: Wallet Safety Integration Registry
+    - heading "Deterministic visibility for compatible integrations." [level=2]
+    - link "Open Integration Registry":
+      - /url: /developers/wallet-safety/integrations
+    - article:
+      - text: integrations
+      - strong: "4"
+      - text: seeded profiles
+    - article:
+      - text: ready
+      - strong: "2"
+      - text: Wallet Safety-ready
+    - article:
+      - text: needs receipts
+      - strong: "1"
+      - text: checks wired, receipt trail missing
+  - region "Agent Memory Loop":
+    - paragraph: Agent Memory Loop
+    - heading "Agents do not need chat history." [level=2]
+    - link "Open Memory Loop":
+      - /url: /hermes/memory-loop
+    - paragraph: Agents do not need chat history.
+    - paragraph: Agents need memory that changes future action.
+    - region "Agent Memory Loop flow":
+      - generic: Run
+      - generic: "->"
+      - generic: Receipt
+      - generic: "->"
+      - generic: Claim
+      - generic: "->"
+      - generic: Review
+      - generic: "->"
+      - generic: Reputation
+      - generic: "->"
+      - generic: Decision
+      - generic: "->"
+      - generic: Outcome
+      - generic: "->"
+      - generic: Feedback
+    - paragraph: Policy sits between Decision and Outcome as the wallet safety gate.
+  - region "Hermes bridge status":
+    - paragraph: Bridge status
+    - heading "Mock-safe sidecar reachability." [level=2]
+    - link "GET /v1/hermes/health":
+      - /url: /v1/hermes/health
+    - paragraph:
+      - generic: status
+      - generic: mock
+    - paragraph:
+      - generic: mode
+      - generic: mock
+    - paragraph:
+      - generic: checked_at
+      - generic: 2026-10-13T04:50:13.059Z
+    - paragraph:
+      - generic: base_url
+      - generic: not configured
+    - paragraph:
+      - generic: bridge_note
+      - generic: Hermes can stay unavailable and Radar will keep serving mock-compatible runs.
+  - region "Active Hermes runs":
+    - paragraph: Active runs
+    - heading "Investigations still under judgment." [level=2]
+    - link "GET /v1/hermes/runs":
+      - /url: /v1/hermes/runs
+    - article "Signal Hunt Narrative Scan":
+      - paragraph: Running
+      - generic: "source: mock"
+      - generic: Receipt-ready
+      - generic: Unproven
+      - heading "Signal Hunt Narrative Scan" [level=2]
+      - paragraph: Hermes is scanning narrative evidence for agentic payment and signal-market claims. The run is not final; current evidence is useful for watch status only.
+      - generic "61 confidence":
+        - generic: confidence
+        - strong: "61"
+      - paragraph:
+        - generic: objective
+        - generic: Scan emerging narrative evidence and decide whether it should feed claims, loops, or provider reputation.
+      - paragraph:
+        - generic: created_at
+        - generic: 2026-07-03T06:00:00.000Z
+      - paragraph:
+        - generic: completed_at
+        - generic: still running
+      - generic: "receipt: pending"
+      - generic: "claim: pending"
+      - generic: "loop: loop_pre_spend_route"
+      - generic "Signal Hunt Narrative Scan receipt conversion preview":
+        - paragraph:
+          - generic: source_run
+          - generic: hermes_signal_hunt_narrative_scan
+        - paragraph:
+          - generic: decision
+          - generic: Unproven
+        - paragraph:
+          - generic: confidence
+          - generic: "61"
+        - paragraph:
+          - generic: evidence_count
+          - generic: "2"
+        - paragraph:
+          - generic: conversion
+          - generic: converted
+        - paragraph:
+          - generic: claim_candidate
+          - generic: claim_candidate_hermes_hermes_signal_hunt_narrative_scan
+      - paragraph:
+        - generic: risk
+        - generic: Narrative velocity can outrun proof.
+      - paragraph:
+        - generic: risk
+        - generic: Signal evidence is mixed between public artifacts and analyst interpretation.
+      - paragraph:
+        - generic: risk
+        - generic: No provider reputation update should occur until receipts attach.
+      - generic "Signal Hunt Narrative Scan lifecycle":
+        - generic: Queued
+        - generic: queued at 2026-07-03T06:00:00.000Z
+        - generic: Running
+        - generic: running at 2026-07-03T06:03:00.000Z
+        - generic: Completed
+        - generic: completed at 2026-07-03T06:20:00.000Z
+      - link "signal hunt scan":
+        - /url: /signal-hunt/hunt_black_bull_coordination
+      - link "signal hunt analyst trace":
+        - /url: /v1/hermes/runs/hermes_signal_hunt_narrative_scan
+  - region "Agent Run Receipts":
+    - paragraph: Agent Run Receipts
+    - heading "Every Hermes investigation can become a receipt." [level=2]
+    - link "GET receipt preview":
+      - /url: /v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/receipt-preview
+    - paragraph: Every Hermes investigation can become a receipt. Every receipt can become a claim. Every claim can update market memory.
+    - article:
+      - paragraph: converted
+      - heading "receipt_hermes_hermes_pay_sh_route_pre_spend_check" [level=3]
+      - paragraph:
+        - generic: source_run
+        - generic: hermes_pay_sh_route_pre_spend_check
+      - paragraph:
+        - generic: decision
+        - generic: Caution
+      - paragraph:
+        - generic: confidence
+        - generic: "82"
+      - paragraph:
+        - generic: evidence_count
+        - generic: "2"
+      - paragraph:
+        - generic: claim_candidate
+        - generic: Pay.sh Route Pre-Spend Check limited-use candidate
+    - article:
+      - paragraph: converted
+      - heading "receipt_hermes_hermes_agentic_market_provider_risk_review" [level=3]
+      - paragraph:
+        - generic: source_run
+        - generic: hermes_agentic_market_provider_risk_review
+      - paragraph:
+        - generic: decision
+        - generic: Do not use yet
+      - paragraph:
+        - generic: confidence
+        - generic: "74"
+      - paragraph:
+        - generic: evidence_count
+        - generic: "2"
+      - paragraph:
+        - generic: claim_candidate
+        - generic: Agentic Market Provider Risk Review warning candidate
+    - article:
+      - paragraph: converted
+      - heading "receipt_hermes_hermes_signal_hunt_narrative_scan" [level=3]
+      - paragraph:
+        - generic: source_run
+        - generic: hermes_signal_hunt_narrative_scan
+      - paragraph:
+        - generic: decision
+        - generic: Unproven
+      - paragraph:
+        - generic: confidence
+        - generic: "61"
+      - paragraph:
+        - generic: evidence_count
+        - generic: "2"
+      - paragraph:
+        - generic: claim_candidate
+        - generic: Signal Hunt Narrative Scan evidence-insufficient candidate
+  - region "Claim Candidate Review":
+    - paragraph: Claim Candidate Review
+    - heading "Receipts remember what happened. Claims decide what it means. Reputation decides who gets trusted next." [level=2]
+    - link "GET promotion preview":
+      - /url: /v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/claim/promotion-preview
+    - region "Hermes claim promotion flow":
+      - generic: Hermes Run
+      - generic: "->"
+      - generic: Agent Run Receipt
+      - generic: "->"
+      - generic: Claim Candidate
+      - generic: "->"
+      - generic: Reviewed Claim
+      - generic: "->"
+      - generic: Reputation Impact
+    - article:
+      - paragraph: promoted
+      - generic: Needs more evidence
+      - heading "Pay.sh Route Pre-Spend Check limited-use candidate" [level=3]
+      - paragraph:
+        - generic: source_run
+        - generic: hermes_pay_sh_route_pre_spend_check
+      - paragraph:
+        - generic: receipt_id
+        - generic: receipt_hermes_hermes_pay_sh_route_pre_spend_check
+      - paragraph:
+        - generic: claim_candidate
+        - generic: Pay.sh Route Pre-Spend Check limited-use candidate
+      - paragraph:
+        - generic: promoted_claim
+        - generic: claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check
+      - paragraph:
+        - generic: review_state
+        - generic: needs_more_evidence
+      - paragraph:
+        - generic: decision
+        - generic: Caution
+      - paragraph:
+        - generic: confidence
+        - generic: "82"
+      - paragraph:
+        - generic: evidence_count
+        - generic: "2"
+      - paragraph:
+        - generic: impact
+        - generic: watch
+      - paragraph:
+        - generic: target
+        - generic: route:route_pay_sh_market_research_01
+      - paragraph:
+        - generic: reputation_note
+        - generic: review_state=needs_more_evidence
+      - paragraph:
+        - generic: reputation_note
+        - generic: source_decision=caution
+      - paragraph:
+        - generic: reputation_note
+        - generic: confidence=82
+      - paragraph:
+        - generic: reputation_note
+        - generic: More receipt-backed evidence is required before reputation changes.
+    - article:
+      - paragraph: promoted
+      - generic: Rejected
+      - heading "Agentic Market Provider Risk Review warning candidate" [level=3]
+      - paragraph:
+        - generic: source_run
+        - generic: hermes_agentic_market_provider_risk_review
+      - paragraph:
+        - generic: receipt_id
+        - generic: receipt_hermes_hermes_agentic_market_provider_risk_review
+      - paragraph:
+        - generic: claim_candidate
+        - generic: Agentic Market Provider Risk Review warning candidate
+      - paragraph:
+        - generic: promoted_claim
+        - generic: claim_hermes_promoted_hermes_agentic_market_provider_risk_review
+      - paragraph:
+        - generic: review_state
+        - generic: rejected
+      - paragraph:
+        - generic: decision
+        - generic: Do not use yet
+      - paragraph:
+        - generic: confidence
+        - generic: "74"
+      - paragraph:
+        - generic: evidence_count
+        - generic: "2"
+      - paragraph:
+        - generic: impact
+        - generic: negative
+      - paragraph:
+        - generic: target
+        - generic: provider:provider_pay_sh_lattice
+      - paragraph:
+        - generic: reputation_note
+        - generic: review_state=rejected
+      - paragraph:
+        - generic: reputation_note
+        - generic: source_decision=do_not_use_yet
+      - paragraph:
+        - generic: reputation_note
+        - generic: confidence=74
+      - paragraph:
+        - generic: reputation_note
+        - generic: Rejected or spend-blocking evidence should prevent automatic trust promotion.
+    - article:
+      - paragraph: promoted
+      - generic: Needs more evidence
+      - heading "Signal Hunt Narrative Scan evidence-insufficient candidate" [level=3]
+      - paragraph:
+        - generic: source_run
+        - generic: hermes_signal_hunt_narrative_scan
+      - paragraph:
+        - generic: receipt_id
+        - generic: receipt_hermes_hermes_signal_hunt_narrative_scan
+      - paragraph:
+        - generic: claim_candidate
+        - generic: Signal Hunt Narrative Scan evidence-insufficient candidate
+      - paragraph:
+        - generic: promoted_claim
+        - generic: claim_hermes_promoted_hermes_signal_hunt_narrative_scan
+      - paragraph:
+        - generic: review_state
+        - generic: needs_more_evidence
+      - paragraph:
+        - generic: decision
+        - generic: Unproven
+      - paragraph:
+        - generic: confidence
+        - generic: "61"
+      - paragraph:
+        - generic: evidence_count
+        - generic: "2"
+      - paragraph:
+        - generic: impact
+        - generic: watch
+      - paragraph:
+        - generic: target
+        - generic: service:service_market_research
+      - paragraph:
+        - generic: reputation_note
+        - generic: review_state=needs_more_evidence
+      - paragraph:
+        - generic: reputation_note
+        - generic: source_decision=unproven
+      - paragraph:
+        - generic: reputation_note
+        - generic: confidence=61
+      - paragraph:
+        - generic: reputation_note
+        - generic: More receipt-backed evidence is required before reputation changes.
+  - region "Reputation Ledger":
+    - paragraph: Reputation Ledger
+    - heading "One receipt is evidence. One claim is judgment. Many judgments become reputation." [level=2]
+    - link "GET ledger":
+      - /url: /v1/hermes/reputation-ledger
+    - link "Open ledger":
+      - /url: /hermes/reputation-ledger
+    - paragraph: One receipt is evidence.
+    - paragraph: One claim is judgment.
+    - paragraph: Many judgments become reputation.
+    - region "Reputation Ledger summary":
+      - article:
+        - text: entries
+        - strong: "3"
+        - text: targets with reviewed claims
+      - article:
+        - text: trusted
+        - strong: "0"
+        - text: evidence-backed trust
+      - article:
+        - text: watchlist
+        - strong: "2"
+        - text: needs more evidence
+      - article:
+        - text: degraded
+        - strong: "1"
+        - text: negative movement
+      - article:
+        - text: disputed
+        - strong: "0"
+        - text: challenged memory
+    - article "Lattice Research Relay reputation ledger entry":
+      - paragraph: provider
+      - generic: Degraded
+      - heading "Lattice Research Relay" [level=3]
+      - paragraph:
+        - generic: target_id
+        - generic: provider_pay_sh_lattice
+      - paragraph:
+        - generic: trust_score
+        - generic: "0"
+      - paragraph:
+        - generic: impact_total
+        - generic: "0"
+      - paragraph:
+        - generic: counts
+        - generic: positive=0 watch=0 negative=1 disputed=0
+      - paragraph:
+        - generic: latest_event
+        - generic: 2026-07-02T11:27:00.000Z
+      - paragraph:
+        - generic: source_claims
+        - generic: claim_hermes_promoted_hermes_agentic_market_provider_risk_review
+      - paragraph:
+        - generic: source_receipts
+        - generic: receipt_hermes_hermes_agentic_market_provider_risk_review
+      - paragraph:
+        - generic: source_runs
+        - generic: hermes_agentic_market_provider_risk_review
+      - generic "Lattice Research Relay decision history":
+        - generic: negative / do_not_use_yet
+        - generic: rejected at 2026-07-02T11:27:00.000Z
+        - generic: Legacy claim intake has no reputation authority; a verified EvaluationReceipt is required.
+        - generic: review_state=rejected
+        - generic: source_decision=do_not_use_yet
+    - article "POST /market/research (provider_pay_sh_lattice) reputation ledger entry":
+      - paragraph: route
+      - generic: Watchlist
+      - heading "POST /market/research (provider_pay_sh_lattice)" [level=3]
+      - paragraph:
+        - generic: target_id
+        - generic: route_pay_sh_market_research_01
+      - paragraph:
+        - generic: trust_score
+        - generic: "0"
+      - paragraph:
+        - generic: impact_total
+        - generic: "0"
+      - paragraph:
+        - generic: counts
+        - generic: positive=0 watch=1 negative=0 disputed=0
+      - paragraph:
+        - generic: latest_event
+        - generic: 2026-07-02T09:14:00.000Z
+      - paragraph:
+        - generic: source_claims
+        - generic: claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check
+      - paragraph:
+        - generic: source_receipts
+        - generic: receipt_hermes_hermes_pay_sh_route_pre_spend_check
+      - paragraph:
+        - generic: source_runs
+        - generic: hermes_pay_sh_route_pre_spend_check
+      - generic "POST /market/research (provider_pay_sh_lattice) decision history":
+        - generic: watch / caution
+        - generic: needs_more_evidence at 2026-07-02T09:14:00.000Z
+        - generic: Legacy claim intake has no reputation authority; a verified EvaluationReceipt is required.
+        - generic: review_state=needs_more_evidence
+        - generic: source_decision=caution
+    - article "Market Research reputation ledger entry":
+      - paragraph: service
+      - generic: Watchlist
+      - heading "Market Research" [level=3]
+      - paragraph:
+        - generic: target_id
+        - generic: service_market_research
+      - paragraph:
+        - generic: trust_score
+        - generic: "0"
+      - paragraph:
+        - generic: impact_total
+        - generic: "0"
+      - paragraph:
+        - generic: counts
+        - generic: positive=0 watch=1 negative=0 disputed=0
+      - paragraph:
+        - generic: latest_event
+        - generic: 2026-07-03T06:00:00.000Z
+      - paragraph:
+        - generic: source_claims
+        - generic: claim_hermes_promoted_hermes_signal_hunt_narrative_scan
+      - paragraph:
+        - generic: source_receipts
+        - generic: receipt_hermes_hermes_signal_hunt_narrative_scan
+      - paragraph:
+        - generic: source_runs
+        - generic: hermes_signal_hunt_narrative_scan
+      - generic "Market Research decision history":
+        - generic: watch / unproven
+        - generic: needs_more_evidence at 2026-07-03T06:00:00.000Z
+        - generic: Legacy claim intake has no reputation authority; a verified EvaluationReceipt is required.
+        - generic: review_state=needs_more_evidence
+        - generic: source_decision=unproven
+    - region "Provider Impact Surface":
+      - paragraph: Provider Impact Surface
+      - heading "Provider trust from reviewed claims." [level=3]
+      - link "GET providers":
+        - /url: /v1/hermes/reputation-ledger/providers
+      - article "Lattice Research Relay reputation ledger entry":
+        - paragraph: provider
+        - generic: Degraded
+        - heading "Lattice Research Relay" [level=3]
+        - paragraph:
+          - generic: target_id
+          - generic: provider_pay_sh_lattice
+        - paragraph:
+          - generic: trust_score
+          - generic: "0"
+        - paragraph:
+          - generic: impact_total
+          - generic: "0"
+        - paragraph:
+          - generic: counts
+          - generic: positive=0 watch=0 negative=1 disputed=0
+        - paragraph:
+          - generic: latest_event
+          - generic: 2026-07-02T11:27:00.000Z
+        - paragraph:
+          - generic: source_claims
+          - generic: claim_hermes_promoted_hermes_agentic_market_provider_risk_review
+        - paragraph:
+          - generic: source_receipts
+          - generic: receipt_hermes_hermes_agentic_market_provider_risk_review
+        - paragraph:
+          - generic: source_runs
+          - generic: hermes_agentic_market_provider_risk_review
+        - paragraph: negative impact from claim_hermes_promoted_hermes_agentic_market_provider_risk_review
+    - region "Route Impact Surface":
+      - paragraph: Route Impact Surface
+      - heading "Route trust from reviewed claims." [level=3]
+      - link "GET routes":
+        - /url: /v1/hermes/reputation-ledger/routes
+      - article "POST /market/research (provider_pay_sh_lattice) reputation ledger entry":
+        - paragraph: route
+        - generic: Watchlist
+        - heading "POST /market/research (provider_pay_sh_lattice)" [level=3]
+        - paragraph:
+          - generic: target_id
+          - generic: route_pay_sh_market_research_01
+        - paragraph:
+          - generic: trust_score
+          - generic: "0"
+        - paragraph:
+          - generic: impact_total
+          - generic: "0"
+        - paragraph:
+          - generic: counts
+          - generic: positive=0 watch=1 negative=0 disputed=0
+        - paragraph:
+          - generic: latest_event
+          - generic: 2026-07-02T09:14:00.000Z
+        - paragraph:
+          - generic: source_claims
+          - generic: claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check
+        - paragraph:
+          - generic: source_receipts
+          - generic: receipt_hermes_hermes_pay_sh_route_pre_spend_check
+        - paragraph:
+          - generic: source_runs
+          - generic: hermes_pay_sh_route_pre_spend_check
+        - paragraph: watch impact from claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check
+  - region "Pre-Spend Decision Engine":
+    - paragraph: Pre-Spend Decision Engine
+    - heading "Before an agent spends, it checks the ledger." [level=2]
+    - link "GET example":
+      - /url: /v1/hermes/pre-spend-decision/example
+    - link "Open decision engine":
+      - /url: /hermes/pre-spend-decision
+    - paragraph: Reputation is not just displayed.
+    - paragraph: Reputation now decides.
+    - article "Pre-spend decision hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective":
+      - paragraph: Pre-Spend Decision
+      - generic: Do Not Spend
+      - generic: Do Not Use Provider
+      - heading "route_pay_sh_market_research_01" [level=3]
+      - paragraph: Provider reputation is degraded in the ledger.
+      - generic "0.21 confidence":
+        - generic: confidence
+        - strong: "0.21"
+      - paragraph:
+        - generic: route_id
+        - generic: route_pay_sh_market_research_01
+      - paragraph:
+        - generic: provider_id
+        - generic: provider_pay_sh_lattice
+      - paragraph:
+        - generic: service_id
+        - generic: service_market_research
+      - paragraph:
+        - generic: amount_usd
+        - generic: "25.00"
+      - paragraph:
+        - generic: decision
+        - generic: do_not_spend
+      - paragraph:
+        - generic: required_action
+        - generic: do_not_use_provider
+      - paragraph:
+        - generic: ledger_state
+        - generic: provider=degraded route=watchlist service=watchlist
+      - paragraph:
+        - generic: ledger_score
+        - generic: provider=0 route=0 service=0
+      - generic: provider degraded (High)
+      - generic: route on watchlist (Medium)
+      - generic: service on watchlist (Medium)
+      - paragraph:
+        - generic: provider_reputation
+        - generic: Lattice Research Relay is degraded with trust score 0.
+      - paragraph:
+        - generic: route_reputation
+        - generic: POST /market/research (provider_pay_sh_lattice) is on the watchlist and should be test-spent before larger usage.
+      - paragraph:
+        - generic: service_reputation
+        - generic: Market Research is on the watchlist and should be test-spent before larger usage.
+      - paragraph:
+        - generic: reputation inputs
+        - generic: provider:provider_pay_sh_lattice, route:route_pay_sh_market_research_01, service:service_market_research
+      - paragraph:
+        - generic: receipt inputs
+        - generic: receipt_hermes_hermes_agentic_market_provider_risk_review, receipt_hermes_hermes_pay_sh_route_pre_spend_check, receipt_hermes_hermes_signal_hunt_narrative_scan
+      - paragraph:
+        - generic: claim inputs
+        - generic: claim_hermes_promoted_hermes_agentic_market_provider_risk_review, claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check, claim_hermes_promoted_hermes_signal_hunt_narrative_scan
+      - paragraph:
+        - generic: run inputs
+        - generic: hermes_agentic_market_provider_risk_review, hermes_pay_sh_route_pre_spend_check, hermes_signal_hunt_narrative_scan
+  - region "Agent Spend Policy Layer":
+    - paragraph: Agent Spend Policy Layer
+    - heading "Decision tells an agent what to do." [level=2]
+    - link "GET example":
+      - /url: /v1/hermes/spend-policy/example
+    - link "Open Spend Policy Layer":
+      - /url: /hermes/spend-policy
+    - paragraph: Policy tells an agent what it is allowed to do.
+    - article "Spend policy result hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective":
+      - paragraph: Agent Spend Policy Layer
+      - generic: Block
+      - generic: Not allowed
+      - generic: Do Not Spend
+      - heading "Infopunks Default Agent Spend Policy" [level=3]
+      - paragraph: "Pre-spend decision returned do_not_spend: Provider reputation is degraded in the ledger."
+      - paragraph:
+        - generic: policy_id
+        - generic: policy_infopunks_default_agent_spend
+      - paragraph:
+        - generic: amount_usd
+        - generic: "25.00"
+      - paragraph:
+        - generic: chain
+        - generic: base
+      - paragraph:
+        - generic: payment_rail
+        - generic: x402
+      - paragraph:
+        - generic: decision
+        - generic: block
+      - paragraph:
+        - generic: allowed
+        - generic: "false"
+      - paragraph:
+        - generic: required_action
+        - generic: do_not_spend
+      - paragraph:
+        - generic: pre_spend_decision
+        - generic: do_not_spend
+      - generic: Pre-spend engine blocked the spend (Critical)
+      - generic: Watchlist requires test spend (Medium)
+  - region "Autonomous Wallet Audit Trail":
+    - paragraph: Autonomous Wallet Audit Trail
+    - heading "Autonomous wallets need more than logs." [level=2]
+    - link "Open Wallet Audit Trail":
+      - /url: /hermes/wallet-audit-trail
+    - paragraph: They need audit trails with judgment.
+    - paragraph:
+      - generic: trail_id
+      - generic: hermes_wallet_audit_trail_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective
+    - paragraph:
+      - generic: risk_posture
+      - generic: Medium
+    - paragraph:
+      - generic: event_count
+      - generic: "8"
+    - paragraph:
+      - generic: policy_decision
+      - generic: block
+    - paragraph:
+      - generic: compliance_state
+      - generic: compliant
+    - paragraph:
+      - generic: next_policy_action
+      - generic: none
+  - region "Wallet Risk Score":
+    - paragraph: Wallet Risk Score
+    - heading "Audit trails explain what happened." [level=2]
+    - link "Open Wallet Risk Score":
+      - /url: /hermes/wallet-risk-score
+    - paragraph: Risk scores tell the wallet what to do next.
+    - paragraph:
+      - generic: risk_score
+      - generic: "75"
+    - paragraph:
+      - generic: safety_rating
+      - generic: Watch
+    - paragraph:
+      - generic: required_next_action
+      - generic: Run Test Spend
+    - paragraph:
+      - generic: top_risk_count
+      - generic: "1"
+    - paragraph:
+      - generic: positive_control_count
+      - generic: "7"
+  - region "Wallet Safety API Bundle":
+    - paragraph: Wallet Safety API Bundle
+    - heading "Agents should not stitch safety together." [level=2]
+    - link "Open Wallet Safety API":
+      - /url: /hermes/wallet-safety
+    - link "Open developer quickstart":
+      - /url: /developers/wallet-safety
+    - paragraph: They should ask once before spend.
+    - paragraph:
+      - generic: final_decision
+      - generic: Block Spend
+    - paragraph:
+      - generic: allowed
+      - generic: "false"
+    - paragraph:
+      - generic: risk_score
+      - generic: "75"
+    - paragraph:
+      - generic: safety_rating
+      - generic: Watch
+    - paragraph:
+      - generic: required_action
+      - generic: Block Spend
+    - paragraph:
+      - generic: confidence
+      - generic: "0.11"
+  - region "Policy Decision Receipts":
+    - paragraph: Policy Decision Receipts
+    - heading "Policy checks become auditable wallet evidence." [level=2]
+    - link "Open Spend Policy Layer":
+      - /url: /hermes/spend-policy
+    - paragraph: A policy decision should not disappear after the wallet acts.
+    - paragraph: It should become an audit receipt.
+    - paragraph:
+      - generic: policy_receipt_id
+      - generic: receipt_hermes_policy_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective
+    - paragraph:
+      - generic: decision
+      - generic: Block
+    - paragraph:
+      - generic: risk_level
+      - generic: Critical
+    - paragraph:
+      - generic: audit_trail_events
+      - generic: "6"
+  - region "Policy Outcome Reconciliation":
+    - paragraph: Policy Outcome Reconciliation
+    - heading "A policy receipt proves what was allowed." [level=2]
+    - link "Open Spend Policy Layer":
+      - /url: /hermes/spend-policy
+    - paragraph: A reconciliation proves what actually happened.
+    - paragraph:
+      - generic: compliance_state
+      - generic: compliant
+    - paragraph:
+      - generic: outcome_state
+      - generic: blocked_as_required
+    - paragraph:
+      - generic: next_policy_action
+      - generic: none
+    - paragraph:
+      - generic: impact_direction
+      - generic: watch
+  - region "Decision Receipt and Feedback Loop":
+    - paragraph: Decision Receipt and Feedback Loop
+    - heading "A decision becomes intelligence when the outcome is recorded." [level=2]
+    - link "Open feedback loop":
+      - /url: /hermes/decision-feedback
+    - paragraph: A decision without an outcome is advice.
+    - paragraph: A decision with a receipt becomes intelligence.
+    - article "Decision feedback hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective":
+      - paragraph: Decision Feedback
+      - generic: Do Not Spend
+      - generic: Blocked
+      - generic: positive
+      - heading "receipt_hermes_decision_hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective" [level=3]
+      - paragraph: Spend stayed blocked after the do_not_spend recommendation, preserving caution instead of forcing execution.
+      - paragraph:
+        - generic: decision_id
+        - generic: hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective
+      - paragraph:
+        - generic: receipt_id
+        - generic: receipt_hermes_decision_hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective
+      - paragraph:
+        - generic: decision
+        - generic: do_not_spend
+      - paragraph:
+        - generic: required_action
+        - generic: do_not_use_provider
+      - paragraph:
+        - generic: confidence
+        - generic: "0.21"
+      - paragraph:
+        - generic: outcome_state
+        - generic: blocked
+      - paragraph:
+        - generic: spend_happened
+        - generic: "false"
+      - paragraph:
+        - generic: impact_direction
+        - generic: positive
+      - paragraph:
+        - generic: impact_magnitude
+        - generic: "0.01"
+      - paragraph:
+        - generic: target
+        - generic: provider:provider_pay_sh_lattice
+      - generic: decision_state=do_not_spend
+      - generic: required_action=do_not_use_provider
+      - generic: outcome_state=blocked
+      - generic: spend_happened=false
+      - generic: decision_confidence=0.21
+      - generic: Outcome supports future spend confidence.
+  - region "Completed Hermes runs":
+    - paragraph: Completed runs
+    - heading "Agent work with evidence handles." [level=2]
+    - article "Pay.sh Route Pre-Spend Check":
+      - paragraph: Completed
+      - generic: "source: mock"
+      - generic: Receipt-ready
+      - generic: Caution
+      - heading "Pay.sh Route Pre-Spend Check" [level=2]
+      - paragraph: Hermes found recent route memory and usable output receipts, but kept the run in caution because timeout and prompt-specific quality caveats remain active.
+      - generic "82 confidence":
+        - generic: confidence
+        - strong: "82"
+      - paragraph:
+        - generic: objective
+        - generic: Decide whether an agent should use the market research route before money moves.
+      - paragraph:
+        - generic: created_at
+        - generic: 2026-07-02T09:10:00.000Z
+      - paragraph:
+        - generic: completed_at
+        - generic: 2026-07-02T09:14:00.000Z
+      - generic: "receipt: receipt_001"
+      - generic: "claim: claim_001"
+      - generic: "loop: loop_pre_spend_route"
+      - generic "Pay.sh Route Pre-Spend Check receipt conversion preview":
+        - paragraph:
+          - generic: source_run
+          - generic: hermes_pay_sh_route_pre_spend_check
+        - paragraph:
+          - generic: decision
+          - generic: Caution
+        - paragraph:
+          - generic: confidence
+          - generic: "82"
+        - paragraph:
+          - generic: evidence_count
+          - generic: "2"
+        - paragraph:
+          - generic: conversion
+          - generic: converted
+        - paragraph:
+          - generic: claim_candidate
+          - generic: claim_candidate_hermes_hermes_pay_sh_route_pre_spend_check
+      - paragraph:
+        - generic: risk
+        - generic: "Known blocker: occasional timeout under high load."
+      - paragraph:
+        - generic: risk
+        - generic: Output quality varies by prompt specificity.
+      - paragraph:
+        - generic: risk
+        - generic: Payment proof remains separate from execution proof.
+      - generic "Pay.sh Route Pre-Spend Check lifecycle":
+        - generic: Queued
+        - generic: queued at 2026-07-02T09:10:00.000Z
+        - generic: Running
+        - generic: running at 2026-07-02T09:11:00.000Z
+        - generic: Completed
+        - generic: completed at 2026-07-02T09:14:00.000Z
+      - link "pre-spend decision receipt":
+        - /url: /receipts/receipt_001
+      - link "loop memory update":
+        - /url: /loops/loop_pre_spend_route
+    - article "Agentic Market Provider Risk Review":
+      - paragraph: Completed
+      - generic: "source: mock"
+      - generic: Receipt-ready
+      - generic: Do not use yet
+      - heading "Agentic Market Provider Risk Review" [level=2]
+      - paragraph: Hermes identified useful provider metadata but found insufficient recent receipts for autonomous spend. Infopunks keeps the provider gated until fresh validation arrives.
+      - generic "74 confidence":
+        - generic: confidence
+        - strong: "74"
+      - paragraph:
+        - generic: objective
+        - generic: Review provider readiness and dispute exposure before routing autonomous agent spend.
+      - paragraph:
+        - generic: created_at
+        - generic: 2026-07-02T11:20:00.000Z
+      - paragraph:
+        - generic: completed_at
+        - generic: 2026-07-02T11:27:00.000Z
+      - generic: "receipt: pending"
+      - generic: "claim: claim_002"
+      - generic: "loop: loop_provider_trust"
+      - generic "Agentic Market Provider Risk Review receipt conversion preview":
+        - paragraph:
+          - generic: source_run
+          - generic: hermes_agentic_market_provider_risk_review
+        - paragraph:
+          - generic: decision
+          - generic: Do not use yet
+        - paragraph:
+          - generic: confidence
+          - generic: "74"
+        - paragraph:
+          - generic: evidence_count
+          - generic: "2"
+        - paragraph:
+          - generic: conversion
+          - generic: converted
+        - paragraph:
+          - generic: claim_candidate
+          - generic: claim_candidate_hermes_hermes_agentic_market_provider_risk_review
+      - paragraph:
+        - generic: risk
+        - generic: Provider setup appears stronger than route execution evidence.
+      - paragraph:
+        - generic: risk
+        - generic: No fresh payment-confirmed receipt attached.
+      - paragraph:
+        - generic: risk
+        - generic: Dispute memory is too thin for repeat autonomous use.
+      - generic "Agentic Market Provider Risk Review lifecycle":
+        - generic: Queued
+        - generic: queued at 2026-07-02T11:20:00.000Z
+        - generic: Running
+        - generic: running at 2026-07-02T11:21:00.000Z
+        - generic: Completed
+        - generic: completed at 2026-07-02T11:27:00.000Z
+      - link "provider risk note":
+        - /url: /providers/provider_pay_sh_lattice
+      - link "provider readiness claim":
+        - /url: /claims/claim_002
+  - region "Infopunks skill pack":
+    - paragraph: Infopunks skill pack
+    - heading "Skills Hermes can run, receipts Radar can judge." [level=2]
+    - link "GET /v1/hermes/skills":
+      - /url: /v1/hermes/skills
+    - link "Open Skill Pack":
+      - /url: /hermes/skill-pack
+    - article:
+      - paragraph: enabled
+      - heading "pre-spend route check" [level=3]
+      - paragraph: Investigate a candidate route before an agent spends through it.
+      - generic: receipt
+      - generic: claim
+      - generic: loop run
+      - generic: risk note
+    - article:
+      - paragraph: enabled
+      - heading "provider risk check" [level=3]
+      - paragraph: Review provider reliability, caveats, disputes, and observed route memory.
+      - generic: claim
+      - generic: risk note
+    - article:
+      - paragraph: enabled
+      - heading "receipt validator" [level=3]
+      - paragraph: Check whether an agent run has enough evidence to become durable Radar memory.
+      - generic: receipt
+      - generic: risk note
+    - article:
+      - paragraph: enabled
+      - heading "claim dispute review" [level=3]
+      - paragraph: Compare claims against attached receipts and flag disputed or stale evidence.
+      - generic: claim
+      - generic: risk note
+    - article:
+      - paragraph: enabled
+      - heading "signal hunt analyst" [level=3]
+      - paragraph: Scan narrative inputs and connect credible signals into proof and loop memory.
+      - generic: narrative signal
+      - generic: claim
+      - generic: loop run
+    - article:
+      - paragraph: enabled
+      - heading "carbon credit instrument check" [level=3]
+      - paragraph: Inspect carbon-credit instrument claims before routing spend, trust, or reputation updates.
+      - generic: receipt
+      - generic: claim
+      - generic: risk note
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

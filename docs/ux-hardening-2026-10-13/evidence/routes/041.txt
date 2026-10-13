@@ -1,0 +1,336 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Skill Pack
+- paragraph:
+  - generic: "[ 15 ]"
+  - text: HERMES / WALLET MEMORY
+- link "Skip to content":
+  - /url: "#hermes-skill-pack-content"
+- main:
+  - paragraph: Skill Manifest
+  - heading "Infopunks Hermes Skill Pack" [level=1]
+  - paragraph: How Hermes learns to investigate before money moves.
+  - paragraph: Hermes runs the investigation. Infopunks turns the investigation into market memory.
+  - link "Open Manifest JSON":
+    - /url: /v1/hermes/skill-pack
+  - link "Back to Hermes Desk":
+    - /url: /hermes
+  - paragraph: Linked primitives
+  - paragraph: routes / providers / receipts / claims / loops / proof checks
+  - region "Hermes skill cards":
+    - paragraph: 0.1.0
+    - heading "A skill pack for agentic investigations before money moves." [level=2]
+    - link "GET skills":
+      - /url: /v1/hermes/skill-pack/skills
+    - article:
+      - paragraph: pre-spend-route-check
+      - heading "Pre-Spend Route Check" [level=3]
+      - paragraph: Investigate a candidate route before an agent spends through it.
+      - paragraph:
+        - generic: when_to_use
+        - generic: Before selecting a route for autonomous spend.
+      - paragraph:
+        - generic: decision_mapping
+        - generic: trust, caution, do_not_use_yet, unproven, disputed
+      - generic: routes
+      - generic: receipts
+      - generic: claims
+      - generic: loops
+      - generic: proof checks
+    - article:
+      - paragraph: provider-risk-check
+      - heading "Provider Risk Check" [level=3]
+      - paragraph: Review provider reliability, caveats, disputes, and observed route memory.
+      - paragraph:
+        - generic: when_to_use
+        - generic: Before trusting a provider listing.
+      - paragraph:
+        - generic: decision_mapping
+        - generic: trust, caution, do_not_use_yet, unproven, disputed
+      - generic: providers
+      - generic: receipts
+      - generic: claims
+      - generic: loops
+    - article:
+      - paragraph: receipt-validator
+      - heading "Receipt Validator" [level=3]
+      - paragraph: Check whether an agent run has enough evidence to become durable Radar memory.
+      - paragraph:
+        - generic: when_to_use
+        - generic: After Hermes produces investigation artifacts.
+      - paragraph:
+        - generic: decision_mapping
+        - generic: trust, caution, do_not_use_yet, unproven, disputed
+      - generic: receipts
+      - generic: proof checks
+      - generic: claims
+    - article:
+      - paragraph: claim-dispute-review
+      - heading "Claim Dispute Review" [level=3]
+      - paragraph: Compare claims against attached receipts and flag disputed or stale evidence.
+      - paragraph:
+        - generic: when_to_use
+        - generic: When a claim is challenged.
+      - paragraph:
+        - generic: decision_mapping
+        - generic: trust, caution, do_not_use_yet, unproven, disputed
+      - generic: claims
+      - generic: receipts
+      - generic: proof checks
+      - generic: loops
+    - article:
+      - paragraph: signal-hunt-analyst
+      - heading "Signal Hunt Analyst" [level=3]
+      - paragraph: Scan narrative inputs and connect credible signals into proof and loop memory.
+      - paragraph:
+        - generic: when_to_use
+        - generic: When narrative velocity suggests a market signal.
+      - paragraph:
+        - generic: decision_mapping
+        - generic: trust, caution, do_not_use_yet, unproven, disputed
+      - generic: claims
+      - generic: loops
+      - generic: proof checks
+    - article:
+      - paragraph: carbon-credit-instrument-check
+      - heading "Carbon Credit Instrument Check" [level=3]
+      - paragraph: Inspect carbon-credit instrument claims before routing spend, trust, or reputation updates.
+      - paragraph:
+        - generic: when_to_use
+        - generic: Before treating a carbon-credit instrument as spend-ready.
+      - paragraph:
+        - generic: decision_mapping
+        - generic: trust, caution, do_not_use_yet, unproven, disputed
+      - generic: routes
+      - generic: providers
+      - generic: receipts
+      - generic: claims
+      - generic: proof checks
+  - region "Skill pack rules":
+    - paragraph: Rules
+    - heading "Infopunks-native doctrine." [level=2]
+    - article:
+      - heading "No receipt, no trust." [level=3]
+      - paragraph: A run can recommend attention, but trust requires receipt-backed evidence.
+    - article:
+      - heading "Separate claim from evidence." [level=3]
+      - paragraph: Claims must remain distinct from the artifacts that support or challenge them.
+    - article:
+      - heading "Unknown is a valid state." [level=3]
+      - paragraph: Hermes should preserve unknowns instead of filling gaps with invented certainty.
+    - article:
+      - heading "Prefer do_not_use_yet over fake confidence." [level=3]
+      - paragraph: When spend safety is unclear, block use until artifacts justify a narrower decision.
+    - article:
+      - heading "Every recommendation must cite artifacts." [level=3]
+      - paragraph: Each decision should point to receipts, claims, loop runs, risk notes, scans, or skill traces.
+    - article:
+      - heading "Decision states are bounded." [level=3]
+      - paragraph: All judgments must map to trust, caution, do_not_use_yet, unproven, or disputed.
+    - article:
+      - heading "Pre-spend judgment comes first." [level=3]
+      - paragraph: Investigate before payment, route selection, provider trust, or claim amplification.
+  - region "Expected output schema":
+    - paragraph: Expected output schema
+    - heading "Run output must be receipt-ready." [level=2]
+    - paragraph:
+      - generic: required_fields
+      - generic: run_id, objective, decision, confidence, summary, risk_factors, artifacts
+    - paragraph:
+      - generic: artifact_contract
+      - generic: artifact_id, label, type, summary, uri
+    - paragraph:
+      - generic: receipt_ready_fields
+      - generic: source_run_id, receipt_kind, evidence_count, source, claim_candidate
+  - region "Decision state mapping":
+    - paragraph: Decision state mapping
+    - heading "Trust language stays bounded." [level=2]
+    - paragraph:
+      - generic: trust
+      - generic: Receipt-backed evidence supports use, with caveats still visible.
+    - paragraph:
+      - generic: caution
+      - generic: Use only with limits, test spend, or explicit human review.
+    - paragraph:
+      - generic: do_not_use_yet
+      - generic: Do not route money, trust a provider, or amplify a claim yet.
+    - paragraph:
+      - generic: unproven
+      - generic: Evidence is insufficient; keep the investigation in watch state.
+    - paragraph:
+      - generic: disputed
+      - generic: Evidence conflicts or has been challenged; do not promote reputation.
+  - region "Linked primitives":
+    - paragraph: Linked primitives
+    - heading "Routes, providers, receipts, claims, loops, and proof checks." [level=2]
+    - generic: routes
+    - generic: providers
+    - generic: receipts
+    - generic: claims
+    - generic: loops
+    - generic: proof checks
+  - region "Promotion-ready outputs":
+    - paragraph: Promotion-ready outputs
+    - heading "Skills should produce evidence suitable for claim review." [level=2]
+    - generic: receipt generation
+    - generic: claim candidate creation
+    - generic: claim review
+    - generic: reputation impact
+  - region "Reputation-aware skill outputs":
+    - paragraph: Reputation-aware outputs
+    - heading "Hermes skills should produce outputs that can update reputation over time." [level=2]
+    - paragraph: Hermes skills should produce outputs that can update reputation over time.
+    - generic: route reputation
+    - generic: provider reputation
+    - generic: service reputation
+    - generic: disputed evidence
+    - generic: watchlist state
+  - region "Policy-ready outputs":
+    - paragraph: Policy-ready outputs
+    - heading "Hermes skills should emit structured outputs that policy can evaluate deterministically." [level=2]
+    - paragraph: Hermes skills should generate structured outputs useful for policy checks.
+    - generic: risk level
+    - generic: required action
+    - generic: disputed evidence
+    - generic: provider status
+    - generic: route status
+    - generic: spend amount sensitivity
+    - generic: chain/payment rail context
+  - region "Reconciliation-ready outputs":
+    - paragraph: Reconciliation-ready outputs
+    - heading "Hermes skills should help compare expected policy behavior against observed outcomes." [level=2]
+    - paragraph: Hermes skills should emit enough structured detail to compare what policy allowed against what the wallet actually did.
+    - generic: expected action
+    - generic: allowed amount
+    - generic: observed spend
+    - generic: chain/payment rail used
+    - generic: manual review status
+    - generic: failure reason
+    - generic: evidence artifacts
+  - region "Audit-ready outputs":
+    - paragraph: Audit-ready outputs
+    - heading "Hermes skills should produce outputs that can survive audit." [level=2]
+    - paragraph: Policy receipts compare what the wallet was allowed to do against what actually happened, so skill outputs need audit-grade structure.
+    - generic: decision reason
+    - generic: cited evidence
+    - generic: risk factors
+    - generic: rule triggers
+    - generic: expected action
+    - generic: outcome criteria
+  - region "Audit-trail-ready outputs":
+    - paragraph: Audit-trail-ready outputs
+    - heading "Hermes skills should produce outputs that can be inspected later." [level=2]
+    - link "Open Wallet Audit Trail":
+      - /url: /hermes/wallet-audit-trail
+    - generic: spend intent
+    - generic: decision reason
+    - generic: policy trigger
+    - generic: evidence reference
+    - generic: expected wallet behavior
+    - generic: actual wallet behavior
+    - generic: reconciliation finding
+    - generic: feedback action
+  - region "Risk-score-ready outputs":
+    - paragraph: Risk-score-ready outputs
+    - heading "Hermes skills should produce structured outputs that help scoring." [level=2]
+    - link "Open Wallet Risk Score":
+      - /url: /hermes/wallet-risk-score
+    - generic: severity
+    - generic: confidence
+    - generic: compliance state
+    - generic: evidence completeness
+    - generic: policy trigger
+    - generic: outcome state
+    - generic: feedback action
+  - region "Bundle-ready outputs":
+    - paragraph: Bundle-ready outputs
+    - heading "Hermes skills should produce structured outputs that can be bundled into one wallet safety response." [level=2]
+    - link "Open Wallet Safety API":
+      - /url: /hermes/wallet-safety
+    - generic: decision
+    - generic: required action
+    - generic: policy trigger
+    - generic: evidence references
+    - generic: risk score inputs
+    - generic: final recommendation
+  - region "Developer-ready outputs":
+    - paragraph: Developer-ready outputs
+    - heading "Hermes skills should produce structured outputs that downstream developers can use directly." [level=2]
+    - link "Open developer quickstart":
+      - /url: /developers/wallet-safety
+    - generic: final recommendation
+    - generic: required action
+    - generic: evidence references
+    - generic: safety rating
+    - generic: risk score
+    - generic: policy decision
+  - region "Integration-receipt-ready outputs":
+    - paragraph: Integration-receipt-ready outputs
+    - heading "Hermes skills should produce outputs that downstream apps can store." [level=2]
+    - link "Open Integration Receipt Pattern":
+      - /url: /developers/wallet-safety#integration-receipt-pattern
+    - generic: safety check id
+    - generic: recommendation
+    - generic: policy receipt reference
+    - generic: risk score reference
+    - generic: audit trail reference
+    - generic: action taken
+  - region "Registry-ready outputs":
+    - paragraph: Registry-ready outputs
+    - heading "Hermes skills and wallet integrations should produce evidence that helps determine readiness." [level=2]
+    - link "Open Integration Registry":
+      - /url: /developers/wallet-safety/integrations
+    - generic: safety check usage
+    - generic: integration receipt writing
+    - generic: fail-closed behavior
+    - generic: supported chains
+    - generic: supported rails
+    - generic: last verified run
+    - paragraph: "Current seeded registry: 4 integrations, 2 ready, 1 missing receipts."
+  - region "Memory-loop-ready skills":
+    - paragraph: Memory-loop-ready skills
+    - heading "Hermes skills should produce outputs that can flow through the full memory loop." [level=2]
+    - link "Open Memory Loop":
+      - /url: /hermes/memory-loop
+    - paragraph: "Hermes skills should produce outputs that can flow through: Run → Receipt → Claim → Review → Reputation → Decision → Outcome → Feedback"
+    - paragraph: Policy-ready outputs let the wallet add a final safety gate between Decision and Outcome.
+  - region "Decision-ready outputs":
+    - paragraph: Decision-ready outputs
+    - heading "Hermes skills should emit structured outputs that can feed the next spend decision." [level=2]
+    - generic: pre-spend decisions
+    - generic: required actions
+    - generic: risk factors
+    - generic: reputation inputs
+    - generic: receipt generation
+    - generic: claim review
+  - region "Feedback-ready skills":
+    - paragraph: Feedback-ready skills
+    - heading "Skills should emit outputs that can be compared with what happened after spend." [level=2]
+    - generic: expected result
+    - generic: required action
+    - generic: risk factors
+    - generic: success criteria
+    - generic: failure reasons
+    - generic: evidence artifacts
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

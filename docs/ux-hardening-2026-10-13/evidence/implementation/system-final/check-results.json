@@ -1,0 +1,199 @@
+{
+  "source_sha": "1e7114e8549497d592f324c55a4ecf67065dced4",
+  "platform": "macOS-14.4.1-arm64-arm-64bit",
+  "databases": [
+    "unified_radar_ba0bbe69e325",
+    "unified_radar_ba0bbe69e325_resilience",
+    "unified_radar_ba0bbe69e325_migration",
+    "unified_radar_ba0bbe69e325_restore"
+  ],
+  "scope": "disposable localhost only; no external payment or production data",
+  "checks": [
+    {
+      "name": "runtime",
+      "command": [
+        "node",
+        "--version"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.116,
+      "raw_log": "output/ux-hardening/system-final/runtime.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 39.276,
+      "raw_log": "output/ux-hardening/system-final/typecheck.log"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 32.209,
+      "raw_log": "output/ux-hardening/system-final/lint.log"
+    },
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.16,
+      "raw_log": "output/ux-hardening/system-final/build.log"
+    },
+    {
+      "name": "migration-inventory",
+      "command": [
+        "npm",
+        "run",
+        "migrations:validate"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.355,
+      "raw_log": "output/ux-hardening/system-final/migration-inventory.log"
+    },
+    {
+      "name": "full-tests",
+      "command": [
+        "npm",
+        "test",
+        "--",
+        "--maxWorkers=1",
+        "--testTimeout=30000",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=/Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks Pay.sh Intelligence Terminal/output/ux-hardening/system-final/full-tests.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 265.48,
+      "raw_log": "output/ux-hardening/system-final/full-tests.log"
+    },
+    {
+      "name": "audit-production",
+      "command": [
+        "npm",
+        "audit",
+        "--omit=dev",
+        "--json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.957,
+      "raw_log": "output/ux-hardening/system-final/audit-production.log"
+    },
+    {
+      "name": "audit-all",
+      "command": [
+        "npm",
+        "audit",
+        "--json"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 2.023,
+      "raw_log": "output/ux-hardening/system-final/audit-all.log"
+    },
+    {
+      "name": "migration-first",
+      "command": [
+        "node",
+        "dist/server/cli/runPostgresMigrations.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.204,
+      "raw_log": "output/ux-hardening/system-final/migration-first.log"
+    },
+    {
+      "name": "migration-check",
+      "command": [
+        "node",
+        "dist/server/cli/runPostgresMigrations.js",
+        "--validate"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.061,
+      "raw_log": "output/ux-hardening/system-final/migration-check.log"
+    },
+    {
+      "name": "migration-repeat",
+      "command": [
+        "node",
+        "dist/server/cli/runPostgresMigrations.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.055,
+      "raw_log": "output/ux-hardening/system-final/migration-repeat.log"
+    },
+    {
+      "name": "recovery-seed",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "scripts/qualify-unified-radar-recovery.mjs",
+        "seed"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.387,
+      "raw_log": "output/ux-hardening/system-final/recovery-seed.log"
+    },
+    {
+      "name": "backup",
+      "command": [
+        "pg_dump",
+        "--format=custom",
+        "--no-owner",
+        "--file=/Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks Pay.sh Intelligence Terminal/output/ux-hardening/system-final/local-recovery.dump",
+        "unified_radar_ba0bbe69e325_migration"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.162,
+      "raw_log": "output/ux-hardening/system-final/backup.log"
+    },
+    {
+      "name": "restore",
+      "command": [
+        "pg_restore",
+        "--no-owner",
+        "--dbname=unified_radar_ba0bbe69e325_restore",
+        "/Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks Pay.sh Intelligence Terminal/output/ux-hardening/system-final/local-recovery.dump"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.156,
+      "raw_log": "output/ux-hardening/system-final/restore.log"
+    },
+    {
+      "name": "recovery-verify",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "scripts/qualify-unified-radar-recovery.mjs",
+        "verify"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.317,
+      "raw_log": "output/ux-hardening/system-final/recovery-verify.log"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.014,
+      "raw_log": "output/ux-hardening/system-final/diff-check.log"
+    }
+  ]
+}

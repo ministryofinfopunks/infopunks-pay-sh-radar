@@ -1,0 +1,42 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Radar / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: qualification missing record
+- paragraph:
+  - generic: "[ 04 ]"
+  - text: RECEIPTS / PROOF ARCHIVE
+- main:
+  - heading "Inspect execution evidence." [level=1]
+  - paragraph: Private provenance. Authenticated ownership. Each stage is inspected independently.
+  - form "Authenticated receipt inspection":
+    - paragraph:
+      - strong: qualification-missing-record
+    - text: Tenant access key
+    - textbox "Tenant access key"
+    - paragraph: Your operator-issued key stays in this page's memory. Inspection cannot pay, sign, execute, or change reputation.
+    - button "Inspect receipt" [disabled]
+  - region "Receipt evidence":
+    - generic: ○
+    - text: Missing evidence
+    - generic: / No authenticated record loaded.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

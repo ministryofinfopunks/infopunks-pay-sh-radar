@@ -1,0 +1,4327 @@
+{
+  "source_sha": "6bd0e7f181905ab2552081c42625a7e87ede59b0",
+  "baseline_sha": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "fixture_sha256": "2ffc4fc34c0e2c901ea06b3b5fc3d021cc0eca95577b6a03b0c7fad13a9f47c1",
+  "method": "Three paired cold anonymous Chromium contexts per route/width, immutable response replay and fixed Date. Shared macOS host; no simulated mobile CPU/network throttling, field p75, INP or real-device claim. Encoded body bytes exclude HTTP headers.",
+  "browser_version": "155.0.8059.40",
+  "results": [
+    {
+      "subject": "before",
+      "width": 390,
+      "route": "/",
+      "repeat": 0,
+      "fixture_requests": [],
+      "heading": "Before your agent spends, check the evidence.",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 25.799999999813735
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 18.699999999953434
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 20.199999999953434
+        }
+      ],
+      "LCP_ms": 112,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 390,
+      "route": "/",
+      "repeat": 0,
+      "fixture_requests": [],
+      "heading": "Before your agent spends, check the evidence.",
+      "resources": [
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 21.300000000046566
+        },
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 26.5
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 21.4000000001397
+        }
+      ],
+      "LCP_ms": 88,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 390,
+      "route": "/",
+      "repeat": 1,
+      "fixture_requests": [],
+      "heading": "Before your agent spends, check the evidence.",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 30.4000000001397
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 13.800000000046566
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 12.400000000139698
+        }
+      ],
+      "LCP_ms": 76,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 390,
+      "route": "/",
+      "repeat": 1,
+      "fixture_requests": [],
+      "heading": "Before your agent spends, check the evidence.",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 21.600000000093132
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 15.5
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 16.5999999998603
+        }
+      ],
+      "LCP_ms": 72,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 390,
+      "route": "/",
+      "repeat": 2,
+      "fixture_requests": [],
+      "heading": "Before your agent spends, check the evidence.",
+      "resources": [
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 15.399999999906868
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 16.100000000093132
+        },
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 24.5
+        }
+      ],
+      "LCP_ms": 76,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 390,
+      "route": "/",
+      "repeat": 2,
+      "fixture_requests": [],
+      "heading": "Before your agent spends, check the evidence.",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 19.799999999813735
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 7.800000000046566
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 9.599999999860302
+        }
+      ],
+      "LCP_ms": 72,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 390,
+      "route": "/spend-terminal",
+      "repeat": 0,
+      "fixture_requests": [],
+      "heading": "Should this agent spend?",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 23.699999999953434
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 10.800000000046566
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 11.300000000046566
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 5.399999999906868
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 6.699999999953434
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 4.800000000046566
+        }
+      ],
+      "LCP_ms": 404,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 390,
+      "route": "/spend-terminal",
+      "repeat": 0,
+      "fixture_requests": [],
+      "heading": "Should this agent spend?",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 22
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 15.599999999860302
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 15.599999999860302
+        },
+        {
+          "file": "spendTerminalPage-CRRTzA5M.js",
+          "encoded_body_bytes": 4490,
+          "transfer_bytes": 4790,
+          "duration_ms": 5.400000000139698
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 8.100000000093132
+        },
+        {
+          "file": "receipts-1Kj-g-WN.js",
+          "encoded_body_bytes": 21495,
+          "transfer_bytes": 21795,
+          "duration_ms": 7.600000000093132
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 8.599999999860302
+        }
+      ],
+      "LCP_ms": 396,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 390,
+      "route": "/spend-terminal",
+      "repeat": 1,
+      "fixture_requests": [],
+      "heading": "Should this agent spend?",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 23
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 17.0999999998603
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 18
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 4.5
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 4.5
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 5.900000000139698
+        }
+      ],
+      "LCP_ms": 388,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 390,
+      "route": "/spend-terminal",
+      "repeat": 1,
+      "fixture_requests": [],
+      "heading": "Should this agent spend?",
+      "resources": [
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 9.399999999906868
+        },
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 16
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 11.199999999953434
+        },
+        {
+          "file": "spendTerminalPage-CRRTzA5M.js",
+          "encoded_body_bytes": 4490,
+          "transfer_bytes": 4790,
+          "duration_ms": 7
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 6.800000000046566
+        },
+        {
+          "file": "receipts-1Kj-g-WN.js",
+          "encoded_body_bytes": 21495,
+          "transfer_bytes": 21795,
+          "duration_ms": 9
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 7.699999999953434
+        }
+      ],
+      "LCP_ms": 388,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 390,
+      "route": "/spend-terminal",
+      "repeat": 2,
+      "fixture_requests": [],
+      "heading": "Should this agent spend?",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 24.5
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 9.5
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 10.799999999813735
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 4.099999999860302
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 4
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 5.400000000139698
+        }
+      ],
+      "LCP_ms": 384,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 390,
+      "route": "/spend-terminal",
+      "repeat": 2,
+      "fixture_requests": [],
+      "heading": "Should this agent spend?",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 23.699999999953434
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 16.200000000186265
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 17
+        },
+        {
+          "file": "spendTerminalPage-CRRTzA5M.js",
+          "encoded_body_bytes": 4490,
+          "transfer_bytes": 4790,
+          "duration_ms": 5
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 5.699999999953434
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 4.800000000046566
+        },
+        {
+          "file": "receipts-1Kj-g-WN.js",
+          "encoded_body_bytes": 21495,
+          "transfer_bytes": 21795,
+          "duration_ms": 6.699999999953434
+        }
+      ],
+      "LCP_ms": 388,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 390,
+      "route": "/solana",
+      "repeat": 0,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Proof before agent spend.",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 30.300000000046566
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 18.399999999906868
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 19
+        },
+        {
+          "file": "radarApp-Dncpw608.js",
+          "encoded_body_bytes": 312345,
+          "transfer_bytes": 312645,
+          "duration_ms": 45.0999999998603
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 7.300000000046566
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 11.5
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 9.200000000186265
+        },
+        {
+          "file": "radarApp-DRC1A8WE.css",
+          "encoded_body_bytes": 67965,
+          "transfer_bytes": 68265,
+          "duration_ms": 23.600000000093132
+        }
+      ],
+      "LCP_ms": 504,
+      "CLS": 0,
+      "long_tasks": [
+        {
+          "start": 411.80000000004657,
+          "duration": 71
+        }
+      ]
+    },
+    {
+      "subject": "after",
+      "width": 390,
+      "route": "/solana",
+      "repeat": 0,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Proof before agent spend.",
+      "resources": [
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 16.4000000001397
+        },
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 22.700000000186265
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 16.899999999906868
+        },
+        {
+          "file": "receipts-1Kj-g-WN.js",
+          "encoded_body_bytes": 21495,
+          "transfer_bytes": 21795,
+          "duration_ms": 10.300000000046566
+        },
+        {
+          "file": "radarApp-48nAAkuG.js",
+          "encoded_body_bytes": 313378,
+          "transfer_bytes": 313678,
+          "duration_ms": 38.200000000186265
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 8.100000000093132
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 7
+        },
+        {
+          "file": "spendTerminalPage-CRRTzA5M.js",
+          "encoded_body_bytes": 4490,
+          "transfer_bytes": 4790,
+          "duration_ms": 9.5
+        },
+        {
+          "file": "radarApp-CUu7vnvW.css",
+          "encoded_body_bytes": 726,
+          "transfer_bytes": 1026,
+          "duration_ms": 8.399999999906868
+        },
+        {
+          "file": "styles-CYxAGkUr.css",
+          "encoded_body_bytes": 67561,
+          "transfer_bytes": 67861,
+          "duration_ms": 17.4000000001397
+        }
+      ],
+      "LCP_ms": 460,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 390,
+      "route": "/solana",
+      "repeat": 1,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Proof before agent spend.",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 24.299999999813735
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 11.5
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 12.800000000046566
+        },
+        {
+          "file": "radarApp-Dncpw608.js",
+          "encoded_body_bytes": 312345,
+          "transfer_bytes": 312645,
+          "duration_ms": 35.10000000009313
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 7.300000000046566
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 6.2999999998137355
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 6.399999999906868
+        },
+        {
+          "file": "radarApp-DRC1A8WE.css",
+          "encoded_body_bytes": 67965,
+          "transfer_bytes": 68265,
+          "duration_ms": 15.900000000139698
+        }
+      ],
+      "LCP_ms": 464,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 390,
+      "route": "/solana",
+      "repeat": 1,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Proof before agent spend.",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 19.699999999953434
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 17.5
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 17.300000000046566
+        },
+        {
+          "file": "radarApp-48nAAkuG.js",
+          "encoded_body_bytes": 313378,
+          "transfer_bytes": 313678,
+          "duration_ms": 34.5
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 5.300000000046566
+        },
+        {
+          "file": "receipts-1Kj-g-WN.js",
+          "encoded_body_bytes": 21495,
+          "transfer_bytes": 21795,
+          "duration_ms": 8
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 6.7999999998137355
+        },
+        {
+          "file": "spendTerminalPage-CRRTzA5M.js",
+          "encoded_body_bytes": 4490,
+          "transfer_bytes": 4790,
+          "duration_ms": 8.199999999953434
+        },
+        {
+          "file": "radarApp-CUu7vnvW.css",
+          "encoded_body_bytes": 726,
+          "transfer_bytes": 1026,
+          "duration_ms": 7.5
+        },
+        {
+          "file": "styles-CYxAGkUr.css",
+          "encoded_body_bytes": 67561,
+          "transfer_bytes": 67861,
+          "duration_ms": 16.399999999906868
+        }
+      ],
+      "LCP_ms": 468,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 390,
+      "route": "/solana",
+      "repeat": 2,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Proof before agent spend.",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 21.200000000186265
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 15
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 15.599999999860302
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 7.899999999906868
+        },
+        {
+          "file": "radarApp-Dncpw608.js",
+          "encoded_body_bytes": 312345,
+          "transfer_bytes": 312645,
+          "duration_ms": 34.699999999953434
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 5.600000000093132
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 5.899999999906868
+        },
+        {
+          "file": "radarApp-DRC1A8WE.css",
+          "encoded_body_bytes": 67965,
+          "transfer_bytes": 68265,
+          "duration_ms": 15.899999999906868
+        }
+      ],
+      "LCP_ms": 468,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 390,
+      "route": "/solana",
+      "repeat": 2,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Proof before agent spend.",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 21.600000000093132
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 12.099999999860302
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 11.899999999906868
+        },
+        {
+          "file": "radarApp-48nAAkuG.js",
+          "encoded_body_bytes": 313378,
+          "transfer_bytes": 313678,
+          "duration_ms": 34
+        },
+        {
+          "file": "receipts-1Kj-g-WN.js",
+          "encoded_body_bytes": 21495,
+          "transfer_bytes": 21795,
+          "duration_ms": 7.699999999953434
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 4.5
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 6
+        },
+        {
+          "file": "spendTerminalPage-CRRTzA5M.js",
+          "encoded_body_bytes": 4490,
+          "transfer_bytes": 4790,
+          "duration_ms": 6.600000000093132
+        },
+        {
+          "file": "radarApp-CUu7vnvW.css",
+          "encoded_body_bytes": 726,
+          "transfer_bytes": 1026,
+          "duration_ms": 6.5
+        },
+        {
+          "file": "styles-CYxAGkUr.css",
+          "encoded_body_bytes": 67561,
+          "transfer_bytes": 67861,
+          "duration_ms": 17.799999999813735
+        }
+      ],
+      "LCP_ms": 468,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 390,
+      "route": "/4663/share/qualification-missing-record",
+      "repeat": 0,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Intelligence before the wallet acts.",
+      "resources": [
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 15.699999999953434
+        },
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 21.300000000046566
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 15.599999999860302
+        },
+        {
+          "file": "radarApp-Dncpw608.js",
+          "encoded_body_bytes": 312345,
+          "transfer_bytes": 312645,
+          "duration_ms": 33.200000000186265
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 4.899999999906868
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 6.899999999906868
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 6
+        },
+        {
+          "file": "radarApp-DRC1A8WE.css",
+          "encoded_body_bytes": 67965,
+          "transfer_bytes": 68265,
+          "duration_ms": 14
+        }
+      ],
+      "LCP_ms": 484,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 390,
+      "route": "/4663/share/qualification-missing-record",
+      "repeat": 0,
+      "fixture_requests": [
+        "/v1/4663/share/qualification-missing-record"
+      ],
+      "heading": "Shared Robinhood evidence",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 20.699999999953434
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 18.700000000186265
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 19.800000000046566
+        },
+        {
+          "file": "rh4663Router-DXLI_AZd.js",
+          "encoded_body_bytes": 857,
+          "transfer_bytes": 1157,
+          "duration_ms": 4.600000000093132
+        },
+        {
+          "file": "styles-CYxAGkUr.css",
+          "encoded_body_bytes": 67561,
+          "transfer_bytes": 67861,
+          "duration_ms": 9.5
+        },
+        {
+          "file": "rh4663Pages-CYbpxcYV.js",
+          "encoded_body_bytes": 22721,
+          "transfer_bytes": 23021,
+          "duration_ms": 4.800000000046566
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 2.5999999998603016
+        },
+        {
+          "file": "rh4663Pages-DuVVrgZg.css",
+          "encoded_body_bytes": 10688,
+          "transfer_bytes": 10988,
+          "duration_ms": 3.699999999953434
+        }
+      ],
+      "LCP_ms": 368,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 390,
+      "route": "/4663/share/qualification-missing-record",
+      "repeat": 1,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Intelligence before the wallet acts.",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 20.399999999906868
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 15.199999999953434
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 16
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 6.399999999906868
+        },
+        {
+          "file": "radarApp-Dncpw608.js",
+          "encoded_body_bytes": 312345,
+          "transfer_bytes": 312645,
+          "duration_ms": 32.39999999990687
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 4.800000000046566
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 4.899999999906868
+        },
+        {
+          "file": "radarApp-DRC1A8WE.css",
+          "encoded_body_bytes": 67965,
+          "transfer_bytes": 68265,
+          "duration_ms": 13.100000000093132
+        }
+      ],
+      "LCP_ms": 472,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 390,
+      "route": "/4663/share/qualification-missing-record",
+      "repeat": 1,
+      "fixture_requests": [
+        "/v1/4663/share/qualification-missing-record"
+      ],
+      "heading": "Shared Robinhood evidence",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 21.5
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 9.300000000046566
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 10.899999999906868
+        },
+        {
+          "file": "rh4663Router-DXLI_AZd.js",
+          "encoded_body_bytes": 857,
+          "transfer_bytes": 1157,
+          "duration_ms": 3.6000000000931323
+        },
+        {
+          "file": "styles-CYxAGkUr.css",
+          "encoded_body_bytes": 67561,
+          "transfer_bytes": 67861,
+          "duration_ms": 10.399999999906868
+        },
+        {
+          "file": "rh4663Pages-CYbpxcYV.js",
+          "encoded_body_bytes": 22721,
+          "transfer_bytes": 23021,
+          "duration_ms": 3.8999999999068677
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 2.0999999998603016
+        },
+        {
+          "file": "rh4663Pages-DuVVrgZg.css",
+          "encoded_body_bytes": 10688,
+          "transfer_bytes": 10988,
+          "duration_ms": 3.199999999953434
+        }
+      ],
+      "LCP_ms": 364,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 390,
+      "route": "/4663/share/qualification-missing-record",
+      "repeat": 2,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Intelligence before the wallet acts.",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 27.5
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 21.199999999953434
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 21
+        },
+        {
+          "file": "radarApp-Dncpw608.js",
+          "encoded_body_bytes": 312345,
+          "transfer_bytes": 312645,
+          "duration_ms": 37.0999999998603
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 5.600000000093132
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 7.800000000046566
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 5.899999999906868
+        },
+        {
+          "file": "radarApp-DRC1A8WE.css",
+          "encoded_body_bytes": 67965,
+          "transfer_bytes": 68265,
+          "duration_ms": 16.800000000046566
+        }
+      ],
+      "LCP_ms": 472,
+      "CLS": 0,
+      "long_tasks": [
+        {
+          "start": 403.19999999995343,
+          "duration": 50
+        }
+      ]
+    },
+    {
+      "subject": "after",
+      "width": 390,
+      "route": "/4663/share/qualification-missing-record",
+      "repeat": 2,
+      "fixture_requests": [
+        "/v1/4663/share/qualification-missing-record"
+      ],
+      "heading": "Shared Robinhood evidence",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 20.5999999998603
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 17.200000000186265
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 16.800000000046566
+        },
+        {
+          "file": "rh4663Router-DXLI_AZd.js",
+          "encoded_body_bytes": 857,
+          "transfer_bytes": 1157,
+          "duration_ms": 4.800000000046566
+        },
+        {
+          "file": "styles-CYxAGkUr.css",
+          "encoded_body_bytes": 67561,
+          "transfer_bytes": 67861,
+          "duration_ms": 9.600000000093132
+        },
+        {
+          "file": "rh4663Pages-CYbpxcYV.js",
+          "encoded_body_bytes": 22721,
+          "transfer_bytes": 23021,
+          "duration_ms": 10
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 8.099999999860302
+        },
+        {
+          "file": "rh4663Pages-DuVVrgZg.css",
+          "encoded_body_bytes": 10688,
+          "transfer_bytes": 10988,
+          "duration_ms": 9.099999999860302
+        }
+      ],
+      "LCP_ms": 372,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 1440,
+      "route": "/",
+      "repeat": 0,
+      "fixture_requests": [],
+      "heading": "Before your agent spends, check the evidence.",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 20.800000000046566
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 13.099999999860302
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 13.099999999860302
+        }
+      ],
+      "LCP_ms": 88,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 1440,
+      "route": "/",
+      "repeat": 0,
+      "fixture_requests": [],
+      "heading": "Before your agent spends, check the evidence.",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 24.399999999906868
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 10.700000000186265
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 11.800000000046566
+        }
+      ],
+      "LCP_ms": 80,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 1440,
+      "route": "/",
+      "repeat": 1,
+      "fixture_requests": [],
+      "heading": "Before your agent spends, check the evidence.",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 23.100000000093132
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 17.0999999998603
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 17.300000000046566
+        }
+      ],
+      "LCP_ms": 88,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 1440,
+      "route": "/",
+      "repeat": 1,
+      "fixture_requests": [],
+      "heading": "Before your agent spends, check the evidence.",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 24
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 17.799999999813735
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 19.399999999906868
+        }
+      ],
+      "LCP_ms": 80,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 1440,
+      "route": "/",
+      "repeat": 2,
+      "fixture_requests": [],
+      "heading": "Before your agent spends, check the evidence.",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 15.5
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 9
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 9.900000000139698
+        }
+      ],
+      "LCP_ms": 72,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 1440,
+      "route": "/",
+      "repeat": 2,
+      "fixture_requests": [],
+      "heading": "Before your agent spends, check the evidence.",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 22.199999999953434
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 13.300000000046566
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 16
+        }
+      ],
+      "LCP_ms": 80,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 1440,
+      "route": "/spend-terminal",
+      "repeat": 0,
+      "fixture_requests": [],
+      "heading": "Should this agent spend?",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 20.699999999953434
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 8.699999999953434
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 9.699999999953434
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 4.800000000046566
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 7
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 4.2999999998137355
+        }
+      ],
+      "LCP_ms": 400,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 1440,
+      "route": "/spend-terminal",
+      "repeat": 0,
+      "fixture_requests": [],
+      "heading": "Should this agent spend?",
+      "resources": [
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 15.199999999953434
+        },
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 22.800000000046566
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 18.299999999813735
+        },
+        {
+          "file": "spendTerminalPage-CRRTzA5M.js",
+          "encoded_body_bytes": 4490,
+          "transfer_bytes": 4790,
+          "duration_ms": 6.199999999953434
+        },
+        {
+          "file": "receipts-1Kj-g-WN.js",
+          "encoded_body_bytes": 21495,
+          "transfer_bytes": 21795,
+          "duration_ms": 7.899999999906868
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 6.7999999998137355
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 5.5
+        }
+      ],
+      "LCP_ms": 392,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 1440,
+      "route": "/spend-terminal",
+      "repeat": 1,
+      "fixture_requests": [],
+      "heading": "Should this agent spend?",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 23.9000000001397
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 15.800000000046566
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 16.800000000046566
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 4.5
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 5.800000000046566
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 4.199999999953434
+        }
+      ],
+      "LCP_ms": 388,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 1440,
+      "route": "/spend-terminal",
+      "repeat": 1,
+      "fixture_requests": [],
+      "heading": "Should this agent spend?",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 16.600000000093132
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 9.299999999813735
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 9.600000000093132
+        },
+        {
+          "file": "spendTerminalPage-CRRTzA5M.js",
+          "encoded_body_bytes": 4490,
+          "transfer_bytes": 4790,
+          "duration_ms": 5.699999999953434
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 5.300000000046566
+        },
+        {
+          "file": "receipts-1Kj-g-WN.js",
+          "encoded_body_bytes": 21495,
+          "transfer_bytes": 21795,
+          "duration_ms": 7.5
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 5.5
+        }
+      ],
+      "LCP_ms": 384,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 1440,
+      "route": "/spend-terminal",
+      "repeat": 2,
+      "fixture_requests": [],
+      "heading": "Should this agent spend?",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 20.399999999906868
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 10.900000000139698
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 10.600000000093132
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 4.599999999860302
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 5.599999999860302
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 4.199999999953434
+        }
+      ],
+      "LCP_ms": 388,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 1440,
+      "route": "/spend-terminal",
+      "repeat": 2,
+      "fixture_requests": [],
+      "heading": "Should this agent spend?",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 18.300000000046566
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 11.700000000186265
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 12.200000000186265
+        },
+        {
+          "file": "spendTerminalPage-CRRTzA5M.js",
+          "encoded_body_bytes": 4490,
+          "transfer_bytes": 4790,
+          "duration_ms": 5.100000000093132
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 4.399999999906868
+        },
+        {
+          "file": "receipts-1Kj-g-WN.js",
+          "encoded_body_bytes": 21495,
+          "transfer_bytes": 21795,
+          "duration_ms": 6.399999999906868
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 5.300000000046566
+        }
+      ],
+      "LCP_ms": 392,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 1440,
+      "route": "/solana",
+      "repeat": 0,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Proof before agent spend.",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 23.800000000046566
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 12.100000000093132
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 11.800000000046566
+        },
+        {
+          "file": "radarApp-Dncpw608.js",
+          "encoded_body_bytes": 312345,
+          "transfer_bytes": 312645,
+          "duration_ms": 39.5
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 7.300000000046566
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 4.400000000139698
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 4.699999999953434
+        },
+        {
+          "file": "radarApp-DRC1A8WE.css",
+          "encoded_body_bytes": 67965,
+          "transfer_bytes": 68265,
+          "duration_ms": 18.100000000093132
+        }
+      ],
+      "LCP_ms": 432,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 1440,
+      "route": "/solana",
+      "repeat": 0,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Proof before agent spend.",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 18.100000000093132
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 10.699999999953434
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 11.300000000046566
+        },
+        {
+          "file": "radarApp-48nAAkuG.js",
+          "encoded_body_bytes": 313378,
+          "transfer_bytes": 313678,
+          "duration_ms": 34.9000000001397
+        },
+        {
+          "file": "receipts-1Kj-g-WN.js",
+          "encoded_body_bytes": 21495,
+          "transfer_bytes": 21795,
+          "duration_ms": 8.199999999953434
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 5.5
+        },
+        {
+          "file": "spendTerminalPage-CRRTzA5M.js",
+          "encoded_body_bytes": 4490,
+          "transfer_bytes": 4790,
+          "duration_ms": 7.2999999998137355
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 6.5
+        },
+        {
+          "file": "radarApp-CUu7vnvW.css",
+          "encoded_body_bytes": 726,
+          "transfer_bytes": 1026,
+          "duration_ms": 7.199999999953434
+        },
+        {
+          "file": "styles-CYxAGkUr.css",
+          "encoded_body_bytes": 67561,
+          "transfer_bytes": 67861,
+          "duration_ms": 16.0999999998603
+        }
+      ],
+      "LCP_ms": 464,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 1440,
+      "route": "/solana",
+      "repeat": 1,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Proof before agent spend.",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 15.5
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 9.899999999906868
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 10.599999999860302
+        },
+        {
+          "file": "radarApp-Dncpw608.js",
+          "encoded_body_bytes": 312345,
+          "transfer_bytes": 312645,
+          "duration_ms": 35.799999999813735
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 5.699999999953434
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 5.699999999953434
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 8
+        },
+        {
+          "file": "radarApp-DRC1A8WE.css",
+          "encoded_body_bytes": 67965,
+          "transfer_bytes": 68265,
+          "duration_ms": 14.400000000139698
+        }
+      ],
+      "LCP_ms": 468,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 1440,
+      "route": "/solana",
+      "repeat": 1,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Proof before agent spend.",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 21.9000000001397
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 15.5
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 15.700000000186265
+        },
+        {
+          "file": "radarApp-48nAAkuG.js",
+          "encoded_body_bytes": 313378,
+          "transfer_bytes": 313678,
+          "duration_ms": 38.800000000046566
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 8.300000000046566
+        },
+        {
+          "file": "receipts-1Kj-g-WN.js",
+          "encoded_body_bytes": 21495,
+          "transfer_bytes": 21795,
+          "duration_ms": 10.399999999906868
+        },
+        {
+          "file": "spendTerminalPage-CRRTzA5M.js",
+          "encoded_body_bytes": 4490,
+          "transfer_bytes": 4790,
+          "duration_ms": 8.399999999906868
+        },
+        {
+          "file": "radarApp-CUu7vnvW.css",
+          "encoded_body_bytes": 726,
+          "transfer_bytes": 1026,
+          "duration_ms": 10.300000000046566
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 10.300000000046566
+        },
+        {
+          "file": "styles-CYxAGkUr.css",
+          "encoded_body_bytes": 67561,
+          "transfer_bytes": 67861,
+          "duration_ms": 22.5
+        }
+      ],
+      "LCP_ms": 460,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 1440,
+      "route": "/solana",
+      "repeat": 2,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Proof before agent spend.",
+      "resources": [
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 17.4000000001397
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 10.899999999906868
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 10.800000000046566
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 6.800000000046566
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 8.200000000186265
+        },
+        {
+          "file": "radarApp-Dncpw608.js",
+          "encoded_body_bytes": 312345,
+          "transfer_bytes": 312645,
+          "duration_ms": 34.10000000009313
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 6.699999999953434
+        },
+        {
+          "file": "radarApp-DRC1A8WE.css",
+          "encoded_body_bytes": 67965,
+          "transfer_bytes": 68265,
+          "duration_ms": 15.699999999953434
+        }
+      ],
+      "LCP_ms": 456,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 1440,
+      "route": "/solana",
+      "repeat": 2,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Proof before agent spend.",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 18.199999999953434
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 11
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 11.600000000093132
+        },
+        {
+          "file": "receipts-1Kj-g-WN.js",
+          "encoded_body_bytes": 21495,
+          "transfer_bytes": 21795,
+          "duration_ms": 8.599999999860302
+        },
+        {
+          "file": "radarApp-48nAAkuG.js",
+          "encoded_body_bytes": 313378,
+          "transfer_bytes": 313678,
+          "duration_ms": 35.89999999990687
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 4.5
+        },
+        {
+          "file": "spendTerminalPage-CRRTzA5M.js",
+          "encoded_body_bytes": 4490,
+          "transfer_bytes": 4790,
+          "duration_ms": 6
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 5.099999999860302
+        },
+        {
+          "file": "radarApp-CUu7vnvW.css",
+          "encoded_body_bytes": 726,
+          "transfer_bytes": 1026,
+          "duration_ms": 5.2999999998137355
+        },
+        {
+          "file": "styles-CYxAGkUr.css",
+          "encoded_body_bytes": 67561,
+          "transfer_bytes": 67861,
+          "duration_ms": 15.399999999906868
+        }
+      ],
+      "LCP_ms": 464,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 1440,
+      "route": "/4663/share/qualification-missing-record",
+      "repeat": 0,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Intelligence before the wallet acts.",
+      "resources": [
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 14.199999999953434
+        },
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 22.199999999953434
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 15.800000000046566
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 6.800000000046566
+        },
+        {
+          "file": "radarApp-Dncpw608.js",
+          "encoded_body_bytes": 312345,
+          "transfer_bytes": 312645,
+          "duration_ms": 32.800000000046566
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 5.7999999998137355
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 5
+        },
+        {
+          "file": "radarApp-DRC1A8WE.css",
+          "encoded_body_bytes": 67965,
+          "transfer_bytes": 68265,
+          "duration_ms": 13.100000000093132
+        }
+      ],
+      "LCP_ms": 468,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 1440,
+      "route": "/4663/share/qualification-missing-record",
+      "repeat": 0,
+      "fixture_requests": [
+        "/v1/4663/share/qualification-missing-record"
+      ],
+      "heading": "Shared Robinhood evidence",
+      "resources": [
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 8.899999999906868
+        },
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 15.899999999906868
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 8.700000000186265
+        },
+        {
+          "file": "styles-CYxAGkUr.css",
+          "encoded_body_bytes": 67561,
+          "transfer_bytes": 67861,
+          "duration_ms": 10.900000000139698
+        },
+        {
+          "file": "rh4663Router-DXLI_AZd.js",
+          "encoded_body_bytes": 857,
+          "transfer_bytes": 1157,
+          "duration_ms": 5.7000000001862645
+        },
+        {
+          "file": "rh4663Pages-CYbpxcYV.js",
+          "encoded_body_bytes": 22721,
+          "transfer_bytes": 23021,
+          "duration_ms": 6.399999999906868
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 4
+        },
+        {
+          "file": "rh4663Pages-DuVVrgZg.css",
+          "encoded_body_bytes": 10688,
+          "transfer_bytes": 10988,
+          "duration_ms": 6
+        }
+      ],
+      "LCP_ms": 364,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 1440,
+      "route": "/4663/share/qualification-missing-record",
+      "repeat": 1,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Intelligence before the wallet acts.",
+      "resources": [
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 11.300000000046566
+        },
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 17.800000000046566
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 11.800000000046566
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 7.100000000093132
+        },
+        {
+          "file": "radarApp-Dncpw608.js",
+          "encoded_body_bytes": 312345,
+          "transfer_bytes": 312645,
+          "duration_ms": 34.300000000046566
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 5.699999999953434
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 6.2999999998137355
+        },
+        {
+          "file": "radarApp-DRC1A8WE.css",
+          "encoded_body_bytes": 67965,
+          "transfer_bytes": 68265,
+          "duration_ms": 15.599999999860302
+        }
+      ],
+      "LCP_ms": 468,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 1440,
+      "route": "/4663/share/qualification-missing-record",
+      "repeat": 1,
+      "fixture_requests": [
+        "/v1/4663/share/qualification-missing-record"
+      ],
+      "heading": "Shared Robinhood evidence",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 23.199999999953434
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 17
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 16.300000000046566
+        },
+        {
+          "file": "rh4663Router-DXLI_AZd.js",
+          "encoded_body_bytes": 857,
+          "transfer_bytes": 1157,
+          "duration_ms": 3.699999999953434
+        },
+        {
+          "file": "styles-CYxAGkUr.css",
+          "encoded_body_bytes": 67561,
+          "transfer_bytes": 67861,
+          "duration_ms": 9.300000000046566
+        },
+        {
+          "file": "rh4663Pages-CYbpxcYV.js",
+          "encoded_body_bytes": 22721,
+          "transfer_bytes": 23021,
+          "duration_ms": 4
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 2.199999999953434
+        },
+        {
+          "file": "rh4663Pages-DuVVrgZg.css",
+          "encoded_body_bytes": 10688,
+          "transfer_bytes": 10988,
+          "duration_ms": 3.0999999998603016
+        }
+      ],
+      "LCP_ms": 372,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "before",
+      "width": 1440,
+      "route": "/4663/share/qualification-missing-record",
+      "repeat": 2,
+      "fixture_requests": [
+        "/v1/pulse",
+        "/v1/providers",
+        "/v1/pulse/summary",
+        "/v1/providers/featured",
+        "/v1/radar/benchmark-readiness",
+        "/v1/radar/bundles/morning-briefing/plan",
+        "/v1/radar/bundles/market-research/plan",
+        "/v1/radar/bundles/talent-market-scanner/plan",
+        "/v1/radar/bundles/morning-briefing/runs",
+        "/v1/narratives",
+        "/v1/graph",
+        "/v1/radar/endpoints",
+        "/v1/providers/stablestudio",
+        "/v1/providers/stablestudio/intelligence",
+        "/v1/radar/history/providers/stablestudio?window=24h",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+        "/v1/radar/superiority-readiness",
+        "/v1/radar/benchmarks",
+        "/v1/radar/mappings",
+        "/v1/radar/mapping-targets",
+        "/v1/radar/history/ecosystem?window=24h",
+        "/v1/radar/risk/ecosystem",
+        "/v1/endpoints/stablestudio-endpoint-1/monitor",
+        "/v1/endpoints/stablestudio-endpoint-2/monitor",
+        "/v1/endpoints/stablestudio-endpoint-3/monitor",
+        "/v1/endpoints/stablestudio-endpoint-4/monitor",
+        "/v1/endpoints/stablestudio-endpoint-5/monitor",
+        "/v1/endpoints/stablestudio-endpoint-6/monitor",
+        "/v1/endpoints/stablestudio-endpoint-7/monitor",
+        "/v1/endpoints/stablestudio-endpoint-8/monitor",
+        "/v1/endpoints/stablestudio-endpoint-9/monitor",
+        "/v1/endpoints/stablestudio-endpoint-10/monitor",
+        "/v1/endpoints/stablestudio-endpoint-11/monitor",
+        "/v1/endpoints/stablestudio-endpoint-12/monitor",
+        "/v1/endpoints/stablestudio-endpoint-13/monitor",
+        "/v1/endpoints/stablestudio-endpoint-14/monitor",
+        "/v1/endpoints/stablestudio-endpoint-15/monitor",
+        "/v1/endpoints/stablestudio-endpoint-16/monitor",
+        "/v1/endpoints/stablestudio-endpoint-17/monitor",
+        "/v1/endpoints/stablestudio-endpoint-18/monitor",
+        "/v1/endpoints/stablestudio-endpoint-19/monitor",
+        "/v1/endpoints/stablestudio-endpoint-20/monitor",
+        "/v1/endpoints/stablestudio-endpoint-21/monitor",
+        "/v1/endpoints/stablestudio-endpoint-22/monitor",
+        "/v1/endpoints/stablestudio-endpoint-23/monitor",
+        "/v1/endpoints/stablestudio-endpoint-24/monitor",
+        "/v1/endpoints/stablestudio-endpoint-25/monitor",
+        "/v1/endpoints/stablestudio-endpoint-26/monitor",
+        "/v1/endpoints/stablestudio-endpoint-27/monitor",
+        "/v1/endpoints/stablestudio-endpoint-28/monitor",
+        "/v1/endpoints/stablestudio-endpoint-29/monitor",
+        "/v1/endpoints/stablestudio-endpoint-30/monitor",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-1",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-2",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-3",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-4",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-5",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-6",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-7",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-8",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-9",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-10",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-11",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-12",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-13",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-14",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-15",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-16",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-17",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-18",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-19",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-20",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-21",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-22",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-23",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-24",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-25",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-26",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-27",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-28",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-29",
+        "/v1/radar/risk/endpoints/stablestudio-endpoint-30",
+        "/v1/radar/evidence-ledger",
+        "/v1/radar/agent-readiness",
+        "/v1/radar/risk/providers/stableenrich",
+        "/v1/radar/risk/providers/stablestudio",
+        "/v1/radar/risk/providers/fal",
+        "/v1/radar/risk/providers/dtelecom",
+        "/v1/radar/risk/providers/rentcast",
+        "/v1/radar/risk/providers/factchecktools",
+        "/v1/radar/risk/providers/gemini",
+        "/v1/radar/risk/providers/speech",
+        "/v1/radar/risk/providers/kgsearch",
+        "/v1/radar/risk/providers/stableupload",
+        "/v1/radar/risk/providers/stableemail",
+        "/v1/radar/risk/providers/translate"
+      ],
+      "heading": "Intelligence before the wallet acts.",
+      "resources": [
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 16.5
+        },
+        {
+          "file": "index-1Y9inwGK.js",
+          "encoded_body_bytes": 71135,
+          "transfer_bytes": 71435,
+          "duration_ms": 23.5
+        },
+        {
+          "file": "index-CIeUw9ei.css",
+          "encoded_body_bytes": 8995,
+          "transfer_bytes": 9295,
+          "duration_ms": 17.399999999906868
+        },
+        {
+          "file": "radarApp-Dncpw608.js",
+          "encoded_body_bytes": 312345,
+          "transfer_bytes": 312645,
+          "duration_ms": 32.0999999998603
+        },
+        {
+          "file": "spendTerminalPage-CuyUsoRy.js",
+          "encoded_body_bytes": 3744,
+          "transfer_bytes": 4044,
+          "duration_ms": 4.5
+        },
+        {
+          "file": "apiBaseUrl-CygU1sGw.js",
+          "encoded_body_bytes": 21131,
+          "transfer_bytes": 21431,
+          "duration_ms": 5.800000000046566
+        },
+        {
+          "file": "spendTerminalPage-DiciUYUU.css",
+          "encoded_body_bytes": 1178,
+          "transfer_bytes": 1478,
+          "duration_ms": 4.599999999860302
+        },
+        {
+          "file": "radarApp-DRC1A8WE.css",
+          "encoded_body_bytes": 67965,
+          "transfer_bytes": 68265,
+          "duration_ms": 13.200000000186265
+        }
+      ],
+      "LCP_ms": 468,
+      "CLS": 0,
+      "long_tasks": []
+    },
+    {
+      "subject": "after",
+      "width": 1440,
+      "route": "/4663/share/qualification-missing-record",
+      "repeat": 2,
+      "fixture_requests": [
+        "/v1/4663/share/qualification-missing-record"
+      ],
+      "heading": "Shared Robinhood evidence",
+      "resources": [
+        {
+          "file": "index-rCMdmQS2.js",
+          "encoded_body_bytes": 71306,
+          "transfer_bytes": 71606,
+          "duration_ms": 18
+        },
+        {
+          "file": "jsx-runtime-C7oxC63R.js",
+          "encoded_body_bytes": 3264,
+          "transfer_bytes": 3564,
+          "duration_ms": 12.5
+        },
+        {
+          "file": "index-CNF8sbIA.css",
+          "encoded_body_bytes": 9136,
+          "transfer_bytes": 9436,
+          "duration_ms": 12.100000000093132
+        },
+        {
+          "file": "rh4663Router-DXLI_AZd.js",
+          "encoded_body_bytes": 857,
+          "transfer_bytes": 1157,
+          "duration_ms": 4.5
+        },
+        {
+          "file": "styles-CYxAGkUr.css",
+          "encoded_body_bytes": 67561,
+          "transfer_bytes": 67861,
+          "duration_ms": 10.899999999906868
+        },
+        {
+          "file": "rh4663Pages-CYbpxcYV.js",
+          "encoded_body_bytes": 22721,
+          "transfer_bytes": 23021,
+          "duration_ms": 4.400000000139698
+        },
+        {
+          "file": "apiBaseUrl-478b3hlo.js",
+          "encoded_body_bytes": 500,
+          "transfer_bytes": 800,
+          "duration_ms": 2.6000000000931323
+        },
+        {
+          "file": "rh4663Pages-DuVVrgZg.css",
+          "encoded_body_bytes": 10688,
+          "transfer_bytes": 10988,
+          "duration_ms": 3.5
+        }
+      ],
+      "LCP_ms": 364,
+      "CLS": 0,
+      "long_tasks": []
+    }
+  ]
+}

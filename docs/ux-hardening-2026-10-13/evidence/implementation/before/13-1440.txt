@@ -1,0 +1,65 @@
+Skip to content
+INFOPUNKS
+RADAR / INTELLIGENCE TERMINAL
+RADAR
+SOLANA
+ROBINHOOD CHAIN
+PROOF
+DEVELOPERS
+ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+Radar / destinations and network context
+Radar
+/
+Solana
+/
+ui_int2_evaluation
+
+[ 04 ] RECEIPTS / PROOF ARCHIVE
+
+Inspect evaluation evidence.
+
+Private provenance. Authenticated ownership. Each stage is inspected independently.
+
+ui_int2_evaluation
+
+Tenant access key
+
+Your operator-issued key stays in this page's memory. Inspection cannot pay, sign, execute, or change reputation.
+
+Inspect receipt
+○
+Record exists
+/ confirmed
+
+Receipt lifecycle · inspect each stage independently
+
+01 / OBSERVATION
+○
+Missing evidence
+
+No stage record supplied.
+
+02 / JUDGMENT
+○
+Missing evidence
+
+No stage record supplied.
+
+03 / EXECUTION
+○
+Missing evidence
+
+No stage record supplied.
+
+04 / EVALUATION
+○
+Record exists
+
+confirmed
+
+Inspect source receipt
+Observation → Judgment → Execution → Evaluation
+INFOPUNKS RADAR
+// THE INTELLIGENCE TERMINAL
+ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+API CONTRACT

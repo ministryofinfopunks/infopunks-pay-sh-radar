@@ -1,0 +1,216 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: "4663"
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to now":
+  - /url: "#now"
+- navigation "Primary navigation":
+  - link "Now":
+    - /url: "#now"
+  - link "Watch":
+    - /url: "#watch"
+  - link "Call":
+    - /url: "#call"
+  - link "Proof":
+    - /url: "#proof"
+- main:
+  - region "Robinhood Chain, right now.":
+    - paragraph: INFOPUNKS / ROBINHOOD CHAIN
+    - heading "Robinhood Chain, right now." [level=1]:
+      - text: Robinhood Chain,
+      - text: right now.
+    - generic: Signal extraction for the agentic economy. Before an agent spends, it checks Infopunks.
+  - status: Some research sources are temporarily unavailable. Available evidence remains shown.
+  - region:
+    - region "Follow what matters.":
+      - paragraph: MY 4663
+      - heading "Follow what matters." [level=2]
+      - text: Follow the markets and research questions you care about.
+      - button "AI/NVDA FOLLOW":
+        - text: AI/NVDA
+        - generic: FOLLOW
+      - status
+  - region "What matters right now?":
+    - paragraph: NOW
+    - heading "What matters right now?" [level=2]
+    - time: 4h
+  - region "What is developing?":
+    - paragraph: WATCH
+    - heading "What is developing?" [level=2]
+    - link "All cases":
+      - /url: /4663/reflexive/watch
+      - text: All cases
+      - generic: ↗
+    - article:
+      - paragraph: DEVELOPING
+      - heading "RH Stock / Meme Map Census" [level=3]
+      - generic: MIXED
+      - time: 40d
+      - button "Share this evidence": SHARE
+      - status
+      - link "Case":
+        - /url: /4663/reflexive/watch/RH_STOCK_MEME_MAP_20260903
+        - text: Case
+        - generic: ↗
+    - article:
+      - paragraph: FALSIFICATION
+      - heading "AI / NVDA Capital vs Flow" [level=3]
+      - generic: MIXED
+      - time: 42d
+      - button "FOLLOW"
+      - button "Share this evidence": SHARE
+      - status
+      - link "Case":
+        - /url: /4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW
+        - text: Case
+        - generic: ↗
+    - article:
+      - paragraph: FALSIFICATION
+      - heading "BONER / HIMS Float Stress" [level=3]
+      - generic: WATCH
+      - time: 42d
+      - button "FOLLOW"
+      - button "Share this evidence": SHARE
+      - status
+      - link "Case":
+        - /url: /4663/reflexive/watch/BONER_HIMS_FLOAT_STRESS
+        - text: Case
+        - generic: ↗
+    - article:
+      - paragraph: DEVELOPING
+      - heading "LONGX NVDAx3L" [level=3]
+      - generic: WATCH
+      - time: 42d
+      - button "Share this evidence": SHARE
+      - status
+      - link "Case":
+        - /url: /4663/reflexive/watch/LONGX_NVDA3L
+        - text: Case
+        - generic: ↗
+  - region "What still needs to be proved?":
+    - paragraph: OPEN LOOPS
+    - heading "What still needs to be proved?" [level=2]
+    - article:
+      - generic "OBSERVING Will NVDA remain AI's capital anchor through the D7 checkpoint? AWAITING EVIDENCE ＋":
+        - generic: OBSERVING
+        - heading "Will NVDA remain AI's capital anchor through the D7 checkpoint?" [level=3]
+        - generic: AWAITING EVIDENCE
+        - text: ＋
+      - generic: INSUFFICIENT DATA
+      - generic: "AI/NVDA: MIXED"
+      - time: 42d
+      - button "FOLLOW"
+      - button "Share this evidence": SHARE
+      - status
+      - link "Research":
+        - /url: /4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW
+        - text: Research
+        - generic: ↗
+    - article:
+      - generic "BLOCKED BY DATA Can the historical HIMS absorption claim be independently reproduced? AWAITING EVIDENCE ＋":
+        - generic: BLOCKED BY DATA
+        - heading "Can the historical HIMS absorption claim be independently reproduced?" [level=3]
+        - generic: AWAITING EVIDENCE
+        - text: ＋
+      - generic: BLOCK
+      - generic: AWAITING EVIDENCE
+      - time: 42d
+      - button "FOLLOW"
+      - button "Share this evidence": SHARE
+      - status
+      - link "Research":
+        - /url: /4663/reflexive/watch/BONER_HIMS_FLOAT_STRESS
+        - text: Research
+        - generic: ↗
+    - article:
+      - generic "AWAITING CHECKPOINT What will dominate the next canonical 24h Robinhood Chain observation window? OCT 14 ＋":
+        - generic: AWAITING CHECKPOINT
+        - heading "What will dominate the next canonical 24h Robinhood Chain observation window?" [level=3]
+        - generic: OCT 14
+        - text: ＋
+      - generic: INSUFFICIENT DATA
+      - generic: PULSE CHECKPOINT IN 19H
+      - time: 4h
+      - button "FOLLOW"
+      - button "Share this evidence": SHARE
+      - status
+      - link "Research":
+        - /url: /4663/pulse/windows/rh4663%3A2026-10-13
+        - text: Research
+        - generic: ↗
+  - article "What happens next?":
+    - paragraph: CALL
+    - heading "What happens next?" [level=2]
+    - text: Next 24h rotation
+    - status: OPEN NOT CALLED
+    - strong: 19h 10m
+    - generic: Closes 2026-10-14 00:00:00 UTC
+    - status: Private CALL history requires an approved identity. Public Pulse remains available; a new CALL is only submitted after you explicitly sign it.
+    - paragraph: RADAR CONTEXT
+    - group "WHAT HAPPENS NEXT?":
+      - generic: WHAT HAPPENS NEXT?
+      - button "Memes"
+      - button "Stock Tokens"
+      - button "RWA / DeFi"
+      - button "Stables"
+      - button "No Qualified Rotation"
+    - generic: CONFIDENCE
+    - strong: "50"
+    - generic: Conviction recorded on the receipt. It does not change financial reward.
+    - button "Decrease confidence": −
+    - slider "Confidence, 1 to 100": "50"
+    - button "Increase confidence": +
+    - button "25"
+    - button "50" [pressed]
+    - button "75"
+    - button "90"
+    - generic: OPTIONAL EVIDENCE DIGEST
+    - textbox "OPTIONAL EVIDENCE DIGEST":
+      - /placeholder: 0x…
+    - button "Review your call" [disabled]:
+      - text: Review your call
+      - generic: →
+    - link "Make the call":
+      - /url: /4663/pulse
+      - text: Make the call
+      - generic: →
+  - region "How good is your record?":
+    - paragraph: PROOF
+    - heading "How good is your record?" [level=2]
+    - article:
+      - paragraph: PROOF
+      - heading "Your record, when you make one." [level=2]
+      - generic: Personal proof is available after a signed CALL; this read model does not infer a wallet record.
+      - generic: UNRESOLVED
+      - generic: Private history requires an approved identity. Public receipt history remains available.
+      - link "Receipts":
+        - /url: /4663/receipts
+        - text: Receipts
+        - generic: ↗
+- contentinfo:
+  - paragraph: Research stays deep until you ask for it.
+  - generic "Open research"
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

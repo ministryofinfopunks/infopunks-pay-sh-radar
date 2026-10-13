@@ -1,0 +1,850 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Machine Market
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-market-content"
+- banner:
+  - navigation "Machine Market navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Market":
+  - paragraph: Machine Economy
+  - heading "Machine Market Command Center" [level=1]
+  - paragraph: Radar turns visible machine services into policy, rail, route, proof, and receipt state before machines spend.
+  - paragraph: 13 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.
+  - generic "Machine Market principles":
+    - generic: Listed ≠ callable
+    - generic: Callable ≠ executed
+    - generic: Credentials ≠ payment proof
+    - generic: Route surface ≠ receipt
+  - region "Machine Market summary":
+    - article:
+      - text: Services mapped
+      - strong: "13"
+      - text: listed robotic.sh snapshot
+    - article:
+      - text: Policy mapped
+      - strong: "13"
+      - text: policy state exists for each listed service
+    - article:
+      - text: First-safe queue
+      - strong: active
+      - text: planning state only
+    - article:
+      - text: Market-wide execution claims
+      - strong: "0"
+      - text: Service receipt ≠ market proof.
+    - article:
+      - text: Service-specific execution receipts
+      - strong: "0"
+      - text: Service-specific execution receipts are scoped to the recorded route.
+    - article:
+      - text: Payment success claims
+      - strong: "0"
+      - text: Payment remains unconfirmed unless payment evidence exists.
+  - region "13-Service Market Cohort":
+    - paragraph: 13-Service Market Cohort
+    - heading "13 robotic.sh services mapped" [level=2]
+    - generic "Cohort status summary":
+      - generic: 13 services mapped
+      - generic: 2 allow
+      - generic: 3 review
+      - generic: 0 deny
+      - generic: 0 robotic.sh market-wide execution claims
+      - generic: 0 service-specific execution receipts recorded
+    - paragraph: Every visible robotic.sh service now has a policy state, evidence state, readiness rank, and proof path.
+    - paragraph: Radar gives every visible service policy state, evidence state, readiness rank, and a proof path before spend. Machines should not spend blind.
+    - region "Next Controlled Action strip":
+      - generic: Next Controlled Action
+      - strong: "Proof plan selected: Cloud Translation"
+      - generic: planning only · no execution claim
+    - generic "Machine market flow":
+      - generic: Listed
+      - generic: Classified
+      - generic: Policy-Mapped
+      - generic: Shortlisted
+      - generic: Proof-Planned
+      - generic: Receipt-Recorded
+    - button "QVAC compute · setup policy review execution not_attempted readiness review_required policy-mapped review risk-watch proof-path not_attempted":
+      - strong: QVAC
+      - generic: compute · setup
+      - generic: policy
+      - strong: review
+      - generic: execution
+      - strong: not_attempted
+      - generic: readiness
+      - strong: review_required
+      - generic: policy-mapped
+      - generic: review
+      - generic: risk-watch
+      - generic: proof-path
+      - generic: not_attempted
+    - button "Generative Language inference · ready policy not recorded execution not_attempted readiness review_required policy-mapped not recorded risk-watch proof-path not_attempted":
+      - strong: Generative Language
+      - generic: inference · ready
+      - generic: policy
+      - strong: not recorded
+      - generic: execution
+      - strong: not_attempted
+      - generic: readiness
+      - strong: review_required
+      - generic: policy-mapped
+      - generic: not recorded
+      - generic: risk-watch
+      - generic: proof-path
+      - generic: not_attempted
+    - button "BigQuery web · ready policy not recorded execution not_attempted readiness not_ready policy-mapped not recorded risk-watch not_attempted":
+      - strong: BigQuery
+      - generic: web · ready
+      - generic: policy
+      - strong: not recorded
+      - generic: execution
+      - strong: not_attempted
+      - generic: readiness
+      - strong: not_ready
+      - generic: policy-mapped
+      - generic: not recorded
+      - generic: risk-watch
+      - generic: not_attempted
+    - button "Document AI vision · ready policy allow execution not_attempted readiness possible_candidate policy-mapped allow proof-path not_attempted":
+      - strong: Document AI
+      - generic: vision · ready
+      - generic: policy
+      - strong: allow
+      - generic: execution
+      - strong: not_attempted
+      - generic: readiness
+      - strong: possible_candidate
+      - generic: policy-mapped
+      - generic: allow
+      - generic: proof-path
+      - generic: not_attempted
+    - button "Stableupload storage · ready policy review execution not_attempted readiness possible_candidate policy-mapped review risk-watch proof-path not_attempted":
+      - strong: Stableupload
+      - generic: storage · ready
+      - generic: policy
+      - strong: review
+      - generic: execution
+      - strong: not_attempted
+      - generic: readiness
+      - strong: possible_candidate
+      - generic: policy-mapped
+      - generic: review
+      - generic: risk-watch
+      - generic: proof-path
+      - generic: not_attempted
+    - button "Cloud Translation translation · ready policy allow execution not_attempted readiness possible_candidate policy-mapped allow proof-path not_attempted":
+      - strong: Cloud Translation
+      - generic: translation · ready
+      - generic: policy
+      - strong: allow
+      - generic: execution
+      - strong: not_attempted
+      - generic: readiness
+      - strong: possible_candidate
+      - generic: policy-mapped
+      - generic: allow
+      - generic: proof-path
+      - generic: not_attempted
+    - button "Claude inference · ready policy not recorded execution not_attempted readiness review_required policy-mapped not recorded risk-watch proof-path not_attempted":
+      - strong: Claude
+      - generic: inference · ready
+      - generic: policy
+      - strong: not recorded
+      - generic: execution
+      - strong: not_attempted
+      - generic: readiness
+      - strong: review_required
+      - generic: policy-mapped
+      - generic: not recorded
+      - generic: risk-watch
+      - generic: proof-path
+      - generic: not_attempted
+    - button "ChatGPT inference · ready policy not recorded execution not_attempted readiness review_required policy-mapped not recorded risk-watch proof-path not_attempted":
+      - strong: ChatGPT
+      - generic: inference · ready
+      - generic: policy
+      - strong: not recorded
+      - generic: execution
+      - strong: not_attempted
+      - generic: readiness
+      - strong: review_required
+      - generic: policy-mapped
+      - generic: not recorded
+      - generic: risk-watch
+      - generic: proof-path
+      - generic: not_attempted
+    - button "2Captcha web · ready policy review execution not_attempted readiness not_ready policy-mapped review risk-watch not_attempted":
+      - strong: 2Captcha
+      - generic: web · ready
+      - generic: policy
+      - strong: review
+      - generic: execution
+      - strong: not_attempted
+      - generic: readiness
+      - strong: not_ready
+      - generic: policy-mapped
+      - generic: review
+      - generic: risk-watch
+      - generic: not_attempted
+    - button "Firecrawl web · ready policy not recorded execution not_attempted readiness review_required policy-mapped not recorded risk-watch proof-path not_attempted":
+      - strong: Firecrawl
+      - generic: web · ready
+      - generic: policy
+      - strong: not recorded
+      - generic: execution
+      - strong: not_attempted
+      - generic: readiness
+      - strong: review_required
+      - generic: policy-mapped
+      - generic: not recorded
+      - generic: risk-watch
+      - generic: proof-path
+      - generic: not_attempted
+    - button "Wolfram Alpha inference · ready policy not recorded execution not_attempted readiness review_required policy-mapped not recorded risk-watch proof-path not_attempted":
+      - strong: Wolfram Alpha
+      - generic: inference · ready
+      - generic: policy
+      - strong: not recorded
+      - generic: execution
+      - strong: not_attempted
+      - generic: readiness
+      - strong: review_required
+      - generic: policy-mapped
+      - generic: not recorded
+      - generic: risk-watch
+      - generic: proof-path
+      - generic: not_attempted
+    - button "Exa web · ready policy not recorded execution not_attempted readiness review_required policy-mapped not recorded risk-watch proof-path not_attempted":
+      - strong: Exa
+      - generic: web · ready
+      - generic: policy
+      - strong: not recorded
+      - generic: execution
+      - strong: not_attempted
+      - generic: readiness
+      - strong: review_required
+      - generic: policy-mapped
+      - generic: not recorded
+      - generic: risk-watch
+      - generic: proof-path
+      - generic: not_attempted
+    - button "NAVER Maps navigation · ready policy not recorded execution not_attempted readiness review_required policy-mapped not recorded risk-watch proof-path not_attempted":
+      - strong: NAVER Maps
+      - generic: navigation · ready
+      - generic: policy
+      - strong: not recorded
+      - generic: execution
+      - strong: not_attempted
+      - generic: readiness
+      - strong: review_required
+      - generic: policy-mapped
+      - generic: not recorded
+      - generic: risk-watch
+      - generic: proof-path
+      - generic: not_attempted
+  - region "Machine Market Mission Control":
+    - paragraph: Mission Control
+    - heading "Machine Market Mission Control" [level=2]
+    - generic: 0 robotic.sh market-wide execution claims
+    - article:
+      - generic: Current phase
+      - strong: Coverage complete / proof planning active
+    - article:
+      - generic: Market coverage
+      - strong: 13 / 13 services evaluated
+    - article:
+      - generic: Latest coverage decision summary
+      - strong: allow / review / deny pending latest coverage run
+    - article:
+      - generic: Service-specific evidence
+      - strong: 0 service-specific execution receipts recorded
+    - article:
+      - generic: Next controlled action
+      - strong: Cloud Translation
+      - generic: selected controlled action · planning-only · not execution-tested · not a winner claim
+    - generic: Next Controlled Action
+    - strong: "Proof plan selected: Cloud Translation"
+    - paragraph: Planning only. 0 robotic.sh market-wide execution claims. 0 payment success claims. Pay.sh execution routes are tracked separately from the robotic.sh visible service mirror.
+    - link "Open controlled proof plan":
+      - /url: /machine-execution-plan/cloud-translation
+    - link "View readiness matrix":
+      - /url: /machine-readiness-matrix
+    - link "View execution shortlist":
+      - /url: /machine-execution-shortlist
+  - region "Machine Economy Control Surfaces":
+    - paragraph: Control Surfaces
+    - heading "Machine Economy Control Surfaces" [level=2]
+    - generic: control-plane
+    - paragraph: Use these control surfaces to move from the visible machine market to rail classification, route risk, and first-safe planning without implying execution.
+    - link "Command Center":
+      - /url: /machine-market
+    - link "Rail Coverage":
+      - /url: /machine-rail-coverage
+    - link "Route Risk Matrix":
+      - /url: /machine-route-risk-matrix
+    - link "First Safe Route Queue":
+      - /url: /machine-first-safe-routes
+    - link "Benchmark Readiness":
+      - /url: /machine-benchmark-readiness
+    - link "Benchmark Methodology":
+      - /url: /machine-benchmark-methodology
+    - link "Comparable Routes":
+      - /url: /machine-comparable-routes
+    - link "Translation Evidence":
+      - /url: /machine-translation-evidence
+    - link "Proof Ladder":
+      - /url: /machine-proof-ladder
+    - link "Proof Plans":
+      - /url: /machine-execution-shortlist
+    - link "Readiness Matrix":
+      - /url: /machine-readiness-matrix
+    - link "Market Map":
+      - /url: /machine-market-map
+    - link "Execution Blockers":
+      - /url: /machine-execution-blockers
+    - link "Changelog":
+      - /url: /machine-market-changelog
+    - link "No-Claim Ledger":
+      - /url: /machine-no-claim-ledger
+    - link "Receipts":
+      - /url: /machine-receipts
+    - link "Snapshot":
+      - /url: /machine-economy-snapshot
+    - paragraph:
+      - generic: Rail Coverage
+      - generic: access rail and callable-surface intelligence
+    - paragraph:
+      - generic: Route Risk
+      - generic: route-level risk and avoid-first logic
+    - paragraph:
+      - generic: First Safe Queue
+      - generic: execution roadmap without execution
+    - paragraph:
+      - generic: Benchmark Readiness
+      - generic: readiness state only, no benchmark evidence
+    - paragraph:
+      - generic: Comparable Routes
+      - generic: methodology contracts before benchmarking
+    - paragraph:
+      - generic: Translation Evidence
+      - generic: evidence acquisition path to unlock translation lane later
+    - paragraph:
+      - generic: Proof Ladder
+      - generic: public evidence progression without winner claims
+    - paragraph:
+      - generic: Execution Blockers
+      - generic: what should not run yet
+    - paragraph:
+      - generic: Changelog
+      - generic: machine market memory
+    - paragraph:
+      - generic: No-Claim Ledger
+      - generic: restraint and claim discipline
+    - paragraph:
+      - generic: Snapshot
+      - generic: public artifact
+  - region "Machine Market Brief":
+    - paragraph: Market Brief
+    - heading "Copyable Machine Market Brief" [level=2]
+    - button "Copy brief"
+    - paragraph: 13 robotic.sh services mapped. 10 allow / 2 review / 1 deny. Every visible service has policy state, evidence state, readiness rank, and proof path. 0 robotic.sh market-wide execution claims. 1 controlled proof-plan action selected. Machines should not spend blind.
+    - paragraph: "Selected controlled action: Cloud Translation. Planning only. No market-wide execution claim. Pay.sh routes tracked separately."
+  - region "Coverage caveat":
+    - paragraph: Infopunks Radar mapped the entire listed robotic.sh machine-service market.
+    - paragraph: Coverage refers to the 13 services visible in the observed robotic.sh market snapshot. 0 market-wide execution claims. Service-specific execution receipts are scoped to the recorded route.
+    - paragraph:
+      - link "View market map":
+        - /url: /machine-market-map
+      - link "View readiness matrix":
+        - /url: /machine-readiness-matrix
+      - link "View public snapshot":
+        - /url: /machine-economy-snapshot
+      - link "View rail coverage":
+        - /url: /machine-rail-coverage
+      - link "View route risk matrix":
+        - /url: /machine-route-risk-matrix
+      - link "View first safe route queue":
+        - /url: /machine-first-safe-routes
+      - link "View benchmark readiness":
+        - /url: /machine-benchmark-readiness
+      - link "View benchmark methodology":
+        - /url: /machine-benchmark-methodology
+      - link "View comparable routes":
+        - /url: /machine-comparable-routes
+      - link "View translation evidence plan":
+        - /url: /machine-translation-evidence
+      - link "View proof ladder":
+        - /url: /machine-proof-ladder
+      - link "View execution shortlist":
+        - /url: /machine-execution-shortlist
+  - group "Evidence methodology drawer":
+    - generic "Evidence methodology Evidence methodology Definitions for listed, classified, policy_mapped, preflight_recorded, proof_path, proof_plan_selected, execution_receipt, and repeatability_receipt.":
+      - generic: Evidence methodology
+      - strong: Evidence methodology
+      - generic: Definitions for listed, classified, policy_mapped, preflight_recorded, proof_path, proof_plan_selected, execution_receipt, and repeatability_receipt.
+  - region "Evidence ladder":
+    - paragraph: Evidence Ladder
+    - heading "Listed to receipts" [level=2]
+    - generic: Execution-tested, receipt-recorded, and benchmark-recorded remain inactive unless evidence exists.
+    - generic "Service was observed in the robotic.sh market snapshot.": listed
+    - generic "Service has category, source market, and chain metadata.": classified
+    - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+    - generic "Service can be evaluated by Radar's machine preflight policy engine.": preflight-ready
+    - generic "Service execution-tested remains inactive until a real recorded service call occurs.": execution-tested
+    - generic "Receipt-recorded means a decision receipt unless explicitly marked as execution or payment receipt.": receipt-recorded
+    - generic "Benchmark-recorded remains inactive until repeatable benchmark artifacts exist.": benchmark-recorded
+    - paragraph:
+      - generic: listed
+      - generic: Service was observed in the robotic.sh market snapshot.
+    - paragraph:
+      - generic: classified
+      - generic: Service has category, source market, and chain metadata.
+    - paragraph:
+      - generic: policy-mapped
+      - generic: Service has a machine use case, policy risk, and caveats.
+    - paragraph:
+      - generic: preflight-ready
+      - generic: Service can be evaluated by Radar's machine preflight policy engine.
+    - paragraph:
+      - generic: execution-tested
+      - generic: Service execution-tested remains inactive until a real recorded service call occurs.
+    - paragraph:
+      - generic: receipt-recorded
+      - generic: Receipt-recorded means a decision receipt unless explicitly marked as execution or payment receipt.
+    - paragraph:
+      - generic: benchmark-recorded
+      - generic: Benchmark-recorded remains inactive until repeatable benchmark artifacts exist.
+  - region "Preflight Coverage":
+    - paragraph: Preflight Coverage
+    - heading "Preflight Coverage" [level=2]
+    - button "Run Coverage Preflight"
+    - paragraph: Evaluate the full listed robotic.sh service market through bounded-authority preflight and record durable decision receipts.
+    - paragraph: Preflight decision receipts are policy decisions, not service execution. Coverage receipts do not prove payment, benchmark status, or winner status.
+  - region "Machine Translation Execution Candidates":
+    - paragraph: Machine Translation Execution Candidates
+    - heading "Machine Translation Execution Candidates" [level=2]
+    - paragraph: AnyTrans remains attempted-recorded and workspace blocked. Machine Translation General is the first successful execution candidate only after Radar records a durable machine_execution receipt.
+    - paragraph: Execution-tested applies only to Alibaba Machine Translation General after Radar records the successful execution receipt.
+    - paragraph: Service-specific execution evidence is not payment proof, not benchmark proof, and not winner proof. It also does not prove the full robotic.sh market is executable.
+    - paragraph:
+      - link "View repeatability artifact":
+        - /url: /machine-execution/alibaba-machine-translation-general
+    - paragraph:
+      - generic: AnyTrans status
+      - generic: attempted-recorded / workspace blocked
+    - paragraph:
+      - generic: AnyTrans latest receipt
+      - generic: none
+    - paragraph:
+      - generic: candidate
+      - generic: Alibaba Machine Translation General
+    - paragraph:
+      - generic: endpoint
+      - generic: POST api/translate/web/general
+    - paragraph:
+      - generic: current status
+      - generic: fail-closed
+    - paragraph:
+      - generic: preflight status
+      - generic: not_attempted
+    - paragraph:
+      - generic: execution status
+      - generic: not_attempted
+    - paragraph:
+      - generic: evidence scope
+      - generic: pay_sh_execution_candidate
+    - paragraph:
+      - generic: receipt type
+      - generic: none
+    - paragraph:
+      - generic: claim status
+      - generic: planning_only
+    - paragraph:
+      - generic: executor
+      - generic: not available
+    - paragraph:
+      - generic: executor mode
+      - generic: not available
+    - paragraph:
+      - generic: payment status
+      - generic: not_confirmed
+    - paragraph:
+      - generic: evidence stage
+      - generic: policy-mapped
+    - paragraph:
+      - generic: latest execution receipt
+      - generic: none
+    - paragraph:
+      - generic: repeatability
+      - generic: insufficient_runs
+    - paragraph:
+      - generic: repeatability successful runs
+      - generic: 0 successful receipts
+    - paragraph:
+      - generic: recorded success rate
+      - generic: 0%
+    - paragraph:
+      - generic: benchmark readiness
+      - generic: criteria-defined
+    - paragraph:
+      - generic: payment success claims
+      - generic: "0"
+    - paragraph:
+      - generic: benchmark recorded
+      - generic: "false"
+    - paragraph:
+      - generic: winner claimed
+      - generic: "false"
+    - paragraph:
+      - generic: benchmark claims
+      - generic: "0"
+    - paragraph:
+      - generic: winner claims
+      - generic: "0"
+    - paragraph:
+      - generic: caveats
+      - generic: Execution-tested applies only to Alibaba Machine Translation General after Radar records the successful execution receipt. This is not a benchmark artifact. No winner is claimed. Payment receipt is not claimed unless payment evidence is present.
+  - region "Machine Market filters":
+    - generic: Market type
+    - combobox "Market type":
+      - option "all" [selected]
+      - option "digital"
+      - option "physical"
+    - generic: Category
+    - combobox "Category":
+      - option "all" [selected]
+      - option "compute"
+      - option "inference"
+      - option "web"
+      - option "vision"
+      - option "storage"
+      - option "translation"
+      - option "navigation"
+    - generic: Source market
+    - combobox "Source market":
+      - option "all" [selected]
+      - option "pay.sh"
+      - option "robotic.sh"
+      - option "agentic.market"
+    - generic: Chain
+    - combobox "Chain":
+      - option "all" [selected]
+      - option "solana"
+      - option "base"
+      - option "peaq"
+      - option "omnichain"
+      - option "unknown"
+    - generic: Evidence stage
+    - combobox "Evidence stage":
+      - option "all" [selected]
+      - option "listed"
+      - option "classified"
+      - option "policy-mapped"
+      - option "preflight-ready"
+      - option "execution-tested"
+      - option "receipt-recorded"
+      - option "benchmark-recorded"
+    - generic: Status
+    - combobox "Status":
+      - option "all" [selected]
+      - option "ready"
+      - option "setup"
+  - region "Machine services":
+    - paragraph: Service Registry
+    - heading "13 visible services" [level=2]
+    - generic: Agentic.Market/Base rows are source metadata from robotic.sh, not the Phase 2 build priority.
+    - table "Machine Market service table":
+      - text: Scroll horizontally for all columns →
+      - row "QVAC Tether compute robotic.sh peaq setup policy-mapped Requires setup and attestation review before any autonomous machine can treat compute output as spend-authorizing evidence. $0.01 / sec View service dossier":
+        - cell "QVAC Tether":
+          - button "QVAC Tether":
+            - strong: QVAC
+            - generic: Tether
+        - cell "compute"
+        - cell "robotic.sh"
+        - cell "peaq"
+        - cell "setup"
+        - cell "policy-mapped":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+        - cell "Requires setup and attestation review before any autonomous machine can treat compute output as spend-authorizing evidence."
+        - cell "$0.01 / sec"
+        - cell "View service dossier":
+          - link "View service dossier":
+            - /url: /machine-service/qvac
+      - row "Generative Language Google inference pay.sh solana ready policy-mapped Inference output can steer action; require prompt, cost, and output-retention policy before spend. Per endpoint View service dossier":
+        - cell "Generative Language Google":
+          - button "Generative Language Google":
+            - strong: Generative Language
+            - generic: Google
+        - cell "inference"
+        - cell "pay.sh"
+        - cell "solana"
+        - cell "ready"
+        - cell "policy-mapped":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+        - cell "Inference output can steer action; require prompt, cost, and output-retention policy before spend."
+        - cell "Per endpoint"
+        - cell "View service dossier":
+          - link "View service dossier":
+            - /url: /machine-service/generative-language
+      - row "BigQuery Google web pay.sh solana ready policy-mapped Queries may leak sensitive business context or incur repeated spend without query budget limits. $0.001 View service dossier":
+        - cell "BigQuery Google":
+          - button "BigQuery Google":
+            - strong: BigQuery
+            - generic: Google
+        - cell "web"
+        - cell "pay.sh"
+        - cell "solana"
+        - cell "ready"
+        - cell "policy-mapped":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+        - cell "Queries may leak sensitive business context or incur repeated spend without query budget limits."
+        - cell "$0.001"
+        - cell "View service dossier":
+          - link "View service dossier":
+            - /url: /machine-service/bigquery
+      - row "Document AI Google vision pay.sh solana ready policy-mapped Documents can contain private or regulated data; require data handling policy and receipt traceability. Per endpoint View service dossier":
+        - cell "Document AI Google":
+          - button "Document AI Google":
+            - strong: Document AI
+            - generic: Google
+        - cell "vision"
+        - cell "pay.sh"
+        - cell "solana"
+        - cell "ready"
+        - cell "policy-mapped":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+        - cell "Documents can contain private or regulated data; require data handling policy and receipt traceability."
+        - cell "Per endpoint"
+        - cell "View service dossier":
+          - link "View service dossier":
+            - /url: /machine-service/document-ai
+      - row "Stableupload Stableupload storage pay.sh solana ready policy-mapped Uploads can persist sensitive evidence; require retention, access, and payload-size policy. $0.02 View service dossier":
+        - cell "Stableupload Stableupload":
+          - button "Stableupload Stableupload":
+            - strong: Stableupload
+            - generic: Stableupload
+        - cell "storage"
+        - cell "pay.sh"
+        - cell "solana"
+        - cell "ready"
+        - cell "policy-mapped":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+        - cell "Uploads can persist sensitive evidence; require retention, access, and payload-size policy."
+        - cell "$0.02"
+        - cell "View service dossier":
+          - link "View service dossier":
+            - /url: /machine-service/stableupload
+      - row "Cloud Translation Google translation pay.sh solana ready policy-mapped Translation can alter operational meaning; require confidence checks for safety-critical instructions. Per endpoint View service dossier":
+        - cell "Cloud Translation Google":
+          - button "Cloud Translation Google":
+            - strong: Cloud Translation
+            - generic: Google
+        - cell "translation"
+        - cell "pay.sh"
+        - cell "solana"
+        - cell "ready"
+        - cell "policy-mapped":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+        - cell "Translation can alter operational meaning; require confidence checks for safety-critical instructions."
+        - cell "Per endpoint"
+        - cell "View service dossier":
+          - link "View service dossier":
+            - /url: /machine-service/cloud-translation
+      - row "Claude Anthropic inference agentic.market base ready policy-mapped Planning output may trigger downstream spend; require approval thresholds and evidence citations. $0.001 View service dossier":
+        - cell "Claude Anthropic":
+          - button "Claude Anthropic":
+            - strong: Claude
+            - generic: Anthropic
+        - cell "inference"
+        - cell "agentic.market"
+        - cell "base"
+        - cell "ready"
+        - cell "policy-mapped":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+        - cell "Planning output may trigger downstream spend; require approval thresholds and evidence citations."
+        - cell "$0.001"
+        - cell "View service dossier":
+          - link "View service dossier":
+            - /url: /machine-service/claude
+      - row "ChatGPT OpenAI inference agentic.market base ready policy-mapped Model calls can influence autonomous action; require spend caps, prompt logs, and output review policy. $0.001 View service dossier":
+        - cell "ChatGPT OpenAI":
+          - button "ChatGPT OpenAI":
+            - strong: ChatGPT
+            - generic: OpenAI
+        - cell "inference"
+        - cell "agentic.market"
+        - cell "base"
+        - cell "ready"
+        - cell "policy-mapped":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+        - cell "Model calls can influence autonomous action; require spend caps, prompt logs, and output review policy."
+        - cell "$0.001"
+        - cell "View service dossier":
+          - link "View service dossier":
+            - /url: /machine-service/chatgpt
+      - row "2Captcha 2Captcha web agentic.market base ready policy-mapped Captcha solving can violate site terms or anti-abuse controls; default policy should block unless explicitly approved. $0.01 View service dossier":
+        - cell "2Captcha 2Captcha":
+          - button "2Captcha 2Captcha":
+            - strong: 2Captcha
+            - generic: 2Captcha
+        - cell "web"
+        - cell "agentic.market"
+        - cell "base"
+        - cell "ready"
+        - cell "policy-mapped":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+        - cell "Captcha solving can violate site terms or anti-abuse controls; default policy should block unless explicitly approved."
+        - cell "$0.01"
+        - cell "View service dossier":
+          - link "View service dossier":
+            - /url: /machine-service/2captcha
+      - row "Firecrawl Firecrawl web agentic.market base ready policy-mapped Scraping can hit robots, rate, or content restrictions; require domain policy and provenance receipts. $0.01 View service dossier":
+        - cell "Firecrawl Firecrawl":
+          - button "Firecrawl Firecrawl":
+            - strong: Firecrawl
+            - generic: Firecrawl
+        - cell "web"
+        - cell "agentic.market"
+        - cell "base"
+        - cell "ready"
+        - cell "policy-mapped":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+        - cell "Scraping can hit robots, rate, or content restrictions; require domain policy and provenance receipts."
+        - cell "$0.01"
+        - cell "View service dossier":
+          - link "View service dossier":
+            - /url: /machine-service/firecrawl
+      - row "Wolfram Alpha Wolfram Research inference agentic.market base ready policy-mapped Computed answers can drive physical-world choices; require input validation and result sanity checks. $0.01 View service dossier":
+        - cell "Wolfram Alpha Wolfram Research":
+          - button "Wolfram Alpha Wolfram Research":
+            - strong: Wolfram Alpha
+            - generic: Wolfram Research
+        - cell "inference"
+        - cell "agentic.market"
+        - cell "base"
+        - cell "ready"
+        - cell "policy-mapped":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+        - cell "Computed answers can drive physical-world choices; require input validation and result sanity checks."
+        - cell "$0.01"
+        - cell "View service dossier":
+          - link "View service dossier":
+            - /url: /machine-service/wolfram-alpha
+      - row "Exa Exa web agentic.market base ready policy-mapped Search results are not receipts; require source capture and freshness checks before autonomous spend. $0.001 View service dossier":
+        - cell "Exa Exa":
+          - button "Exa Exa":
+            - strong: Exa
+            - generic: Exa
+        - cell "web"
+        - cell "agentic.market"
+        - cell "base"
+        - cell "ready"
+        - cell "policy-mapped":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+        - cell "Search results are not receipts; require source capture and freshness checks before autonomous spend."
+        - cell "$0.001"
+        - cell "View service dossier":
+          - link "View service dossier":
+            - /url: /machine-service/exa
+      - 'row "NAVER Maps NAVER navigation robotic.sh unknown ready policy-mapped High machine relevance: routing outputs can influence physical-world movement. Execution requires bounded test scenarios, source validation, and clear non-operational constraints. not recorded View service dossier"':
+        - cell "NAVER Maps NAVER":
+          - button "NAVER Maps NAVER":
+            - strong: NAVER Maps
+            - generic: NAVER
+        - cell "navigation"
+        - cell "robotic.sh"
+        - cell "unknown"
+        - cell "ready"
+        - cell "policy-mapped":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+        - 'cell "High machine relevance: routing outputs can influence physical-world movement. Execution requires bounded test scenarios, source validation, and clear non-operational constraints."'
+        - cell "not recorded"
+        - cell "View service dossier":
+          - link "View service dossier":
+            - /url: /machine-service/naver-maps
+  - complementary "Service policy profile":
+    - paragraph: Policy Profile
+    - heading "QVAC" [level=2]
+    - generic: setup
+    - paragraph: Verifiable agent compute with on-chain attestation for autonomous machines.
+    - generic: Tether
+    - generic: compute
+    - generic: robotic.sh
+    - generic: peaq
+    - generic: policy-mapped
+    - paragraph:
+      - generic: market_type
+      - generic: all-compatible
+    - paragraph:
+      - generic: price
+      - generic: $0.01 / sec
+    - paragraph:
+      - generic: evidence_health
+      - generic: scaffold
+    - paragraph:
+      - generic: candidate_tier
+      - generic: review_required
+    - paragraph:
+      - generic: recommendation
+      - generic: needs_review
+    - paragraph:
+      - generic: execution_status
+      - generic: not_attempted
+    - paragraph:
+      - generic: observed_source
+      - generic: robotic.sh
+    - paragraph:
+      - generic: observed_at
+      - generic: May 22, 2026, 5:30 AM
+    - region "Selected service next action":
+      - heading "Next action" [level=4]
+      - paragraph: Inspect the proof plan and dossier before changing execution posture.
+      - link "Open proof plan":
+        - /url: /machine-execution-plan/qvac
+    - heading "Machine use case" [level=4]
+    - paragraph: Autonomous robots and agents can request attestable compute before committing machine spend.
+    - heading "Policy risk" [level=4]
+    - paragraph: Requires setup and attestation review before any autonomous machine can treat compute output as spend-authorizing evidence.
+    - heading "Evidence stage" [level=4]
+    - paragraph: Service has a machine use case, policy risk, and caveats.
+    - generic: "policy-mapped · execution-tested claim: not yet · receipt-recorded claim: not yet · benchmark-recorded claim: not yet"
+    - link "View service dossier":
+      - /url: /machine-service/qvac
+    - heading "Caveats" [level=4]
+    - list:
+      - listitem: Setup status only; execution readiness is not proven.
+      - listitem: Static robotic.sh service mirror for Phase 2 only.
+      - listitem: No paid execution, receipt, or benchmark evidence is recorded in this registry.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

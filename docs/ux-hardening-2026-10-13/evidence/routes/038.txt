@@ -1,0 +1,317 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Memory Loop
+- paragraph:
+  - generic: "[ 15 ]"
+  - text: HERMES / WALLET MEMORY
+- link "Skip to content":
+  - /url: "#hermes-memory-loop-content"
+- main:
+  - paragraph: Agent Memory Circuit
+  - heading "Agent Memory Loop" [level=1]
+  - paragraph: Agents do not need chat history. Agents need memory that changes future action.
+  - paragraph: Run → Receipt → Claim → Review → Reputation → Decision → Outcome → Feedback
+  - paragraph: Policy sits between Decision and Outcome as the wallet safety gate.
+  - paragraph: Policy reconciliation compares the policy receipt against the actual wallet outcome before feedback is used for the next spend.
+  - link "Open Memory Loop JSON":
+    - /url: /v1/hermes/memory-loop
+  - link "Back to Hermes Desk":
+    - /url: /hermes
+  - paragraph: Stateless build
+  - paragraph: No live Hermes sidecar is required.
+  - paragraph: No receipts, claims, reputation entries, decisions, or outcomes are persisted or mutated by this dashboard.
+  - region "Complete agent memory loop":
+    - paragraph: hermes_pay_sh_route_pre_spend_check
+    - heading "Agents do not need chat history. Agents need memory that changes future action." [level=2]
+    - link "GET loop":
+      - /url: /v1/hermes/memory-loop/hermes_memory_loop_hermes_pay_sh_route_pre_spend_check
+    - region "Agent memory loop flow":
+      - generic: Run
+      - generic: "->"
+      - generic: Receipt
+      - generic: "->"
+      - generic: Claim
+      - generic: "->"
+      - generic: Review
+      - generic: "->"
+      - generic: Reputation
+      - generic: "->"
+      - generic: Decision
+      - generic: "->"
+      - generic: Outcome
+      - generic: "->"
+      - generic: Feedback
+    - generic "Memory loop edges":
+      - generic: "run_to_receipt: The Hermes run is converted into a receipt-shaped proof artifact."
+      - generic: "receipt_to_claim: The receipt produces a claim candidate without updating reputation yet."
+      - generic: "claim_to_review: The claim candidate is reviewed into bounded trust language."
+      - generic: "review_to_reputation: The reviewed claim contributes target-specific reputation impact."
+      - generic: "reputation_to_decision: The pre-spend engine reads reputation before money moves."
+      - generic: "decision_to_outcome: The decision creates a receipt and the resulting spend outcome is recorded."
+      - generic: "outcome_to_feedback: The outcome produces feedback for future reputation and decisions."
+    - article "Run memory stage":
+      - paragraph: Run
+      - generic: watch
+      - heading "Pay.sh Route Pre-Spend Check" [level=3]
+      - paragraph: Hermes found recent route memory and usable output receipts, but kept the run in caution because timeout and prompt-specific quality caveats remain active.
+      - paragraph:
+        - generic: primitive
+        - generic: hermes_run
+      - paragraph:
+        - generic: source_id
+        - generic: hermes_pay_sh_route_pre_spend_check
+      - paragraph:
+        - generic: decision
+        - generic: caution
+      - paragraph:
+        - generic: confidence
+        - generic: "82"
+      - paragraph:
+        - generic: evidence_count
+        - generic: "2"
+      - paragraph:
+        - generic: target
+        - generic: route:route_pay_sh_market_research_01
+    - article "Receipt memory stage":
+      - paragraph: Receipt
+      - generic: watch
+      - 'heading "Hermes Agent Run Receipt: Pay.sh Route Pre-Spend Check" [level=3]'
+      - paragraph: Hermes found recent route memory and usable output receipts, but kept the run in caution because timeout and prompt-specific quality caveats remain active.
+      - paragraph:
+        - generic: primitive
+        - generic: agent_run_receipt
+      - paragraph:
+        - generic: source_id
+        - generic: receipt_hermes_hermes_pay_sh_route_pre_spend_check
+      - paragraph:
+        - generic: decision
+        - generic: caution
+      - paragraph:
+        - generic: confidence
+        - generic: "82"
+      - paragraph:
+        - generic: evidence_count
+        - generic: "2"
+      - paragraph:
+        - generic: target
+        - generic: not available
+    - article "Claim memory stage":
+      - paragraph: Claim
+      - generic: watch
+      - heading "Pay.sh Route Pre-Spend Check limited-use candidate" [level=3]
+      - paragraph: Pay.sh Route Pre-Spend Check may be used only with limited or test spend while caveats remain active.
+      - paragraph:
+        - generic: primitive
+        - generic: claim_candidate
+      - paragraph:
+        - generic: source_id
+        - generic: claim_candidate_hermes_hermes_pay_sh_route_pre_spend_check
+      - paragraph:
+        - generic: decision
+        - generic: caution
+      - paragraph:
+        - generic: confidence
+        - generic: "82"
+      - paragraph:
+        - generic: evidence_count
+        - generic: "2"
+      - paragraph:
+        - generic: target
+        - generic: not available
+    - article "Review memory stage":
+      - paragraph: Review
+      - generic: watch
+      - heading "Pay.sh Route Pre-Spend Check limited-use candidate" [level=3]
+      - paragraph: Pay.sh Route Pre-Spend Check may be used only with limited or test spend while caveats remain active.
+      - paragraph:
+        - generic: primitive
+        - generic: reviewed_claim
+      - paragraph:
+        - generic: source_id
+        - generic: claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check
+      - paragraph:
+        - generic: decision
+        - generic: needs_more_evidence
+      - paragraph:
+        - generic: confidence
+        - generic: "82"
+      - paragraph:
+        - generic: evidence_count
+        - generic: "2"
+      - paragraph:
+        - generic: target
+        - generic: route:route_pay_sh_market_research_01
+    - article "Reputation memory stage":
+      - paragraph: Reputation
+      - generic: watch
+      - heading "POST /market/research (provider_pay_sh_lattice)" [level=3]
+      - paragraph: POST /market/research (provider_pay_sh_lattice) is watchlist with trust score 0.
+      - paragraph:
+        - generic: primitive
+        - generic: reputation_entry
+      - paragraph:
+        - generic: source_id
+        - generic: route:route_pay_sh_market_research_01
+      - paragraph:
+        - generic: decision
+        - generic: watchlist
+      - paragraph:
+        - generic: confidence
+        - generic: "0"
+      - paragraph:
+        - generic: evidence_count
+        - generic: "1"
+      - paragraph:
+        - generic: target
+        - generic: route:route_pay_sh_market_research_01
+    - article "Decision memory stage":
+      - paragraph: Decision
+      - generic: blocked
+      - heading "Pre-Spend Decision" [level=3]
+      - paragraph: Provider reputation is degraded in the ledger.
+      - paragraph:
+        - generic: primitive
+        - generic: pre_spend_decision
+      - paragraph:
+        - generic: source_id
+        - generic: hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective
+      - paragraph:
+        - generic: decision
+        - generic: do_not_spend
+      - paragraph:
+        - generic: confidence
+        - generic: "0.21"
+      - paragraph:
+        - generic: evidence_count
+        - generic: "12"
+      - paragraph:
+        - generic: target
+        - generic: provider:provider_pay_sh_lattice
+    - article "Outcome memory stage":
+      - paragraph: Outcome
+      - generic: blocked
+      - heading "Spend Outcome" [level=3]
+      - paragraph: Spend stayed blocked after the do_not_spend recommendation, preserving caution instead of forcing execution.
+      - paragraph:
+        - generic: primitive
+        - generic: spend_outcome
+      - paragraph:
+        - generic: source_id
+        - generic: outcome_hermes_decision_hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective_blocked
+      - paragraph:
+        - generic: decision
+        - generic: blocked
+      - paragraph:
+        - generic: confidence
+        - generic: "0.01"
+      - paragraph:
+        - generic: evidence_count
+        - generic: "1"
+      - paragraph:
+        - generic: target
+        - generic: provider:provider_pay_sh_lattice
+    - article "Feedback memory stage":
+      - paragraph: Feedback
+      - generic: complete
+      - heading "Reputation Feedback" [level=3]
+      - paragraph: The decision prevented risk for provider:provider_pay_sh_lattice and should reinforce future caution.
+      - paragraph:
+        - generic: primitive
+        - generic: reputation_feedback
+      - paragraph:
+        - generic: source_id
+        - generic: outcome_hermes_decision_hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective_blocked
+      - paragraph:
+        - generic: decision
+        - generic: positive
+      - paragraph:
+        - generic: confidence
+        - generic: "0.01"
+      - paragraph:
+        - generic: evidence_count
+        - generic: "6"
+      - paragraph:
+        - generic: target
+        - generic: provider:provider_pay_sh_lattice
+  - region "Memory loop signal summary":
+    - article:
+      - text: Evidence count
+      - strong: "2"
+      - text: Hermes artifacts attached to the agent run receipt.
+    - article:
+      - text: Claim review state
+      - strong: needs_more_evidence
+      - text: Review state applied before reputation can move.
+    - article:
+      - text: Reputation state
+      - strong: watchlist
+      - text: Current ledger state for the reviewed claim target.
+    - article:
+      - text: Pre-spend decision
+      - strong: do_not_spend
+      - text: Decision returned before the next agent spend.
+    - article:
+      - text: Required action
+      - strong: do_not_use_provider
+      - text: Action the agent should take before money moves.
+    - article:
+      - text: Outcome state
+      - strong: blocked
+      - text: Recorded result after the decision recommendation.
+    - article:
+      - text: Feedback direction
+      - strong: positive
+      - text: Direction of feedback that can affect future reputation.
+  - region "What changed for the next spend?":
+    - paragraph: What changed for the next spend?
+    - heading "The next agent does not start from zero." [level=2]
+    - paragraph: The next agent does not start from zero. It inherits receipts, reviewed claims, reputation state, and feedback from previous outcomes.
+    - paragraph: Policy sits between Decision and Outcome as the wallet safety gate.
+    - paragraph: Policy decisions can now become receipts, making the safety gate auditable before the outcome feeds back into reputation.
+    - paragraph: "Optional artifact: Outcome → Policy Reconciliation → Feedback."
+    - paragraph:
+      - generic: current_decision
+      - generic: do_not_spend
+    - paragraph:
+      - generic: required_action
+      - generic: do_not_use_provider
+    - paragraph:
+      - generic: reputation_state
+      - generic: watchlist
+    - paragraph:
+      - generic: feedback_direction
+      - generic: positive
+  - region "Wallet audit trail note":
+    - paragraph: Wallet audit trail
+    - heading "The memory loop teaches future action." [level=2]
+    - link "Open Wallet Audit Trail":
+      - /url: /hermes/wallet-audit-trail
+    - paragraph: The memory loop teaches future action. The wallet audit trail makes that action inspectable.
+  - region "Wallet risk score note":
+    - paragraph: Wallet risk score
+    - heading "The memory loop produces judgment." [level=2]
+    - link "Open Wallet Risk Score":
+      - /url: /hermes/wallet-risk-score
+    - paragraph: The memory loop produces judgment. The wallet risk score compresses that judgment into a usable wallet safety signal.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

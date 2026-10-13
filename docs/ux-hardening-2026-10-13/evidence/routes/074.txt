@@ -1,0 +1,233 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Attention Market Watch
+- paragraph:
+  - generic: "[ 09 ]"
+  - text: SIGNALS / MARKET INTELLIGENCE
+- link "Skip to content":
+  - /url: "#attention-watch-content"
+- main:
+  - paragraph: Narrative Asset Intelligence
+  - heading "Attention Market Watch" [level=1]
+  - paragraph: "Influencer coins are the first wave of persona-backed markets. Infopunks tracks the next layer: which narratives are real, which wallets are extracting, which communities are coherent, and which movements have receipts."
+  - paragraph: Before you follow the meta, check the receipts.
+  - paragraph: Category thesis
+  - paragraph: "Influencer coins say: Trust this person. Infopunks says: Trust the process that reveals what is worth trusting."
+  - region "Classification Method":
+    - paragraph: Classification Method
+    - heading "Classification Method" [level=2]
+    - article:
+      - heading "Attention Source" [level=3]
+    - article:
+      - heading "Control Risk" [level=3]
+    - article:
+      - heading "Coherence Score" [level=3]
+    - article:
+      - heading "Receipt Layer" [level=3]
+    - article:
+      - heading "Fragmentation Risk" [level=3]
+    - article:
+      - heading "Evolution Verdict" [level=3]
+  - region "Evolution Map":
+    - paragraph: Lifecycle map
+    - heading "Evolution Map" [level=2]
+    - paragraph: Not every persona coin becomes a movement. Infopunks tracks what stage the signal is actually in.
+    - article:
+      - heading "Persona Coin" [level=3]
+      - paragraph: Ticker wrapped around a person, face, handle, or reputation engine.
+    - article:
+      - heading "Attention Market" [level=3]
+      - paragraph: Attention becomes the asset being priced.
+    - article:
+      - heading "Coordination Market Emerging" [level=3]
+      - paragraph: Redistribution, holder growth, community media, and shared rituals begin carrying the signal.
+    - article:
+      - heading "Movement Candidate Under Observation" [level=3]
+      - paragraph: The community may be becoming durable, but the desk requires sustained receipts.
+    - article:
+      - heading "Extraction Risk" [level=3]
+      - paragraph: Attention and liquidity appear to be captured faster than community structure forms.
+    - article:
+      - heading "Cult Sludge" [level=3]
+      - paragraph: High emotion, low coherence, weak receipts, and factional noise.
+    - paragraph: Attention gets the market started. Coordination decides whether it survives.
+  - region "Verdict Types":
+    - paragraph: Verdict Types
+    - heading "Verdict Types" [level=2]
+    - article:
+      - heading "Attention Arbitrage" [level=3]
+      - paragraph: 2 tracked
+    - article:
+      - heading "Extraction Risk" [level=3]
+      - paragraph: 0 tracked
+    - article:
+      - heading "Cult Sludge" [level=3]
+      - paragraph: 0 tracked
+    - article:
+      - heading "Re Index Watch" [level=3]
+      - paragraph: 1 tracked
+    - article:
+      - heading "Movement Candidate" [level=3]
+      - paragraph: 0 tracked
+    - article:
+      - heading "Signal Market Candidate" [level=3]
+      - paragraph: 0 tracked
+    - article:
+      - heading "Supportive Watch" [level=3]
+      - paragraph: 1 tracked
+  - region "Watchlist":
+    - paragraph: Watchlist
+    - heading "Watchlist" [level=2]
+    - article:
+      - paragraph: Persona Coin
+      - heading "ANSEM / The Black Bull" [level=2]
+      - generic: Supportive Watch
+      - generic: Coordination Market Emerging
+      - paragraph: Influencer-linked attention evolving into coordination
+      - paragraph: Persona-led attention is still visible, but recent redistribution mechanics and community activity suggest the signal is spreading beyond a pure persona core.
+      - generic: stage Coordination Market Emerging
+      - generic: verdict Supportive Watch
+      - generic: receipts 84
+      - generic: control 82
+      - paragraph: ANSEM is the first Attention Market Watch case where persona attention appears to be evolving into a coordination market through redistribution, holder growth, and community participation.
+      - generic: KOL Dependency
+      - generic: Power Concentration
+      - generic: High Reflexivity
+      - generic: Live Watch
+      - link "Open Signal":
+        - /url: /signals/black-bull
+    - article:
+      - paragraph: Influencer Attention
+      - heading "TJR / TJR" [level=2]
+      - generic: Attention Arbitrage
+      - generic: Evidence-light profile
+      - generic: Monitored, not endorsed
+      - generic: Attention Market
+      - paragraph: Influencer-derived derivative attention
+      - paragraph: The signal reads as a monitored persona-adjacent attention object rather than a fully evidenced movement.
+      - generic: stage Attention Market
+      - generic: verdict Attention Arbitrage
+      - generic: receipts 24
+      - generic: control 79
+      - paragraph: Monitored derivative signal. Evidence-light profile. This attention-market object is under review, not an endorsement.
+      - generic: Thin Evidence
+      - generic: KOL Dependency
+      - generic: High Reflexivity
+      - link "Open Watch Profile":
+        - /url: /attention-market-watch/tjr
+    - article:
+      - paragraph: Influencer Attention
+      - heading "LUKE / LUKE" [level=2]
+      - generic: Attention Arbitrage
+      - generic: Evidence-light profile
+      - generic: Monitored, not endorsed
+      - generic: Attention Market
+      - paragraph: Persona-backed attention surface
+      - paragraph: This reads as a persona-backed attention surface under observation, not a verified market with a strong receipt base.
+      - generic: stage Attention Market
+      - generic: verdict Attention Arbitrage
+      - generic: receipts 20
+      - generic: control 76
+      - paragraph: Monitored derivative signal. Evidence-light profile. This attention-market object is classified for watch status, not an endorsement.
+      - generic: Thin Evidence
+      - generic: KOL Dependency
+      - link "Open Watch Profile":
+        - /url: /attention-market-watch/luke
+    - article:
+      - paragraph: Anonymous Cult
+      - heading "SUPERMAN / SUPERMAN" [level=2]
+      - generic: Re-Index Watch
+      - generic: Evidence-light profile
+      - generic: Monitored, not endorsed
+      - generic: Cult Sludge
+      - paragraph: Anonymous cult attention
+      - paragraph: This signal reads closer to a cultish attention cluster or copycat identity swarm than a well-evidenced persona market.
+      - generic: stage Cult Sludge
+      - generic: verdict Re-Index Watch
+      - generic: receipts 18
+      - generic: control 84
+      - paragraph: Evidence-light profile. This attention-market object is monitored, not endorsed. Watch whether it coheres into a durable signal or degrades into high-noise, low-receipt cult sludge risk.
+      - generic: Thin Evidence
+      - generic: Power Concentration
+      - generic: Narrative Fatigue
+      - link "Open Watch Profile":
+        - /url: /attention-market-watch/superman
+  - region "Evidence Requirements":
+    - paragraph: Evidence Requirements
+    - heading "Evidence Requirements" [level=2]
+    - article:
+      - heading "Attention source" [level=3]
+    - article:
+      - heading "Control points" [level=3]
+    - article:
+      - heading "Coherence" [level=3]
+    - article:
+      - heading "Receipt layer" [level=3]
+    - article:
+      - heading "Fragmentation risk" [level=3]
+    - article:
+      - heading "Evolution verdict candidate" [level=3]
+    - generic: Thin Evidence
+    - generic: High Reflexivity
+    - generic: Power Concentration
+    - paragraph: Before you follow the meta, check the receipts.
+  - region "Submit an Attention Market":
+    - paragraph: Attention market intake
+    - heading "Submit an Attention Market" [level=2]
+    - paragraph: Got a persona coin, influencer token, reply-gang asset, or cult ticker entering the trenches? Stage it for evidence review.
+    - paragraph: Submission does not create a report. It creates a candidate signal for evidence review.
+    - generic: Ticker
+    - textbox "Ticker"
+    - generic: Name
+    - textbox "Name"
+    - generic: Chain / ecosystem optional
+    - textbox "Chain / ecosystem optional"
+    - generic: Attention source type
+    - combobox "Attention source type":
+      - option "Unknown" [selected]
+      - option "Influencer"
+      - option "Dev"
+      - option "AI agent"
+      - option "Community archetype"
+      - option "Streamer"
+      - option "Reply gang"
+      - option "Anonymous cult"
+    - generic: Attention source label optional
+    - textbox "Attention source label optional"
+    - generic: Submitter handle optional
+    - textbox "Submitter handle optional"
+    - generic: Why it matters
+    - textbox "Why it matters"
+    - generic: Evidence links
+    - textbox "Evidence links":
+      - /placeholder: One link per line
+    - button "Stage for Review"
+    - button "View Evidence Requirements"
+  - region "Featured Case Study":
+    - paragraph: Featured Case Study
+    - heading "ANSEM / The Black Bull" [level=2]
+    - paragraph: $ANSEM showed persona attention becoming a market. Attention Market Watch turns that event into a classification system.
+    - link "Open Black Bull Signal Report":
+      - /url: /signals/black-bull
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

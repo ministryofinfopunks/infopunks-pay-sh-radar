@@ -1,0 +1,141 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: qualification missing record
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-dossier-content"
+- banner:
+  - navigation "Machine Dossier navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Dossier":
+  - paragraph: Machine Dossier
+  - heading "qualification-missing-record" [level=1]
+  - paragraph: peaqOS identity gives the machine an address. Infopunks gives the machine behavioral memory.
+  - paragraph: Machine dossiers summarize what a machine was allowed to do, what it attempted, and what Radar recorded.
+  - generic "Machine dossier status":
+    - generic: no_activity
+    - generic: phase_2_pay_sh_robotic_sh
+    - generic: no activity
+  - paragraph:
+    - 'link "Methodology: Machine Economy evidence ladder"':
+      - /url: /solana#methodology
+    - text: Repeatability-recorded means the same route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark and does not compare providers. Benchmark-ready criteria define the minimum evidence required before a benchmark can be recorded. Criteria definition is not a benchmark.
+  - status:
+    - strong: No Radar-observed activity.
+    - generic: Run machine preflight to create the first Radar-observed receipt.
+  - link "Open Machine Preflight":
+    - /url: /machine-preflight
+  - region "Machine authority card":
+    - paragraph: Machine Authority
+    - heading "No active policy observed" [level=2]
+    - paragraph:
+      - generic: active_policy_id
+      - generic: none
+    - paragraph:
+      - generic: risk_tolerance
+      - generic: unknown
+    - paragraph:
+      - generic: daily_budget_usd
+      - generic: unknown
+    - paragraph:
+      - generic: per_call_budget_usd
+      - generic: unknown
+    - paragraph:
+      - generic: allowed_categories
+      - generic: unknown
+    - paragraph:
+      - generic: allowed_markets
+      - generic: request-defined
+    - paragraph:
+      - generic: allowed_chains
+      - generic: request-defined
+  - region "Machine dossier decision summary":
+    - article:
+      - text: Total receipts
+      - strong: "0"
+      - text: Radar-observed
+    - article:
+      - text: Allowed
+      - strong: "0"
+      - text: permission before action
+    - article:
+      - text: Denied
+      - strong: "0"
+      - text: bounded attempts
+    - article:
+      - text: Review
+      - strong: "0"
+      - text: human checkpoint
+    - article:
+      - text: Unique services
+      - strong: "0"
+      - text: service routes
+    - article:
+      - text: Unique markets
+      - strong: "0"
+      - text: source markets
+  - region "Machine usage maps":
+    - paragraph: Usage Maps
+    - heading "What Radar saw" [level=2]
+    - heading "Service usage" [level=4]
+    - paragraph: none observed
+    - heading "Category usage" [level=4]
+    - paragraph: none observed
+    - heading "Market usage" [level=4]
+    - paragraph: none observed
+    - heading "Chain usage" [level=4]
+    - paragraph: none observed
+  - region "Machine dossier evidence summary":
+    - paragraph: Evidence Summary
+    - 'heading "Highest observed: none" [level=2]'
+    - generic "Service was observed in the robotic.sh market snapshot.": listed
+    - generic "Service has category, source market, and chain metadata.": classified
+    - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+    - generic "Service can be evaluated by Radar's machine preflight policy engine.": preflight-ready
+    - generic "Service execution-tested remains inactive until a real recorded service call occurs.": execution-tested
+    - generic "Receipt-recorded means a decision receipt unless explicitly marked as execution or payment receipt.": receipt-recorded
+    - generic "Benchmark-recorded remains inactive until repeatable benchmark artifacts exist.": benchmark-recorded
+    - paragraph: Evidence stage is not recognized in this phase scope.
+    - generic: "none · execution-tested claim: not yet · receipt-recorded claim: not yet · benchmark-recorded claim: not yet"
+  - region "Machine dossier recent receipts":
+    - paragraph: Recent Receipts
+    - heading "0 Radar-observed receipts" [level=2]
+    - status:
+      - strong: No receipts for this machine.
+      - generic: Run a preflight decision to start its behavioral memory.
+  - heading "Caveats" [level=2]
+  - list:
+    - listitem: This dossier represents Radar-observed machine preflight decisions only.
+    - listitem: It does not verify live peaqOS identity, wallet ownership, payment execution, or physical-world robot activity.
+    - listitem: Receipts record whether a machine should spend before any service call occurs.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

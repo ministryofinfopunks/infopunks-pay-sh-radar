@@ -1,0 +1,90 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Ansem
+- paragraph:
+  - generic: "[ 09 ]"
+  - text: SIGNALS / MARKET INTELLIGENCE
+- link "Skip to content":
+  - /url: "#signal-content"
+- main:
+  - paragraph: Signal source profile
+  - heading "Ansem" [level=1]
+  - paragraph: Ansem operates here as a signal source. The question is not whether the persona is right. The question is how fast that persona can coordinate belief, wallets, and meme transmission.
+  - paragraph: This page maps a signal source. It is not financial advice and it is not a buy or sell call.
+  - paragraph: Signal source
+  - paragraph: Ansem
+  - paragraph: Last updated
+  - paragraph: 2026-07-01 09:00
+  - paragraph: Mapped asset
+  - heading "ANSEM / The Black Bull" [level=2]
+  - paragraph: Infopunks keeps the Black Bull at SUPPORTIVE WATCH while reclassifying the signal as Coordination Market Emerging. Infopunks do not worship signal. Infopunks map signal. Coordination evidence has improved, but KOL dependency and power concentration remain material.
+  - region "Related narrative routes":
+    - paragraph: Desk links
+    - link "Black Bull Signal Report":
+      - /url: /signals/black-bull
+    - link "Attention Markets Thesis":
+      - /url: /narratives/attention-markets
+  - region "Signal Source":
+    - paragraph: Narrative desk
+    - heading "Signal Source" [level=2]
+    - paragraph: Ansem is treated here as an originating signal node for social coordination, not as an oracle. Infopunks maps how persona-driven flows can become tradable attention markets.
+    - article:
+      - paragraph: Signal Strength
+      - generic: strong signal
+      - strong: 92/100
+      - paragraph: Persona visibility, memetic clarity, and wallet attention are moving in sync.
+      - generic: "Evidence note: Attention is reaching the asset through identity before fundamentals."
+    - article:
+      - paragraph: KOL Dependency
+      - generic: concentrated power
+      - strong: 93/100
+      - paragraph: Narrative persistence is heavily linked to one amplifier cluster.
+      - generic: "Evidence note: If the source attention cools, liquidity reflex can cool with it."
+    - article:
+      - paragraph: Sovereignty Score
+      - generic: unproven
+      - strong: 45/100
+      - paragraph: The market still depends on borrowed identity, not independent mission gravity.
+      - generic: "Evidence note: Sovereignty remains thin relative to narrative intensity."
+  - article:
+    - paragraph: Persona-linked order flow
+    - paragraph: Wallet watchers and social propagation keep collapsing into one symbol map.
+  - article:
+    - paragraph: Myth compression
+    - paragraph: Ticker, persona, and meme identity remain unusually legible for an early narrative market.
+  - article:
+    - paragraph: Crowded trench reflex
+    - paragraph: Attention spikes can convert directly into copy-trade contagion before durable ownership forms.
+  - article:
+    - paragraph: Airdrop coordination evidence
+    - paragraph: Ansem / the linked wallet reportedly airdropped 67.38M $ANSEM to 700+ wallets, while 49.89M $ANSEM reportedly clustered around 7 wallets.
+    - link "Open artifact":
+      - /url: https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers
+  - article:
+    - paragraph: Redistribution flywheel
+    - paragraph: Community-reported summaries frame creator-fee redistribution as trench stimmy mechanics that convert persona attention into wider participation and holder-base expansion.
+  - article:
+    - paragraph: Holder growth narrative
+    - paragraph: Tracker-visible and community-reported summaries now emphasize 72,000+ holders and rapid holder growth as a core part of the Black Bull signal, without treating those figures as canonical truth.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

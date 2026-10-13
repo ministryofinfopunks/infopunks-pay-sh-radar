@@ -1,0 +1,105 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: Scout Network
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#scouts-content"
+- main:
+  - paragraph: Evidence guild
+  - heading "Signal Scouts" [level=1]
+  - paragraph: The market forgets. Scouts bring receipts.
+  - paragraph: No rewards. No raids. Just better memory.
+  - link "Read Scout roles":
+    - /url: "#scout-roles"
+  - link "Submit evidence":
+    - /url: /rh-chain-signal-desk/submit
+  - complementary:
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Manual snapshot
+      - generic: Status
+      - strong: Fresh
+      - generic: Observed
+      - strong: Oct 13, 2026, 4:51 AM UTC
+      - generic: Relative age
+      - strong: Updated just now
+      - generic: Sources
+      - strong: Source required
+      - generic: Source policy
+      - paragraph: Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - paragraph: Signal Scouts are consented public attributions for evidence contributions only. No token rewards, paid alpha access, trading coordination, endorsement, or financial recommendation is offered.
+  - paragraph: Scout Roles
+  - heading "Useful ways to strengthen the desk" [level=2]
+  - article:
+    - heading "Receipt Hunter" [level=3]
+    - paragraph: Finds source links, contracts, pairs, and timestamped liquidity context.
+  - article:
+    - heading "Risk Spotter" [level=3]
+    - paragraph: Surfaces clone, identity, deployer, or evidence gaps without making definitive claims.
+  - article:
+    - heading "Narrative Mapper" [level=3]
+    - paragraph: Records how tickers, memes, and market language mutate across the desk.
+  - article:
+    - heading "Launch Surface Watcher" [level=3]
+    - paragraph: Documents launch claims, routes, and missing provenance for manual review.
+  - article:
+    - heading "Signal Archivist" [level=3]
+    - paragraph: Preserves public memory so the market cannot erase its own receipts.
+  - paragraph: Public Scout Board
+  - heading "Consented attribution only" [level=2]
+  - paragraph: Handles appear here only when a contributor explicitly opts in. Private contact details never leave Signal Vault.
+  - paragraph: empty
+  - heading "No consented Scout handles yet" [level=2]
+  - paragraph: Evidence can still be submitted without public attribution.
+  - paragraph: How to Submit a Good Signal
+  - heading "Make the receipt useful" [level=2]
+  - article:
+    - heading "Contract" [level=3]
+    - paragraph: Exact contract, not just a ticker.
+  - article:
+    - heading "Pair" [level=3]
+    - paragraph: Pair address and source-linked liquidity context.
+  - article:
+    - heading "Launch source" [level=3]
+    - paragraph: Where the launch claim came from, with a link.
+  - article:
+    - heading "Liquidity link" [level=3]
+    - paragraph: A reviewable pool, explorer, or liquidity receipt.
+  - article:
+    - heading "Deployer evidence" [level=3]
+    - paragraph: Deployer, ownership, or funding-path context.
+  - article:
+    - heading "Narrative / risk note" [level=3]
+    - paragraph: Why it matters—and what could be wrong.
+  - paragraph: Contribute evidence
+  - heading "Bring a receipt the market can remember." [level=2]
+  - link "Submit a Signal":
+    - /url: /rh-chain-signal-desk/submit
+  - link "View Review Queue":
+    - /url: /rh-chain-signal-desk/review-queue
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

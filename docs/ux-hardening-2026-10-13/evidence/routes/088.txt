@@ -1,0 +1,215 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Receipts
+- paragraph:
+  - generic: "[ 04 ]"
+  - text: RECEIPTS / PROOF ARCHIVE
+- main "Receipts":
+  - paragraph: Receipt-backed route intelligence
+  - heading "Receipts" [level=1]
+  - paragraph: Receipts are the proof layer behind route intelligence. No receipt, no trust. Every receipt should link back to route, provider, service, validation, and evidence graph context.
+  - region "Pre-spend intelligence metrics":
+    - article:
+      - text: Legacy diagnostic records
+      - strong: "3"
+    - article:
+      - text: routes indexed
+      - strong: "6"
+    - article:
+      - text: providers scored
+      - strong: "5"
+    - article:
+      - text: receipts generated
+      - strong: "11"
+    - article:
+      - text: pre-spend checks completed
+      - strong: "6"
+    - article:
+      - text: human validations submitted
+      - strong: "3"
+    - article:
+      - text: failed routes avoided
+      - strong: "0"
+    - article:
+      - text: claims challenged
+      - strong: "2"
+    - article:
+      - text: repeatable routes discovered
+      - strong: "3"
+  - region "Receipt ledger rows":
+    - article:
+      - 'link "price_token_quote receipt_005 status succeeded cost 0.07 USDC latency 240 ms validation state human_validated linked route route_pay_sh_token_quote_01 linked provider provider_pay_sh_quartz Failure reason: none Evidence artifact: artifact_token_quote_run_001 Inspect receipt impact"':
+        - /url: /receipts/receipt_005
+        - paragraph: price_token_quote
+        - heading "receipt_005" [level=2]
+        - generic: status succeeded
+        - generic: cost 0.07 USDC
+        - generic: latency 240 ms
+        - generic: validation state human_validated
+        - generic: linked route route_pay_sh_token_quote_01
+        - generic: linked provider provider_pay_sh_quartz
+        - paragraph: "Failure reason: none"
+        - paragraph: "Evidence artifact: artifact_token_quote_run_001"
+        - generic: Inspect receipt impact
+    - article:
+      - 'link "run_compliance_scan receipt_010 status succeeded cost 1.80 USDC latency 1680 ms validation state machine_checked linked route route_pay_sh_compliance_scan_01 linked provider provider_pay_sh_oracle Failure reason: none Evidence artifact: artifact_compliance_run_001 Inspect receipt impact"':
+        - /url: /receipts/receipt_010
+        - paragraph: run_compliance_scan
+        - heading "receipt_010" [level=2]
+        - generic: status succeeded
+        - generic: cost 1.80 USDC
+        - generic: latency 1680 ms
+        - generic: validation state machine_checked
+        - generic: linked route route_pay_sh_compliance_scan_01
+        - generic: linked provider provider_pay_sh_oracle
+        - paragraph: "Failure reason: none"
+        - paragraph: "Evidence artifact: artifact_compliance_run_001"
+        - generic: Inspect receipt impact
+    - article:
+      - 'link "buy_market_research receipt_003 status succeeded cost 0.31 USDC latency 810 ms validation state human_validated linked route route_pay_sh_market_research_03 linked provider provider_pay_sh_oracle Failure reason: none Evidence artifact: artifact_market_research_run_003 Inspect receipt impact"':
+        - /url: /receipts/receipt_003
+        - paragraph: buy_market_research
+        - heading "receipt_003" [level=2]
+        - generic: status succeeded
+        - generic: cost 0.31 USDC
+        - generic: latency 810 ms
+        - generic: validation state human_validated
+        - generic: linked route route_pay_sh_market_research_03
+        - generic: linked provider provider_pay_sh_oracle
+        - paragraph: "Failure reason: none"
+        - paragraph: "Evidence artifact: artifact_market_research_run_003"
+        - generic: Inspect receipt impact
+    - article:
+      - 'link "price_token_quote receipt_006 status succeeded cost 0.07 USDC latency 250 ms validation state human_validated linked route route_pay_sh_token_quote_01 linked provider provider_pay_sh_quartz Failure reason: none Evidence artifact: artifact_token_quote_run_002 Inspect receipt impact"':
+        - /url: /receipts/receipt_006
+        - paragraph: price_token_quote
+        - heading "receipt_006" [level=2]
+        - generic: status succeeded
+        - generic: cost 0.07 USDC
+        - generic: latency 250 ms
+        - generic: validation state human_validated
+        - generic: linked route route_pay_sh_token_quote_01
+        - generic: linked provider provider_pay_sh_quartz
+        - paragraph: "Failure reason: none"
+        - paragraph: "Evidence artifact: artifact_token_quote_run_002"
+        - generic: Inspect receipt impact
+    - article:
+      - 'link "buy_market_research receipt_001 status succeeded cost 0.25 USDC latency 980 ms validation state human_validated linked route route_pay_sh_market_research_01 linked provider provider_pay_sh_lattice Failure reason: none Evidence artifact: artifact_market_research_run_001 Inspect receipt impact"':
+        - /url: /receipts/receipt_001
+        - paragraph: buy_market_research
+        - heading "receipt_001" [level=2]
+        - generic: status succeeded
+        - generic: cost 0.25 USDC
+        - generic: latency 980 ms
+        - generic: validation state human_validated
+        - generic: linked route route_pay_sh_market_research_01
+        - generic: linked provider provider_pay_sh_lattice
+        - paragraph: "Failure reason: none"
+        - paragraph: "Evidence artifact: artifact_market_research_run_001"
+        - generic: Inspect receipt impact
+    - article:
+      - 'link "buy_market_research receipt_002 status succeeded cost 0.25 USDC latency 1180 ms validation state machine_checked linked route route_pay_sh_market_research_01 linked provider provider_pay_sh_lattice Failure reason: none Evidence artifact: artifact_market_research_run_002 Inspect receipt impact"':
+        - /url: /receipts/receipt_002
+        - paragraph: buy_market_research
+        - heading "receipt_002" [level=2]
+        - generic: status succeeded
+        - generic: cost 0.25 USDC
+        - generic: latency 1180 ms
+        - generic: validation state machine_checked
+        - generic: linked route route_pay_sh_market_research_01
+        - generic: linked provider provider_pay_sh_lattice
+        - paragraph: "Failure reason: none"
+        - paragraph: "Evidence artifact: artifact_market_research_run_002"
+        - generic: Inspect receipt impact
+    - article:
+      - 'link "buy_market_research receipt_004 status succeeded cost 0.31 USDC latency 860 ms validation state human_validated linked route route_pay_sh_market_research_03 linked provider provider_pay_sh_oracle Failure reason: none Evidence artifact: artifact_market_research_run_004 Inspect receipt impact"':
+        - /url: /receipts/receipt_004
+        - paragraph: buy_market_research
+        - heading "receipt_004" [level=2]
+        - generic: status succeeded
+        - generic: cost 0.31 USDC
+        - generic: latency 860 ms
+        - generic: validation state human_validated
+        - generic: linked route route_pay_sh_market_research_03
+        - generic: linked provider provider_pay_sh_oracle
+        - paragraph: "Failure reason: none"
+        - paragraph: "Evidence artifact: artifact_market_research_run_004"
+        - generic: Inspect receipt impact
+    - article:
+      - 'link "scrape_private_profile receipt_011 status failed cost 0.90 USDC latency 3900 ms validation state disputed linked route route_pay_sh_profile_scrape_09 linked provider provider_x Failure reason: no recent successful receipt Evidence artifact: artifact_provider_x_dispute_001 Inspect receipt impact"':
+        - /url: /receipts/receipt_011
+        - paragraph: scrape_private_profile
+        - heading "receipt_011" [level=2]
+        - generic: status failed
+        - generic: cost 0.90 USDC
+        - generic: latency 3900 ms
+        - generic: validation state disputed
+        - generic: linked route route_pay_sh_profile_scrape_09
+        - generic: linked provider provider_x
+        - paragraph: "Failure reason: no recent successful receipt"
+        - paragraph: "Evidence artifact: artifact_provider_x_dispute_001"
+        - generic: Inspect receipt impact
+    - article:
+      - 'link "extract_receipt_fields receipt_009 status failed cost 0.12 USDC latency 1260 ms validation state machine_checked linked route route_pay_sh_receipt_parse_02 linked provider provider_pay_sh_glass Failure reason: table layout unsupported Evidence artifact: artifact_receipt_parse_run_002 Inspect receipt impact"':
+        - /url: /receipts/receipt_009
+        - paragraph: extract_receipt_fields
+        - heading "receipt_009" [level=2]
+        - generic: status failed
+        - generic: cost 0.12 USDC
+        - generic: latency 1260 ms
+        - generic: validation state machine_checked
+        - generic: linked route route_pay_sh_receipt_parse_02
+        - generic: linked provider provider_pay_sh_glass
+        - paragraph: "Failure reason: table layout unsupported"
+        - paragraph: "Evidence artifact: artifact_receipt_parse_run_002"
+        - generic: Inspect receipt impact
+    - article:
+      - 'link "price_token_quote receipt_007 status succeeded cost 0.07 USDC latency 290 ms validation state machine_checked linked route route_pay_sh_token_quote_01 linked provider provider_pay_sh_quartz Failure reason: none Evidence artifact: artifact_token_quote_run_003 Inspect receipt impact"':
+        - /url: /receipts/receipt_007
+        - paragraph: price_token_quote
+        - heading "receipt_007" [level=2]
+        - generic: status succeeded
+        - generic: cost 0.07 USDC
+        - generic: latency 290 ms
+        - generic: validation state machine_checked
+        - generic: linked route route_pay_sh_token_quote_01
+        - generic: linked provider provider_pay_sh_quartz
+        - paragraph: "Failure reason: none"
+        - paragraph: "Evidence artifact: artifact_token_quote_run_003"
+        - generic: Inspect receipt impact
+    - article:
+      - 'link "extract_receipt_fields receipt_008 status succeeded cost 0.12 USDC latency 740 ms validation state stale linked route route_pay_sh_receipt_parse_02 linked provider provider_pay_sh_glass Failure reason: none Evidence artifact: artifact_receipt_parse_run_001 Inspect receipt impact"':
+        - /url: /receipts/receipt_008
+        - paragraph: extract_receipt_fields
+        - heading "receipt_008" [level=2]
+        - generic: status succeeded
+        - generic: cost 0.12 USDC
+        - generic: latency 740 ms
+        - generic: validation state stale
+        - generic: linked route route_pay_sh_receipt_parse_02
+        - generic: linked provider provider_pay_sh_glass
+        - paragraph: "Failure reason: none"
+        - paragraph: "Evidence artifact: artifact_receipt_parse_run_001"
+        - generic: Inspect receipt impact
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

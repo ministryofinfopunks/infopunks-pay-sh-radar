@@ -1,0 +1,428 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Proof Plans
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-shortlist-content"
+- banner:
+  - navigation "Machine Execution Shortlist navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Robotic.sh Execution Candidate Shortlist":
+  - paragraph: Robotic.sh Execution Candidate Shortlist
+  - heading "Execution Shortlist" [level=1]
+  - paragraph: Evidence-based candidate ranking for future execution attempts across the 13 robotic.sh-visible services.
+  - paragraph: Candidate ranking evaluates readiness for future execution. It is not a payment, benchmark, provider-quality, or winner claim.
+  - generic "Shortlist principles":
+    - generic: Candidate language only
+    - generic: No new execution
+    - generic: Coverage is not execution
+  - region "Pay.sh separation note":
+    - paragraph: Pay.sh execution candidates are tracked separately from the robotic.sh visible service mirror. Alibaba Machine Translation General is the first service-specific execution-tested Pay.sh route in this machine-translation evidence set; it is not counted as one of the 13 visible robotic.sh services unless robotic.sh lists it.
+  - region "Top execution candidate":
+    - paragraph: Top Candidate
+    - heading "Cloud Translation" [level=2]
+    - paragraph: Radar recommends this as the clearest next execution candidate among the 13 robotic.sh-visible services. This is not an execution claim.
+    - paragraph:
+      - generic: safest next robotic.sh-listed candidate
+      - generic: Cloud Translation / cloud-translation
+    - paragraph:
+      - generic: why selected
+      - generic: Latest policy evidence allows this service. Catalog status is ready. translation has clear input/output boundaries. Coverage decision is not recorded.
+    - paragraph:
+      - generic: why not execution-proven
+      - generic: No execution receipt is recorded for this robotic.sh-listed service.
+    - paragraph:
+      - generic: evidence needed before execution
+      - generic: Fresh allow preflight, explicit operator approval, route/auth readiness, request/response schema, cost ceiling, and durable execution receipt storage.
+    - paragraph:
+      - generic: latest receipt/preflight reference
+      - generic: mrx_demo_did_peaq_field_bot_07
+    - paragraph:
+      - generic: candidate tier
+      - generic: possible_candidate
+    - paragraph:
+      - generic: overall candidate score
+      - generic: "79"
+    - paragraph:
+      - generic: proof planning
+      - link "View proof plan":
+        - /url: /machine-execution-plan/cloud-translation
+  - group "Evidence methodology drawer":
+    - generic "Evidence methodology Evidence methodology Definitions for listed, classified, policy_mapped, preflight_recorded, proof_path, proof_plan_selected, execution_receipt, and repeatability_receipt.":
+      - generic: Evidence methodology
+      - strong: Evidence methodology
+      - generic: Definitions for listed, classified, policy_mapped, preflight_recorded, proof_path, proof_plan_selected, execution_receipt, and repeatability_receipt.
+  - region "Shortlist methodology":
+    - paragraph: Methodology
+    - heading "Deterministic scoring model" [level=2]
+    - paragraph: Shortlist ranking evaluates readiness for future execution. It does not imply payment success, provider quality, or benchmark superiority.
+    - paragraph:
+      - generic: policy_safety_score
+      - generic: Latest allow/review/deny decision from service-specific preflight or coverage, with penalties for blocked/setup-sensitive risks.
+    - paragraph:
+      - generic: execution_readiness_score
+      - generic: Catalog readiness and service-specific execution receipt status. Missing execution remains not_attempted.
+    - paragraph:
+      - generic: auth_friction_score
+      - generic: Lower friction for ready Pay.sh metadata, higher friction for setup-stage or sensitive web services.
+    - paragraph:
+      - generic: machine_relevance_score
+      - generic: Category and use-case fit for machine tasks, reduced for sensitive or abuse-prone use cases.
+    - paragraph:
+      - generic: input_output_clarity_score
+      - generic: Deterministic preference for services with clear request/response boundaries such as translation, storage, document parsing, and data queries.
+    - paragraph:
+      - generic: catalog_confidence_score
+      - generic: Completeness of provider, price, status, source market, chain, and robotic.sh observation metadata.
+    - paragraph:
+      - generic: evidence_health_score
+      - generic: Evidence health plus coverage/preflight receipt presence. Missing data is marked not recorded and reduces confidence.
+  - region "Execution candidate ranking":
+    - paragraph: Candidate Ranking
+    - heading "13 robotic.sh-visible services" [level=2]
+    - generic: Sorted by deterministic candidate score, then service_id.
+    - table "Robotic.sh execution candidate table":
+      - text: Scroll horizontally for all columns →
+      - 'row "Cloud Translation cloud-translation Google translation pay.sh solana allow policy-mapped scaffold not_attempted possible_candidate 79 monitor Positive: Latest policy evidence allows this service. Catalog status is ready. Blocking: Policy risk indicates sensitive or blocked use. No execution receipt recorded for this robotic.sh-listed service. View service dossier View proof plan"':
+        - cell "Cloud Translation cloud-translation":
+          - strong: Cloud Translation
+          - generic: cloud-translation
+        - cell "Google"
+        - cell "translation"
+        - cell "pay.sh"
+        - cell "solana"
+        - cell "allow"
+        - cell "policy-mapped scaffold":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: scaffold
+        - cell "not_attempted"
+        - cell "possible_candidate"
+        - cell "79":
+          - generic: "79"
+        - cell "monitor"
+        - 'cell "Positive: Latest policy evidence allows this service. Catalog status is ready. Blocking: Policy risk indicates sensitive or blocked use. No execution receipt recorded for this robotic.sh-listed service."':
+          - generic: "Positive: Latest policy evidence allows this service. Catalog status is ready. Blocking: Policy risk indicates sensitive or blocked use. No execution receipt recorded for this robotic.sh-listed service."
+        - cell "View service dossier View proof plan":
+          - link "View service dossier":
+            - /url: /machine-service/cloud-translation
+          - link "View proof plan":
+            - /url: /machine-execution-plan/cloud-translation
+      - 'row "Document AI document-ai Google vision pay.sh solana allow policy-mapped scaffold not_attempted possible_candidate 77 monitor Positive: Latest policy evidence allows this service. Catalog status is ready. Blocking: Policy risk indicates sensitive or blocked use. No execution receipt recorded for this robotic.sh-listed service. View service dossier View proof plan"':
+        - cell "Document AI document-ai":
+          - strong: Document AI
+          - generic: document-ai
+        - cell "Google"
+        - cell "vision"
+        - cell "pay.sh"
+        - cell "solana"
+        - cell "allow"
+        - cell "policy-mapped scaffold":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: scaffold
+        - cell "not_attempted"
+        - cell "possible_candidate"
+        - cell "77":
+          - generic: "77"
+        - cell "monitor"
+        - 'cell "Positive: Latest policy evidence allows this service. Catalog status is ready. Blocking: Policy risk indicates sensitive or blocked use. No execution receipt recorded for this robotic.sh-listed service."':
+          - generic: "Positive: Latest policy evidence allows this service. Catalog status is ready. Blocking: Policy risk indicates sensitive or blocked use. No execution receipt recorded for this robotic.sh-listed service."
+        - cell "View service dossier View proof plan":
+          - link "View service dossier":
+            - /url: /machine-service/document-ai
+          - link "View proof plan":
+            - /url: /machine-execution-plan/document-ai
+      - 'row "Stableupload stableupload Stableupload storage pay.sh solana review policy-mapped scaffold not_attempted possible_candidate 69 monitor Positive: Latest policy evidence is review. Catalog status is ready. Blocking: Policy risk indicates sensitive or blocked use. Latest policy decision requires review. View service dossier View proof plan"':
+        - cell "Stableupload stableupload":
+          - strong: Stableupload
+          - generic: stableupload
+        - cell "Stableupload"
+        - cell "storage"
+        - cell "pay.sh"
+        - cell "solana"
+        - cell "review"
+        - cell "policy-mapped scaffold":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: scaffold
+        - cell "not_attempted"
+        - cell "possible_candidate"
+        - cell "69":
+          - generic: "69"
+        - cell "monitor"
+        - 'cell "Positive: Latest policy evidence is review. Catalog status is ready. Blocking: Policy risk indicates sensitive or blocked use. Latest policy decision requires review."':
+          - generic: "Positive: Latest policy evidence is review. Catalog status is ready. Blocking: Policy risk indicates sensitive or blocked use. Latest policy decision requires review."
+        - cell "View service dossier View proof plan":
+          - link "View service dossier":
+            - /url: /machine-service/stableupload
+          - link "View proof plan":
+            - /url: /machine-execution-plan/stableupload
+      - 'row "Exa exa Exa web agentic.market base not recorded policy-mapped scaffold not_attempted review_required 63 needs_review Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service. View service dossier View proof plan"':
+        - cell "Exa exa":
+          - strong: Exa
+          - generic: exa
+        - cell "Exa"
+        - cell "web"
+        - cell "agentic.market"
+        - cell "base"
+        - cell "not recorded"
+        - cell "policy-mapped scaffold":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: scaffold
+        - cell "not_attempted"
+        - cell "review_required"
+        - cell "63":
+          - generic: "63"
+        - cell "needs_review"
+        - 'cell "Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service."':
+          - generic: "Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service."
+        - cell "View service dossier View proof plan":
+          - link "View service dossier":
+            - /url: /machine-service/exa
+          - link "View proof plan":
+            - /url: /machine-execution-plan/exa
+      - 'row "Firecrawl firecrawl Firecrawl web agentic.market base not recorded policy-mapped scaffold not_attempted review_required 63 needs_review Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service. View service dossier View proof plan"':
+        - cell "Firecrawl firecrawl":
+          - strong: Firecrawl
+          - generic: firecrawl
+        - cell "Firecrawl"
+        - cell "web"
+        - cell "agentic.market"
+        - cell "base"
+        - cell "not recorded"
+        - cell "policy-mapped scaffold":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: scaffold
+        - cell "not_attempted"
+        - cell "review_required"
+        - cell "63":
+          - generic: "63"
+        - cell "needs_review"
+        - 'cell "Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service."':
+          - generic: "Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service."
+        - cell "View service dossier View proof plan":
+          - link "View service dossier":
+            - /url: /machine-service/firecrawl
+          - link "View proof plan":
+            - /url: /machine-execution-plan/firecrawl
+      - 'row "Generative Language generative-language Google inference pay.sh solana not recorded policy-mapped scaffold not_attempted review_required 63 needs_review Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service. View service dossier View proof plan"':
+        - cell "Generative Language generative-language":
+          - strong: Generative Language
+          - generic: generative-language
+        - cell "Google"
+        - cell "inference"
+        - cell "pay.sh"
+        - cell "solana"
+        - cell "not recorded"
+        - cell "policy-mapped scaffold":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: scaffold
+        - cell "not_attempted"
+        - cell "review_required"
+        - cell "63":
+          - generic: "63"
+        - cell "needs_review"
+        - 'cell "Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service."':
+          - generic: "Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service."
+        - cell "View service dossier View proof plan":
+          - link "View service dossier":
+            - /url: /machine-service/generative-language
+          - link "View proof plan":
+            - /url: /machine-execution-plan/generative-language
+      - 'row "NAVER Maps naver-maps NAVER navigation robotic.sh unknown not recorded policy-mapped scaffold not_attempted review_required 62 needs_review Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service. View service dossier View proof plan"':
+        - cell "NAVER Maps naver-maps":
+          - strong: NAVER Maps
+          - generic: naver-maps
+        - cell "NAVER"
+        - cell "navigation"
+        - cell "robotic.sh"
+        - cell "unknown"
+        - cell "not recorded"
+        - cell "policy-mapped scaffold":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: scaffold
+        - cell "not_attempted"
+        - cell "review_required"
+        - cell "62":
+          - generic: "62"
+        - cell "needs_review"
+        - 'cell "Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service."':
+          - generic: "Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service."
+        - cell "View service dossier View proof plan":
+          - link "View service dossier":
+            - /url: /machine-service/naver-maps
+          - link "View proof plan":
+            - /url: /machine-execution-plan/naver-maps
+      - 'row "ChatGPT chatgpt OpenAI inference agentic.market base not recorded policy-mapped scaffold not_attempted review_required 61 needs_review Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service. View service dossier View proof plan"':
+        - cell "ChatGPT chatgpt":
+          - strong: ChatGPT
+          - generic: chatgpt
+        - cell "OpenAI"
+        - cell "inference"
+        - cell "agentic.market"
+        - cell "base"
+        - cell "not recorded"
+        - cell "policy-mapped scaffold":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: scaffold
+        - cell "not_attempted"
+        - cell "review_required"
+        - cell "61":
+          - generic: "61"
+        - cell "needs_review"
+        - 'cell "Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service."':
+          - generic: "Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service."
+        - cell "View service dossier View proof plan":
+          - link "View service dossier":
+            - /url: /machine-service/chatgpt
+          - link "View proof plan":
+            - /url: /machine-execution-plan/chatgpt
+      - 'row "Claude claude Anthropic inference agentic.market base not recorded policy-mapped scaffold not_attempted review_required 61 needs_review Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service. View service dossier View proof plan"':
+        - cell "Claude claude":
+          - strong: Claude
+          - generic: claude
+        - cell "Anthropic"
+        - cell "inference"
+        - cell "agentic.market"
+        - cell "base"
+        - cell "not recorded"
+        - cell "policy-mapped scaffold":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: scaffold
+        - cell "not_attempted"
+        - cell "review_required"
+        - cell "61":
+          - generic: "61"
+        - cell "needs_review"
+        - 'cell "Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service."':
+          - generic: "Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service."
+        - cell "View service dossier View proof plan":
+          - link "View service dossier":
+            - /url: /machine-service/claude
+          - link "View proof plan":
+            - /url: /machine-execution-plan/claude
+      - 'row "Wolfram Alpha wolfram-alpha Wolfram Research inference agentic.market base not recorded policy-mapped scaffold not_attempted review_required 61 needs_review Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service. View service dossier View proof plan"':
+        - cell "Wolfram Alpha wolfram-alpha":
+          - strong: Wolfram Alpha
+          - generic: wolfram-alpha
+        - cell "Wolfram Research"
+        - cell "inference"
+        - cell "agentic.market"
+        - cell "base"
+        - cell "not recorded"
+        - cell "policy-mapped scaffold":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: scaffold
+        - cell "not_attempted"
+        - cell "review_required"
+        - cell "61":
+          - generic: "61"
+        - cell "needs_review"
+        - 'cell "Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service."':
+          - generic: "Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: No preflight/coverage decision recorded. No execution receipt recorded for this robotic.sh-listed service."
+        - cell "View service dossier View proof plan":
+          - link "View service dossier":
+            - /url: /machine-service/wolfram-alpha
+          - link "View proof plan":
+            - /url: /machine-execution-plan/wolfram-alpha
+      - 'row "BigQuery bigquery Google web pay.sh solana not recorded policy-mapped scaffold not_attempted not_ready 60 avoid_for_now Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: Policy risk indicates sensitive or blocked use. No preflight/coverage decision recorded. View service dossier View proof plan"':
+        - cell "BigQuery bigquery":
+          - strong: BigQuery
+          - generic: bigquery
+        - cell "Google"
+        - cell "web"
+        - cell "pay.sh"
+        - cell "solana"
+        - cell "not recorded"
+        - cell "policy-mapped scaffold":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: scaffold
+        - cell "not_attempted"
+        - cell "not_ready"
+        - cell "60":
+          - generic: "60"
+        - cell "avoid_for_now"
+        - 'cell "Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: Policy risk indicates sensitive or blocked use. No preflight/coverage decision recorded."':
+          - generic: "Positive: No service-specific preflight decision is recorded yet. Catalog status is ready. Blocking: Policy risk indicates sensitive or blocked use. No preflight/coverage decision recorded."
+        - cell "View service dossier View proof plan":
+          - link "View service dossier":
+            - /url: /machine-service/bigquery
+          - link "View proof plan":
+            - /url: /machine-execution-plan/bigquery
+      - 'row "2Captcha 2captcha 2Captcha web agentic.market base review policy-mapped scaffold not_attempted not_ready 56 avoid_for_now Positive: Latest policy evidence is review. Catalog status is ready. Blocking: Policy risk indicates sensitive or blocked use. Latest policy decision requires review. View service dossier View proof plan"':
+        - cell "2Captcha 2captcha":
+          - strong: 2Captcha
+          - generic: 2captcha
+        - cell "2Captcha"
+        - cell "web"
+        - cell "agentic.market"
+        - cell "base"
+        - cell "review"
+        - cell "policy-mapped scaffold":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: scaffold
+        - cell "not_attempted"
+        - cell "not_ready"
+        - cell "56":
+          - generic: "56"
+        - cell "avoid_for_now"
+        - 'cell "Positive: Latest policy evidence is review. Catalog status is ready. Blocking: Policy risk indicates sensitive or blocked use. Latest policy decision requires review."':
+          - generic: "Positive: Latest policy evidence is review. Catalog status is ready. Blocking: Policy risk indicates sensitive or blocked use. Latest policy decision requires review."
+        - cell "View service dossier View proof plan":
+          - link "View service dossier":
+            - /url: /machine-service/2captcha
+          - link "View proof plan":
+            - /url: /machine-execution-plan/2captcha
+      - 'row "QVAC qvac Tether compute robotic.sh peaq review policy-mapped scaffold not_attempted review_required 50 needs_review Positive: Latest policy evidence is review. Catalog status is setup. Blocking: Setup-stage service requires readiness review. Latest policy decision requires review. View service dossier View proof plan"':
+        - cell "QVAC qvac":
+          - strong: QVAC
+          - generic: qvac
+        - cell "Tether"
+        - cell "compute"
+        - cell "robotic.sh"
+        - cell "peaq"
+        - cell "review"
+        - cell "policy-mapped scaffold":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: scaffold
+        - cell "not_attempted"
+        - cell "review_required"
+        - cell "50":
+          - generic: "50"
+        - cell "needs_review"
+        - 'cell "Positive: Latest policy evidence is review. Catalog status is setup. Blocking: Setup-stage service requires readiness review. Latest policy decision requires review."':
+          - generic: "Positive: Latest policy evidence is review. Catalog status is setup. Blocking: Setup-stage service requires readiness review. Latest policy decision requires review."
+        - cell "View service dossier View proof plan":
+          - link "View service dossier":
+            - /url: /machine-service/qvac
+          - link "View proof plan":
+            - /url: /machine-execution-plan/qvac
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

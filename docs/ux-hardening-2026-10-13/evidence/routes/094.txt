@@ -1,0 +1,456 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: Robinhood Chain Signal Desk
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#rh-chain-content"
+- main:
+  - region "Know what is moving. Know what is real.":
+    - paragraph: Public intelligence for Chain 4663
+    - group "Signal Desk view mode":
+      - button "brief" [pressed]
+      - button "analyst"
+    - heading "Know what is moving. Know what is real." [level=1]:
+      - text: Know what is moving.
+      - text: Know what is real.
+    - paragraph: Independent intelligence, risk memory and market signals for Robinhood Chain.
+    - paragraph: External data gives context. Infopunks gives judgment.
+    - generic: Paste an RH Chain contract
+    - textbox "Paste an RH Chain contract":
+      - /placeholder: 0x........................................
+    - button "Check 4663"
+    - paragraph: Exact-contract context only. This check is not an approval or recommendation.
+    - complementary "Today on 4663 summary":
+      - generic: Today on 4663
+      - term: Market state
+      - definition: stale
+      - term: Top signal
+      - definition: CASHCAT · Flagship RH Chain attention asset with strong public visibility, liquidity context, and receipt trail. Approved signal means market-memory inclusion, not endorsement or safety.
+      - term: Biggest risk
+      - definition: Suspected low liquidity clone pattern. Seeded dividend/yield risk marker. Claim language is high-risk and no payout mechanism receipt exists.
+      - term: Latest receipt
+      - definition: "Receipt #006"
+      - term: Open reviews
+      - definition: "5"
+      - term: Observed
+      - definition: 2026-07-19 00:00 UTC
+      - term: Sources
+      - definition: "14"
+      - generic "View source policy"
+      - paragraph: Independent Infopunks intelligence. Not affiliated with or endorsed by Robinhood. No buy, sell, or listing recommendation.
+  - region "Today on 4663":
+    - paragraph: Daily pulse
+    - heading "Today on 4663" [level=2]
+    - generic: Four decisions. One minute. Every claim keeps its evidence state.
+    - article:
+      - paragraph: Top Signal
+      - generic: stale
+      - heading "CASHCAT · Flagship RH Chain attention asset with strong public visibility, liquidity context, and receipt trail. Approved signal means market-memory inclusion, not endorsement or safety." [level=3]
+      - generic: reviewed memory
+      - generic: 2026-07-16 00:00 UTC
+      - generic: 1 source
+      - link "Open Top Signal":
+        - /url: /rh-chain-signal-desk/tokens/0x020bfC650A365f8BB26819deAAbF3E21291018b4
+        - text: Open Top Signal ↗
+    - article:
+      - paragraph: Attention Shift
+      - generic: stale
+      - heading "ROUTE · Active speculation with usable desk memory. External receipts still required." [level=3]
+      - generic: attention context
+      - generic: 2026-07-09 03:45 UTC
+      - generic: 1 source
+      - link "Open Attention Shift":
+        - /url: /rh-chain-signal-desk/meme-pulse
+        - text: Open Attention Shift ↗
+    - article:
+      - paragraph: Risk Alert
+      - generic: stale
+      - heading "Suspected low liquidity clone pattern. Seeded dividend/yield risk marker. Claim language is high-risk and no payout mechanism receipt exists." [level=3]
+      - generic: requires review
+      - generic: 2026-07-09 03:45 UTC
+      - generic: 1 source
+      - link "Open Risk Alert":
+        - /url: /rh-chain-signal-desk/clone-radar
+        - text: Open Risk Alert ↗
+    - article:
+      - paragraph: Receipt Update
+      - generic: stale
+      - heading "Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers" [level=3]
+      - generic: reviewed memory
+      - generic: 2026-07-19 00:00 UTC
+      - generic: 1 source
+      - link "Open Receipt Update":
+        - /url: /rh-chain-signal-desk/daily-receipts/rh_daily_006
+        - text: Open Receipt Update ↗
+  - region "Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers":
+    - paragraph: "Daily Receipt #006"
+    - generic: 2026-07-19 · manual
+    - button "Share Receipt": Share Receipt ⌄
+    - heading "Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers" [level=2]
+    - paragraph: The market forgets. 4663 remembers.
+    - generic: stale
+    - article:
+      - text: Top signal
+      - paragraph: Volume remains resilient after the NOXA disruption, but the market is now separating into meme, RWA, agent, and infrastructure layers rather than moving as one launch-week trade.
+    - article:
+      - text: Biggest risk
+      - paragraph: Launchpad fragmentation, duplicate tickers, paid attention, and unverified RWA or agent claims can make surface-level momentum look stronger than reviewed signal.
+    - article:
+      - text: Strongest narrative
+      - paragraph: "RH Chain is maturing from meme rocket ship into a multi-layer attention market: memes onboard users, RWAs create institutional gravity, and agents become the next automation primitive."
+    - article:
+      - text: Infopunks verdict
+      - paragraph: Memes onboard attention. RWAs create gravity. Agents create the next primitive. 4663 tracks which layer gains power next.
+    - paragraph:
+      - generic: Liquidity
+      - text: Volume remains strong but below peak launch-week frenzy. Chain-wide metrics are source/timestamp dependent; no exact chain-wide values are asserted. Uniswap remains a major venue in existing source context.
+    - paragraph:
+      - generic: Deployer watch
+      - text: Launchpad market-share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless provider receipts, primary sources, or operational on-chain evidence are attached.
+    - paragraph:
+      - generic: Stock-token spillover
+      - text: Leadership messaging continues to re-center programmable real-world assets and tokenized finance, but that narrative is source_required unless primary or on-chain evidence supports the claim.
+    - paragraph:
+      - generic: Launch-surface context
+      - text: Layer separation is RH Chain market-structure context, not proof of cross-chain migration, lasting usage, or token quality.
+    - generic: Observed 2026-07-19 00:00 UTC
+    - generic: 1 source
+    - link "Read full receipt":
+      - /url: /rh-chain-signal-desk/daily-receipts/rh_daily_006
+  - region "What is moving":
+    - paragraph: 4663 movers
+    - heading "What is moving" [level=2]
+    - generic: Ranked attention with the caveat still attached.
+    - link "View Full 4663 Index":
+      - /url: /rh-chain-signal-desk/4663-index
+    - article:
+      - generic: "01"
+      - generic: stale
+      - heading "ROUTE" [level=3]
+      - paragraph: Route Memory
+      - strong: "60"
+      - generic: / 100
+      - img "Signal score 60 out of 100"
+      - paragraph: active speculation
+      - paragraph: Active speculation with usable desk memory. External receipts still required.
+      - paragraph:
+        - generic: Primary risk
+        - text: low watch
+      - link "Open index record":
+        - /url: /rh-chain-signal-desk/4663-index
+      - button "Share"
+    - article:
+      - generic: "02"
+      - generic: stale
+      - heading "RAILS" [level=3]
+      - paragraph: Wall Street Rails
+      - strong: "55"
+      - generic: / 100
+      - img "Signal score 55 out of 100"
+      - paragraph: active speculation
+      - paragraph: Strong watch shape, but still receipt-gated. Liquidity and deployer proof decide.
+      - paragraph:
+        - generic: Primary risk
+        - text: medium watch
+      - link "Open index record":
+        - /url: /rh-chain-signal-desk/4663-index
+      - button "Share"
+    - article:
+      - generic: "03"
+      - generic: stale
+      - heading "HOOD" [level=3]
+      - paragraph: Hood Rail
+      - strong: "51"
+      - generic: / 100
+      - img "Signal score 51 out of 100"
+      - paragraph: active speculation
+      - paragraph: Active speculation. Familiar ticker language is attention, not proof.
+      - paragraph:
+        - generic: Primary risk
+        - text: source required
+      - link "Open index record":
+        - /url: /rh-chain-signal-desk/4663-index
+      - button "Share"
+  - region "Where the story can break":
+    - paragraph: Risk radar
+    - heading "Where the story can break" [level=2]
+    - generic: Identity, liquidity, and deployer evidence are reviewed as separate instruments.
+    - article:
+      - text: identity
+      - heading "Identity Risk" [level=3]
+      - strong: critical review
+      - generic: Active alerts
+      - generic: "1"
+      - paragraph: Any RH Chain meme slot without a verified contract remains a claim, not a market signal.
+      - generic: 2026-07-09 03:45 UTC
+      - generic: source required
+      - link "Open Risk Radar":
+        - /url: /rh-chain-signal-desk/clone-radar
+    - article:
+      - text: liquidity
+      - heading "Liquidity Risk" [level=3]
+      - strong: high
+      - generic: Active alerts
+      - generic: "1"
+      - paragraph: Thin pools can make attention look like liquidity while exits remain fragile.
+      - generic: 2026-07-09 03:45 UTC
+      - generic: source required
+      - link "Open Risk Radar":
+        - /url: /rh-chain-signal-desk/clone-radar
+    - article:
+      - text: deployer
+      - heading "Deployer Risk" [level=3]
+      - strong: high
+      - generic: Active alerts
+      - generic: "1"
+      - paragraph: Copycat deployers may wrap stock-token language in familiar ticker bait.
+      - generic: 2026-07-09 03:45 UTC
+      - generic: source required
+      - link "Open Risk Radar":
+        - /url: /rh-chain-signal-desk/clone-radar
+  - region "Attention, with identity attached":
+    - paragraph: Meme pulse
+    - heading "Attention, with identity attached" [level=2]
+    - generic: Compact dossiers first. Raw fields remain one deliberate step away.
+    - link "Open Meme Pulse":
+      - /url: /rh-chain-signal-desk/meme-pulse
+    - group "Filter Meme Pulse":
+      - button "all" [pressed]
+      - button "reviewed"
+      - button "auto-observed"
+      - button "risk"
+    - generic: Search
+    - textbox "Search":
+      - /placeholder: Ticker or contract
+    - group "Meme Pulse presentation":
+      - button "Cards" [pressed]
+      - button "Analyst Table"
+    - article:
+      - text: auto-observed
+      - heading "ROUTE" [level=3]
+      - paragraph: Route Memory
+      - generic: low watch
+      - paragraph: Active speculation with usable desk memory. External receipts still required.
+      - generic: stale
+      - paragraph: Observed 2026-07-09 03:45 UTC.
+      - button "Contract unavailable" [disabled]
+      - link "Submit evidence":
+        - /url: /rh-chain-signal-desk/submit
+    - article:
+      - text: auto-observed
+      - heading "RAILS" [level=3]
+      - paragraph: Wall Street Rails
+      - generic: medium watch
+      - paragraph: Strong watch shape, but still receipt-gated. Liquidity and deployer proof decide.
+      - generic: stale
+      - paragraph: Observed 2026-07-09 03:45 UTC.
+      - button "Contract unavailable" [disabled]
+      - link "Submit evidence":
+        - /url: /rh-chain-signal-desk/submit
+    - article:
+      - text: auto-observed
+      - heading "HOOD" [level=3]
+      - paragraph: Hood Rail
+      - generic: source required
+      - paragraph: Active speculation. Familiar ticker language is attention, not proof.
+      - generic: stale
+      - paragraph: Observed 2026-07-09 03:45 UTC.
+      - button "Contract unavailable" [disabled]
+      - link "Submit evidence":
+        - /url: /rh-chain-signal-desk/submit
+    - article:
+      - text: auto-observed
+      - heading "IPO" [level=3]
+      - paragraph: Meme IPO Desk
+      - generic: source required
+      - paragraph: High-risk attention until contract, pool, and non-affiliation receipts exist.
+      - generic: stale
+      - paragraph: Observed 2026-07-09 03:45 UTC.
+      - button "Contract unavailable" [disabled]
+      - link "Submit evidence":
+        - /url: /rh-chain-signal-desk/submit
+    - article:
+      - text: auto-observed
+      - heading "TICKR" [level=3]
+      - paragraph: Ticker Memory
+      - generic: medium watch
+      - paragraph: Watch-only memory object. Useful for signal tracking, not conviction.
+      - generic: stale
+      - paragraph: Observed 2026-07-09 03:45 UTC.
+      - button "Contract unavailable" [disabled]
+      - link "Submit evidence":
+        - /url: /rh-chain-signal-desk/submit
+    - article:
+      - text: auto-observed
+      - heading "SHERW" [level=3]
+      - paragraph: Sherwood Loop
+      - generic: high risk
+      - paragraph: Do not touch yet. Risk evidence outruns signal evidence.
+      - generic: stale
+      - paragraph: Observed 2026-07-09 03:45 UTC.
+      - button "Contract unavailable" [disabled]
+      - link "Submit evidence":
+        - /url: /rh-chain-signal-desk/submit
+  - region "Remember the route":
+    - paragraph: Launch and access routes
+    - heading "Remember the route" [level=2]
+    - generic: Edges appear only where exact reviewed evidence supports them.
+    - link "Open Launch Surface Watch":
+      - /url: /rh-chain-signal-desk/launch-surfaces
+    - article:
+      - text: Launch surface
+      - strong: Source required
+      - paragraph: No exact reviewed origin attached.
+    - generic: ↓
+    - article:
+      - text: Liquidity route
+      - strong: Route incomplete
+      - paragraph: No route edge has been inferred.
+    - generic: ↓
+    - article:
+      - text: Access surface
+      - strong: Robinhood Wallet
+      - paragraph: Access surface is known, but its edge to this route is source required.
+    - generic: ↓
+    - article:
+      - text: Review state
+      - strong: source required
+      - paragraph: Route incomplete
+    - generic: Main risk
+    - paragraph: Official wallet surface is access context only; wallet availability does not verify any token, route, or integration.
+    - time: timestamp unavailable
+  - region "What still needs a receipt":
+    - paragraph: Review queue
+    - heading "What still needs a receipt" [level=2]
+    - generic: Three public review moments; long reviewer notes stay in the evidence layer.
+    - link "View Review Queue":
+      - /url: /rh-chain-signal-desk/review-queue
+    - article:
+      - generic: newest submission
+      - generic: rejected low receipt quality
+      - heading "DIVY" [level=3]
+      - term: Evidence
+      - definition: source required
+      - term: Missing
+      - definition: "4"
+      - term: Risk
+      - definition: do not touch yet
+      - paragraph: Do not upgrade without hard mechanism proof and source-linked risk notes.
+      - generic: 2026-07-09 04:34 UTC
+      - link "Open review":
+        - /url: /rh-chain-signal-desk/review-queue
+    - article:
+      - generic: strongest evidence packet
+      - generic: approved signal
+      - heading "ROUTE" [level=3]
+      - term: Evidence
+      - definition: partial
+      - term: Missing
+      - definition: "3"
+      - term: Risk
+      - definition: low watch
+      - paragraph: Keep receipt freshness visible and downgrade if external proof does not arrive.
+      - generic: 2026-07-09 04:30 UTC
+      - link "Open review":
+        - /url: /rh-chain-signal-desk/review-queue
+    - article:
+      - generic: highest-risk unresolved
+      - generic: do not touch yet
+      - heading "SHERW" [level=3]
+      - term: Evidence
+      - definition: source required
+      - term: Missing
+      - definition: "4"
+      - term: Risk
+      - definition: high risk
+      - paragraph: Require deployer and ownership receipts before any upgrade.
+      - generic: 2026-07-09 04:26 UTC
+      - link "Open review":
+        - /url: /rh-chain-signal-desk/review-queue
+  - region "Market context, after judgment":
+    - paragraph: Chain pulse
+    - heading "Market context, after judgment" [level=2]
+    - generic: Provider context can describe the weather. It cannot rewrite the receipt.
+    - link "Open Live Snapshot":
+      - /url: /rh-chain-signal-desk/live-snapshot
+    - article:
+      - text: TVL
+      - strong: source pending
+      - paragraph: source required
+    - article:
+      - text: DEX volume
+      - strong: source pending
+      - paragraph: source required
+    - article:
+      - text: Stablecoin context
+      - strong: source pending
+      - paragraph: source required
+    - article:
+      - text: Fees
+      - strong: Unavailable
+      - paragraph: unavailable
+    - article:
+      - text: Stock-token activity
+      - strong: narrative watch
+      - paragraph: narrative watch
+    - article:
+      - text: Attention velocity
+      - strong: 4663 watch active
+      - paragraph: narrative watch
+    - text: Protocol context
+    - strong: Stock-token wrapper lanes
+    - paragraph: Chain-specific protocol TVL not verified.
+    - text: Bridge-risk insight
+    - paragraph: Treat bridge screenshots as claims until routes, contracts, and receipts match.
+    - time: Observed 2026-07-09 03:45 UTC
+  - region "How to use this desk":
+    - paragraph: Methodology
+    - heading "How to use this desk" [level=2]
+    - generic: Check a contract. Read the receipt. Review the sources. Submit missing evidence.
+    - paragraph:
+      - generic: "01"
+      - text: External data gives context
+    - paragraph:
+      - generic: "02"
+      - text: Exact contracts establish identity
+    - paragraph:
+      - generic: "03"
+      - text: Receipts preserve reviewed judgment
+    - paragraph:
+      - generic: "04"
+      - text: Unknown data remains unknown
+    - navigation "RH Chain methodology links":
+      - link "Methodology":
+        - /url: /methodology
+      - link "Source policy":
+        - /url: /rh-chain-signal-desk/daily-receipts
+      - link "Distribution pack":
+        - /url: /rh-chain-signal-desk/distribution-pack
+      - link "API":
+        - /url: /v1/rh-chain
+    - generic: The market forgets. 4663 remembers.
+    - paragraph: Independent public intelligence. Not affiliated with Robinhood. No buy or sell recommendation.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

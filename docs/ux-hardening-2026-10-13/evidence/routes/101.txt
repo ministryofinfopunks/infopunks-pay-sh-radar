@@ -1,0 +1,185 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: Distribution Packs
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#distribution-content"
+- main:
+  - paragraph: Public intelligence distribution
+  - heading "RH Chain Distribution Pack" [level=1]
+  - paragraph: Copy the receipt. Keep the caveat.
+  - paragraph: Sharp enough to travel. Grounded enough to stay useful.
+  - link "Open share packets":
+    - /url: "#share-packets"
+  - link "Read receipts":
+    - /url: /rh-chain-signal-desk/daily-receipts
+  - complementary:
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Manual snapshot
+      - generic: Status
+      - strong: Stale
+      - generic: Observed
+      - strong: Jul 19, 2026, 12:00 AM UTC
+      - generic: Relative age
+      - strong: Updated 86 days ago
+      - generic: Sources
+      - strong: Source required
+      - generic: Source policy
+      - paragraph: Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - paragraph: Public intelligence distribution only. Do not spam, coordinate raids, harass people, imply affiliation, or treat any packet as trading advice.
+  - paragraph: Share packets
+  - heading "Public intelligence, ready to copy" [level=2]
+  - link "Pack JSON":
+    - /url: /v1/rh-chain/distribution-pack
+  - article:
+    - paragraph: x
+    - heading "Daily Receipt post" [level=3]
+    - button "Copy post"
+    - generic: "Infopunks RH Chain Daily Receipt · July 17 → July 19, 2026 UTC Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers Top signal: Volume remains resilient after the NOXA disruption, but the market is now separating into meme, RWA, agent, and infrastructure layers rather than moving as one launch-week trade. Biggest risk: Launchpad fragmentation, duplicate tickers, paid attention, and unverified RWA or agent claims can make surface-level momentum look stronger than reviewed signal. Strongest narrative: RH Chain is maturing from meme rocket ship into a multi-layer attention market: memes onboard users, RWAs create institutional gravity, and agents become the next automation primitive. Infopunks verdict: Memes onboard attention. RWAs create gravity. Agents create the next primitive. 4663 tracks which layer gains power next. No receipt, no signal. Public intelligence, not endorsement or financial advice."
+    - link "/rh-chain-signal-desk/daily-receipts/rh_daily_006":
+      - /url: /rh-chain-signal-desk/daily-receipts/rh_daily_006
+    - paragraph: Receipt memory is not a token recommendation or safety claim.
+    - paragraph: "Source: Daily Receipts · Updated 2026-07-19T00:00:00.000Z"
+  - article:
+    - paragraph: telegram
+    - heading "Meme Pulse post" [level=3]
+    - button "Copy post"
+    - generic: Most see noise. Infopunks reads the pulse. What’s moving. What’s risky. What the market is trying to say. External data gives context. Infopunks gives judgment.
+    - link "/rh-chain-signal-desk/meme-pulse":
+      - /url: /rh-chain-signal-desk/meme-pulse
+    - paragraph: Attention is context, not an instruction to trade or promote a token.
+    - paragraph: "Source: RH Meme Pulse · Updated 2026-07-09T03:45:00.000Z"
+  - article:
+    - paragraph: x
+    - heading "Clone Radar warning post" [level=3]
+    - button "Copy post"
+    - generic: Copies move faster than memory. Clone & Impersonator Radar tracks suspected, unverified risk patterns across RH Chain. Verify the exact contract. Read the receipts. No pile-ons. No certainty without evidence.
+    - link "/rh-chain-signal-desk/clone-radar":
+      - /url: /rh-chain-signal-desk/clone-radar
+    - paragraph: Entries are suspected patterns requiring review, not definitive misconduct findings.
+    - paragraph: "Source: Clone & Impersonator Radar · Updated 2026-07-09T03:45:00.000Z"
+  - article:
+    - paragraph: discord
+    - heading "Token Dossier share post" [level=3]
+    - button "Copy post"
+    - generic: "A ticker is not an identity. Open the Infopunks token dossier for the exact contract: desk memory, receipts, launch context, and external context—kept separate. Inclusion is not endorsement."
+    - link "/rh-chain-signal-desk/tokens/:contract":
+      - /url: /rh-chain-signal-desk/tokens/:contract
+    - paragraph: Use the exact contract route. A dossier does not call a token safe or add it to the index.
+    - paragraph: "Source: Token Dossiers · Updated 2026-07-09T03:45:00.000Z"
+  - article:
+    - paragraph: generic
+    - heading "Submit Signal call-to-action" [level=3]
+    - button "Copy post"
+    - generic: Got a contract, pair, launch source, deployer trail, or risk receipt? Submit it to the RH Chain Signal Vault. Manual review. No auto-approval. No receipt, no signal.
+    - link "/rh-chain-signal-desk/submit":
+      - /url: /rh-chain-signal-desk/submit
+    - paragraph: Submission is not endorsement, listing, partnership, or financial advice.
+    - paragraph: "Source: Signal Vault · Updated 2026-07-09T03:45:00.000Z"
+  - article:
+    - paragraph: telegram
+    - heading "Scout Agent demo post" [level=3]
+    - button "Copy post"
+    - generic: The market forgets in public. Scout remembers the desk. Ask about risk memory, launch context, narrative mutation, or a token contract. Read-only intelligence. Never trades.
+    - link "/rh-chain-signal-desk/scout":
+      - /url: /rh-chain-signal-desk/scout
+    - paragraph: Scout summarizes existing memory; it does not verify identity or make recommendations.
+    - paragraph: "Source: Scout Agent · Updated 2026-07-09T03:45:00.000Z"
+  - article:
+    - paragraph: discord
+    - heading "Launch Surface Watch post" [level=3]
+    - button "Copy post"
+    - generic: Infopunks does not launch the token. Infopunks remembers the launch. Launch source, pair, LP claim, deployer, and timestamp—context before narrative.
+    - link "/rh-chain-signal-desk/launch-surfaces":
+      - /url: /rh-chain-signal-desk/launch-surfaces
+    - paragraph: Launch Surface Watch and Access Surface Watch are public intelligence, not endorsement, safety verification, financial advice, or an official Robinhood partnership. A launch label is never an approval.
+    - paragraph: "Source: Launch Surface Watch · Updated 2026-07-15T00:00:00.000Z"
+  - paragraph: Receipt Relay
+  - heading "Bot-friendly packets. Caveat attached." [level=2]
+  - link "Relay JSON":
+    - /url: /v1/rh-chain/receipt-relay
+  - paragraph: Copy-ready public-memory packets for X, Telegram, and Discord. They do not schedule, target, or coordinate messages.
+  - article:
+    - paragraph: "Daily Receipt #006"
+    - heading "Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers" [level=3]
+    - paragraph: Public intelligence only. Context can be incomplete or stale; this is not endorsement, a safety determination, or financial advice.
+    - button "Copy x"
+    - button "Copy telegram"
+    - button "Copy discord"
+    - link "/rh-chain-signal-desk/daily-receipts/rh_daily_006":
+      - /url: /rh-chain-signal-desk/daily-receipts/rh_daily_006
+  - article:
+    - paragraph: Meme Pulse
+    - heading "What’s moving. What’s risky. What the market is trying to say." [level=3]
+    - paragraph: Public intelligence only. Context can be incomplete or stale; this is not endorsement, a safety determination, or financial advice.
+    - button "Copy x"
+    - button "Copy telegram"
+    - button "Copy discord"
+    - link "/rh-chain-signal-desk/meme-pulse":
+      - /url: /rh-chain-signal-desk/meme-pulse
+  - article:
+    - paragraph: Launchpad Observatory
+    - heading "Where tokens start. Where claims break. Where receipts matter." [level=3]
+    - paragraph: Public intelligence only. Context can be incomplete or stale; this is not endorsement, a safety determination, or financial advice.
+    - button "Copy x"
+    - button "Copy telegram"
+    - button "Copy discord"
+    - link "/rh-chain-signal-desk/launchpad-observatory":
+      - /url: /rh-chain-signal-desk/launchpad-observatory
+  - article:
+    - paragraph: Clone Radar
+    - heading "Suspected patterns. Receipts required." [level=3]
+    - paragraph: Public intelligence only. Context can be incomplete or stale; this is not endorsement, a safety determination, or financial advice.
+    - button "Copy x"
+    - button "Copy telegram"
+    - button "Copy discord"
+    - link "/rh-chain-signal-desk/risk-patterns":
+      - /url: /rh-chain-signal-desk/risk-patterns
+  - article:
+    - paragraph: Token Dossier source-required state
+    - heading "A ticker is not an identity." [level=3]
+    - paragraph: Public intelligence only. Context can be incomplete or stale; this is not endorsement, a safety determination, or financial advice.
+    - button "Copy x"
+    - button "Copy telegram"
+    - button "Copy discord"
+    - link "/rh-chain-signal-desk/tokens/source-required":
+      - /url: /rh-chain-signal-desk/tokens/source-required
+  - article:
+    - paragraph: Scout Agent answer excerpt
+    - heading "Scout reads desk memory; it does not create truth." [level=3]
+    - paragraph: Public intelligence only. Context can be incomplete or stale; this is not endorsement, a safety determination, or financial advice.
+    - button "Copy x"
+    - button "Copy telegram"
+    - button "Copy discord"
+    - link "/rh-chain-signal-desk/scout":
+      - /url: /rh-chain-signal-desk/scout
+  - paragraph: Distribution guardrail
+  - heading "Do not spam. Do not coordinate raids." [level=2]
+  - paragraph: Share source-linked public intelligence where it is relevant. Do not use these packets for harassment, fake urgency, group pressure, or promotion of a token.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

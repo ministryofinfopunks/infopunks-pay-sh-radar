@@ -1,0 +1,349 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: Receipts
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#rh-chain-content"
+- main:
+  - paragraph: Daily Market Memory
+  - heading "Daily RH Chain Receipts" [level=1]
+  - paragraph: The market forgets. Infopunks keeps the memory.
+  - paragraph: Receipts before narrative drift.
+  - link "Open Latest Receipt":
+    - /url: "#latest-receipt"
+  - link "Submit source evidence":
+    - /url: /rh-chain-signal-desk/submit
+  - complementary "Desk policy":
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Manual snapshot
+      - generic: Status
+      - strong: Stale
+      - generic: Observed
+      - strong: Jul 19, 2026, 12:00 AM UTC
+      - generic: Relative age
+      - strong: Updated 86 days ago
+      - generic: Sources
+      - strong: "11"
+      - generic: Source policy
+      - paragraph: Daily receipts are human-reviewed market memory. External data gives context; Infopunks gives judgment; receipts create memory. Do not let live data outrank human-reviewed receipts. Sources must include observed_at timestamps.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - note "Independent intelligence disclaimer":
+      - strong: Independent Infopunks intelligence surface.
+      - generic: Not affiliated with or endorsed by Robinhood.
+      - generic: No buy, sell, or listing recommendation.
+  - region "Receipt freshness":
+    - paragraph: Manual receipt is stale. Freshness is part of truth.
+  - region "Latest Daily RH Chain Receipt":
+    - paragraph: Latest Receipt / rh_daily_006
+    - 'heading "Daily Receipt #006" [level=2]'
+    - paragraph: July 17 → July 19, 2026 UTC
+    - link "View Receipt":
+      - /url: /rh-chain-signal-desk/daily-receipts/rh_daily_006
+    - link "Share Receipt · View share card":
+      - /url: /rh-chain-signal-desk/daily-receipts/rh_daily_006/card
+      - text: Share Receipt
+      - generic: · View share card
+    - button "Copy X post"
+    - button "Copy receipt summary"
+    - generic: medium
+    - article:
+      - paragraph: 2026-07-19 / manual
+      - heading "Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers" [level=3]
+      - paragraph: "A manually reviewed Daily Receipt for July 17 → July 19, 2026 UTC: RH Chain has entered post-drama stabilization. Volume remains strong, but market behavior is separating into meme, RWA, agent, and infrastructure layers rather than moving as one launch-week trade."
+      - paragraph:
+        - generic: Top signal
+        - strong: Volume remains resilient after the NOXA disruption, but the market is now separating into meme, RWA, agent, and infrastructure layers rather than moving as one launch-week trade.
+      - paragraph:
+        - generic: Biggest risk
+        - strong: Launchpad fragmentation, duplicate tickers, paid attention, and unverified RWA or agent claims can make surface-level momentum look stronger than reviewed signal.
+      - paragraph:
+        - generic: Strongest narrative
+        - strong: "RH Chain is maturing from meme rocket ship into a multi-layer attention market: memes onboard users, RWAs create institutional gravity, and agents become the next automation primitive."
+      - paragraph:
+        - generic: Infopunks verdict
+        - strong: Memes onboard attention. RWAs create gravity. Agents create the next primitive. 4663 tracks which layer gains power next.
+      - paragraph:
+        - generic: Liquidity
+        - text: Volume remains strong but below peak launch-week frenzy. Chain-wide metrics are source/timestamp dependent; no exact chain-wide values are asserted. Uniswap remains a major venue in existing source context.
+      - paragraph:
+        - generic: Stock-token spillover
+        - text: Leadership messaging continues to re-center programmable real-world assets and tokenized finance, but that narrative is source_required unless primary or on-chain evidence supports the claim.
+      - paragraph:
+        - generic: Solana base migration
+        - text: Layer separation is RH Chain market-structure context, not proof of cross-chain migration, lasting usage, or token quality.
+      - paragraph:
+        - generic: Deployer watch
+        - text: Launchpad market-share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless provider receipts, primary sources, or operational on-chain evidence are attached.
+  - region "Daily Receipt Intelligence Memo":
+    - paragraph: Structured Intelligence Memo
+    - heading "Signal, structure, and judgment" [level=2]
+    - paragraph: Human-reviewed memory for July 17 → July 19, 2026 UTC. This is a post-drama stabilization read, not a market-wide performance claim. External data gives context. Automation drafts memory. Infopunks approves judgment. Receipts create history. Do not let live data outrank this human-reviewed receipt.
+    - article:
+      - paragraph: chain pulse
+      - heading "Chain Pulse" [level=3]
+      - paragraph: "Post-drama stabilization is holding: visible volume remains strong, while the launch-week peak has cooled into more selective behavior."
+      - term: Phase
+      - definition: RH Chain is in a post-drama stabilization phase.
+      - term: Activity read
+      - definition: Volume remains strong but below peak launch-week frenzy.
+      - term: Venue context
+      - definition: Uniswap remains a major venue in existing source context.
+      - term: Metrics rule
+      - definition: Chain-wide metrics are source/timestamp dependent; no exact chain-wide values are asserted.
+    - article:
+      - paragraph: launchpad stress test
+      - heading "Launchpad Pulse" [level=3]
+      - paragraph: The NOXA disruption still shapes behavior as newer launchpads and direct Uniswap launches gain visibility.
+      - term: NOXA context
+      - definition: The NOXA disruption continues to shape launch and discovery behavior.
+      - term: Surface visibility
+      - definition: Newer launchpads and direct Uniswap launches are gaining visibility.
+      - term: Market-share rule
+      - definition: Launchpad market-share claims are source_required unless backed by provider receipts.
+      - term: Scarcity context
+      - definition: Older NOXA launches may gain a scarcity narrative; this is narrative context, not proof of quality.
+    - article:
+      - paragraph: meme pulse
+      - heading "Meme Pulse" [level=3]
+      - paragraph: Memes remain the primary attention and liquidity engine, but rotation is more selective than the peak frenzy.
+      - term: Attention engine
+      - definition: Memes remain the primary attention and liquidity engine.
+      - term: Benchmark
+      - definition: CASHCAT remains the benchmark attention asset.
+      - term: Rotation
+      - definition: Rotation is more selective than peak frenzy.
+    - article:
+      - paragraph: leadership narrative pulse
+      - heading "Leadership Narrative Pulse" [level=3]
+      - paragraph: Leadership messaging keeps programmable real-world assets, tokenized finance, and agentic economy in view without substituting message-level context for operational evidence.
+      - term: Tracked themes
+      - definition: Programmable real-world assets, tokenized finance, and agentic economy.
+      - term: Evidence rule
+      - definition: Exact leadership claims, RWA usage, and agent activity remain source_required unless primary or on-chain evidence is attached.
+    - article:
+      - paragraph: rwa pulse
+      - heading "RWA Pulse" [level=3]
+      - paragraph: Leadership messaging continues to re-center programmable real-world assets and tokenized finance without converting narrative into proof.
+      - term: Narrative layer
+      - definition: Leadership messaging continues to re-center programmable real-world assets and tokenized finance.
+      - term: Evidence rule
+      - definition: RWA claims are source_required unless backed by primary or on-chain evidence.
+      - term: Market Structure candidate
+      - definition: The Index is an under_receipt_check RWA x DeFi candidate where already represented in Market Structure.
+    - article:
+      - paragraph: agent pulse
+      - heading "Agent Pulse" [level=3]
+      - paragraph: The agentic economy remains a leadership-backed narrative layer, while demonstrated activity needs its own evidence.
+      - term: Narrative layer
+      - definition: Agentic economy remains a leadership-backed narrative layer.
+      - term: Activity rule
+      - definition: AI narrative does not prove agent activity.
+      - term: Evidence rule
+      - definition: Agent claims remain source_required unless operational wallet or activity evidence exists.
+    - article:
+      - paragraph: infrastructure pulse
+      - heading "Infrastructure Pulse" [level=3]
+      - paragraph: Launchpads, analytics, direct pools, and data and infrastructure narratives are becoming more important as the market sorts.
+      - term: Infrastructure read
+      - definition: Launchpads, analytics, direct pools, and data/infrastructure narratives are becoming more important.
+      - term: Evidence rule
+      - definition: Oracle and data-token claims remain source_required unless operational infrastructure is verified.
+    - article:
+      - paragraph: risk wall
+      - heading "Risk Wall" [level=3]
+      - paragraph: The sorting phase increases the cost of treating surface attention as reviewed memory.
+      - term: Launch and identity risk
+      - definition: launchpad fragmentation, duplicate ticker confusion, and clone/pair confusion.
+      - term: Attention risk
+      - definition: paid attention mistaken for conviction.
+      - term: Narrative risk
+      - definition: RWA narrative without backing proof and AI narrative mistaken for agent activity.
+      - term: Market and desk risk
+      - definition: liquidity fragmentation, review overload, and source gaps.
+    - article:
+      - paragraph: market structure note
+      - heading "Market Structure Note" [level=3]
+      - paragraph: The chain is not cooling. It is sorting.
+      - term: Structure read
+      - definition: The chain is not cooling. It is sorting.
+      - term: Layer read
+      - definition: Memes, RWAs, agents, and infrastructure are becoming distinct layers with different evidence needs.
+    - article:
+      - paragraph: narrative mutation
+      - heading "Narrative Mutation" [level=3]
+      - paragraph: The edge is shifting from a single launch-week trade to tracking which layer gains power and which projects cross layers.
+      - term: Mutation
+      - definition: RH Chain is maturing from meme rocket ship into a multi-layer attention market.
+      - term: Graduation test
+      - definition: Track whether meme liquidity graduates into RWA, agent, DeFi, or infrastructure activity.
+    - article:
+      - paragraph: infopunks verdict
+      - heading "Infopunks Verdict" [level=3]
+      - paragraph: Memes onboard attention. RWAs create gravity. Agents create the next primitive. 4663 tracks which layer gains power next.
+      - term: Verdict
+      - definition: Memes onboard attention. RWAs create gravity. Agents create the next primitive. 4663 tracks which layer gains power next.
+  - region "Daily Receipt Timeline":
+    - paragraph: Receipt Timeline
+    - heading "Receipt Timeline" [level=2]
+    - paragraph: Chronological market memory. Calm by design, source-bound by rule.
+    - link "Feed JSON":
+      - /url: /v1/rh-chain/daily-receipts
+    - article:
+      - paragraph: 2026-07-19 / manual
+      - heading "Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers" [level=3]:
+        - link "Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers":
+          - /url: /rh-chain-signal-desk/daily-receipts/rh_daily_006
+      - generic: medium
+      - paragraph: "A manually reviewed Daily Receipt for July 17 → July 19, 2026 UTC: RH Chain has entered post-drama stabilization. Volume remains strong, but market behavior is separating into meme, RWA, agent, and infrastructure layers rather than moving as one launch-week trade."
+      - generic: rh_daily_006
+      - generic: generated 2026-07-19 00:00 UTC
+    - article:
+      - paragraph: 2026-07-17 / manual
+      - heading "Robinhood Chain re-centers RWAs and agents while meme liquidity stays dominant" [level=3]:
+        - link "Robinhood Chain re-centers RWAs and agents while meme liquidity stays dominant":
+          - /url: /rh-chain-signal-desk/daily-receipts/rh_daily_005
+      - generic: medium
+      - paragraph: "A manually reviewed Daily Receipt for July 16 → July 17, 2026 UTC: leadership narrative is re-centering programmable assets, tokenized finance, global access, DeFi, and agentic activity while meme liquidity remains the chain’s visible onboarding and volume layer."
+      - generic: rh_daily_005
+      - generic: generated 2026-07-17 00:00 UTC
+    - article:
+      - paragraph: 2026-07-16 / manual
+      - heading "NOXA shifts fee model as RH Chain launchpad wars accelerate" [level=3]:
+        - link "NOXA shifts fee model as RH Chain launchpad wars accelerate":
+          - /url: /rh-chain-signal-desk/daily-receipts/rh_daily_004
+      - generic: medium
+      - paragraph: "A manually reviewed Daily Receipt for July 15 → July 16, 2026 UTC: NOXA remains in a reported launch pause while fee-model claims shift toward creators, RH Chain activity stays resilient, rival launch surfaces capture rotation flow, and cross-surface memory becomes more valuable."
+      - generic: rh_daily_004
+      - generic: generated 2026-07-16 00:00 UTC
+    - article:
+      - paragraph: 2026-07-15 / manual
+      - heading "RH Chain survives NOXA stress as launchpad competition fragments the meme layer" [level=3]:
+        - link "RH Chain survives NOXA stress as launchpad competition fragments the meme layer":
+          - /url: /rh-chain-signal-desk/daily-receipts/rh_daily_003
+      - generic: medium
+      - paragraph: "A manually authored market-memory receipt for the NOXA stress window: RH Chain meme activity stayed resilient despite reported NOXA downtime and launch restrictions, while direct Uniswap pools and competing launch surfaces increased the need for launch-origin memory."
+      - generic: rh_daily_003
+      - generic: generated 2026-07-15 00:00 UTC
+    - article:
+      - paragraph: 2026-07-13 / manual
+      - heading "RH Chain meme bids rotate while access rails become the hidden story" [level=3]:
+        - link "RH Chain meme bids rotate while access rails become the hidden story":
+          - /url: /rh-chain-signal-desk/daily-receipts/rh_daily_002
+      - generic: medium
+      - paragraph: "CASHCAT remains the flagship RH Chain attention asset, while the deeper manually reviewed signal is distribution: wallet, bridge, and swap surfaces can turn meme attention into usable network access. Metrics remain source- and timestamp-dependent."
+      - generic: rh_daily_002
+      - generic: generated 2026-07-13 00:00 UTC
+    - article:
+      - paragraph: 2026-07-12 / manual
+      - heading "RH Chain meme volume stays dominant while RWA rails mature underneath" [level=3]:
+        - link "RH Chain meme volume stays dominant while RWA rails mature underneath":
+          - /url: /rh-chain-signal-desk/daily-receipts/rh_daily_001
+      - generic: medium
+      - paragraph: "A manually seeded 24-hour market memory: CASHCAT remains the attention anchor while the durable question shifts to whether Robinhood distribution, meme liquidity, and Stock Token rails convert into persistent RWA and DeFi use."
+      - generic: rh_daily_001
+      - generic: generated 2026-07-12 00:00 UTC
+    - article:
+      - paragraph: 2026-07-09 / manual
+      - heading "Route language leads the desk, but receipts remain thin." [level=3]:
+        - link "Route language leads the desk, but receipts remain thin.":
+          - /url: /rh-chain-signal-desk/daily-receipts/rh_daily_2026_07_09
+      - generic: medium
+      - paragraph: RH Chain attention is clustering around rails, routes, ticker memory, and stock-token spillover. The desk sees useful market-memory formation, but live liquidity, holders, and deployer receipts remain mostly source pending.
+      - generic: rh_daily_2026_07_09
+      - generic: generated 2026-07-09 04:45 UTC
+    - article:
+      - paragraph: 2026-07-08 / seeded
+      - heading "Ticker memory appears before trustworthy pool memory." [level=3]:
+        - link "Ticker memory appears before trustworthy pool memory.":
+          - /url: /rh-chain-signal-desk/daily-receipts/rh_daily_2026_07_08
+      - generic: low
+      - paragraph: Early RH Chain watch slots show attention around HOOD, RAILS, IPO, and TICKR. The strongest signal is narrative legibility; the weakest layer is source-backed liquidity.
+      - generic: rh_daily_2026_07_08
+      - generic: generated 2026-07-08 22:00 UTC
+    - article:
+      - paragraph: 2026-07-07 / seeded
+      - heading "The desk opens with receipts-first constraints." [level=3]:
+        - link "The desk opens with receipts-first constraints.":
+          - /url: /rh-chain-signal-desk/daily-receipts/rh_daily_2026_07_07
+      - generic: low
+      - paragraph: Initial RH Chain memory emphasizes source policy, non-affiliation language, and manual review before any public promotion.
+      - generic: rh_daily_2026_07_07
+      - generic: generated 2026-07-07 22:00 UTC
+  - region "Daily Receipt Watchlist":
+    - paragraph: Watchlist
+    - heading "Watchlist" [level=2]
+    - paragraph: Assets and narratives to monitor next. Watch does not mean endorsement.
+    - article:
+      - heading "CASHCAT attention benchmark" [level=3]
+      - generic: medium watch
+      - paragraph: CASHCAT remains the benchmark attention asset while meme rotation becomes more selective.
+      - paragraph: "Next verify: Exact contract, canonical pair, liquidity depth, holder concentration, and source timestamp."
+    - article:
+      - heading "The Index" [level=3]
+      - generic: source required
+      - paragraph: RWA x DeFi candidate under_receipt_check where represented in Market Structure.
+      - paragraph: "Next verify: Exact contract, primary RWA or DeFi evidence, and operational on-chain activity."
+    - article:
+      - heading "Agent and infrastructure claims" [level=3]
+      - generic: source required
+      - paragraph: Leadership-backed narrative can lead evidence of operational activity.
+      - paragraph: "Next verify: Operational wallet, activity, oracle, data, or infrastructure evidence with timestamps."
+  - region "Daily Receipt Do Not Touch Yet":
+    - paragraph: Do Not Touch Yet
+    - heading "Do Not Touch Yet" [level=2]
+    - paragraph: Low-evidence or high-risk objects stay visible as warnings, not promotions.
+    - article:
+      - heading "Duplicate tickers and clone/pair ambiguity" [level=3]
+      - generic: do not touch yet
+      - paragraph: A ticker, launch label, or pair screenshot does not establish canonical identity.
+      - paragraph: "Next verify: Exact contract, canonical pair, deployer history, and source-linked launch origin."
+    - article:
+      - heading "Paid attention and fragmented liquidity" [level=3]
+      - generic: source required
+      - paragraph: Surface visibility can be paid or split across venues before conviction, depth, or provenance is reviewed.
+      - paragraph: "Next verify: Attention provenance, pool reserves, LP status, holder distribution, and timestamp."
+    - article:
+      - heading "Unverified RWA and agent activity" [level=3]
+      - generic: source required
+      - paragraph: Narrative claims can outrun backing proof or operational evidence.
+      - paragraph: "Next verify: Primary documentation, operational wallets, activity evidence, and human review."
+  - region "Daily Receipt Source Notes":
+    - paragraph: Source Notes
+    - heading "Source Notes" [level=2]
+    - paragraph: Every daily receipt source carries an observed timestamp. Seeded/manual labels are explicit.
+    - article:
+      - paragraph: manual / medium / 2026-07-19 00:00 UTC
+      - heading "Infopunks manual RH Chain stabilization watch" [level=3]:
+        - link "Infopunks manual RH Chain stabilization watch":
+          - /url: https://radar.infopunks.fun/rh-chain-signal-desk/daily-receipts
+      - paragraph: Human-reviewed, manually authored market memory for July 17 → July 19, 2026 UTC. Chain-wide metrics remain source/timestamp dependent. Provider data is context only; launchpad share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless primary, provider-receipted, or operational on-chain evidence is attached.
+  - region "Daily RH Chain Receipts Disclaimer":
+    - paragraph: Daily RH Chain receipts are public intelligence memory, not financial advice, endorsement, listing, or official Robinhood partnership.
+    - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - paragraph: Daily receipts are human-reviewed market memory. External data gives context; Infopunks gives judgment; receipts create memory. Do not let live data outrank human-reviewed receipts. Sources must include observed_at timestamps.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

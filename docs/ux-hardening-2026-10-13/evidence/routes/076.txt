@@ -1,0 +1,190 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Narrative
+- paragraph:
+  - generic: "[ 15 ]"
+  - text: HERMES / WALLET MEMORY
+- link "Skip to content":
+  - /url: "#hermes-narrative-content"
+- main:
+  - paragraph: Hermes Desk Narrative
+  - heading "Hermes Desk" [level=1]
+  - paragraph: Hermes as the execution brain. Infopunks as the evidence and judgment layer.
+  - paragraph: Agentic investigations become useful only when their outputs can be checked, disputed, repeated, and connected to route reputation.
+  - paragraph: Hermes runs are not chat logs. They are pre-spend investigations.
+  - paragraph: Receipts remember what happened. Claims decide what it means. Reputation decides who gets trusted next.
+  - paragraph: Operating split
+  - paragraph: Hermes runs the loop. Infopunks keeps the receipts.
+  - paragraph: Every agent run can become a receipt. Every receipt can become a claim. Every claim can update provider or route reputation.
+  - paragraph: Agent Run Receipts convert investigations into receipts, claims, and eventually reputation.
+  - paragraph: Claim Candidate Review decides whether the market should accept, dispute, reject, or request more evidence.
+  - region "Hermes evidence flow":
+    - article:
+      - generic: "1"
+      - heading "Execution brain" [level=2]
+      - paragraph: "Hermes handles the investigation run: objective, skills, intermediate artifacts, risk notes, and loop progress."
+    - article:
+      - generic: "2"
+      - heading "Evidence layer" [level=2]
+      - paragraph: "Infopunks stores what the run produced: receipts, claims, linked loops, caveats, and public judgment state."
+    - article:
+      - generic: "3"
+      - heading "Reputation memory" [level=2]
+      - paragraph: Provider and route reputation move only when receipt-backed claims survive validation or dispute review.
+    - article:
+      - generic: "4"
+      - heading "Agent Run Receipts" [level=2]
+      - paragraph: Infopunks converts those investigations into receipts, claims, and eventually reputation.
+    - article:
+      - generic: "5"
+      - heading "Claim Candidate Review" [level=2]
+      - paragraph: Claim Candidates propose what the evidence means; Claim Review decides whether market memory should move.
+  - paragraph: "Hermes should be allowed to investigate before money moves, but not allowed to turn investigation into trust by itself. Radar keeps that boundary explicit: a run can suggest a decision, but the proof feed decides whether the evidence says trust, caution, do_not_use_yet, unproven, or disputed."
+  - paragraph: This is how agent experience becomes market memory.
+  - region "Claim Candidate Review":
+    - paragraph: Claim Candidate Review
+    - heading "Receipts remember what happened. Claims decide what it means. Reputation decides who gets trusted next." [level=2]
+    - paragraph: Hermes runs are pre-spend investigations. Agent Run Receipts preserve what happened. Claim Candidates propose what the evidence means. Claim Review decides whether the market should accept, dispute, reject, or request more evidence. Reputation Impact determines who gets trusted next.
+  - region "Reputation Ledger":
+    - paragraph: Reputation Ledger
+    - heading "One receipt is evidence. One claim is judgment. Many judgments become reputation." [level=2]
+    - paragraph: Agent Run Receipts preserve evidence. Claim Review decides what the evidence means. Reputation Ledger accumulates many reviewed claims.
+    - paragraph: Providers, routes, and services become more or less trusted based on evidence-backed history.
+    - paragraph: One receipt is evidence.
+    - paragraph: One claim is judgment.
+    - paragraph: Many judgments become reputation.
+  - region "Pre-Spend Decision Engine":
+    - paragraph: Pre-Spend Decision Engine
+    - heading "The Reputation Ledger is not only for display." [level=2]
+    - paragraph: Agents should query it before money moves.
+    - paragraph: The decision engine turns accumulated evidence into a spend recommendation.
+    - paragraph: Every decision can create a new run, receipt, claim, and future reputation update.
+    - paragraph: Reputation is not just displayed.
+    - paragraph: Reputation now decides.
+    - paragraph: Before an agent spends, it checks the ledger.
+  - region "Agent Spend Policy Layer":
+    - paragraph: Agent Spend Policy Layer
+    - heading "Decision tells an agent what to do. Policy tells an agent what it is allowed to do." [level=2]
+    - paragraph: Decisions recommend action.
+    - paragraph: Policies enforce boundaries.
+    - paragraph: Autonomous wallets need both judgment and rules.
+    - paragraph: Policy can block disputed providers, require test spends, enforce chain/payment rail limits, and escalate large spends to manual review.
+    - paragraph: Decision tells an agent what to do.
+    - paragraph: Policy tells an agent what it is allowed to do.
+  - region "Policy Decision Receipts":
+    - paragraph: Policy Decision Receipts
+    - heading "Policy checks should not be invisible runtime decisions." [level=2]
+    - paragraph: Every allow, test, review, or block should be auditable.
+    - paragraph: Policy receipts preserve the rule set, spend intent, decision, violations, warnings, and references used.
+    - paragraph: These receipts can later be compared against outcomes and used as feedback.
+    - paragraph: A policy decision should not disappear after the wallet acts. It should become an audit receipt.
+  - region "Policy Outcome Reconciliation":
+    - paragraph: Policy Outcome Reconciliation
+    - heading "Policy receipts preserve what the system allowed. Outcomes preserve what the wallet actually did." [level=2]
+    - paragraph: Policy receipts preserve what the system allowed, tested, reviewed, or blocked.
+    - paragraph: Outcomes show what actually happened.
+    - paragraph: Reconciliation compares the expected policy behavior against observed wallet behavior.
+    - paragraph: This detects non-compliance, missing manual review, spends despite blocks, and test-spend success.
+    - paragraph: Reconciliation turns enforcement into feedback.
+    - paragraph: A policy receipt proves what was allowed.
+    - paragraph: A reconciliation proves what actually happened.
+  - region "Decision Receipt and Feedback Loop":
+    - paragraph: Decision Receipt and Feedback Loop
+    - heading "The loop closes when outcomes are recorded." [level=2]
+    - paragraph: The Pre-Spend Decision Engine recommends action before money moves.
+    - paragraph: Decision Receipts preserve why the recommendation was made.
+    - paragraph: Outcomes record what actually happened after the decision.
+    - paragraph: Feedback turns the result into future reputation input.
+    - paragraph: This closes the loop from advice to intelligence.
+    - paragraph: A decision without an outcome is advice.
+    - paragraph: A decision with a receipt becomes intelligence.
+  - region "Agent Memory Loop":
+    - paragraph: Agent Memory Loop
+    - heading "Agents do not need chat history. Agents need memory that changes future action." [level=2]
+    - paragraph: Hermes runs create evidence.
+    - paragraph: Receipts preserve what happened.
+    - paragraph: Claims interpret the evidence.
+    - paragraph: Reviews decide whether the claim should affect trust.
+    - paragraph: Reputation accumulates across claims.
+    - paragraph: Decisions use reputation before money moves.
+    - paragraph: Policy sits between Decision and Outcome as the wallet safety gate.
+    - paragraph: Outcomes teach the next decision.
+    - paragraph: Agents do not need chat history.
+    - paragraph: Agents need memory that changes future action.
+  - region "Autonomous Wallet Audit Trail":
+    - paragraph: Autonomous Wallet Audit Trail
+    - heading "Autonomous wallets need more than logs. They need audit trails with judgment." [level=2]
+    - paragraph: Logs say what happened.
+    - paragraph: Audit trails explain why it happened and whether it obeyed policy.
+    - paragraph: Infopunks stitches spend intent, decision, receipts, policy checks, wallet outcomes, reconciliation, and feedback into one inspectable timeline.
+    - paragraph: This makes autonomous wallet behavior understandable to builders, users, communities, and eventually regulators.
+  - region "Wallet Risk Score":
+    - paragraph: Wallet Risk Score
+    - heading "Audit trails explain what happened. Risk scores tell the wallet what to do next." [level=2]
+    - paragraph: Audit trails preserve the full reasoning chain.
+    - paragraph: Wallet risk scores compress the chain into a usable safety signal.
+    - paragraph: Agents and wallets can use the score to decide whether to proceed, test, request review, tighten policy, block providers, or pause.
+    - paragraph: This makes the full Infopunks memory loop legible to agents, builders, communities, and users.
+  - region "Wallet Safety API Bundle":
+    - paragraph: Wallet Safety API Bundle
+    - heading "Agents should not need to call five different endpoints to know whether to spend." [level=2]
+    - paragraph: Agents should not stitch safety together.
+    - paragraph: They should ask once before spend.
+    - paragraph: The safety bundle returns decision, policy, audit trail, risk score, and final recommendation in one response.
+    - paragraph: This is the developer-facing surface for autonomous wallet safety.
+  - region "Developer Quickstart":
+    - paragraph: Developer Quickstart
+    - heading "The safety stack is now accessible through one developer endpoint." [level=2]
+    - paragraph: The machinery is built.
+    - paragraph: Now make it easy to plug into.
+    - paragraph: Builders do not need to stitch decision, policy, receipts, audit trail, and risk score manually.
+    - paragraph: The quickstart explains how to plug Wallet Safety into agents and autonomous wallets.
+  - region "Integration Receipts":
+    - paragraph: Integration Receipts
+    - heading "A safety check protects the spend. An integration receipt proves the check happened." [level=2]
+    - paragraph: The Wallet Safety API protects the spend before action.
+    - paragraph: Integration receipts prove the safety check happened.
+    - paragraph: Builders can store safety check IDs, policy receipts, risk scores, audit trails, and the agent action taken.
+    - paragraph: This makes third-party wallet integrations compatible with Infopunks-style memory.
+    - paragraph: A safety check protects the spend.
+    - paragraph: An integration receipt proves the check happened.
+  - region "Wallet Safety Integration Registry":
+    - paragraph: Wallet Safety Integration Registry
+    - heading "The safety API gives builders a way to check before spend. The registry makes adoption visible." [level=2]
+    - paragraph: The safety API gives builders a way to check before spend.
+    - paragraph: Integration receipts prove the check happened.
+    - paragraph: The registry makes adoption visible.
+    - paragraph: Agents, wallets, routers, and payment apps can show whether they are ready, testing, missing receipts, or on watch.
+    - paragraph: A safety API is useful.
+    - paragraph: A registry makes adoption visible.
+    - paragraph: "Seeded integrations listed today: 4 total with 2 ready and 1 missing receipts."
+  - region "Integration Detail Pages":
+    - paragraph: Integration Detail Pages
+    - heading "The registry shows adoption. Detail pages show proof." [level=2]
+    - paragraph: The registry shows adoption.
+    - paragraph: Detail pages show proof.
+    - paragraph: Each integration can show safety-check usage, receipt behavior, fail-closed behavior, supported rails, supported chains, and readiness notes.
+    - paragraph: A registry shows adoption.
+    - paragraph: A detail page shows proof.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

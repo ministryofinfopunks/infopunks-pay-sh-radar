@@ -1,0 +1,65 @@
+Skip to content
+INFOPUNKS
+RADAR / INTELLIGENCE TERMINAL
+RADAR
+SOLANA
+ROBINHOOD CHAIN
+PROOF
+DEVELOPERS
+ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+Solana / destinations and network context
+Radar
+/
+Solana
+/
+Pre-Spend Terminal
+
+[ 07 ] JUDGMENT / PRE-SPEND INTELLIGENCE
+
+SOLANA RADAR · PRE-SPEND INTELLIGENCE
+
+Should this agent spend?
+
+Describe the intent. Inspect the evidence-bound decision before committing funds.
+
+Advisory assessment. Execution requires separate authorization. Subject network and fee settlement are independent.
+
+Run a Check
+Agent identity
+Tenant access key
+
+Your operator-issued key stays in this tab's memory. Check does not authorize payment or execute an action.
+
+Intent
+Subject or route identifier
+Optional · preserved in deep links
+Budget
+Risk tolerance
+low
+medium
+high
+critical
+Service payment preference
+This is the service method, independent of the Judgment fee rail. Native Solana fee settlement is unavailable.
+Required confidence
+Retry check
+↗
+
+This check cannot sign, execute, or automatically pay.
+
+Enter a valid tenant access key. Your wallet has not been used.
+
+CANONICAL JUDGMENT
+
+Evidence before action.
+◎
+
+A check returns one of four decisions. Missing, stale, or unqualified evidence remains visible.
+
+Insufficient evidence is free. No paid canonical receipt is issued.
+
+Observation → Judgment → Execution → Evaluation
+INFOPUNKS RADAR
+// THE INTELLIGENCE TERMINAL
+ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+API CONTRACT

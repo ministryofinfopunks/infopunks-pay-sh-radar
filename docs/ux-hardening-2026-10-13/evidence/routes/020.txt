@@ -1,0 +1,361 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Abundance Desk
+- paragraph:
+  - generic: "[ 09 ]"
+  - text: SIGNALS / MARKET INTELLIGENCE
+- link "Skip to content":
+  - /url: "#abundance-content"
+- main:
+  - paragraph: Machine Labor Economy
+  - heading "Abundance Desk" [level=1]
+  - paragraph: When machines do the work, Infopunks checks the receipts.
+  - paragraph: "AI and robots may make work optional. But abundance still needs proof: who acted, what worked, who verified it, which route was safe, and which machine deserves trust."
+  - link "Open JSON Surface":
+    - /url: /v1/abundance
+  - link "View Machine Receipts":
+    - /url: /machine-receipts
+  - paragraph: Desk thesis
+  - paragraph: Infopunks is the proof, receipt, and judgment layer for the machine-labor economy.
+  - paragraph: Optional work still needs accountable work. The desk connects machine routes, agent spend, receipts, validators, and dispute memory.
+  - region "Machine Labor Watch":
+    - article:
+      - paragraph: Machine Labor Watch
+      - generic: Caution
+      - heading "AI Agents" [level=2]
+      - paragraph: Agents promise paid API work, research, translation, routing, and admin loops.
+      - generic: Receipts must connect intent, route, cost, output, and validation state.
+      - generic: ai agents
+      - generic: Receipts present
+    - article:
+      - paragraph: Machine Labor Watch
+      - generic: Caution
+      - heading "Robotics" [level=2]
+      - paragraph: Robots promise warehouse, delivery, inspection, and repetitive physical labor.
+      - generic: Physical claims need task logs, failure logs, safety constraints, and human validators.
+      - generic: robotics
+      - generic: Needs human validation
+    - article:
+      - paragraph: Machine Labor Watch
+      - generic: Unproven
+      - heading "Automation" [level=2]
+      - paragraph: Automation promises fewer human operators and faster repeated workflows.
+      - generic: The proof gap is whether outputs improved, repeated, and survived edge cases.
+      - generic: automation
+      - generic: Plausible, unproven
+    - article:
+      - paragraph: Machine Labor Watch
+      - generic: Ready
+      - heading "Machine Services" [level=2]
+      - paragraph: Callable services promise machine-native spend, settlement, and composable labor.
+      - generic: Ready services expose safe routes, bounded costs, payment rails, and receipt hooks.
+      - generic: machine services
+      - generic: Ready for agent spend
+  - region "Proof Gap Index":
+    - paragraph: Proof Gap Index
+    - heading "Classify the claim before machines spend." [level=2]
+    - generic: judgment states
+    - article:
+      - strong: Receipts present
+      - generic: "1"
+      - generic: A concrete route, cost/output trace, and evidence artifacts exist.
+    - article:
+      - strong: Plausible, unproven
+      - generic: "1"
+      - generic: The claim may be true, but the task-level receipt trail is thin.
+    - article:
+      - strong: Hype without route
+      - generic: "1"
+      - generic: The story points at abundance without showing how work, surplus, or distribution is proven.
+    - article:
+      - strong: Dangerous if automated
+      - generic: "1"
+      - generic: The claim can create real-world harm if routed into autonomous action too early.
+    - article:
+      - strong: Ready for agent spend
+      - generic: "1"
+      - generic: Policy, route, cost boundary, receipt requirement, and rollback path are visible.
+    - article:
+      - strong: Needs human validation
+      - generic: "1"
+      - generic: Humans must inspect output, consequences, and dispute paths before scale.
+  - region "Machine Work Receipts":
+    - paragraph: Machine Work Receipts
+    - heading "New receipt type for machine labor." [level=2]
+    - link "GET /v1/abundance/receipts":
+      - /url: /v1/abundance/receipts
+    - article:
+      - paragraph: mwr_agent_translation_001
+      - heading "Translate a bounded field report phrase." [level=3]
+      - paragraph: Returned a Spanish translation preview with execution latency attached.
+      - paragraph:
+        - generic: performer_type
+        - generic: ai_agent
+      - paragraph:
+        - generic: performer_name
+        - generic: infopunks-pay-sh-agent-harness
+      - paragraph:
+        - generic: requester
+        - generic: field-maintenance-bot
+      - paragraph:
+        - generic: route_used
+        - generic: pay.sh / Alibaba Machine Translation General
+      - paragraph:
+        - generic: cost_paid_usd
+        - generic: not claimed
+      - paragraph:
+        - generic: chain
+        - generic: solana
+      - paragraph:
+        - generic: validation_state
+        - generic: Receipts present
+      - paragraph:
+        - generic: human_validator
+        - generic: validator_operations_01
+      - paragraph:
+        - generic: failure_reason
+        - generic: none recorded
+      - paragraph:
+        - generic: reputation_impact
+        - generic: +3 route confidence; payment proof still absent
+      - generic: preflight receipt
+      - generic: service-specific execution artifact
+      - generic: repeatability pack
+    - article:
+      - paragraph: mwr_robot_geocode_fixture_001
+      - heading "Resolve a public landmark geocode without commanding movement." [level=3]
+      - paragraph: Fixture returned coordinates with no robot command and no physical movement.
+      - paragraph:
+        - generic: performer_type
+        - generic: robot
+      - paragraph:
+        - generic: performer_name
+        - generic: delivery-bot-geocode-fixture
+      - paragraph:
+        - generic: requester
+        - generic: route-risk-desk
+      - paragraph:
+        - generic: route_used
+        - generic: robotic.sh / NAVER Maps fixture
+      - paragraph:
+        - generic: cost_paid_usd
+        - generic: not claimed
+      - paragraph:
+        - generic: chain
+        - generic: unknown
+      - paragraph:
+        - generic: validation_state
+        - generic: Needs human validation
+      - paragraph:
+        - generic: human_validator
+        - generic: validator_safety_02
+      - paragraph:
+        - generic: failure_reason
+        - generic: none recorded
+      - paragraph:
+        - generic: reputation_impact
+        - generic: +1 planning confidence; live automation remains gated
+      - generic: fixture receipt
+      - generic: no-physical-movement assertion
+      - generic: route-risk note
+    - article:
+      - paragraph: mwr_autonomous_wallet_policy_001
+      - heading "Preflight a machine wallet spend against route policy." [level=3]
+      - paragraph: Allowed only bounded document parsing routes and denied unsupported chains.
+      - paragraph:
+        - generic: performer_type
+        - generic: machine_wallet
+      - paragraph:
+        - generic: performer_name
+        - generic: did:peaq:delivery-bot-01
+      - paragraph:
+        - generic: requester
+        - generic: machine-preflight
+      - paragraph:
+        - generic: route_used
+        - generic: Infopunks pre-spend decision engine
+      - paragraph:
+        - generic: cost_paid_usd
+        - generic: "0"
+      - paragraph:
+        - generic: chain
+        - generic: peaq
+      - paragraph:
+        - generic: validation_state
+        - generic: Ready for agent spend
+      - paragraph:
+        - generic: human_validator
+        - generic: validator_policy_01
+      - paragraph:
+        - generic: failure_reason
+        - generic: none recorded
+      - paragraph:
+        - generic: reputation_impact
+        - generic: +4 spend boundary confidence
+      - generic: policy template
+      - generic: decision receipt
+      - generic: violations list
+  - region "Agent Spend Readiness":
+    - paragraph: Agent Spend Readiness
+    - heading "Autonomous payment needs route confidence." [level=2]
+    - article:
+      - paragraph: pay.sh / Solana
+      - generic: Ready
+      - heading "Machine Translation Safe Phrase" [level=3]
+      - paragraph: Bounded text input, low physical consequence, execution receipts available.
+      - generic: "Next receipt: Attach payment evidence to repeatable execution receipts."
+    - article:
+      - paragraph: robotic.sh / operator-defined
+      - generic: Caution
+      - heading "Robot Geocode Fixture" [level=3]
+      - paragraph: Useful for planning, but navigation can influence physical action if connected to runtime control.
+      - generic: "Next receipt: Human-approved non-operational fixture receipt with no movement."
+    - article:
+      - paragraph: unknown
+      - generic: Do not use yet
+      - heading "Humanoid Warehouse Live Task" [level=3]
+      - paragraph: Physical-world consequences and missing independent incident trail.
+      - generic: "Next receipt: Independent task log with failure modes and human safety validator."
+    - article:
+      - paragraph: base / subscription
+      - generic: Unproven
+      - heading "Agent Productivity Suite" [level=3]
+      - paragraph: Claimed productivity gains lack task-level receipts and counterfactuals.
+      - generic: "Next receipt: Before/after workflow receipt with validated output quality."
+    - article:
+      - paragraph: offchain
+      - generic: Disputed
+      - heading "Machine Surplus Oracle" [level=3]
+      - paragraph: Surplus attribution is asserted, not measured through machine labor receipts.
+      - generic: "Next receipt: Auditable surplus route from machine output to distribution ledger."
+  - region "Human Validator Layer":
+    - paragraph: Human Validator Layer
+    - heading "Humans move up the stack." [level=2]
+    - paragraph: "The point is not human absence. It is better human placement: validation, consequence ownership, loop design, and dispute resolution."
+    - generic: Humans stop doing every task and start validating claims.
+    - generic: Humans own consequences when machine loops fail.
+    - generic: Humans design bounded loops, escalation paths, and rollback policies.
+    - generic: Humans resolve disputes when receipts conflict with outcomes.
+  - region "Abundance Claims Feed":
+    - paragraph: Abundance Claims Feed
+    - heading "Claims become useful when judgment attaches." [level=2]
+    - link "GET /v1/abundance/claims":
+      - /url: /v1/abundance/claims
+    - article "abd_claim_agent_paid_api_work":
+      - paragraph: abd_claim_agent_paid_api_work
+      - generic: Caution
+      - heading "AI agents can complete paid API work autonomously." [level=3]
+      - paragraph: Autonomous paid work is credible only when the route, cost, output, and validator are all attached to the claim.
+      - generic: builder demo
+      - generic: Receipts present
+      - paragraph:
+        - generic: Evidence
+        - generic: preflight receipt
+      - paragraph:
+        - generic: Evidence
+        - generic: service-specific execution receipt
+      - paragraph:
+        - generic: Evidence
+        - generic: payment route policy
+    - article "abd_claim_humanoid_warehouse_tasks":
+      - paragraph: abd_claim_humanoid_warehouse_tasks
+      - generic: Caution
+      - heading "Humanoid robots can perform repetitive warehouse tasks." [level=3]
+      - paragraph: Physical-world automation needs human validation, incident memory, and constrained deployment receipts before the claim graduates.
+      - generic: robotics vendor
+      - generic: Needs human validation
+      - paragraph:
+        - generic: Evidence
+        - generic: vendor demo
+      - paragraph:
+        - generic: Evidence
+        - generic: task video
+      - paragraph:
+        - generic: Evidence
+        - generic: missing independent failure log
+    - article "abd_claim_wallets_route_machine_payments":
+      - paragraph: abd_claim_wallets_route_machine_payments
+      - generic: Ready
+      - heading "Autonomous wallets can route payments to machine services." [level=3]
+      - paragraph: Machine wallets are acceptable when spend limits, routes, proof requirements, and revocation paths are explicit.
+      - generic: wallet infrastructure
+      - generic: Ready for agent spend
+      - paragraph:
+        - generic: Evidence
+        - generic: bounded wallet policy
+      - paragraph:
+        - generic: Evidence
+        - generic: chain route
+      - paragraph:
+        - generic: Evidence
+        - generic: pre-spend check
+      - paragraph:
+        - generic: Evidence
+        - generic: receipt requirement
+    - article "abd_claim_ai_productivity_receipts":
+      - paragraph: abd_claim_ai_productivity_receipts
+      - generic: Unproven
+      - heading "AI productivity claims need receipts." [level=3]
+      - paragraph: Productivity without task receipts is a narrative, not a ledger. Infopunks asks what changed, who checked it, and whether the loop repeated.
+      - generic: productivity report
+      - generic: Plausible, unproven
+      - paragraph:
+        - generic: Evidence
+        - generic: self-reported time savings
+      - paragraph:
+        - generic: Evidence
+        - generic: no task-level audit trail
+    - article "abd_claim_uhi_machine_surplus":
+      - paragraph: abd_claim_uhi_machine_surplus
+      - generic: Unproven
+      - heading "Universal high income requires proof of machine-generated surplus." [level=3]
+      - paragraph: Abundance policy needs machine-output accounting. The claim is not ready until surplus can be traced from machine labor to verified distribution.
+      - generic: policy thesis
+      - generic: Hype without route
+      - paragraph:
+        - generic: Evidence
+        - generic: macro thesis
+      - paragraph:
+        - generic: Evidence
+        - generic: missing surplus attribution route
+      - paragraph:
+        - generic: Evidence
+        - generic: missing distribution proof
+    - article "abd_claim_robot_route_safety":
+      - paragraph: abd_claim_robot_route_safety
+      - generic: Do not use yet
+      - heading "Robots can safely use live route and mapping APIs while operating." [level=3]
+      - paragraph: Route outputs that can affect movement require non-operational fixtures first, then constrained human-approved trials.
+      - generic: market claim
+      - generic: Dangerous if automated
+      - paragraph:
+        - generic: Evidence
+        - generic: navigation API surface
+      - paragraph:
+        - generic: Evidence
+        - generic: physical-world consequence risk
+      - paragraph:
+        - generic: Evidence
+        - generic: missing no-movement guard
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

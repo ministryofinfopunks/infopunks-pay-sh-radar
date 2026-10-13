@@ -1,0 +1,158 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Benchmark Readiness
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-benchmark-readiness-content"
+- banner:
+  - navigation "Machine Benchmark Readiness navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Benchmark Readiness":
+  - paragraph: Benchmark Readiness
+  - heading "Machine Benchmark Readiness" [level=1]
+  - paragraph: Readiness gates for future benchmarking lanes. This page does not run benchmarks.
+  - region "Machine benchmark readiness caveats":
+    - paragraph: Machine Market benchmarks require robotic.sh-listed services.
+    - paragraph: Pay.sh can be the rail, but robotic.sh visibility anchors the benchmark lane.
+    - paragraph: No robotic.sh-listed comparable route, no Machine Market benchmark.
+    - paragraph: If nothing compatible exists, Radar moves back to evidence acquisition.
+    - paragraph: Benchmark readiness is not benchmark evidence.
+    - paragraph: Repeatability is not route superiority.
+    - paragraph: No winner claim exists until criteria and artifacts exist.
+    - paragraph: A single repeatable route is not a benchmark.
+    - paragraph: Comparable routes are required before benchmark artifacts.
+    - paragraph:
+      - link "Back to Machine Market":
+        - /url: /machine-market
+      - link "View first safe route queue":
+        - /url: /machine-first-safe-routes
+      - link "View benchmark methodology":
+        - /url: /machine-benchmark-methodology
+      - link "View comparable routes":
+        - /url: /machine-comparable-routes
+      - link "View translation evidence plan":
+        - /url: /machine-translation-evidence
+      - link "View receipts":
+        - /url: /machine-receipts
+  - region "Machine benchmark gate check":
+    - paragraph: Benchmark gate check
+    - heading "Benchmark gate" [level=2]
+    - paragraph: Benchmark gate is closed until comparable routes, methodology, and readiness all pass.
+    - paragraph: "Gate status: closed"
+    - paragraph: "Why closed: comparable_routes_missing, comparable_routes_not_proven, methodology_incomplete, readiness_not_benchmark_ready, repeatability_missing, task_class_mismatch, input_class_mismatch, output_normalization_mismatch, success_criteria_mismatch, run_count_target_mismatch, safety_policy_blocked"
+    - paragraph: "What must happen next: robotic_sh_visible_service_identity = present · readiness_status = benchmark_ready · methodology_artifact_schema = present · comparable_route_count >= 2 · routes share task class · routes share input class · routes share output normalization · routes share success criteria · routes share run count target · safety/policy constraints pass"
+    - paragraph: "No benchmark claim: true"
+    - paragraph: "No winner claim: true"
+  - region "Machine benchmark readiness summary":
+    - article:
+      - text: Benchmark claims
+      - strong: "0"
+      - text: must remain 0 in readiness mode
+    - article:
+      - text: Winner claims
+      - strong: "0"
+      - text: must remain 0 in readiness mode
+    - article:
+      - text: Market-wide execution claims
+      - strong: "0"
+      - text: must remain 0 in readiness mode
+    - article:
+      - text: Payment success claims
+      - strong: "0"
+      - text: 0 unless payment evidence exists
+  - region "Benchmark readiness lanes":
+    - paragraph: Candidate lanes
+    - heading "4 benchmark readiness lanes" [level=2]
+    - table "Machine benchmark readiness lane table":
+      - text: Scroll horizontally for all columns →
+      - row "machine_translation translation safe phrase anytrans (machine_translation_safe_phrase) · alibaba-machine-translation-general (machine_translation_safe_phrase) 0 missing comparable_routes_missing, repeatability_missing comparable_routes_missing Add at least one more comparable route before any benchmark artifact. Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. No winner claim exists until criteria and artifacts exist. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts.":
+        - cell "machine_translation":
+          - strong: machine_translation
+        - cell "translation safe phrase"
+        - cell "anytrans (machine_translation_safe_phrase) · alibaba-machine-translation-general (machine_translation_safe_phrase)":
+          - generic: anytrans (machine_translation_safe_phrase) · alibaba-machine-translation-general (machine_translation_safe_phrase)
+        - cell "0"
+        - cell "missing"
+        - cell "comparable_routes_missing, repeatability_missing":
+          - generic: comparable_routes_missing, repeatability_missing
+        - cell "comparable_routes_missing":
+          - generic: comparable_routes_missing
+        - cell "Add at least one more comparable route before any benchmark artifact."
+        - cell "Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. No winner claim exists until criteria and artifacts exist. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts.":
+          - generic: Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. No winner claim exists until criteria and artifacts exist. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts.
+      - row "data_query_bigquery bounded data query bigquery (bigquery_bounded_query) 1 missing comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing comparable_routes_missing Add at least one more comparable route before any benchmark artifact. Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. No winner claim exists until criteria and artifacts exist. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts.":
+        - cell "data_query_bigquery":
+          - strong: data_query_bigquery
+        - cell "bounded data query"
+        - cell "bigquery (bigquery_bounded_query)":
+          - generic: bigquery (bigquery_bounded_query)
+        - cell "1"
+        - cell "missing"
+        - cell "comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing":
+          - generic: comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing
+        - cell "comparable_routes_missing":
+          - generic: comparable_routes_missing
+        - cell "Add at least one more comparable route before any benchmark artifact."
+        - cell "Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. No winner claim exists until criteria and artifacts exist. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts.":
+          - generic: Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. No winner claim exists until criteria and artifacts exist. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts.
+      - row "storage_stableupload tiny non-sensitive fixture upload stableupload (stableupload_tiny_fixture) 1 missing comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing comparable_routes_missing Add at least one more comparable route before any benchmark artifact. Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. No winner claim exists until criteria and artifacts exist. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts.":
+        - cell "storage_stableupload":
+          - strong: storage_stableupload
+        - cell "tiny non-sensitive fixture upload"
+        - cell "stableupload (stableupload_tiny_fixture)":
+          - generic: stableupload (stableupload_tiny_fixture)
+        - cell "1"
+        - cell "missing"
+        - cell "comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing":
+          - generic: comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing
+        - cell "comparable_routes_missing":
+          - generic: comparable_routes_missing
+        - cell "Add at least one more comparable route before any benchmark artifact."
+        - cell "Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. No winner claim exists until criteria and artifacts exist. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts.":
+          - generic: Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. No winner claim exists until criteria and artifacts exist. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts.
+      - row "navigation_naver_geocode non-operational geocode lookup naver-maps (naver_geocode_lookup) 1 missing comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing comparable_routes_missing Add at least one more comparable route before any benchmark artifact. Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. No winner claim exists until criteria and artifacts exist. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts.":
+        - cell "navigation_naver_geocode":
+          - strong: navigation_naver_geocode
+        - cell "non-operational geocode lookup"
+        - cell "naver-maps (naver_geocode_lookup)":
+          - generic: naver-maps (naver_geocode_lookup)
+        - cell "1"
+        - cell "missing"
+        - cell "comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing":
+          - generic: comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing
+        - cell "comparable_routes_missing":
+          - generic: comparable_routes_missing
+        - cell "Add at least one more comparable route before any benchmark artifact."
+        - cell "Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. No winner claim exists until criteria and artifacts exist. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts.":
+          - generic: Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. No winner claim exists until criteria and artifacts exist. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

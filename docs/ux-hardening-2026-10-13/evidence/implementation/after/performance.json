@@ -1,0 +1,1112 @@
+[
+  {
+    "route": "/solana",
+    "width": 390,
+    "repeat": 0,
+    "resources": [
+      {
+        "name": "index-DdM5Icqp.js",
+        "bytes": 71289,
+        "duration": 25
+      },
+      {
+        "name": "index-Z3muB8xV.css",
+        "bytes": 9124,
+        "duration": 8.100000001490116
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 6.5
+      },
+      {
+        "name": "receipts-1Kj-g-WN.js",
+        "bytes": 21495,
+        "duration": 8.399999998509884
+      },
+      {
+        "name": "radarApp-zQ1HqlZV.js",
+        "bytes": 298868,
+        "duration": 32.899999998509884
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 7.5
+      },
+      {
+        "name": "spendTerminalPage-DnDHrOMR.js",
+        "bytes": 18864,
+        "duration": 7.400000002235174
+      },
+      {
+        "name": "spendTerminalPage-DiciUYUU.css",
+        "bytes": 1178,
+        "duration": 4.099999997764826
+      },
+      {
+        "name": "radarApp-CUu7vnvW.css",
+        "bytes": 726,
+        "duration": 4.700000002980232
+      },
+      {
+        "name": "styles-CYxAGkUr.css",
+        "bytes": 67561,
+        "duration": 16.600000001490116
+      }
+    ],
+    "longTasks": [],
+    "lcp": 472,
+    "cls": 0
+  },
+  {
+    "route": "/solana",
+    "width": 390,
+    "repeat": 1,
+    "resources": [
+      {
+        "name": "index-DdM5Icqp.js",
+        "bytes": 71289,
+        "duration": 15.400000002235174
+      },
+      {
+        "name": "index-Z3muB8xV.css",
+        "bytes": 9124,
+        "duration": 6.199999999254942
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 6
+      },
+      {
+        "name": "radarApp-zQ1HqlZV.js",
+        "bytes": 298868,
+        "duration": 34
+      },
+      {
+        "name": "receipts-1Kj-g-WN.js",
+        "bytes": 21495,
+        "duration": 10.099999997764826
+      },
+      {
+        "name": "spendTerminalPage-DnDHrOMR.js",
+        "bytes": 18864,
+        "duration": 10.299999997019768
+      },
+      {
+        "name": "spendTerminalPage-DiciUYUU.css",
+        "bytes": 1178,
+        "duration": 4.400000002235174
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 10.300000000745058
+      },
+      {
+        "name": "radarApp-CUu7vnvW.css",
+        "bytes": 726,
+        "duration": 4.800000000745058
+      },
+      {
+        "name": "styles-CYxAGkUr.css",
+        "bytes": 67561,
+        "duration": 17
+      }
+    ],
+    "longTasks": [],
+    "lcp": 480,
+    "cls": 0
+  },
+  {
+    "route": "/solana",
+    "width": 390,
+    "repeat": 2,
+    "resources": [
+      {
+        "name": "index-DdM5Icqp.js",
+        "bytes": 71289,
+        "duration": 15.899999998509884
+      },
+      {
+        "name": "index-Z3muB8xV.css",
+        "bytes": 9124,
+        "duration": 6.5
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 5.5
+      },
+      {
+        "name": "radarApp-zQ1HqlZV.js",
+        "bytes": 298868,
+        "duration": 30.100000001490116
+      },
+      {
+        "name": "receipts-1Kj-g-WN.js",
+        "bytes": 21495,
+        "duration": 5.899999998509884
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 4.5
+      },
+      {
+        "name": "spendTerminalPage-DnDHrOMR.js",
+        "bytes": 18864,
+        "duration": 5.400000002235174
+      },
+      {
+        "name": "spendTerminalPage-DiciUYUU.css",
+        "bytes": 1178,
+        "duration": 2.899999998509884
+      },
+      {
+        "name": "radarApp-CUu7vnvW.css",
+        "bytes": 726,
+        "duration": 3.199999999254942
+      },
+      {
+        "name": "styles-CYxAGkUr.css",
+        "bytes": 67561,
+        "duration": 12.599999997764826
+      }
+    ],
+    "longTasks": [],
+    "lcp": 484,
+    "cls": 0
+  },
+  {
+    "route": "/4663/share/qualification-missing-record",
+    "width": 390,
+    "repeat": 0,
+    "resources": [
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 5.199999999254942
+      },
+      {
+        "name": "index-DdM5Icqp.js",
+        "bytes": 71289,
+        "duration": 16.099999997764826
+      },
+      {
+        "name": "index-Z3muB8xV.css",
+        "bytes": 9124,
+        "duration": 5.900000002235174
+      },
+      {
+        "name": "rh4663Router-BygSsIPn.js",
+        "bytes": 855,
+        "duration": 2.199999999254942
+      },
+      {
+        "name": "styles-CYxAGkUr.css",
+        "bytes": 67561,
+        "duration": 7.399999998509884
+      },
+      {
+        "name": "rh4663Pages-DExDm_4T.js",
+        "bytes": 22701,
+        "duration": 3.5
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 1.800000000745058
+      },
+      {
+        "name": "rh4663Pages-DuVVrgZg.css",
+        "bytes": 10688,
+        "duration": 3
+      }
+    ],
+    "longTasks": [],
+    "lcp": 360,
+    "cls": 0
+  },
+  {
+    "route": "/4663/share/qualification-missing-record",
+    "width": 390,
+    "repeat": 1,
+    "resources": [
+      {
+        "name": "index-DdM5Icqp.js",
+        "bytes": 71289,
+        "duration": 16.699999999254942
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 4.699999999254942
+      },
+      {
+        "name": "index-Z3muB8xV.css",
+        "bytes": 9124,
+        "duration": 5.300000000745058
+      },
+      {
+        "name": "rh4663Router-BygSsIPn.js",
+        "bytes": 855,
+        "duration": 3.800000000745058
+      },
+      {
+        "name": "styles-CYxAGkUr.css",
+        "bytes": 67561,
+        "duration": 10.5
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 2.100000001490116
+      },
+      {
+        "name": "rh4663Pages-DExDm_4T.js",
+        "bytes": 22701,
+        "duration": 3.800000000745058
+      },
+      {
+        "name": "rh4663Pages-DuVVrgZg.css",
+        "bytes": 10688,
+        "duration": 3.100000001490116
+      }
+    ],
+    "longTasks": [],
+    "lcp": 364,
+    "cls": 0
+  },
+  {
+    "route": "/4663/share/qualification-missing-record",
+    "width": 390,
+    "repeat": 2,
+    "resources": [
+      {
+        "name": "index-DdM5Icqp.js",
+        "bytes": 71289,
+        "duration": 18.899999998509884
+      },
+      {
+        "name": "index-Z3muB8xV.css",
+        "bytes": 9124,
+        "duration": 10.100000001490116
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 8.5
+      },
+      {
+        "name": "rh4663Router-BygSsIPn.js",
+        "bytes": 855,
+        "duration": 2
+      },
+      {
+        "name": "styles-CYxAGkUr.css",
+        "bytes": 67561,
+        "duration": 7.199999999254942
+      },
+      {
+        "name": "rh4663Pages-DExDm_4T.js",
+        "bytes": 22701,
+        "duration": 4.099999997764826
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 1.800000000745058
+      },
+      {
+        "name": "rh4663Pages-DuVVrgZg.css",
+        "bytes": 10688,
+        "duration": 3.099999997764826
+      }
+    ],
+    "longTasks": [],
+    "lcp": 364,
+    "cls": 0
+  },
+  {
+    "route": "/spend-terminal",
+    "width": 390,
+    "repeat": 0,
+    "resources": [
+      {
+        "name": "index-DdM5Icqp.js",
+        "bytes": 71289,
+        "duration": 16.300000000745058
+      },
+      {
+        "name": "index-Z3muB8xV.css",
+        "bytes": 9124,
+        "duration": 7.5
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 6.5
+      },
+      {
+        "name": "spendTerminalPage-DnDHrOMR.js",
+        "bytes": 18864,
+        "duration": 21
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 15.700000002980232
+      },
+      {
+        "name": "receipts-1Kj-g-WN.js",
+        "bytes": 21495,
+        "duration": 20.100000001490116
+      },
+      {
+        "name": "spendTerminalPage-DiciUYUU.css",
+        "bytes": 1178,
+        "duration": 17.399999998509884
+      }
+    ],
+    "longTasks": [],
+    "lcp": 408,
+    "cls": 0
+  },
+  {
+    "route": "/spend-terminal",
+    "width": 390,
+    "repeat": 1,
+    "resources": [
+      {
+        "name": "index-DdM5Icqp.js",
+        "bytes": 71289,
+        "duration": 25.900000002235174
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 8.900000002235174
+      },
+      {
+        "name": "index-Z3muB8xV.css",
+        "bytes": 9124,
+        "duration": 11.300000000745058
+      },
+      {
+        "name": "spendTerminalPage-DnDHrOMR.js",
+        "bytes": 18864,
+        "duration": 11
+      },
+      {
+        "name": "receipts-1Kj-g-WN.js",
+        "bytes": 21495,
+        "duration": 11.899999998509884
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 5.200000002980232
+      },
+      {
+        "name": "spendTerminalPage-DiciUYUU.css",
+        "bytes": 1178,
+        "duration": 7.600000001490116
+      }
+    ],
+    "longTasks": [],
+    "lcp": 376,
+    "cls": 0
+  },
+  {
+    "route": "/spend-terminal",
+    "width": 390,
+    "repeat": 2,
+    "resources": [
+      {
+        "name": "index-1AjNnFjT.js",
+        "bytes": 71290,
+        "duration": 26
+      },
+      {
+        "name": "index-Z3muB8xV.css",
+        "bytes": 9124,
+        "duration": 8.099999997764826
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 13.5
+      },
+      {
+        "name": "receipts-1Kj-g-WN.js",
+        "bytes": 21495,
+        "duration": 6.699999999254942
+      },
+      {
+        "name": "spendTerminalPage-x3gnZ36s.js",
+        "bytes": 18865,
+        "duration": 7.699999999254942
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 3.699999999254942
+      },
+      {
+        "name": "spendTerminalPage-DiciUYUU.css",
+        "bytes": 1178,
+        "duration": 5.699999999254942
+      }
+    ],
+    "longTasks": [],
+    "lcp": 372,
+    "cls": 0
+  },
+  {
+    "route": "/",
+    "width": 390,
+    "repeat": 0,
+    "resources": [
+      {
+        "name": "index-1AjNnFjT.js",
+        "bytes": 71290,
+        "duration": 16
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 6.700000002980232
+      },
+      {
+        "name": "index-Z3muB8xV.css",
+        "bytes": 9124,
+        "duration": 6.899999998509884
+      }
+    ],
+    "longTasks": [],
+    "lcp": 96,
+    "cls": 0
+  },
+  {
+    "route": "/",
+    "width": 390,
+    "repeat": 1,
+    "resources": [
+      {
+        "name": "index-1AjNnFjT.js",
+        "bytes": 71290,
+        "duration": 21.099999997764826
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 6.900000002235174
+      },
+      {
+        "name": "index-Z3muB8xV.css",
+        "bytes": 9124,
+        "duration": 8
+      }
+    ],
+    "longTasks": [],
+    "lcp": 156,
+    "cls": 0
+  },
+  {
+    "route": "/",
+    "width": 390,
+    "repeat": 2,
+    "resources": [
+      {
+        "name": "index-1AjNnFjT.js",
+        "bytes": 71290,
+        "duration": 14.400000002235174
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 9.099999997764826
+      },
+      {
+        "name": "index-Z3muB8xV.css",
+        "bytes": 9124,
+        "duration": 9.700000002980232
+      }
+    ],
+    "longTasks": [],
+    "lcp": 60,
+    "cls": 0
+  },
+  {
+    "route": "/solana",
+    "width": 1440,
+    "repeat": 0,
+    "resources": [
+      {
+        "name": "index-DydkBitK.js",
+        "bytes": 71291,
+        "duration": 17.800000000745058
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 10.899999998509884
+      },
+      {
+        "name": "index-BGErhsKO.css",
+        "bytes": 9128,
+        "duration": 10.600000001490116
+      },
+      {
+        "name": "radarApp-DG-cH4XV.js",
+        "bytes": 298943,
+        "duration": 159.70000000298023
+      },
+      {
+        "name": "receipts-1Kj-g-WN.js",
+        "bytes": 21495,
+        "duration": 20.300000000745058
+      },
+      {
+        "name": "spendTerminalPage-BPyi3Rv-.js",
+        "bytes": 18864,
+        "duration": 23
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 23.299999997019768
+      },
+      {
+        "name": "spendTerminalPage-DiciUYUU.css",
+        "bytes": 1178,
+        "duration": 16.400000002235174
+      },
+      {
+        "name": "radarApp-CUu7vnvW.css",
+        "bytes": 726,
+        "duration": 19.599999997764826
+      },
+      {
+        "name": "styles-CYxAGkUr.css",
+        "bytes": 67561,
+        "duration": 39.399999998509884
+      }
+    ],
+    "longTasks": [
+      {
+        "start": 299.3999999985099,
+        "duration": 59
+      }
+    ],
+    "lcp": 656,
+    "cls": 0
+  },
+  {
+    "route": "/solana",
+    "width": 1440,
+    "repeat": 1,
+    "resources": [
+      {
+        "name": "index-DydkBitK.js",
+        "bytes": 71291,
+        "duration": 22.199999999254942
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 9
+      },
+      {
+        "name": "index-BGErhsKO.css",
+        "bytes": 9128,
+        "duration": 9.100000001490116
+      },
+      {
+        "name": "radarApp-DG-cH4XV.js",
+        "bytes": 298943,
+        "duration": 78.29999999701977
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 12
+      },
+      {
+        "name": "spendTerminalPage-BPyi3Rv-.js",
+        "bytes": 18864,
+        "duration": 10.100000001490116
+      },
+      {
+        "name": "receipts-1Kj-g-WN.js",
+        "bytes": 21495,
+        "duration": 10.800000000745058
+      },
+      {
+        "name": "spendTerminalPage-DiciUYUU.css",
+        "bytes": 1178,
+        "duration": 6.800000000745058
+      },
+      {
+        "name": "radarApp-CUu7vnvW.css",
+        "bytes": 726,
+        "duration": 8.100000001490116
+      },
+      {
+        "name": "styles-CYxAGkUr.css",
+        "bytes": 67561,
+        "duration": 31.300000000745058
+      }
+    ],
+    "longTasks": [
+      {
+        "start": 138.19999999925494,
+        "duration": 55
+      }
+    ],
+    "lcp": 512,
+    "cls": 0
+  },
+  {
+    "route": "/solana",
+    "width": 1440,
+    "repeat": 2,
+    "resources": [
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 103.60000000149012
+      },
+      {
+        "name": "index-DydkBitK.js",
+        "bytes": 71291,
+        "duration": 316.30000000074506
+      },
+      {
+        "name": "index-BGErhsKO.css",
+        "bytes": 9128,
+        "duration": 105.10000000149012
+      },
+      {
+        "name": "radarApp-DG-cH4XV.js",
+        "bytes": 298943,
+        "duration": 127.5
+      },
+      {
+        "name": "receipts-1Kj-g-WN.js",
+        "bytes": 21495,
+        "duration": 40.599999997764826
+      },
+      {
+        "name": "spendTerminalPage-BPyi3Rv-.js",
+        "bytes": 18864,
+        "duration": 36.69999999925494
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 43
+      },
+      {
+        "name": "spendTerminalPage-DiciUYUU.css",
+        "bytes": 1178,
+        "duration": 28.699999999254942
+      },
+      {
+        "name": "radarApp-CUu7vnvW.css",
+        "bytes": 726,
+        "duration": 26.699999999254942
+      },
+      {
+        "name": "styles-CYxAGkUr.css",
+        "bytes": 67561,
+        "duration": 77.59999999776483
+      }
+    ],
+    "longTasks": [
+      {
+        "start": 585.6000000014901,
+        "duration": 53
+      }
+    ],
+    "lcp": 964,
+    "cls": 0
+  },
+  {
+    "route": "/4663/share/qualification-missing-record",
+    "width": 1440,
+    "repeat": 0,
+    "resources": [
+      {
+        "name": "index-DydkBitK.js",
+        "bytes": 71291,
+        "duration": 41.599999997764826
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 26.199999999254942
+      },
+      {
+        "name": "index-BGErhsKO.css",
+        "bytes": 9128,
+        "duration": 27.699999999254942
+      },
+      {
+        "name": "rh4663Router-DtwMhBMF.js",
+        "bytes": 856,
+        "duration": 150.10000000149012
+      },
+      {
+        "name": "styles-CYxAGkUr.css",
+        "bytes": 67561,
+        "duration": 242.69999999925494
+      },
+      {
+        "name": "rh4663Pages-C1b0sWzQ.js",
+        "bytes": 22700,
+        "duration": 49.5
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 16.5
+      },
+      {
+        "name": "rh4663Pages-DuVVrgZg.css",
+        "bytes": 10688,
+        "duration": 46.30000000074506
+      }
+    ],
+    "longTasks": [],
+    "lcp": 584,
+    "cls": 0
+  },
+  {
+    "route": "/4663/share/qualification-missing-record",
+    "width": 1440,
+    "repeat": 1,
+    "resources": [
+      {
+        "name": "index-DydkBitK.js",
+        "bytes": 71291,
+        "duration": 86.30000000074506
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 43.5
+      },
+      {
+        "name": "index-BGErhsKO.css",
+        "bytes": 9128,
+        "duration": 47.100000001490116
+      },
+      {
+        "name": "rh4663Router-DtwMhBMF.js",
+        "bytes": 856,
+        "duration": 23.400000002235174
+      },
+      {
+        "name": "styles-CYxAGkUr.css",
+        "bytes": 67561,
+        "duration": 44.100000001490116
+      },
+      {
+        "name": "rh4663Pages-C1b0sWzQ.js",
+        "bytes": 22700,
+        "duration": 32
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 21.899999998509884
+      },
+      {
+        "name": "rh4663Pages-DuVVrgZg.css",
+        "bytes": 10688,
+        "duration": 26.699999999254942
+      }
+    ],
+    "longTasks": [],
+    "lcp": 512,
+    "cls": 0
+  },
+  {
+    "route": "/4663/share/qualification-missing-record",
+    "width": 1440,
+    "repeat": 2,
+    "resources": [
+      {
+        "name": "index-DydkBitK.js",
+        "bytes": 71291,
+        "duration": 41.899999998509884
+      },
+      {
+        "name": "index-BGErhsKO.css",
+        "bytes": 9128,
+        "duration": 23.699999999254942
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 22.300000000745058
+      },
+      {
+        "name": "rh4663Router-DtwMhBMF.js",
+        "bytes": 856,
+        "duration": 9.599999997764826
+      },
+      {
+        "name": "styles-CYxAGkUr.css",
+        "bytes": 67561,
+        "duration": 21.699999999254942
+      },
+      {
+        "name": "rh4663Pages-C1b0sWzQ.js",
+        "bytes": 22700,
+        "duration": 23.600000001490116
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 10.599999997764826
+      },
+      {
+        "name": "rh4663Pages-DuVVrgZg.css",
+        "bytes": 10688,
+        "duration": 21.400000002235174
+      }
+    ],
+    "longTasks": [],
+    "lcp": 460,
+    "cls": 0
+  },
+  {
+    "route": "/spend-terminal",
+    "width": 1440,
+    "repeat": 0,
+    "resources": [
+      {
+        "name": "index-DydkBitK.js",
+        "bytes": 71291,
+        "duration": 44.30000000074506
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 30.700000002980232
+      },
+      {
+        "name": "index-BGErhsKO.css",
+        "bytes": 9128,
+        "duration": 31.399999998509884
+      },
+      {
+        "name": "spendTerminalPage-BPyi3Rv-.js",
+        "bytes": 18864,
+        "duration": 29.5
+      },
+      {
+        "name": "receipts-1Kj-g-WN.js",
+        "bytes": 21495,
+        "duration": 26.800000000745058
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 17.600000001490116
+      },
+      {
+        "name": "spendTerminalPage-DiciUYUU.css",
+        "bytes": 1178,
+        "duration": 25.100000001490116
+      }
+    ],
+    "longTasks": [
+      {
+        "start": 547.5,
+        "duration": 74
+      }
+    ],
+    "lcp": 968,
+    "cls": 0
+  },
+  {
+    "route": "/spend-terminal",
+    "width": 1440,
+    "repeat": 1,
+    "resources": [
+      {
+        "name": "index-DydkBitK.js",
+        "bytes": 71291,
+        "duration": 59.5
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 37.899999998509884
+      },
+      {
+        "name": "index-BGErhsKO.css",
+        "bytes": 9128,
+        "duration": 38.19999999925494
+      },
+      {
+        "name": "spendTerminalPage-BPyi3Rv-.js",
+        "bytes": 18864,
+        "duration": 25.100000001490116
+      },
+      {
+        "name": "receipts-1Kj-g-WN.js",
+        "bytes": 21495,
+        "duration": 24.799999997019768
+      },
+      {
+        "name": "spendTerminalPage-DiciUYUU.css",
+        "bytes": 1178,
+        "duration": 24.100000001490116
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 23.900000002235174
+      }
+    ],
+    "longTasks": [
+      {
+        "start": 348,
+        "duration": 71
+      }
+    ],
+    "lcp": 736,
+    "cls": 0
+  },
+  {
+    "route": "/spend-terminal",
+    "width": 1440,
+    "repeat": 2,
+    "resources": [
+      {
+        "name": "index-DydkBitK.js",
+        "bytes": 71291,
+        "duration": 26.099999997764826
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 19.800000000745058
+      },
+      {
+        "name": "index-BGErhsKO.css",
+        "bytes": 9128,
+        "duration": 15.099999997764826
+      },
+      {
+        "name": "spendTerminalPage-BPyi3Rv-.js",
+        "bytes": 18864,
+        "duration": 14.900000002235174
+      },
+      {
+        "name": "apiBaseUrl-478b3hlo.js",
+        "bytes": 500,
+        "duration": 9.100000001490116
+      },
+      {
+        "name": "receipts-1Kj-g-WN.js",
+        "bytes": 21495,
+        "duration": 12.200000002980232
+      },
+      {
+        "name": "spendTerminalPage-DiciUYUU.css",
+        "bytes": 1178,
+        "duration": 10.100000001490116
+      }
+    ],
+    "longTasks": [
+      {
+        "start": 157.60000000149012,
+        "duration": 65
+      }
+    ],
+    "lcp": 664,
+    "cls": 0
+  },
+  {
+    "route": "/",
+    "width": 1440,
+    "repeat": 0,
+    "resources": [
+      {
+        "name": "index-DydkBitK.js",
+        "bytes": 71291,
+        "duration": 71.80000000074506
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 40.69999999925494
+      },
+      {
+        "name": "index-BGErhsKO.css",
+        "bytes": 9128,
+        "duration": 47.399999998509884
+      }
+    ],
+    "longTasks": [],
+    "lcp": 956,
+    "cls": 0
+  },
+  {
+    "route": "/",
+    "width": 1440,
+    "repeat": 1,
+    "resources": [
+      {
+        "name": "index-DydkBitK.js",
+        "bytes": 71291,
+        "duration": 51.099999997764826
+      },
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 24.200000002980232
+      },
+      {
+        "name": "index-BGErhsKO.css",
+        "bytes": 9128,
+        "duration": 19.800000000745058
+      }
+    ],
+    "longTasks": [],
+    "lcp": 208,
+    "cls": 0
+  },
+  {
+    "route": "/",
+    "width": 1440,
+    "repeat": 2,
+    "resources": [
+      {
+        "name": "jsx-runtime-C7oxC63R.js",
+        "bytes": 3264,
+        "duration": 28.5
+      },
+      {
+        "name": "index-DydkBitK.js",
+        "bytes": 71291,
+        "duration": 62.69999999925494
+      },
+      {
+        "name": "index-BGErhsKO.css",
+        "bytes": 9128,
+        "duration": 53.400000002235174
+      }
+    ],
+    "longTasks": [],
+    "lcp": 212,
+    "cls": 0
+  }
+]

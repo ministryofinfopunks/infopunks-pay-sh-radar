@@ -1,0 +1,12 @@
+{
+  "secure_candidate": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "qualified_application": "35f2e54a288311d1df0f8820dacb216c27175791",
+  "requested_ui_int3_report_absent_from_secure_candidate": true,
+  "report_resolved_in_branch": "codex/radar-ui-int3-qualification",
+  "report_commit": "7cfe031d17b99ade423b912d4ff1470c18fcac71",
+  "report_original_path": "docs/design-system/ui-int3/final-report.md",
+  "report_sha256": "7f01a0acd8b1e1f71895ac4e25c20cd69917b1099ff82772b1be91b836dee322",
+  "preserved_copy": "docs/ux-hardening-2026-10-13/evidence/implementation/baseline-ui-int3-final-report.md",
+  "G1": "PASS inherited",
+  "G2": "HOLD pending human approval of corrected Solana images"
+}

@@ -1,0 +1,468 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: 4663 Index
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#rh-chain-content"
+- main:
+  - paragraph: Public Market Memory
+  - heading "4663 Signal Index" [level=1]
+  - paragraph: Wall Street rails. Meme liquidity. Ranked by receipts.
+  - paragraph: Intelligence index, not a token.
+  - link "Open Ranked Index":
+    - /url: "#ranked-index"
+  - link "Submit source evidence":
+    - /url: /rh-chain-signal-desk/submit
+  - complementary "Desk policy":
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Manual snapshot
+      - generic: Status
+      - strong: Stale
+      - generic: Observed
+      - strong: Jul 9, 2026, 3:45 AM UTC
+      - generic: Relative age
+      - strong: Updated 96 days ago
+      - generic: Sources
+      - strong: "2"
+      - generic: Source policy
+      - paragraph: 4663 values are seeded/manual intelligence until live receipts attach. Inclusion means public market memory, not safety.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - note "Independent intelligence disclaimer":
+      - strong: Independent Infopunks intelligence surface.
+      - generic: Not affiliated with or endorsed by Robinhood.
+      - generic: No buy, sell, or listing recommendation.
+  - region "Index freshness":
+    - paragraph: Manual index values require refresh.
+  - region "4663 Signal Card":
+    - article "4663 Signal Card share card":
+      - generic: INFOPUNKS
+      - strong: 4663 Signal Card
+      - paragraph: ROUTE · rank 1
+      - generic: Finding
+      - paragraph: Active speculation with usable desk memory. External receipts still required.
+      - generic: Risk caveat
+      - paragraph: low watch · active speculation is desk context, not a safety finding.
+      - generic: 2026-07-09 03:45 UTC
+      - generic: 4663 Signal Index · Infopunks RH Chain Signal Desk manual research
+      - link "Open desk ↗":
+        - /url: /rh-chain-signal-desk/tokens/0xmanualresearchseed000000000000000000000000
+      - button "Copy link"
+  - region "4663 Index Overview":
+    - paragraph: Index Overview
+    - heading "Index Overview" [level=2]
+    - paragraph: Public market-memory snapshot for RH Chain attention assets. Metrics stay seeded/manual until receipts attach.
+    - link "Index JSON":
+      - /url: /v1/rh-chain/4663-index
+    - article:
+      - generic: Top signal
+      - strong: ROUTE
+      - paragraph: 60/100 - active speculation
+    - article:
+      - generic: Highest volume
+      - strong: ROUTE
+      - paragraph: "13/25 - manual research: external market source pending"
+    - article:
+      - generic: Highest risk
+      - strong: DIVY
+      - paragraph: do not touch yet
+    - article:
+      - generic: Strongest durability
+      - strong: ROUTE
+      - paragraph: "15/20 - manual research: source pending"
+    - article:
+      - generic: Last updated
+      - strong: 2026-07-09 03:45 UTC
+      - paragraph: seeded/manual intelligence
+  - region "100 Receipts campaign context":
+    - paragraph: Day 1 / rh_100_receipts_day_001
+    - heading "100 Receipts campaign context" [level=2]
+    - paragraph: Flagship attention, post-NOXA rotation, and first utility claims. These reviewed records are shown beside the scored index without inventing score components.
+    - link "Open campaign":
+      - /url: /rh-chain-signal-desk/100-receipts
+    - article:
+      - paragraph: approved signal
+      - heading "CASHCAT" [level=3]
+      - paragraph: durable signal · profit taking pressure
+      - link "Open Token Dossier":
+        - /url: /rh-chain-signal-desk/tokens/0x020bfC650A365f8BB26819deAAbF3E21291018b4
+    - article:
+      - paragraph: watch only
+      - heading "TENDIES" [level=3]
+      - paragraph: attention spike · volatility after strong move
+      - link "Open Token Dossier":
+        - /url: /rh-chain-signal-desk/tokens/0x45242320DBB855EeA8Fd36804C6487E10E97FCF9
+    - article:
+      - paragraph: under receipt check
+      - heading "PONS" [level=3]
+      - paragraph: launchpad rotation signal · fee claim source required
+      - link "Open Token Dossier":
+        - /url: /rh-chain-signal-desk/tokens/0x39dBED3a2bd333467115dE45665cC57F813C4571
+    - article:
+      - paragraph: watch only
+      - heading "HOODRAT" [level=3]
+      - paragraph: narrative candidate · lower liquidity plus quick intel flag
+      - link "Open Token Dossier":
+        - /url: /rh-chain-signal-desk/tokens/0x8e62F281f282686fCa6dCB39288069a93fC23F1c
+    - article:
+      - paragraph: source required
+      - heading "ARROW" [level=3]
+      - paragraph: defi gateway candidate · utility claim source required
+      - link "Open Token Dossier":
+        - /url: /rh-chain-signal-desk/tokens/0xf2915d1e3C1B0c769d0c756Ec43F1c1f6c99cD03
+    - paragraph: Day 1 is manually reviewed campaign memory. Provider context may add timestamps or market context but cannot replace evidence, classification, risk, or outcome fields.
+  - region "Ranked 4663 Signal Index":
+    - paragraph: Ranked Index Table
+    - heading "Ranked Index Table" [level=2]
+    - paragraph: Ranked by computed signal score across attention, volume, holders, durability, and deployer trust.
+    - table "4663 Signal Index ranked assets":
+      - 'row "Rank 1 Ticker ROUTE Route Memory Score 60 /100 Classification active speculation Volume manual research: external market source pending Liquidity manual research: internal seed receipt only Holders manual research: source pending Risk low watch Verdict Active speculation with usable desk memory. External receipts still required."':
+        - cell "Rank 1"
+        - cell "Ticker ROUTE Route Memory":
+          - text: Ticker
+          - generic: ROUTE
+          - generic: Route Memory
+        - cell "Score 60 /100":
+          - text: Score
+          - strong: "60"
+          - generic: /100
+        - cell "Classification active speculation":
+          - text: Classification
+          - generic: active speculation
+        - 'cell "Volume manual research: external market source pending"'
+        - 'cell "Liquidity manual research: internal seed receipt only"'
+        - 'cell "Holders manual research: source pending"'
+        - cell "Risk low watch":
+          - text: Risk
+          - generic: low watch
+        - cell "Verdict Active speculation with usable desk memory. External receipts still required.":
+          - text: Verdict
+          - generic: Active speculation with usable desk memory. External receipts still required.
+      - 'row "Rank 2 Ticker RAILS Wall Street Rails Score 55 /100 Classification active speculation Volume seeded/manual: source pending Liquidity seeded/manual: source pending Holders seeded/manual: source pending Risk medium watch Verdict Strong watch shape, but still receipt-gated. Liquidity and deployer proof decide."':
+        - cell "Rank 2"
+        - cell "Ticker RAILS Wall Street Rails":
+          - text: Ticker
+          - generic: RAILS
+          - generic: Wall Street Rails
+        - cell "Score 55 /100":
+          - text: Score
+          - strong: "55"
+          - generic: /100
+        - cell "Classification active speculation":
+          - text: Classification
+          - generic: active speculation
+        - 'cell "Volume seeded/manual: source pending"'
+        - 'cell "Liquidity seeded/manual: source pending"'
+        - 'cell "Holders seeded/manual: source pending"'
+        - cell "Risk medium watch":
+          - text: Risk
+          - generic: medium watch
+        - cell "Verdict Strong watch shape, but still receipt-gated. Liquidity and deployer proof decide.":
+          - text: Verdict
+          - generic: Strong watch shape, but still receipt-gated. Liquidity and deployer proof decide.
+      - 'row "Rank 3 Ticker HOOD Hood Rail Score 51 /100 Classification active speculation Volume seeded/manual: source pending Liquidity seeded/manual: source pending Holders seeded/manual: source pending Risk source required Verdict Active speculation. Familiar ticker language is attention, not proof."':
+        - cell "Rank 3"
+        - cell "Ticker HOOD Hood Rail":
+          - text: Ticker
+          - generic: HOOD
+          - generic: Hood Rail
+        - cell "Score 51 /100":
+          - text: Score
+          - strong: "51"
+          - generic: /100
+        - cell "Classification active speculation":
+          - text: Classification
+          - generic: active speculation
+        - 'cell "Volume seeded/manual: source pending"'
+        - 'cell "Liquidity seeded/manual: source pending"'
+        - 'cell "Holders seeded/manual: source pending"'
+        - cell "Risk source required":
+          - text: Risk
+          - generic: source required
+        - cell "Verdict Active speculation. Familiar ticker language is attention, not proof.":
+          - text: Verdict
+          - generic: Active speculation. Familiar ticker language is attention, not proof.
+      - 'row "Rank 4 Ticker IPO Meme IPO Desk Score 46 /100 Classification high risk attention Volume seeded/manual: source pending Liquidity seeded/manual: source pending Holders seeded/manual: source pending Risk source required Verdict High-risk attention until contract, pool, and non-affiliation receipts exist."':
+        - cell "Rank 4"
+        - cell "Ticker IPO Meme IPO Desk":
+          - text: Ticker
+          - generic: IPO
+          - generic: Meme IPO Desk
+        - cell "Score 46 /100":
+          - text: Score
+          - strong: "46"
+          - generic: /100
+        - cell "Classification high risk attention":
+          - text: Classification
+          - generic: high risk attention
+        - 'cell "Volume seeded/manual: source pending"'
+        - 'cell "Liquidity seeded/manual: source pending"'
+        - 'cell "Holders seeded/manual: source pending"'
+        - cell "Risk source required":
+          - text: Risk
+          - generic: source required
+        - cell "Verdict High-risk attention until contract, pool, and non-affiliation receipts exist.":
+          - text: Verdict
+          - generic: High-risk attention until contract, pool, and non-affiliation receipts exist.
+      - 'row "Rank 5 Ticker TICKR Ticker Memory Score 44 /100 Classification high risk attention Volume seeded/manual: source pending Liquidity seeded/manual: source pending Holders seeded/manual: source pending Risk medium watch Verdict Watch-only memory object. Useful for signal tracking, not conviction."':
+        - cell "Rank 5"
+        - cell "Ticker TICKR Ticker Memory":
+          - text: Ticker
+          - generic: TICKR
+          - generic: Ticker Memory
+        - cell "Score 44 /100":
+          - text: Score
+          - strong: "44"
+          - generic: /100
+        - cell "Classification high risk attention":
+          - text: Classification
+          - generic: high risk attention
+        - 'cell "Volume seeded/manual: source pending"'
+        - 'cell "Liquidity seeded/manual: source pending"'
+        - 'cell "Holders seeded/manual: source pending"'
+        - cell "Risk medium watch":
+          - text: Risk
+          - generic: medium watch
+        - cell "Verdict Watch-only memory object. Useful for signal tracking, not conviction.":
+          - text: Verdict
+          - generic: Watch-only memory object. Useful for signal tracking, not conviction.
+      - 'row "Rank 6 Ticker SHERW Sherwood Loop Score 30 /100 Classification do not touch yet Volume seeded/manual: source pending Liquidity seeded/manual: source pending Holders seeded/manual: source pending Risk high risk Verdict Do not touch yet. Risk evidence outruns signal evidence."':
+        - cell "Rank 6"
+        - cell "Ticker SHERW Sherwood Loop":
+          - text: Ticker
+          - generic: SHERW
+          - generic: Sherwood Loop
+        - cell "Score 30 /100":
+          - text: Score
+          - strong: "30"
+          - generic: /100
+        - cell "Classification do not touch yet":
+          - text: Classification
+          - generic: do not touch yet
+        - 'cell "Volume seeded/manual: source pending"'
+        - 'cell "Liquidity seeded/manual: source pending"'
+        - 'cell "Holders seeded/manual: source pending"'
+        - cell "Risk high risk":
+          - text: Risk
+          - generic: high risk
+        - cell "Verdict Do not touch yet. Risk evidence outruns signal evidence.":
+          - text: Verdict
+          - generic: Do not touch yet. Risk evidence outruns signal evidence.
+      - 'row "Rank 7 Ticker DIVY Dividend Mirage Score 24 /100 Classification do not touch yet Volume seeded/manual: source pending Liquidity seeded/manual: source pending Holders seeded/manual: source pending Risk do not touch yet Verdict Do not touch yet. Yield language needs hard receipts before memory."':
+        - cell "Rank 7"
+        - cell "Ticker DIVY Dividend Mirage":
+          - text: Ticker
+          - generic: DIVY
+          - generic: Dividend Mirage
+        - cell "Score 24 /100":
+          - text: Score
+          - strong: "24"
+          - generic: /100
+        - cell "Classification do not touch yet":
+          - text: Classification
+          - generic: do not touch yet
+        - 'cell "Volume seeded/manual: source pending"'
+        - 'cell "Liquidity seeded/manual: source pending"'
+        - 'cell "Holders seeded/manual: source pending"'
+        - cell "Risk do not touch yet":
+          - text: Risk
+          - generic: do not touch yet
+        - cell "Verdict Do not touch yet. Yield language needs hard receipts before memory.":
+          - text: Verdict
+          - generic: Do not touch yet. Yield language needs hard receipts before memory.
+  - region "4663 Score Breakdown":
+    - paragraph: Score Breakdown
+    - heading "Score Breakdown" [level=2]
+    - paragraph: Each score is explainable at a glance. Components sum to 100.
+    - article:
+      - paragraph: Rank 1
+      - heading "ROUTE / 60" [level=3]
+      - generic: active speculation
+      - generic: attention
+      - strong: 17/25
+      - generic: volume
+      - strong: 13/25
+      - generic: holders
+      - strong: 11/20
+      - generic: durability
+      - strong: 15/20
+      - generic: deployer trust
+      - strong: 4/10
+      - generic: ai_native_finance
+      - generic: stock_token_spillover
+    - article:
+      - paragraph: Rank 2
+      - heading "RAILS / 55" [level=3]
+      - generic: active speculation
+      - generic: attention
+      - strong: 18/25
+      - generic: volume
+      - strong: 12/25
+      - generic: holders
+      - strong: 9/20
+      - generic: durability
+      - strong: 13/20
+      - generic: deployer trust
+      - strong: 3/10
+      - generic: stock_token_spillover
+      - generic: solana_rotation
+    - article:
+      - paragraph: Rank 3
+      - heading "HOOD / 51" [level=3]
+      - generic: active speculation
+      - generic: attention
+      - strong: 19/25
+      - generic: volume
+      - strong: 10/25
+      - generic: holders
+      - strong: 8/20
+      - generic: durability
+      - strong: 12/20
+      - generic: deployer trust
+      - strong: 2/10
+      - generic: stock_token_spillover
+      - generic: robinhood_brand_mutation
+    - article:
+      - paragraph: Rank 4
+      - heading "IPO / 46" [level=3]
+      - generic: high risk attention
+      - generic: attention
+      - strong: 16/25
+      - generic: volume
+      - strong: 9/25
+      - generic: holders
+      - strong: 8/20
+      - generic: durability
+      - strong: 11/20
+      - generic: deployer trust
+      - strong: 2/10
+      - generic: stock_token_spillover
+      - generic: liquidity_mirage
+    - article:
+      - paragraph: Rank 5
+      - heading "TICKR / 44" [level=3]
+      - generic: high risk attention
+      - generic: attention
+      - strong: 15/25
+      - generic: volume
+      - strong: 8/25
+      - generic: holders
+      - strong: 7/20
+      - generic: durability
+      - strong: 12/20
+      - generic: deployer trust
+      - strong: 2/10
+      - generic: mascot_meta
+      - generic: solana_rotation
+    - article:
+      - paragraph: Rank 6
+      - heading "SHERW / 30" [level=3]
+      - generic: do not touch yet
+      - generic: attention
+      - strong: 12/25
+      - generic: volume
+      - strong: 6/25
+      - generic: holders
+      - strong: 5/20
+      - generic: durability
+      - strong: 6/20
+      - generic: deployer trust
+      - strong: 1/10
+      - generic: robinhood_brand_mutation
+      - generic: deployer_cluster_risk
+      - generic: liquidity_mirage
+    - article:
+      - paragraph: Rank 7
+      - heading "DIVY / 24" [level=3]
+      - generic: do not touch yet
+      - generic: attention
+      - strong: 10/25
+      - generic: volume
+      - strong: 4/25
+      - generic: holders
+      - strong: 4/20
+      - generic: durability
+      - strong: 5/20
+      - generic: deployer trust
+      - strong: 1/10
+      - generic: liquidity_mirage
+      - generic: deployer_cluster_risk
+  - region "4663 Narrative Classes":
+    - paragraph: Narrative Classes
+    - heading "Narrative Classes" [level=2]
+    - paragraph: Mutations the desk is watching across RH Chain attention, liquidity, and risk memory.
+    - generic: mascot_meta
+    - generic: stock_token_spillover
+    - generic: robinhood_brand_mutation
+    - generic: solana_rotation
+    - generic: ai_native_finance
+    - generic: liquidity_mirage
+    - generic: deployer_cluster_risk
+  - region "4663 Methodology":
+    - paragraph: Methodology
+    - heading "Methodology" [level=2]
+    - paragraph: Scores are public intelligence weights. They are not price targets, recommendations, or listing criteria.
+    - article:
+      - generic: Attention
+      - strong: "25"
+      - paragraph: X mentions, KOL mentions, DexScreener trending, search and social velocity.
+    - article:
+      - generic: Volume
+      - strong: "25"
+      - paragraph: 5m, 1h, 24h flow, volume/liquidity ratio, buy/sell distribution, repeat trading.
+    - article:
+      - generic: Holders
+      - strong: "20"
+      - paragraph: Holder growth, top 10 concentration, dev wallet balance, unique buyer growth.
+    - article:
+      - generic: Durability
+      - strong: "20"
+      - paragraph: Survives 24h and 72h, liquidity remains, community keeps posting, volume does not vanish.
+    - article:
+      - generic: Deployer trust
+      - strong: "10"
+      - paragraph: Verified contract, clean deployer history, no serial-rug or clone trail.
+    - paragraph:
+      - generic: 80-100
+      - generic: durable signal
+    - paragraph:
+      - generic: 65-79
+      - generic: strong watch
+    - paragraph:
+      - generic: 50-64
+      - generic: active speculation
+    - paragraph:
+      - generic: 35-49
+      - generic: high risk attention
+    - paragraph:
+      - generic: 0-34
+      - generic: do not touch yet
+  - region "4663 Signal Index Disclaimer":
+    - paragraph: The 4663 Signal Index is an intelligence index, not a tokenized product, endorsement, listing, or financial recommendation.
+    - paragraph: Index inclusion means an asset is visible to public intelligence memory. It does not mean safe to buy.
+    - paragraph: 4663 values are seeded/manual intelligence until live receipts attach. Inclusion means public market memory, not safety.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

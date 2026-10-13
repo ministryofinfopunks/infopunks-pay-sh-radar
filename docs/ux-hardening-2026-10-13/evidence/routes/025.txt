@@ -1,0 +1,279 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Check
+- paragraph:
+  - generic: "[ 07 ]"
+  - text: JUDGMENT / PRE-SPEND INTELLIGENCE
+- main "Proof Feed check page":
+  - paragraph: The receipt layer for the agent economy
+  - heading "Check the receipts before the market believes the claim." [level=1]
+  - paragraph: Paste an agent, route, provider, project, wallet, API, or claim. Infopunks returns receipts, risks, validations, and a decision state.
+  - paragraph: Before an agent pays, it checks Infopunks.
+  - generic: Claim input
+  - textbox "Claim input":
+    - /placeholder: Paste a claim, project, wallet, provider, route, link, or market story.
+  - generic: Source URL (optional)
+  - textbox "Source URL (optional)":
+    - /placeholder: https://example.com/context
+  - button "Check receipts"
+  - paragraph: Recent Proof Checks
+  - heading "Receipt Checks" [level=2]
+  - paragraph: Corrupted signal is economic risk.
+  - link "Infopunks Receipt Check":
+    - /url: /check/monitor
+    - article "Infopunks Receipt Check":
+      - paragraph: INFOPUNKS RECEIPT CHECK
+      - generic: CAUTION
+      - heading "MONITOR / The Situation" [level=2]
+      - paragraph: $MONITOR is a live global-situation intelligence product paired with tokenized PLTR
+      - paragraph:
+        - generic: Subject
+        - strong: MONITOR / The Situation
+      - paragraph:
+        - generic: Subject ID
+        - strong: monitor
+      - paragraph:
+        - generic: Chain
+        - strong: robinhood
+      - paragraph:
+        - generic: Check ID
+        - strong: check_monitor
+      - paragraph:
+        - generic: Type
+        - strong: market narrative
+      - paragraph:
+        - generic: Receipts found
+        - strong: pair / site / X
+      - paragraph:
+        - generic: Evidence strength
+        - strong: LOW
+      - paragraph:
+        - generic: Validation
+        - strong: unvalidated
+      - heading "Risk Flags" [level=3]
+      - generic: narrative over evidence
+      - generic: no human validation
+      - generic: weak onchain evidence
+      - generic: route not repeatable
+      - heading "Evidence Summary" [level=3]
+      - paragraph: 3 public receipts establish existence only. They do not close the missing evidence listed below.
+      - list:
+        - listitem: pair
+        - listitem: site
+        - listitem: X
+      - heading "Missing Receipts" [level=3]
+      - generic: audit
+      - generic: team
+      - generic: utility
+      - generic: paid route
+      - generic: No receipt, no trust.
+      - generic: 2026-09-24 09:00
+  - link "Infopunks Receipt Check":
+    - /url: /check/check_agent_autonomy_seed
+    - article "Infopunks Receipt Check":
+      - paragraph: INFOPUNKS RECEIPT CHECK
+      - generic: DO NOT USE YET
+      - heading "Agent claims autonomous routing and settlement readiness." [level=2]
+      - paragraph: Autonomy narrative is ahead of the recorded execution receipts.
+      - paragraph:
+        - generic: Type
+        - strong: agent autonomy
+      - paragraph:
+        - generic: Receipts
+        - strong: weak receipts
+      - paragraph:
+        - generic: Evidence strength
+        - strong: WEAK
+      - paragraph:
+        - generic: Validation
+        - strong: unvalidated
+      - heading "Risk Flags" [level=3]
+      - generic: autonomy unproven
+      - generic: no human validation
+      - generic: hype without receipts
+      - heading "Evidence Summary" [level=3]
+      - paragraph: Only narrative-level receipts were matched. No repeatable route proof or human validation is attached.
+      - list:
+        - listitem: operator demo clip
+        - listitem: sandbox invoice preview
+      - heading "Missing Receipts" [level=3]
+      - paragraph: No missing receipts recorded in this scope.
+      - generic: No receipt, no trust.
+      - generic: 2026-06-20 09:30
+  - link "Infopunks Receipt Check":
+    - /url: /check/check_route_pay_sh_seed
+    - article "Infopunks Receipt Check":
+      - paragraph: INFOPUNKS RECEIPT CHECK
+      - generic: CAUTION
+      - heading "Pay.sh route claims repeatable market intelligence performance." [level=2]
+      - paragraph: Route has real receipts, but the repeatability claim still needs more validation.
+      - paragraph:
+        - generic: Type
+        - strong: route performance
+      - paragraph:
+        - generic: Receipts
+        - strong: partial receipts
+      - paragraph:
+        - generic: Evidence strength
+        - strong: MEDIUM
+      - paragraph:
+        - generic: Validation
+        - strong: community pending
+      - heading "Risk Flags" [level=3]
+      - generic: route not repeatable
+      - generic: no human validation
+      - heading "Evidence Summary" [level=3]
+      - paragraph: Deterministic seeded receipts show the route can work, but repeatability proof is still partial.
+      - list:
+        - listitem: 2 bounded route-run receipts
+        - listitem: 1 latency capture
+        - listitem: 1 operator note
+      - heading "Missing Receipts" [level=3]
+      - paragraph: No missing receipts recorded in this scope.
+      - generic: No receipt, no trust.
+      - generic: 2026-06-19 13:10
+  - link "Infopunks Receipt Check":
+    - /url: /check/check_provider_reliability_seed
+    - article "Infopunks Receipt Check":
+      - paragraph: INFOPUNKS RECEIPT CHECK
+      - generic: TRUST
+      - heading "Provider claims reliable invoice parsing for agent spend flows." [level=2]
+      - paragraph: Receipts and human review align on reliability within the seeded scope.
+      - paragraph:
+        - generic: Type
+        - strong: provider reliability
+      - paragraph:
+        - generic: Receipts
+        - strong: verified receipts
+      - paragraph:
+        - generic: Evidence strength
+        - strong: STRONG
+      - paragraph:
+        - generic: Validation
+        - strong: human validated
+      - heading "Risk Flags" [level=3]
+      - paragraph: No active risk flags in this seeded scope.
+      - heading "Evidence Summary" [level=3]
+      - paragraph: Multiple verified receipts and one human validation note support the reliability claim.
+      - list:
+        - listitem: 3 verified execution receipts
+        - listitem: 1 human QA note
+        - listitem: 1 route comparison summary
+      - heading "Missing Receipts" [level=3]
+      - paragraph: No missing receipts recorded in this scope.
+      - generic: No receipt, no trust.
+      - generic: 2026-06-18 16:45
+  - link "Infopunks Receipt Check":
+    - /url: /check/check_machine_market_seed
+    - article "Infopunks Receipt Check":
+      - paragraph: INFOPUNKS RECEIPT CHECK
+      - generic: CAUTION
+      - heading "Machine market service claims out-of-box DePIN readiness." [level=2]
+      - paragraph: The market presence is real, but safe-first operating receipts are still partial.
+      - paragraph:
+        - generic: Type
+        - strong: market claim
+      - paragraph:
+        - generic: Receipts
+        - strong: partial receipts
+      - paragraph:
+        - generic: Evidence strength
+        - strong: MEDIUM
+      - paragraph:
+        - generic: Validation
+        - strong: community pending
+      - heading "Risk Flags" [level=3]
+      - generic: route not repeatable
+      - generic: unclear provider history
+      - heading "Evidence Summary" [level=3]
+      - paragraph: Evidence exists for listing and setup, but not enough repeatable service receipts for autonomous first use.
+      - list:
+        - listitem: listing record
+        - listitem: policy map note
+        - listitem: first-safe route draft
+      - heading "Missing Receipts" [level=3]
+      - paragraph: No missing receipts recorded in this scope.
+      - generic: No receipt, no trust.
+      - generic: 2026-06-17 11:05
+  - link "Infopunks Receipt Check":
+    - /url: /check/check_token_narrative_seed
+    - article "Infopunks Receipt Check":
+      - paragraph: INFOPUNKS RECEIPT CHECK
+      - generic: UNPROVEN
+      - heading "Token narrative claims market validation without receipts." [level=2]
+      - paragraph: The claim is mostly narrative momentum with minimal evidence artifacts.
+      - paragraph:
+        - generic: Type
+        - strong: token claim
+      - paragraph:
+        - generic: Receipts
+        - strong: no receipts
+      - paragraph:
+        - generic: Evidence strength
+        - strong: MISSING
+      - paragraph:
+        - generic: Validation
+        - strong: unvalidated
+      - heading "Risk Flags" [level=3]
+      - generic: narrative over evidence
+      - generic: hype without receipts
+      - generic: missing source
+      - heading "Evidence Summary" [level=3]
+      - paragraph: No inspectable receipts were attached to the narrative claim.
+      - heading "Missing Receipts" [level=3]
+      - paragraph: No missing receipts recorded in this scope.
+      - generic: No receipt, no trust.
+      - generic: 2026-06-16 08:20
+  - link "Infopunks Receipt Check":
+    - /url: /check/check_disputed_seed
+    - article "Infopunks Receipt Check":
+      - paragraph: INFOPUNKS RECEIPT CHECK
+      - generic: DISPUTED
+      - heading "Partnership claim is circulating with conflicting evidence." [level=2]
+      - paragraph: Some evidence exists, but it is contested and should not be treated as closed.
+      - paragraph:
+        - generic: Type
+        - strong: partnership claim
+      - paragraph:
+        - generic: Receipts
+        - strong: weak receipts
+      - paragraph:
+        - generic: Evidence strength
+        - strong: WEAK
+      - paragraph:
+        - generic: Validation
+        - strong: disputed
+      - heading "Risk Flags" [level=3]
+      - generic: disputed claim
+      - generic: missing source
+      - heading "Evidence Summary" [level=3]
+      - paragraph: Evidence exists, but the claim is actively disputed and source quality is incomplete.
+      - list:
+        - listitem: 1 screenshot
+        - listitem: 1 stale note
+      - heading "Missing Receipts" [level=3]
+      - paragraph: No missing receipts recorded in this scope.
+      - generic: No receipt, no trust.
+      - generic: 2026-06-15 07:55
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

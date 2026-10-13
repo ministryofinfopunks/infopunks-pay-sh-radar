@@ -1,0 +1,153 @@
+Skip to content
+INFOPUNKS
+RADAR / INTELLIGENCE TERMINAL
+RADAR
+SOLANA
+ROBINHOOD CHAIN
+PROOF
+DEVELOPERS
+ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+Solana / destinations and network context
+Radar
+/
+Solana
+/
+Routes
+
+[ 03 ] ROUTES / SERVICE INTELLIGENCE
+
+RECEIPT-BACKED ROUTE INTELLIGENCE
+
+Routes
+
+Before your agent pays, inspect the route. These cards show known blockers, safer route posture, and the receipts behind each economic action.
+
+Legacy diagnostic records
+3
+routes indexed
+6
+providers scored
+5
+receipts generated
+11
+pre-spend checks completed
+6
+human validations submitted
+3
+failed routes avoided
+0
+claims challenged
+2
+repeatable routes discovered
+3
+service type
+all
+service_market_research
+service_token_pricing
+service_receipt_parsing
+service_compliance_scan
+service_private_profile_scrape
+sort
+confidence sorting
+risk sorting
+
+BUY_MARKET_RESEARCH
+
+route_pay_sh_market_research_01
+
+POST /market/research
+
+risk medium
+confidence 0
+cost 0.25 USDC
+latency range 900-1600 ms
+last successful run 2026-06-14
+
+Known blockers: occasional timeout under high load, output quality varies by prompt specificity
+
+INSPECT ROUTE EVIDENCE GRAPH
+
+BUY_MARKET_RESEARCH
+
+route_pay_sh_market_research_03
+
+POST /research/brief
+
+risk low
+confidence 0
+cost 0.31 USDC
+latency range 780-1280 ms
+last successful run 2026-06-15
+
+Known blockers: none
+
+INSPECT ROUTE EVIDENCE GRAPH
+
+PRICE_TOKEN_QUOTE
+
+route_pay_sh_token_quote_01
+
+GET /token/quote
+
+risk low
+confidence 0
+cost 0.07 USDC
+latency range 240-510 ms
+last successful run 2026-06-16
+
+Known blockers: none
+
+INSPECT ROUTE EVIDENCE GRAPH
+
+EXTRACT_RECEIPT_FIELDS
+
+route_pay_sh_receipt_parse_02
+
+POST /receipt/parse
+
+risk medium
+confidence 0
+cost 0.12 USDC
+latency range 620-1180 ms
+last successful run 2026-05-22
+
+Known blockers: stale receipt evidence, layout-heavy PDFs may require manual review
+
+INSPECT ROUTE EVIDENCE GRAPH
+
+RUN_COMPLIANCE_SCAN
+
+route_pay_sh_compliance_scan_01
+
+POST /compliance/scan
+
+risk high
+confidence 0
+cost 1.80 USDC
+latency range 1500-2800 ms
+last successful run 2026-06-15
+
+Known blockers: claim sensitivity requires policy review
+
+INSPECT ROUTE EVIDENCE GRAPH
+
+SCRAPE_PRIVATE_PROFILE
+
+route_pay_sh_profile_scrape_09
+
+POST /profile/scrape
+
+risk critical
+confidence 0
+cost 0.90 USDC
+latency range 2200-4200 ms
+last successful run n/a
+
+Known blockers: no recent successful receipt, provider dispute unresolved, settlement mismatch for stablecoin agents
+
+INSPECT ROUTE EVIDENCE GRAPH
+Observation → Judgment → Execution → Evaluation
+INFOPUNKS RADAR
+// THE INTELLIGENCE TERMINAL
+ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+API CONTRACT

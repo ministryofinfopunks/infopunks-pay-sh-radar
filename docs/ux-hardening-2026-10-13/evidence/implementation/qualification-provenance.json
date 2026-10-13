@@ -1,0 +1,25 @@
+{
+  "application_and_full_qualification_sha": "1e7114e8549497d592f324c55a4ecf67065dced4",
+  "performance_measurement_harness_sha": "6bd0e7f181905ab2552081c42625a7e87ede59b0",
+  "identical_git_trees": {
+    "src": "4d5282ddbb692dba14e60241bae056c0ce9caf0e",
+    "tests": "62a23780efd46f2e5716a5444193c21b9628bb18",
+    "migrations": "c7b9e74a45bcdedc993654e19cc3aa0ec9ffc697"
+  },
+  "only_intervening_source_change": "scripts/qualify-ux-performance.cjs",
+  "before_captures_baseline": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "after_state_captures_sha": "1e7114e8549497d592f324c55a4ecf67065dced4",
+  "final_completed_runs": {
+    "system": 0,
+    "targeted_interactions": 0,
+    "route_sweep": 0,
+    "browser": 0,
+    "customer_journeys": 0,
+    "text_scaling": 0,
+    "paired_after_captures": 0,
+    "visual_comparison": 1,
+    "fixture_controlled_performance": 0
+  },
+  "visual_exit_1": "Four review-required candidates, never baseline replacement or human approval",
+  "preliminary_runs": "Superseded/partial data are explicitly marked and not used as final qualification"
+}

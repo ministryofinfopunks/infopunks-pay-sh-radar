@@ -1,0 +1,2355 @@
+Skip to content
+INFOPUNKS
+RADAR / INTELLIGENCE TERMINAL
+RADAR
+SOLANA
+ROBINHOOD CHAIN
+PROOF
+DEVELOPERS
+ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+Solana / destinations and network context
+Radar
+/
+Solana
+/
+Solana Radar
+
+[ 02 ] SOLANA RADAR / PRE-SPEND INTELLIGENCE
+
+Terminal view controls
+
+SOLANA RADAR
+
+Proof before agent spend.
+
+Route intelligence, provider evidence, narrative memory and machine-market infrastructure for the Solana economy.
+
+Check a Spend Route
+Explore the Radar
+
+Pay.sh is a spend rail. Radar is the evidence layer.
+
+Advisory assessment. Execution requires separate authorization. Subject network and fee settlement are independent.
+
+PRE-SPEND INTELLIGENCE
+
+Most see noise.
+Infopunks finds signal.
+
+FEATURED PRODUCT SURFACES
+
+Explore Solana Radar
+
+A map of the intelligence, evidence and execution surfaces available across the Solana environment.
+
+Intelligence
+04
+
+Narrative, market and cultural signal surfaces.
+
+Signal Hunt
+Emerging signals with evidence
+Narratives
+Cultural intelligence desk
+Unicorn Radar
+Early company and project watch
+Signal Graph
+Claims, receipts and relationships
+Explore intelligence
+→
+Agent Tools
+04
+
+Decision and evidence infrastructure before an agent spends.
+
+Check
+Verify a claim before action
+Loops
+Run and inspect proof loops
+Hermes Desk
+Agentic investigations before spend
+Agent Benchmarks
+Benchmark agent readiness
+Explore agent tools
+→
+Hermes
+04
+
+Wallet memory, spend policy and accountable decision loops.
+
+Memory Loop
+Outcomes that change future action
+Pre-Spend Decision
+Check the ledger before spend
+Spend Policy
+Bound wallet authority
+Decision Feedback
+Record what happened next
+Explore hermes
+→
+Commercial
+02
+
+Evaluation and outcome evidence for commercial work.
+
+Evaluation Request
+Request a commercial evaluation
+Revenue Receipts
+Evidence of commercial outcomes
+Explore commercial
+→
+Machine Economy
+05
+
+Market, rail and execution-readiness intelligence for machines.
+
+Machine Market
+Machine-service market map
+Rail Coverage
+Payment rail availability
+Route Risk
+Risk across machine routes
+First Safe Queue
+Safest candidates to test first
+Benchmark Readiness
+Evidence readiness by service
+Explore machine economy
+→
+Developers
+05
+
+APIs, health surfaces and implementation references.
+
+API
+OpenAPI specification
+↗
+Developer Documentation
+Integration guides and examples
+Hermes JSON
+Machine-readable Hermes state
+↗
+Hermes Health
+Service health endpoint
+↗
+Methodology
+How Radar forms judgment
+Explore developers
+→
+LAST INGESTION
+Oct 13, 2026, 11:28 AM UTC
+NETWORK
+fixture fallback
+OPERATOR
+Infopunks
+TERMINAL ID
+RADAR-12-159
+NO RECEIPT, NO TRUST
+
+SOLANA RADAR · CURRENT EVIDENCE STATE
+
+Proof before agent spend.
+
+Mapped Pay.sh routes, provider evidence and benchmark readiness—kept distinct from the Robinhood Chain signal desk.
+
+Pay.sh is the spend rail. Radar is the evidence ledger. Agents inspect evidence, request a non-executing plan, and record proof artifacts before trust compounds.
+
+NEW: BROWSE PREFLIGHT CARDS
+
+Agent spend safety labels for autonomous markets.
+
+Discover → Check → Pay → Prove
+No receipt, no trust.
+Browse Preflight Cards
+5
+RECORDED BENCHMARKS
+10
+PROVEN PAID ROUTES
+40
+RECORDED ROUTE-RUNS
+6
+ARTIFACTS
+0
+WINNER CLAIMS
+
+Recorded means paid evidence exists. No winner means Radar refuses to infer superiority without criteria.
+
+ORIENTATION
+
+Pulse shows live ecosystem intelligence. Benchmarks show artifact-backed route evidence.
+
+PROVIDERS
+12
+ENDPOINTS
+159
+AVG TRUST
+UNKNOWN
+AVG SIGNAL
+53
+MONITORING MODE
+SAFE METADATA
+FRESHNESS
+OCT 13, 04:58 PM
+
+MONITORING STATE
+
+FIXTURE-BACKED RADAR STATE
+Source: pay.sh/api/catalog · providers 12 · endpoints 159 · last ingested 10/13/2026, 4:58:35 PM
+Run a pre-spend check
+→
+Compare Providers
+COST AND PERFORMANCE
+View Benchmarks
+READINESS SCORES
+Check Mappings
+ROUTE INTELLIGENCE
+Browse Claims
+EVIDENCE TRAILS
+Agent Benchmark API
+ACCESS API DOCS
+
+NEW RADAR MODULE
+
+Machine Economy Module
+
+Radar now maps the robotic.sh machine-service market: 13 listed services, bounded authority policies, preflight decisions, and machine receipts.
+
+SAME TERMINAL. NEW SPECIES OF SPENDER.
+Open Machine Market
+
+VISUAL MEMORY LAYER
+
+Read the graph, not the feed.
+
+Claims, routes, receipts, loops, and narratives mapped by proof.
+
+Open Signal Graph
+GLOBAL
+Evidence Ledger Snapshot
+
+5 recorded lanes · 5 explored lanes · 0 winner claims
+
+Radar records what graduated and what did not.
+
+Recorded means paid route evidence exists. Scaffold means the lane was explored but did not meet the hard bar.
+
+Scaffold lanes are not failed benchmarks. They are lanes where Radar found insufficient comparable paid evidence.
+
+RECORDED
+5
+
+PUBLIC BENCHMARK STATE
+
+5 recorded benchmarks
+
+SOL price + Token search + Token metadata + Document OCR Text Extraction + Web Search Results
+
+No winner claims
+
+FINANCE/DATA
+
+SOL Price
+3 runs / route
+2 proven paid routes
+evidence ledger recorded
+
+FINANCE/DATA
+
+Token Search
+3 runs / route
+2 proven paid routes
+evidence ledger recorded
+
+FINANCE/DATA
+
+Token Metadata
+10 recorded route-runs
+2 proven paid routes
+evidence ledger recorded
+
+DOCUMENT-AI
+
+Document OCR Text Extraction
+10 recorded route-runs
+2 proven paid routes
+evidence ledger recorded
+
+WEB-SEARCH
+
+Web Search Results
+10 recorded route-runs
+2 proven paid routes
+evidence ledger recorded
+LATEST RECORDED BENCHMARK
+recorded
+Document OCR Text Extraction
+PaySponge Reducto + Google Vision OCR
+10 recorded route-runs
+5 runs / route
+2 proven paid routes
+evidence_health: recorded
+winner_claimed=false
+
+Recorded evidence exists for benchmark lanes. No route winner is claimed until scoring criteria are finalized.
+
+GLOBAL
+Explored, Not Promoted
+COMMUNICATIONS EMAIL DELIVERY
+scaffold
+StableEmail paid-executed and caveated.
+AgentMail blocked / no second comparable route.
+No benchmark artifact exists.
+SOLANA INFRA ACCOUNT BALANCE
+scaffold
+QuickNode unpaid 402 confirmed.
+QuickNode paid run failed.
+No second comparable route.
+No benchmark artifact exists.
+SOCIAL DATA REDDIT POST SEARCH
+scaffold
+StableEnrich paid-proven but caveated.
+StableSocial paid-compatible but semantic proof failed.
+No second paid-proven comparable route.
+No benchmark artifact exists.
+MAPS PLACE SEARCH RESULTS
+scaffold
+StableEnrich paid-executed and paid-proven recognizable place-search candidates, but evidence is degraded: names/addresses/coordinates missing and location not confirmed.
+Google Places paid-executed and later received one paid diagnostic retry with includedType=cafe, but still returned zero recognizable place candidates.
+No second paid-proven comparable place-search route yet.
+No benchmark artifact exists.
+AUDIO SPEECH TRANSCRIPTION
+scaffold
+Google Speech paid-executed and received one shape diagnostic paid retry; transcript semantics still not proven.
+Alibaba Speech paid-executed and received one shape diagnostic paid retry; transcript semantics still not proven.
+Both routes remain candidate/unproven with degraded evidence.
+No benchmark artifact exists.
+GLOBAL
+Agent Spend Readiness Cards
+
+Builders can now see what agents see before spending.
+
+Readiness cards are proof-state diagnostics, not rankings.
+
+Browse public Preflight Cards
+
+Grouped by proof maturity, not ranked.
+
+Artifact-backed cards
+6 cards
+CoinGecko Onchain DEX API
+recorded_evidence
+ready_for_inspection
+winner_claimed=false
+agent decision summary available
+3
+benchmarks
+4
+proven routes
+2
+bundle runs
+0
+scaffolds
+
+3 caveats / blockers
+
+WHAT THIS MEANS
+Artifact-backed route evidence exists. Agents should still inspect caveats before spend.
+
+Inspect latest route timeline and caveats before routing agents.
+
+Open readiness card
+Share card
+Detail
+PUBLIC SHARE CARD
+Copy readiness post
+
+Radar card: CoinGecko Onchain DEX API is recorded_evidence. Proof exists: 3 recorded benchmarks, 4 proven routes, winner_claimed=false. Agents should inspect caveats before spend.
+
+Perplexity Search
+recorded_evidence
+ready_for_inspection
+winner_claimed=false
+agent decision summary available
+1
+benchmarks
+1
+proven routes
+2
+bundle runs
+0
+scaffolds
+
+1 caveats / blockers
+
+WHAT THIS MEANS
+Artifact-backed route evidence exists. Agents should still inspect caveats before spend.
+
+Inspect latest route timeline and caveats before routing agents.
+
+Open readiness card
+Share card
+Detail
+PUBLIC SHARE CARD
+Copy readiness post
+
+Radar card: Perplexity Search is recorded_evidence. Proof exists: 1 recorded benchmarks, 1 proven routes, winner_claimed=false. Agents should inspect caveats before spend.
+
+StableCrypto
+recorded_evidence
+ready_for_inspection
+winner_claimed=false
+agent decision summary available
+3
+benchmarks
+4
+proven routes
+2
+bundle runs
+0
+scaffolds
+
+3 caveats / blockers
+
+WHAT THIS MEANS
+Artifact-backed route evidence exists. Agents should still inspect caveats before spend.
+
+Inspect latest route timeline and caveats before routing agents.
+
+Open readiness card
+Share card
+Detail
+PUBLIC SHARE CARD
+Copy readiness post
+
+Radar card: StableCrypto is recorded_evidence. Proof exists: 3 recorded benchmarks, 4 proven routes, winner_claimed=false. Agents should inspect caveats before spend.
+
+StableEnrich Exa Search
+recorded_evidence
+ready_for_inspection
+winner_claimed=false
+agent decision summary available
+1
+benchmarks
+1
+proven routes
+2
+bundle runs
+0
+scaffolds
+
+1 caveats / blockers
+
+WHAT THIS MEANS
+Artifact-backed route evidence exists. Agents should still inspect caveats before spend.
+
+Inspect latest route timeline and caveats before routing agents.
+
+Open readiness card
+Share card
+Detail
+PUBLIC SHARE CARD
+Copy readiness post
+
+Radar card: StableEnrich Exa Search is recorded_evidence. Proof exists: 1 recorded benchmarks, 1 proven routes, winner_claimed=false. Agents should inspect caveats before spend.
+
+Google Vision OCR
+caveated_evidence
+needs_review
+winner_claimed=false
+1
+benchmarks
+1
+proven routes
+0
+bundle runs
+0
+scaffolds
+
+2 caveats / blockers
+
+WHAT THIS MEANS
+Evidence exists, but caveats require review before routing agents.
+
+Provide clearer request/response schema examples for route verification.
+
+Open readiness card
+Share card
+Detail
+PUBLIC SHARE CARD
+Copy readiness post
+
+Radar card: Google Vision OCR is caveated_evidence. Proof exists: 1 recorded benchmarks, 1 proven routes, winner_claimed=false. Agents should inspect caveats before spend.
+
+PaySponge Reducto
+caveated_evidence
+needs_review
+winner_claimed=false
+1
+benchmarks
+1
+proven routes
+0
+bundle runs
+0
+scaffolds
+
+2 caveats / blockers
+
+WHAT THIS MEANS
+Evidence exists, but caveats require review before routing agents.
+
+Provide clearer request/response schema examples for route verification.
+
+Open readiness card
+Share card
+Detail
+PUBLIC SHARE CARD
+Copy readiness post
+
+Radar card: PaySponge Reducto is caveated_evidence. Proof exists: 1 recorded benchmarks, 1 proven routes, winner_claimed=false. Agents should inspect caveats before spend.
+
+Explored / catalog-only cards
+6 cards
+Google Places SearchText
+scaffold_only
+not_ready
+winner_claimed=false
+0
+benchmarks
+0
+proven routes
+0
+bundle runs
+1
+scaffolds
+
+1 caveats / blockers
+
+WHAT THIS MEANS
+This lane was explored but does not yet meet the hard bar for recorded evidence.
+
+Add comparable paid proof before treating this lane as benchmark-ready.
+
+Open readiness card
+Share card
+Detail
+PUBLIC SHARE CARD
+Copy readiness post
+
+Radar card: Google Places SearchText is scaffold_only. Proof exists: 0 recorded benchmarks, 0 proven routes, winner_claimed=false. Agents should inspect caveats before spend.
+
+StableEnrich Google Maps Text Search
+scaffold_only
+not_ready
+winner_claimed=false
+0
+benchmarks
+0
+proven routes
+0
+bundle runs
+1
+scaffolds
+
+1 caveats / blockers
+
+WHAT THIS MEANS
+This lane was explored but does not yet meet the hard bar for recorded evidence.
+
+Add comparable paid proof before treating this lane as benchmark-ready.
+
+Open readiness card
+Share card
+Detail
+PUBLIC SHARE CARD
+Copy readiness post
+
+Radar card: StableEnrich Google Maps Text Search is scaffold_only. Proof exists: 0 recorded benchmarks, 0 proven routes, winner_claimed=false. Agents should inspect caveats before spend.
+
+Cloud Speech-to-Text API
+catalog_only
+not_ready
+winner_claimed=false
+0
+benchmarks
+0
+proven routes
+0
+bundle runs
+0
+scaffolds
+
+no recorded caveats
+
+WHAT THIS MEANS
+Catalog presence exists, but no artifact-backed route evidence has been recorded yet.
+
+No artifact-backed route evidence yet; start with unpaid 402 verification and one controlled paid proof.
+
+Open readiness card
+Share card
+Detail
+PUBLIC SHARE CARD
+Copy readiness post
+
+Radar card: Cloud Speech-to-Text API is catalog_only. Proof exists: 0 recorded benchmarks, 0 proven routes, winner_claimed=false. Agents should inspect caveats before spend.
+
+Cloud Translation API
+catalog_only
+not_ready
+winner_claimed=false
+0
+benchmarks
+0
+proven routes
+0
+bundle runs
+0
+scaffolds
+
+no recorded caveats
+
+WHAT THIS MEANS
+Catalog presence exists, but no artifact-backed route evidence has been recorded yet.
+
+No artifact-backed route evidence yet; start with unpaid 402 verification and one controlled paid proof.
+
+Open readiness card
+Share card
+Detail
+PUBLIC SHARE CARD
+Copy readiness post
+
+Radar card: Cloud Translation API is catalog_only. Proof exists: 0 recorded benchmarks, 0 proven routes, winner_claimed=false. Agents should inspect caveats before spend.
+
+dTelecom
+catalog_only
+not_ready
+winner_claimed=false
+0
+benchmarks
+0
+proven routes
+0
+bundle runs
+0
+scaffolds
+
+no recorded caveats
+
+WHAT THIS MEANS
+Catalog presence exists, but no artifact-backed route evidence has been recorded yet.
+
+No artifact-backed route evidence yet; start with unpaid 402 verification and one controlled paid proof.
+
+Open readiness card
+Share card
+Detail
+PUBLIC SHARE CARD
+Copy readiness post
+
+Radar card: dTelecom is catalog_only. Proof exists: 0 recorded benchmarks, 0 proven routes, winner_claimed=false. Agents should inspect caveats before spend.
+
+Fact Check Tools API
+catalog_only
+not_ready
+winner_claimed=false
+0
+benchmarks
+0
+proven routes
+0
+bundle runs
+0
+scaffolds
+
+no recorded caveats
+
+WHAT THIS MEANS
+Catalog presence exists, but no artifact-backed route evidence has been recorded yet.
+
+No artifact-backed route evidence yet; start with unpaid 402 verification and one controlled paid proof.
+
+Open readiness card
+Share card
+Detail
+PUBLIC SHARE CARD
+Copy readiness post
+
+Radar card: Fact Check Tools API is catalog_only. Proof exists: 0 recorded benchmarks, 0 proven routes, winner_claimed=false. Agents should inspect caveats before spend.
+
+ECOSYSTEM STATUS
+
+CRITICAL PROPAGATION WATCH
+
+Systemic or critical propagation signals are present. Review propagation watch and recent degradations first.
+
+System reading: ecosystem pressure is systemic in the current propagation window.
+
+CATALOG
+FIXTURE-BACKED RADAR STATE
+PROPAGATION
+systemic
+LATEST EVENT
+10/13/2026, 4:53:44 PM
+FEATURED CONTEXT
+Generative Language API (Gemini)
+
+ZONE A
+
+ECOSYSTEM INTELLIGENCE
+
+Catalog-backed machine economy observability
+
+Start here: global status, interpretation, pulse feed, and cross-provider movement before drilling into a provider.
+
+GLOBAL
+GLOBALEcosystem Pulse
+machine media
+heat 61 / momentum 46
+Evidence
+GLOBALTrust Leader
+n/a
+unknown/100 grade -
+Evidence
+GLOBALSignal Leader
+StableEnrich
+84/100
+Evidence
+GLOBALGraph Layer
+53 nodes
+70 deterministic edges
+Evidence
+GLOBAL
+
+SYSTEM READING
+
+System reading: ecosystem pressure is systemic in the current propagation window.
+GLOBAL
+
+LATEST INGESTED CATALOG
+
+Radar Freshness
+
+Timestamp clarity for catalog source, monitor checks, and the current scored snapshot.
+
+CATALOG_GENERATED_AT
+unknown
+CATALOG_INGESTED_AT
+10/13/2026, 4:53:44 PM
+RADAR_UPDATED_AT
+10/13/2026, 4:58:35 PM
+LAST_MONITOR_RUN_AT
+10/13/2026, 4:53:44 PM
+NEXT_REFRESH_IN
+unavailable
+DATA_SOURCE
+FIXTURE-BACKED RADAR STATE
+GLOBAL
+
+READ-ONLY EXPORT ROUTES
+
+Export Intelligence
+
+Open machine-readable radar outputs. These do not execute paid Pay.sh APIs.
+
+API Docs
+Copy OpenAPI URL
+JSON EXPORTS
+Copy links
+Export Scored Catalog JSON
+Export Providers JSON
+Export Endpoints JSON
+Export Route Candidates JSON
+CSV EXPORTS
+Copy links
+Export Providers CSV
+Export Endpoints CSV
+Export Route Candidates CSV
+Export Degradations CSV
+GLOBAL
+
+INTERPRETATION LAYER
+
+ECOSYSTEM INTERPRETATION
+
+Primary analyst readout from current receipts. Secondary interpretations stay quieter to preserve scan order.
+
+STABLE / confidence 72%
+Ecosystem state is stable.
+
+No meaningful cross-provider degradation, trust-drop, unknown-telemetry, or signal-concentration pattern is present in current evidence.
+
+categories: global
+providers: no affected providers
+severity: stable
+confidence: 72%
+window: 10/13/2026, 4:53:44 PM to 10/13/2026, 4:53:44 PM
+evidence: 5 supporting events
+view full receipts
+Evidence
+GLOBAL
+
+CURRENT SCORED SNAPSHOT
+
+Live Catalog Pulse
+
+Pay.sh catalog ingests every 7.5 min / UI polls every 15s / events emit only when catalog changes are detected.
+
+Collapse
+
+SAFE METADATA MONITOR
+
+EVENTS / DEGRADATIONS
+
+Filtered event spine from the latest ingested catalog. No paid provider APIs are executed.
+
+UI refresh 10/13/2026, 4:58:35 PM
+UI REFRESHED
+10/13/2026, 4:58:35 PM
+CATALOG INGESTION
+10/13/2026, 4:53:44 PM
+PAY.SH CATALOG GENERATED
+unknown
+SOURCE
+FIXTURE-BACKED RADAR STATE
+LATEST EVENT BATCH
+04:53:44 PM · 391 events
+[DISC] DISCOVERY 208
+[TRUST] TRUST 0
+[MON] MONITORING 0
+[$] PRICING 171
+[SCHEMA] SCHEMA 0
+[SIGNAL] SIGNAL 12
+STATE FILTER
+all states
+critical
+degraded
+watch
+healthy
+unknown
+SORT
+severity
+last observed
+provider
+Catalog batch
+04:53:44 PM
+50 events emitted
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+WATCH
+StableEnrich
+
+Endpoint observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+HEALTHY
+StableEnrich
+
+Provider discovered in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+HEALTHY
+StableEnrich
+
+Provider observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+HEALTHY
+pay-sh-catalog
+
+Pay.sh catalog ingested in fixture_fallback mode.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+UNKNOWN
+StableEnrich
+
+Provider metadata observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[DISC] DISCOVERY
+UNKNOWN
+StableEnrich
+
+Manifest observed in the Pay.sh catalog.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+[$] PRICING
+UNKNOWN
+StableEnrich
+
+Pricing observed as $0.002 - $0.44.
+
+04:53:44 PM
+Receipt
+GLOBAL
+Trust Leaderboard
+
+Highest trust scores from current assessments.
+
+Collapse
+trust score
+provider name
+
+No providers match the leaderboard filter.
+
+GLOBAL
+Signal Leaderboard
+
+Highest signal scores from current narratives.
+
+Collapse
+signal score
+provider name
+StableEnrich
+Unknown Risk
+84
+StableStudio
+Unknown Risk
+78
+fal.ai
+Unknown Risk
+78
+dTelecom
+Unknown Risk
+74
+Generative Language API (Gemini)
+Unknown Risk
+52
+GLOBAL
+Narrative Heatmap
+
+Narratives group provider movement into readable market themes. Heat and severity are shown together so state is not color-only.
+
+Collapse
+Narrative Asset Intelligence
+WATCH
+heat 91
+0 providers / solana, attention market, kol, meme coin, persona liquidity
+Narrative Asset Intelligence
+WATCH
+heat 90
+0 providers / solana, troll, community takeover, legacy meme, internet archetype, re-indexed lore
+GLOBAL
+
+QUERY THE ECOSYSTEM
+
+SEMANTIC SEARCH
+
+Ask across provider metadata, trust context, signal context, categories, endpoints, and receipts without leaving the radar surface.
+
+ECOSYSTEM QUERY
+Clear search
+Search
+
+Search by category, provider name, endpoint type, route intent, degradation state, price clarity, or metadata completeness.
+
+high trust finance APIs
+degraded OCR providers
+SOL price endpoints
+low-cost data endpoints
+providers with clear pricing
+route eligible endpoints
+machine media providers
+metadata incomplete providers
+GLOBAL
+
+AGENT ROUTING GUARD
+
+AGENT PREFLIGHT
+
+Before your agent pays, it checks Infopunks. Ask Radar where an agent should route before spending. This checks catalog intelligence only and does not execute paid APIs.
+
+API Docs
+Copy API URL
+UNKNOWN
+Find SOL price route
+Find token price route
+Find OCR route
+Find low-cost data route
+Find high-trust provider
+Find route-eligible finance endpoint
+PREFLIGHT JSON INPUT
+Batch preflight hint
+Run Preflight
+No preflight decision yet.
+Before your agent pays, it checks Infopunks for route intelligence.
+GLOBAL
+Provider/Endpoint Comparison Engine
+MODE
+provider
+endpoint
+SELECT 2-3
+STABLEENRICH
+STABLESTUDIO
+FAL.AI
+DTELECOM
+RENTCAST API
+FACT CHECK TOOLS API
+GENERATIVE LANGUAGE API (GEMINI)
+CLOUD SPEECH-TO-TEXT API
+KNOWLEDGE GRAPH SEARCH API
+STABLEUPLOAD
+STABLEEMAIL
+CLOUD TRANSLATION API
+Compare
+No comparison selected.
+Select two or three providers or endpoints, then run Compare.
+GLOBAL
+Cost / Performance Intelligence
+StableEnrich / StableEnrich primary endpoint
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 2
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 3
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 4
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 5
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 6
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 7
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 8
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 9
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 10
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 11
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 12
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 13
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 14
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 15
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 16
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 17
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 18
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 19
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 20
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 21
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 22
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 23
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 24
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 25
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 26
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 27
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 28
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 29
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+StableEnrich / StableEnrich endpoint 30
+category Data / trust unknown / signal 84risk unknown / route status not_recommended / benchmark not readyestimated price 0.002 - 0.44 / pricing confidence Low-confidence catalog estimateroute value score unknown
+GLOBAL
+Benchmark Readiness
+
+"Benchmark ready" means routes are comparable. Recorded benchmark evidence requires artifact-backed paid execution. "Catalog-estimated" is not execution-proven.
+
+READY CATEGORIES
+1
+finance/data
+NOT READY CATEGORIES
+1
+finance/data
+COMPARISON READY CATEGORIES
+1
+finance/data
+NEXT MAPPINGS NEEDED
+3
+finance/data/get SOL price: record normalized head-to-head benchmark metrics
+verify candidate comparable endpoint mapping and paid execution evidence
+finance/data/token search: record normalized head-to-head benchmark metrics
+MAPPED BENCHMARK INTENTS
+3
+finance/data/get SOL price
+finance/data/token metadata
+finance/data/token search
+MAPPING LADDER STATE
+4
+StableCrypto: verified/proven
+CoinGecko Onchain DEX API: verified/proven
+CoinGecko Onchain DEX API: candidate/unproven
+StableCrypto: candidate/unproven
+
+Recorded benchmark lanes now have artifact-backed evidence. Explored lanes remain scaffolded when they do not meet the hard bar.
+
+No route winner is claimed until normalized criteria are finalized.
+
+ROUTE EVIDENCE REGISTRY
+GLOBAL
+
+MAPPING QUEST BOARD
+
+Mapping Targets
+
+Recorded lanes are completed evidence-ledger entries. Scaffold lanes are planning prompts, not recorded benchmark targets.
+
+Recorded
+SOL price
+Recorded
+
+STATUS
+completed; evidence ledger recorded
+
+Token search
+Recorded
+
+STATUS
+completed; evidence ledger recorded
+
+Token metadata
+Recorded
+
+STATUS
+completed; evidence ledger recorded
+
+Document OCR Text Extraction
+Recorded
+
+STATUS
+completed; evidence ledger recorded
+
+Web Search Results
+Recorded
+
+STATUS
+completed; evidence ledger recorded
+
+Blocked
+Communications Email Delivery
+Blocked
+
+STATUS
+explored but not promoted; no benchmark artifact
+
+Solana Infra Account Balance
+Blocked
+
+STATUS
+explored but not promoted; no benchmark artifact
+
+Social Data Reddit Post Search
+Blocked
+
+STATUS
+explored but not promoted; no benchmark artifact
+
+Maps Place Search Results
+Blocked
+
+STATUS
+explored but not promoted; no benchmark artifact
+
+Audio Speech Transcription
+Blocked
+
+STATUS
+explored but not promoted; no benchmark artifact
+
+Needs candidate
+SMS/send message
+Needs candidate
+
+NEXT STEP
+Add candidate mappings before comparable benchmark work.
+
+Knowledge/search answer
+Needs candidate
+
+NEXT STEP
+Add candidate mappings before comparable benchmark work.
+
+GLOBAL
+
+AGENT API SURFACE
+
+Agent Benchmark API
+
+Read-only evidence and planning endpoints for agents. Radar exposes evidence, plans, and Harness proof records; it does not execute paid APIs.
+
+API host: https://infopunks-pay-sh-radar.onrender.com. The public UI lives at radar.infopunks.fun; copyable API calls target the API host.
+
+API Docs
+EVIDENCE
+
+GET
+/v1/radar/evidence-ledger
+Agent-readable evidence before spend.
+
+GET
+/v1/radar/evidence-ledger/brief
+Compact preflight memory from the Evidence Ledger.
+
+GET
+/v1/radar/benchmark-summary
+Benchmark state and interpretation summary.
+
+GET
+/v1/radar/benchmark-history
+Recorded benchmark history and evidence.
+
+BUNDLES
+
+GET
+/v1/radar/bundles
+Read-only bundle registry.
+
+GET
+/v1/radar/bundles/:bundle_id
+Bundle detail with evidence boundaries.
+
+POST
+/v1/radar/bundles/:bundle_id/plan
+Plan included, review-required, and blocked steps.
+
+RUNS
+
+GET
+/v1/radar/bundles/:bundle_id/runs
+Bundle Run Ledger summaries.
+
+GET
+/v1/radar/bundles/:bundle_id/runs/:run_id
+One Harness proof record.
+
+DOCS
+
+GET
+/openapi.json
+OpenAPI for agents.
+
+Bundle Planner
+
+Bundles are non-executing spend recipes. Plans map intent and constraints to included, review-required, and blocked steps. Radar does not execute paid APIs from bundle plans.
+
+BUNDLE
+Morning Briefing / topic: AI, crypto, world news
+
+PLANNER RESULT
+3 INCLUDED
+·
+2 REVIEW-REQUIRED
+·
+0 BLOCKED
+·
+WINNER_CLAIMED=FALSE
+
+EXECUTION BOUNDARY
+CLEAN_402=3
+BILLING_UNCLEAR=2
+BILLABLE_PROBE_OBSERVED=0
+
+RADAR ACTION
+Plan only. Cleanest future Harness candidate, but not execution-ready until review-required billing boundaries are cleared.
+
+BUNDLE
+Market Research / topic: Circle Internet Group
+
+PLANNER RESULT
+0 INCLUDED
+·
+4 REVIEW-REQUIRED
+·
+2 BLOCKED
+
+EXECUTION BOUNDARY
+CLEAN_402=0
+BILLING_UNCLEAR=4
+BILLABLE_PROBE_OBSERVED=2
+BLOCKED=2
+
+RADAR ACTION
+Two billable-probe steps are blocked under strict constraints; remaining steps require billing-boundary review.
+
+BUNDLE
+Talent Market Scanner / topic: AI engineer
+
+PLANNER RESULT
+0 INCLUDED
+·
+0 REVIEW-REQUIRED
+·
+5 BLOCKED
+
+EXECUTION BOUNDARY
+CLEAN_402=0
+BILLING_UNCLEAR=0
+BLOCKED=5
+
+RADAR ACTION
+Job, salary, and hiring primitives are not yet recorded.
+
+Bundle Run Ledger
+
+Bundle runs are Harness proof records, not benchmark claims.
+
+Radar does not execute paid APIs from this surface.
+
+Radar remembers controlled Harness runs over time.
+
+Bundle run history records controlled Harness proof evolution, not benchmark claims.
+
+This run is caveated because observed cost and pay_cli HTTP status were unavailable, and one executed step had an empty source map.
+
+winner_claimed=false
+
+COMPACT PROOF RECEIPT
+
+Morning Briefing controlled Harness run
+CONTROLLED_LIVE_RUN
+CAVEATED
+3 EXECUTED
+2 SKIPPED
+0 BLOCKED
+10 SOURCES
+OBSERVED COST UNAVAILABLE
+WINNER_CLAIMED=FALSE
+
+RUN HISTORY
+
+2 controlled runs tracked
+LATEST
+084556-pay-cli · 10 sources · caveated
+PREVIOUS
+075521-pay-cli · 9 sources · caveated
+DELTA
++1 source · caveats unchanged · observed cost unavailable
+FRESHNESS
+stale · 3482.7h · 2026-05-21T08:45:56.919Z
+
+skipped review-required steps stable at 2 · winner_claimed=false
+
+recommended action: Re-run the bundle before relying on this history for spend decisions.
+
+AGENT READINESS SUMMARY
+
+Agent Readiness Summary compresses freshness, caveats, skipped steps, and cost visibility into one pre-spend decision object.
+ready_for_agent_review=true
+requires_rerun_before_spend=true
+requires_human_or_policy_approval=true
+observed_cost_available=false
+winner_claimed=false
+decision_state=rerun_required
+
+recommended_agent_action: Re-run the bundle before relying on this history for spend decisions.
+
+2 controlled runs tracked · latest source_count +1 · observed cost still unavailable · winner_claimed=false
+
+LATEST RUN
+084556-pay-cli
+
+PREVIOUS RUN
+075521-pay-cli
+
+SOURCE COUNT
+9 -> 10
+
+CAVEATS
+unchanged
+
+SKIPPED REVIEW-REQUIRED STEPS
+stable at 2
+
+EXECUTED STEPS
+world_news_search · ai_news_search · crypto_market_scan
+
+SKIPPED REVIEW-REQUIRED
+top_story_selection · deep_dive_synthesis
+
+CAVEATS
+status_code_unavailable · observed_cost_unavailable · source_map_empty
+
+SOURCES
+10 sources; World News | Latest Top Stories - Reuters · World | Latest News & Updates - BBC · Top & Breaking World News Today | AP News · World news - breaking news, video, headlines and opinion | CNN · Breaking News, World News and Video from Al Jazeera
+
+Copyable curl examples
+Example response snippet
+Agent Interpretation Guidance
+
+benchmark-summary
+USE WHEN ROUTE METRICS ARE NOT NEEDED.
+
+winner_claimed=false
+DO NOT TREAT ROUTE AS WINNER.
+
+bundle plans
+NON-EXECUTING SPEND RECIPES ONLY.
+
+bundle runs
+HARNESS PROOF RECORDS, NOT BENCHMARK CLAIMS.
+
+status_code may be null in pay_cli mode
+USE STATUS_EVIDENCE.
+
+GLOBAL
+Comparison Policy
+
+Recorded benchmark lanes have artifact-backed evidence. Explored lanes remain scaffolded when they do not meet the hard bar.
+
+Radar can compare recorded metrics. Radar does not crown winners until scoring criteria are finalized. No benchmark currently claims a winner.
+
+EXECUTABLE PROVIDER MAPPINGS
+4
+Comparison details
+
+ZONE B
+
+SELECTED PROVIDER DOSSIER
+
+Live intelligence for selected provider
+
+The featured provider rotates automatically unless you select or edit. Manual interaction pauses rotation to preserve context.
+
+PROVIDER
+Generative Language API (Gemini)
+WATCH
+TRUST UNKNOWN
+SIGNAL 52
+PROPAGATION CLEAR
+MONITOR [?] UNKNOWN
+GLOBAL
+
+CATALOG INDEX
+
+PROVIDER DIRECTORY
+
+Filter, sort, and select providers. Active selection drives the dossier, monitor, route, trust, and endpoint panels.
+
+12 / 12 providers
+trust score
+signal score
+endpoint count
+category
+name
+all
+AI/ML
+Data
+Media
+Messaging
+Other
+Search
+Storage
+Cloud Speech-to-Text API
+WATCH
+AI/ML / 1 endpoints / trust unknown
+Cloud Translation API
+WATCH
+Other / 0 endpoints / trust unknown
+dTelecom
+WATCH
+AI/ML / 16 endpoints / trust unknown
+Fact Check Tools API
+WATCH
+Search / 1 endpoints / trust unknown
+fal.ai
+WATCH
+Media / 30 endpoints / trust unknown
+Generative Language API (Gemini)
+WATCH
+AI/ML / 1 endpoints / trust unknown
+Knowledge Graph Search API
+WATCH
+Search / 1 endpoints / trust unknown
+RentCast API
+WATCH
+Data / 10 endpoints / trust unknown
+StableEmail
+WATCH
+Messaging / 24 endpoints / trust unknown
+StableEnrich
+WATCH
+Data / 34 endpoints / trust unknown
+StableStudio
+WATCH
+Media / 30 endpoints / trust unknown
+StableUpload
+WATCH
+Storage / 11 endpoints / trust unknown
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+
+SELECTED PROVIDER
+
+PROVIDER INTELLIGENCE DOSSIER
+
+Provider-level trust, signal, monitor, market metadata, and evidence receipts stay linked to the selected catalog entry.
+
+FEATURED PROVIDER
+FEATURED ROTATION
+Next provider window closes Oct 13, 05:00 PM
+
+Generative Language API (Gemini)
+solana-foundation/google/generativelanguage
+AI/ML
+FIXTURE FALLBACK
+1 ENDPOINTS
+UNKNOWN
+NO FREE-TIER EVIDENCE
+METERING UNKNOWN
+WATCH
+UNKNOWN RISK
+Copy provider id
+PROVIDER
+Generative Language API (Gemini)
+STATE
+[?] unknown
+TRUST
+unknown
+SIGNAL
+52
+RISK
+Unknown Risk
+ROUTE/ACTION
+insufficient history
+TRUST
+unknown
+unknown
+history warming up
+SIGNAL
+52
+agent cognition
+history warming up
+COORD.
+unknown
+eligible
+RISK
+Unknown Risk
+insufficient history
+UNKNOWNS
+7
+telemetry fields
+CAPABILITY BRIEF
+
+Catalog-supplied description, tags, and service URL. This does not imply endpoint execution.
+
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+Collapse
+
+No provider description supplied by catalog metadata.
+
+use_case: unknown
+
+AI/ML
+agent cognition
+embeddings
+generation
+llm
+machine media
+multimodal
+Evidence
+ROUTE DECISION PANEL
+
+Uses the existing route recommendation API with selected provider as optional preference input.
+
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+Collapse
+SELECTED
+Generative Language API (Gemini)
+RISK
+Unknown Risk
+ROUTE
+blocked by endpoint evidence
+MAPPING
+1 mapped
+PRICING
+unknown
+TASK TEXT
+CATEGORY FILTER
+all categories
+AI/ML
+Data
+Media
+Messaging
+Other
+Search
+Storage
+MAX PRICE
+MINIMUM TRUST SCORE
+PREFERENCE
+balanced
+trust-prioritized
+lowest catalog price
+signal-prioritized
+include selected provider as preferred route input
+compute catalog-derived candidate
+seed from selected
+MARKET METADATA
+
+Pricing and catalog freshness are preserved as reported by Pay.sh metadata.
+
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+Collapse
+
+min_price_usd
+$0
+
+max_price_usd
+$100
+
+endpoint_count
+1
+
+has_free_tier
+unknown
+
+has_metering
+unknown
+
+source_sha
+unknown
+
+catalog_generated_at
+unknown
+
+last_seen_at
+10/13/2026, 4:53:44 PM
+
+Receipt
+TRUST BREAKDOWN
+
+Component scores explain the visible trust total and unknown states.
+
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+Collapse
+
+metadata quality
+92/100
+
+pricing clarity
+96/100
+
+freshness
+100/100
+
+service reachability
+unknown
+
+latency
+unknown
+
+endpoint response validity
+unknown
+
+receipt reliability
+unknown
+
+OPERATIONAL MONITOR
+
+Safe metadata reachability only; paid provider calls are not executed.
+
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+Collapse
+SAFE METADATA
+WATCH
+[?] UNKNOWN
+
+last_check
+unknown
+
+latency
+unknown
+
+http_status
+unknown
+
+monitor_mode
+UNKNOWN
+
+Safe monitor checks provider service reachability only. It does not execute paid Pay.sh calls.
+
+PROPAGATION CONTEXT
+
+Shows whether this provider is part of the current ecosystem propagation analysis.
+
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+Collapse
+
+state
+systemic
+
+severity
+critical
+
+provider affected
+no
+
+cluster
+none
+
+Catalog source is in fallback or error state, so propagation is treated as systemic catalog desync risk.
+
+SIGNAL BREAKDOWN
+
+Narrative and metadata movement behind the visible signal score.
+
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+Collapse
+
+category heat
+100/100
+
+ecosystem momentum
+3/100
+
+metadata change velocity
+unknown
+
+social velocity
+unknown
+
+onchain/liquidity resonance
+unknown
+
+UNKNOWN TELEMETRY
+
+Unknown fields stay visible so absence of evidence is never hidden.
+
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+Collapse
+latency
+metadataChangeVelocity
+onchainLiquidityResonance
+receiptReliability
+responseValidity
+socialVelocity
+uptime
+Evidence
+EVIDENCE TRAIL
+
+Recent catalog-diff receipts for this provider, ordered by severity.
+
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+Collapse
+
+No recent discovery, update, price, category, endpoint-count, or metadata events after initial observation.
+
+RELIABILITY HISTORY
+
+Historical trend memory from stored score, monitor, and degradation events. No paid APIs are executed.
+
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+Collapse
+History warming up.
+No historical snapshots available yet
+ENDPOINT INTELLIGENCE
+
+Normalized endpoint metadata from safe radar export routes. Rows remain visible even when degraded or incomplete.
+
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+Collapse
+route eligibility
+metadata quality
+pricing clarity
+reachability
+last observed
+name
+ALL
+ROUTE ELIGIBLE
+MAPPING INCOMPLETE
+DEGRADED
+PRICED
+UNKNOWN PRICING
+Generative Language API (Gemini) primary endpoint
+METHOD_UNKNOWN path unavailable
+AI/ML
+FREE
+ROUTE BLOCKED
+[?] UNKNOWN
+Unknown Risk
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+Trust Assessment
+unknown
+unknown
+
+uptime
+unknown
+
+responseValidity
+unknown
+
+metadataQuality
+92
+
+pricingClarity
+96
+
+latency
+unknown
+
+receiptReliability
+unknown
+
+freshness
+100
+
+Evidence
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+Signal Assessment
+52
+agent cognition, machine media
+
+ecosystemMomentum
+3
+
+categoryHeat
+100
+
+metadataChangeVelocity
+unknown
+
+socialVelocity
+unknown
+
+onchainLiquidityResonance
+unknown
+
+Evidence
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+Unknown Telemetry
+
+risk: [?] unknown
+
+coordination eligible: unknown
+
+endpoints: 1
+
+health: 0 [OK] ok / 0 [DEGRADED] degraded / 0 [FAILED] failed / 1 [?] unknown
+
+latency
+metadataChangeVelocity
+onchainLiquidityResonance
+receiptReliability
+responseValidity
+socialVelocity
+uptime
+Evidence
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+Endpoint List
+Generative Language API (Gemini) primary endpoint
+Unknown Risk
+METHOD_UNKNOWN path unavailable
+category AI/ML / type unknown / pricing freehealth [?] unknown / checked unknown / latency unknown
+Evidence
+PROVIDER · GENERATIVE LANGUAGE API (GEMINI) / AI/ML
+Recent Changes
+
+Provider recent changes are catalog diff events.
+
+No change events observed after initial discovery.
+
+GLOBAL
+Events
+391
+84 unknown telemetry fields
+Providers
+12
+159 endpoints tracked
+GLOBAL
+
+CONTAGION WATCH
+
+PROPAGATION WATCH
+
+Deterministic read across degradations, trust drops, unknown telemetry, narratives, and graph adjacency.
+
+Propagation Watch reflects catalog/provider health signals, not Radar execution failure.
+
+SEVERITY CRITICAL
+STATE
+SYSTEMIC
+confidence 65%
+
+cluster
+none
+
+categories
+none
+
+first seen
+10/13/2026, 4:53:44 PM
+
+latest
+10/13/2026, 4:53:44 PM
+
+Catalog source is in fallback or error state, so propagation is treated as systemic catalog desync risk.
+
+No affected providers in active window
+Evidence
+GLOBAL
+
+RISK SIGNALS
+
+ANOMALY WATCH
+
+Advisory anomalies from historical snapshots, monitor runs, and event logs. No paid APIs are executed.
+
+Unknown Risk
+
+Catalog source reports an error; freshness cannot be guaranteed.
+
+LOW
+0
+WATCH
+0
+ELEVATED
+0
+CRITICAL
+0
+UNKNOWN
+12
+No anomalies detected.
+No current advisory risk anomaly requires attention.
+GLOBAL
+Trust Changes
+
+Latest trust events from catalog scoring batches.
+
+No trust deltas beyond initial scoring.
+
+GLOBAL
+Signal Spikes
+
+Signal deltas appear only when catalog-derived signal changes.
+
+No positive signal deltas observed.
+
+GLOBAL
+
+WINDOWED TELEMETRY
+
+PROVIDER ACTIVITY
+
+Activity counts are event-spine activity, not Pay.sh transaction volume.
+
+1h
+24h
+7d
+StableEnrich
+74 events
+discovery:38 / pricing:35 / signal:1
+Evidence
+fal.ai
+66 events
+discovery:34 / pricing:31 / signal:1
+Evidence
+StableStudio
+66 events
+discovery:34 / pricing:31 / signal:1
+Evidence
+StableEmail
+54 events
+discovery:28 / pricing:25 / signal:1
+Evidence
+dTelecom
+38 events
+discovery:20 / pricing:17 / signal:1
+Evidence
+StableUpload
+28 events
+discovery:15 / pricing:12 / signal:1
+Evidence
+RentCast API
+26 events
+discovery:14 / pricing:11 / signal:1
+Evidence
+Cloud Speech-to-Text API
+8 events
+discovery:5 / pricing:2 / signal:1
+Evidence
+Fact Check Tools API
+8 events
+discovery:5 / pricing:2 / signal:1
+Evidence
+Generative Language API (Gemini)
+8 events
+discovery:5 / pricing:2 / signal:1
+Evidence
+GLOBAL
+
+MONITOR ALERTS
+
+RECENT DEGRADATIONS
+
+Safe metadata events are service reachability signals, not API execution failures.
+
+No degradations detected.
+Safe metadata monitors have not reported recent reachability degradation.
+
+INFOPUNKS PAY.SH RADAR
+
+Catalog-derived trust, signal, routing, and safe metadata monitoring. Unknowns stay visible.Machine Economy is an observed module for bounded authority, preflight decisions, and decision receipts.
+FIXTURE-BACKED RADAR STATE
+Source: pay.sh/api/catalog · providers 12 · endpoints 159 · last ingested 10/13/2026, 4:58:35 PM
+Observation → Judgment → Execution → Evaluation
+INFOPUNKS RADAR
+// THE INTELLIGENCE TERMINAL
+ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+API CONTRACT

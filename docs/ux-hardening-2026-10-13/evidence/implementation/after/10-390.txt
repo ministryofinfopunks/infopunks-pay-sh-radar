@@ -1,0 +1,268 @@
+Skip to content
+INFOPUNKS
+RADAR / INTELLIGENCE TERMINAL
+Solana / destinations and network context
+Radar
+/
+Solana
+/
+Developer Documentation
+
+[ 14 ] DEVELOPERS / INTEGRATION REFERENCE
+
+DEVELOPER SURFACE
+
+Before your agent pays, it checks Infopunks.
+
+Infopunks is the pre-spend intelligence layer before payment. It returns receipt-backed route intelligence, known blockers, safer alternatives, and validation context before economic action.
+
+Infopunks is not executing payment. The SDK calls POST /v1/pre-spend/check against https://radar.infopunks.fun.
+
+PRE-SPEND INTELLIGENCE
+RECEIPT-BACKED DECISIONS
+NOT PAYMENT EXECUTION
+BEFORE YOUR AGENT PAYS, IT CHECKS INFOPUNKS
+
+BUILDER FLOW
+
+THREE-STEP BUILDER FLOW
+
+STEP 1
+
+Agent declares intent.
+
+Describe the task, budget, risk tolerance, settlement preference, and minimum confidence before any money moves.
+
+STEP 2
+
+Infopunks checks the route.
+
+Route intelligence, provider reliability, receipts, blockers, validation, risk, and confidence are evaluated before spend.
+
+STEP 3
+
+Agent receives a decision.
+PROCEED
+TEST_SPEND_FIRST
+DO_NOT_SPEND
+INSUFFICIENT_EVIDENCE
+
+SDK USAGE
+
+USE THE PRE-SPEND CLIENT
+
+One call returns a verified Judgment. Tenant credentials bind agent identity; wallet signing requires a bounded policy and an explicit approval callback. Judgment never executes the proposed spend.
+
+import { createInfopunksClient, createX402WalletPayment } from "infopunks-pay-sh-radar/sdk";
+
+const client = createInfopunksClient({
+  baseUrl: "https://radar.infopunks.fun",
+  apiKey: process.env.INFOPUNKS_TENANT_KEY!,
+  payment: createX402WalletPayment({
+    signer: walletSigner,
+    policy: { network: "eip155:8453", asset: "USDC", payTo: operatorPayTo, maxAmountAtomic: "25000000" },
+    approve: async ({ judgment }) => confirm(`Pay ${judgment.cost.amount} ${judgment.cost.asset} for this Judgment?`)
+  })
+});
+
+const result = await client.judge({
+  intent: "buy_market_research",
+  subject: "service:market_research",
+  budget: 25,
+  risk: "low",
+  requiredConfidence: 80
+});
+
+// Returns only after the canonical receipt is verified. This never executes the spend.
+console.log(result.state, result.canonical_judgment);
+
+API
+
+POST /V1/PRE-SPEND/CHECK
+
+Canonical decisions: proceed, test_spend_first, do_not_spend, insufficient_evidence. Inspect canonical_judgment; legacy diagnostic verdicts cannot authorize spend. Subject network is independent of fee settlement. The strict radar-judgment-context.v1 extension binds a namespaced subject, policy version, accepted evidence references, fee settlement network and expiry. RH market policy remains read-only and unqualified for trading. Native Solana fee settlement is unavailable. Canonical proof reads require operator authentication.
+
+Builders can call the HTTP endpoint directly when they do not want the SDK wrapper. The public contract is the intelligence layer before payment, not the payment client itself.
+
+POST /v1/pre-spend/check
+Content-Type: application/json
+
+{
+  "agent_id": "agent_001",
+  "intent": "buy_market_research",
+  "budget": 25,
+  "risk_tolerance": "low",
+  "preferred_settlement": "stablecoin",
+  "required_confidence": 75
+}
+{
+  "decision": "insufficient_evidence",
+  "confidence": 0,
+  "reasons": ["Required fresh, scoped evidence is missing."],
+  "cost": { "amount": "0", "asset": "USDC" },
+  "payment_required": false,
+  "receipt": null,
+  "execution_authorized": false
+}
+
+PRIVATE JUDGMENT
+
+INSPECT A TENANT-BOUND DECISION
+
+This browser check has no payment adapter. A quoted fee stops for explicit authorization by an SDK integration; it never triggers browser payment by default.
+
+PRE-SPEND INTELLIGENCE
+
+Check before you spend.
+
+One justified decision. Inspect the evidence before taking action.
+
+Intent
+Subject or route
+Budget
+Risk preference
+low
+medium
+high
+critical
+Tenant access key
+
+Use an operator-issued credential. It stays in this tab's memory. Checking does not authorize payment or execute an action.
+
+Check
+
+AWAITING YOUR CHECK
+
+Should this agent spend?
+
+Enter the intent, route and budget, then Check. A result requires qualified evidence.
+
+DECISION STATES
+
+CRISP OUTCOMES FOR BUILDERS
+proceed
+Policy-bound assessment. A valid canonical receipt and separate execution authorization are required before action.
+test_spend_first
+Only a policy-defined bounded test is justified. Execution remains separately authorized.
+do_not_spend
+Reviewed evidence establishes a deterministic blocker.
+insufficient_evidence
+Abstain for free. Missing, stale, or unqualified evidence cannot authorize action.
+
+RECEIPT-BACKED TRUST
+
+NO RECEIPT, NO TRUST.
+
+No receipt, no trust.
+
+Every decision should point back to receipts.
+
+Receipts capture route runs, cost, latency, status, validation, confidence delta, and evidence artifacts.
+
+Evidence graph pages connect routes, providers, services, receipts, and human validation.
+
+INTEGRATION REGISTRY
+
+A SAFETY API IS USEFUL. A REGISTRY MAKES ADOPTION VISIBLE.
+Open Integration Registry
+
+The registry shows agents, wallets, routers, and apps that are Wallet Safety-ready or moving toward compatibility.
+
+BUILDER LINKS
+
+INSPECT THE PUBLIC SURFACES
+
+PUBLIC LINK
+
+Wallet Safety API
+
+Ask once before spend. Get decision, policy, audit trail, risk score, final recommendation, and copy-paste SDK snippets.
+
+OPEN QUICKSTART + SNIPPETS
+
+PUBLIC LINK
+
+Spend Terminal
+
+Run the receipt-backed pre-spend check UI.
+
+OPEN
+
+PUBLIC LINK
+
+Check
+
+Turn claims, routes, providers, wallets, and links into public receipt checks.
+
+OPEN
+
+PUBLIC LINK
+
+Loops
+
+Inspect autonomous loops as proof-linked public memory objects.
+
+OPEN
+
+PUBLIC LINK
+
+Routes
+
+Inspect route-level intelligence before autonomous spend.
+
+OPEN
+
+PUBLIC LINK
+
+Providers
+
+Review provider reliability, disputes, and coverage.
+
+OPEN
+
+PUBLIC LINK
+
+Services
+
+Compare best route, safest first attempt, and blockers.
+
+OPEN
+
+PUBLIC LINK
+
+Receipts
+
+Trace every decision back to recorded route evidence.
+
+OPEN
+
+PUBLIC LINK
+
+Claims
+
+Turn receipts into reusable signal objects with evidence and challenge placeholders.
+
+OPEN
+
+PUBLIC LINK
+
+OpenAPI
+
+Pull the public OpenAPI spec from the live endpoint.
+
+OPEN
+
+PUBLIC LINK
+
+Agent Example
+
+See the minimal example and repo path for examples/pre-spend-agent.
+
+OPEN
+
+Minimal agent example path in repo: examples/pre-spend-agent/README.md
+
+Observation → Judgment → Execution → Evaluation
+INFOPUNKS RADAR
+ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+API CONTRACT

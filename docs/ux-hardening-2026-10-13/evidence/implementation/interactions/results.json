@@ -1,0 +1,254 @@
+{
+  "source_sha": "1e7114e8549497d592f324c55a4ecf67065dced4",
+  "scope": "Chromium automated desktop/mobile CSS viewports; controlled response tests labeled; real local API where specified; no payment",
+  "results": [
+    {
+      "id": "UX-01",
+      "width": 390,
+      "pass": true,
+      "empty_key_no_dispatch": true,
+      "error_linked": true,
+      "focus": true
+    },
+    {
+      "id": "UX-05",
+      "width": 390,
+      "pass": true,
+      "inline_budget_error": true,
+      "focus": true
+    },
+    {
+      "id": "UX-12",
+      "width": 390,
+      "pass": true,
+      "masked_after_toggle": true,
+      "input_width": 244.828125
+    },
+    {
+      "id": "UX-08",
+      "width": 390,
+      "pass": true,
+      "actual_local_api": true,
+      "exact_catalog_link": true
+    },
+    {
+      "id": "UX-06",
+      "width": 390,
+      "pass": true,
+      "status_below_title": true,
+      "missing_stages_preserved": true
+    },
+    {
+      "id": "UX-01/05 recovery",
+      "width": 390,
+      "pass": true,
+      "expired_identity_generic": true,
+      "controlled_timeout_and_malformed": true,
+      "explicit_recovery": true
+    },
+    {
+      "id": "Canonical quote states",
+      "width": 390,
+      "pass": true,
+      "decision": "test_spend_first",
+      "scope": "controlled canonical response, unpaid quote only; no actual issuance or execution",
+      "missing_receipt_not_inferred": true
+    },
+    {
+      "id": "Canonical quote states",
+      "width": 390,
+      "pass": true,
+      "decision": "do_not_spend",
+      "scope": "controlled canonical response, unpaid quote only; no actual issuance or execution",
+      "missing_receipt_not_inferred": true
+    },
+    {
+      "id": "UX-09",
+      "width": 390,
+      "pass": true,
+      "refresh_back_forward": true
+    },
+    {
+      "id": "UX-02",
+      "width": 390,
+      "pass": true,
+      "draft_ime_clear_overlap": true,
+      "empty_unavailable_error_distinct": true
+    },
+    {
+      "id": "UX-03",
+      "width": 390,
+      "pass": true,
+      "direct_and_shared_context_preserved": true,
+      "unknown_signal_honest": true
+    },
+    {
+      "id": "UX-03/04 controlled reader states",
+      "width": 390,
+      "pass": true,
+      "success_403_503_empty_timeout": true,
+      "canonical_context": true,
+      "scope": "synthetic public GET responses; no new evidence issuance"
+    },
+    {
+      "id": "UX-04",
+      "width": 390,
+      "pass": true,
+      "owning_recovery_and_get_retry": true,
+      "missing_tasks_titled": true
+    },
+    {
+      "id": "UX-10",
+      "width": 390,
+      "pass": true,
+      "task_heading_and_solanalandmarks": true
+    },
+    {
+      "id": "UX-07/13",
+      "width": 390,
+      "pass": true,
+      "actual_local_api": true,
+      "pending_summary": true,
+      "parent_auth_link": true,
+      "proof_breadcrumb": true
+    },
+    {
+      "id": "Security preservation",
+      "width": 390,
+      "pass": true,
+      "actual_cross_tenant_denial_clears_record": true,
+      "no_credential_url_storage": true
+    },
+    {
+      "id": "Private malformed response",
+      "width": 390,
+      "pass": true,
+      "no_payload_echo": true,
+      "no_verified_state": true
+    },
+    {
+      "id": "UX-01",
+      "width": 1440,
+      "pass": true,
+      "empty_key_no_dispatch": true,
+      "error_linked": true,
+      "focus": true
+    },
+    {
+      "id": "UX-05",
+      "width": 1440,
+      "pass": true,
+      "inline_budget_error": true,
+      "focus": true
+    },
+    {
+      "id": "UX-12",
+      "width": 1440,
+      "pass": true,
+      "masked_after_toggle": true,
+      "input_width": 521.875
+    },
+    {
+      "id": "UX-08",
+      "width": 1440,
+      "pass": true,
+      "actual_local_api": true,
+      "exact_catalog_link": true
+    },
+    {
+      "id": "UX-06",
+      "width": 1440,
+      "pass": true,
+      "status_below_title": true,
+      "missing_stages_preserved": true
+    },
+    {
+      "id": "UX-01/05 recovery",
+      "width": 1440,
+      "pass": true,
+      "expired_identity_generic": true,
+      "controlled_timeout_and_malformed": true,
+      "explicit_recovery": true
+    },
+    {
+      "id": "Canonical quote states",
+      "width": 1440,
+      "pass": true,
+      "decision": "test_spend_first",
+      "scope": "controlled canonical response, unpaid quote only; no actual issuance or execution",
+      "missing_receipt_not_inferred": true
+    },
+    {
+      "id": "Canonical quote states",
+      "width": 1440,
+      "pass": true,
+      "decision": "do_not_spend",
+      "scope": "controlled canonical response, unpaid quote only; no actual issuance or execution",
+      "missing_receipt_not_inferred": true
+    },
+    {
+      "id": "UX-09",
+      "width": 1440,
+      "pass": true,
+      "refresh_back_forward": true
+    },
+    {
+      "id": "UX-02",
+      "width": 1440,
+      "pass": true,
+      "draft_ime_clear_overlap": true,
+      "empty_unavailable_error_distinct": true
+    },
+    {
+      "id": "UX-03",
+      "width": 1440,
+      "pass": true,
+      "direct_and_shared_context_preserved": true,
+      "unknown_signal_honest": true
+    },
+    {
+      "id": "UX-03/04 controlled reader states",
+      "width": 1440,
+      "pass": true,
+      "success_403_503_empty_timeout": true,
+      "canonical_context": true,
+      "scope": "synthetic public GET responses; no new evidence issuance"
+    },
+    {
+      "id": "UX-04",
+      "width": 1440,
+      "pass": true,
+      "owning_recovery_and_get_retry": true,
+      "missing_tasks_titled": true
+    },
+    {
+      "id": "UX-10",
+      "width": 1440,
+      "pass": true,
+      "task_heading_and_solanalandmarks": true
+    },
+    {
+      "id": "UX-07/13",
+      "width": 1440,
+      "pass": true,
+      "actual_local_api": true,
+      "pending_summary": true,
+      "parent_auth_link": true,
+      "proof_breadcrumb": true
+    },
+    {
+      "id": "Security preservation",
+      "width": 1440,
+      "pass": true,
+      "actual_cross_tenant_denial_clears_record": true,
+      "no_credential_url_storage": true
+    },
+    {
+      "id": "Private malformed response",
+      "width": 1440,
+      "pass": true,
+      "no_payload_echo": true,
+      "no_verified_state": true
+    }
+  ]
+}

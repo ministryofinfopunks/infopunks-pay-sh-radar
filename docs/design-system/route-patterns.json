@@ -2,7 +2,7 @@
   {
     "pattern": "/^\\/(?:rh-chain-signal-desk\\/meme-pulse|rh-chain-meme-pulse)\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14423
+    "line": 14425
   },
   {
     "pattern": "/^\\/(proof|receipts|revenue-receipts)(\\/|$)/",
@@ -17,7 +17,7 @@
   {
     "pattern": "/^\\/4663(?:\\/(?:pulse|today|signals|receipts)|\\/(?:print|call|resolution|consensus|signals|proof|campaign|share)\\/[^/]+)?\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14398
+    "line": 14400
   },
   {
     "pattern": "/^\\/4663\\/call\\/([^/]+)$/",
@@ -52,7 +52,7 @@
   {
     "pattern": "/^\\/4663\\/reflexive(?:\\/(?:pair\\/[^/]+|stock\\/[^/]+|watch(?:\\/[^/]+)?|census))?\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14397
+    "line": 14399
   },
   {
     "pattern": "/^\\/4663\\/reflexive\\/census\\/?$/",
@@ -67,7 +67,7 @@
   {
     "pattern": "/^\\/4663\\/reflexive\\/preflight\\/ipx-pltr\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14396
+    "line": 14398
   },
   {
     "pattern": "/^\\/4663\\/reflexive\\/stock\\/([^/]+)/",
@@ -227,7 +227,7 @@
   {
     "pattern": "/^\\/internal\\/rh-chain\\/review-console\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14437
+    "line": 14439
   },
   {
     "pattern": "/^\\/loops\\/?$/",
@@ -457,17 +457,17 @@
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/100-receipts\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14429
+    "line": 14431
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/4663-index\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14447
+    "line": 14449
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/clone-radar\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14424
+    "line": 14426
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/daily-receipts(?:\\/[^/]+(?:\\/card)?)?\\/?$/",
@@ -477,117 +477,117 @@
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/daily-receipts\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14447
+    "line": 14449
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/daily-receipts\\/([^/]+)(\\/card)?\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14446
+    "line": 14448
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/discovery-queue\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14430
+    "line": 14432
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/distribution-pack\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14428
+    "line": 14430
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/intelligence-receipts\\/([^/]+)\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14439
+    "line": 14441
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/launch-surfaces\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14447
+    "line": 14449
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/launchpad-observatory\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14426
+    "line": 14428
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/live-snapshot\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14447
+    "line": 14449
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/market-structure\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14436
+    "line": 14438
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/market-structure\\/attention-quality\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14435
+    "line": 14437
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/market-structure\\/cross-layer\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14434
+    "line": 14436
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/market\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14433
+    "line": 14435
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/projects\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14443
+    "line": 14445
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/projects\\/([^/]+)(?:\\/(claims|receipts))?\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14441
+    "line": 14443
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/projects\\/claim\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14438
+    "line": 14440
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/review-pipeline\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14432
+    "line": 14434
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/review-pipeline\\/day\\/(\\d{4}-\\d{2}-\\d{2})\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14431
+    "line": 14433
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/review-queue\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14447
+    "line": 14449
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/risk-patterns\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14425
+    "line": 14427
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/scout\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14447
+    "line": 14449
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/scouts\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14427
+    "line": 14429
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/submit\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14447
+    "line": 14449
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/tokens\\/([^/]+)\\/?$/",
     "file": "src/web/radarApp.tsx",
-    "line": 14444
+    "line": 14446
   },
   {
     "pattern": "/^\\/rh-chain-signal-desk\\/tokens\\/[^/]+\\/?$/",

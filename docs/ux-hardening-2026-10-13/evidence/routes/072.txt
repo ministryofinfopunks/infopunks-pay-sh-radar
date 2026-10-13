@@ -1,0 +1,666 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Narratives
+- paragraph:
+  - generic: "[ 09 ]"
+  - text: SIGNALS / MARKET INTELLIGENCE
+- link "Skip to content":
+  - /url: "#narrative-content"
+- main:
+  - paragraph: Narrative Asset Intelligence
+  - heading "Narrative Asset Intelligence" [level=1]
+  - paragraph: Signal reports, evidence updates, and sovereignty checks for narratives that become markets.
+  - paragraph: Infopunks Radar is no longer just watching markets. It is watching the narratives that become markets.
+  - link "Open Signal Report":
+    - /url: /signals/black-bull
+  - link "Read Attention Markets Thesis":
+    - /url: /narratives/attention-markets
+  - link "Open Abundance Desk":
+    - /url: /abundance
+  - paragraph: Desk stance
+  - paragraph: Bloomberg-style cultural intelligence for memetic markets, compact enough for live watch and dispatch review.
+  - paragraph: Personas can become liquidity. Memes can become coordination rails. Sovereignty checks still decide whether signal has durable shape.
+  - region "Desk Status Strip":
+    - paragraph: Desk status
+    - heading "Live Watch" [level=2]
+    - generic: 2026-07-01 09:00
+    - article:
+      - generic: Reports
+      - strong: "2"
+    - article:
+      - generic: Dispatches
+      - strong: "9"
+    - article:
+      - generic: Risk Shifts
+      - strong: "7"
+    - article:
+      - generic: Watched Signals
+      - strong: "2"
+    - article:
+      - generic: Candidates
+      - strong: "7"
+    - article:
+      - generic: Desk Status
+      - strong: Live Watch
+  - region "Narrative filters":
+    - paragraph: Desk filters
+    - heading "Analyst Control Strip" [level=2]
+    - paragraph: Filter live desk outputs without changing the underlying report or dispatch routes.
+    - generic: Update Type
+    - combobox "Update Type Filter":
+      - option "All" [selected]
+      - option "Attention Shift"
+      - option "Holder / Power Shift"
+      - option "Myth Shift"
+      - option "Risk Shift"
+      - option "Verdict Change"
+    - generic: Risk Facet
+    - combobox "Risk Facet Filter":
+      - option "All" [selected]
+      - option "High Reflexivity"
+      - option "Power Concentration"
+      - option "Unproven Sovereignty"
+      - option "KOL Dependency"
+      - option "Thin Evidence"
+      - option "Narrative Fatigue"
+      - option "Live Watch"
+    - generic: Signal Status
+    - combobox "Signal Status Filter":
+      - option "All" [selected]
+      - option "Live Watch"
+      - option "Seeded Report"
+      - option "Needs Review"
+    - generic: Search
+    - searchbox "Search reports and dispatches"
+    - generic: All
+    - generic: All
+    - generic: All Statuses
+  - region "Attention Market Watch":
+    - paragraph: Signal Desk Index
+    - heading "Attention Market Watch" [level=2]
+    - paragraph: Attention Market Watch now tracks which persona-backed assets remain attention arbitrage, which become extraction risk, and which begin evolving into coordination markets.
+    - generic: 4 monitored
+    - article:
+      - generic: Supportive Watch
+      - strong: "1"
+    - article:
+      - generic: Attention Arbitrage
+      - strong: "2"
+    - article:
+      - generic: Re Index Watch
+      - strong: "1"
+    - link "Open Attention Market Watch":
+      - /url: /narratives/attention-market-watch
+    - link "Submit Attention Market":
+      - /url: /narratives/attention-market-watch#intake
+  - region "Unicorn Radar low-cap discovery layer":
+    - paragraph: Low-cap discovery layer
+    - heading "Infopunks Unicorn Radar" [level=2]
+    - paragraph: Finding serious low-cap Solana projects before consensus does. Narrative Intel tracks markets after the story has shape; Unicorn Radar watches candidates while uncertainty is still legible.
+    - generic: Solana lowcaps
+    - article:
+      - paragraph: Doctrine
+      - heading "Projects can buy evaluation, not conviction." [level=3]
+      - paragraph: Paid status, risk flags, and weak-proof verdicts stay visible.
+    - article:
+      - paragraph: Scoring
+      - heading "Shipping, attention, survivability." [level=3]
+      - paragraph: Candidates are scored on proof of shipping, attention quality, token survivability, category timing, asymmetry, and risk.
+    - link "Open Unicorn Radar":
+      - /url: /unicorn-radar
+    - link "Submit low-cap candidate":
+      - /url: /unicorn-radar#submit-candidate
+  - region "Featured ANSEM Black Bull report":
+    - paragraph: Featured report
+    - heading "ANSEM / The Black Bull" [level=2]
+    - paragraph: The Black Bull is no longer only a persona-backed attention object. Reported creator-fee redistribution, tracker-visible holder growth, and community-led media suggest an emerging coordination market, while KOL dependency, power concentration, and reflexivity remain material.
+    - generic: Live Watch
+    - generic: Signal Strength
+    - strong: "92"
+    - generic: Myth Coherence
+    - strong: "88"
+    - generic: Reflexivity Risk
+    - strong: "86"
+    - generic: Sovereignty Score
+    - strong: "45"
+    - generic: Latest Update Type
+    - strong: Verdict Change
+    - generic: Latest Update Timestamp
+    - strong: 2026-07-01 09:00
+    - generic: High Reflexivity
+    - generic: KOL Dependency
+    - generic: Power Concentration
+    - generic: Unproven Sovereignty
+    - generic: Live Watch
+    - link "Open Signal Report":
+      - /url: /signals/black-bull
+    - link "Open Latest Dispatch":
+      - /url: /signals/black-bull/updates/seu_black_bull_007
+  - region "Latest Desk Dispatches":
+    - paragraph: Desk dispatches
+    - heading "Latest Desk Dispatches" [level=2]
+    - paragraph: Latest evidence updates from the desk. Reports are not final. Signals mutate.
+    - article:
+      - paragraph: ANSEM / The Black Bull
+      - heading "Verdict Change" [level=3]
+      - generic: Verdict Change
+      - paragraph: Infopunks updates Black Bull from a pure persona attention market into Coordination Market Emerging as redistribution, holder growth, and community-led media become central to the signal.
+      - generic: Unproven Sovereignty
+      - generic: Power Concentration
+      - generic: KOL Dependency
+      - generic: Live Watch
+      - generic: High Reflexivity
+      - generic: Signal Delta
+      - strong: 88 → 91 (+3)
+      - paragraph: "Analyst note: The latest signal shift is structural. Ansem's low-key activity, reported creator-fee redistribution, holder-growth narrative, and community media suggest Black Bull is moving from persona-led attention into community coordination. The desk keeps SUPPORTIVE WATCH active while monitoring whether the flywheel can persist beyond short-term incentives and concentrated attention."
+      - generic: 2026-07-01 09:00
+      - link "Open Dispatch":
+        - /url: /signals/black-bull/updates/seu_black_bull_007
+    - article:
+      - paragraph: TROLL / The Re-Indexed Archetype
+      - heading "Verdict Change" [level=3]
+      - generic: Verdict Change
+      - paragraph: Infopunks upgrades $TROLL to Durable Re-index after reclassifying its long circulation, 64,000+ holder surface, and legacy internet archetype survival as stronger evidence.
+      - generic: Power Concentration
+      - generic: Live Watch
+      - generic: Thin Evidence
+      - generic: High Reflexivity
+      - generic: Signal Delta
+      - strong: 86 → 90 (+4)
+      - paragraph: "Analyst note: TROLL's signal is not novelty. The signal is survival. More than 435 days in circulation and a 64,000+ holder surface suggest the meme has persisted through multiple rotations instead of relying only on fresh attention. The desk upgrades the verdict while continuing to monitor concentration, reflexivity, and evidence quality."
+      - generic: 2026-06-30 13:30
+      - link "Open Dispatch":
+        - /url: /signals/troll/updates/seu_troll_002
+    - article:
+      - paragraph: TROLL / The Re-Indexed Archetype
+      - heading "Verdict Change" [level=3]
+      - generic: Verdict Change
+      - paragraph: Infopunks opens $TROLL as the second re-indexed signal report, classifying it as a legacy internet archetype entering Solana-native community takeover form.
+      - generic: Power Concentration
+      - generic: Live Watch
+      - generic: Thin Evidence
+      - generic: High Reflexivity
+      - paragraph: "Analyst note: TROLL's signal is not novelty. The signal is resurrection. The meme already exists in internet memory; the desk is now watching whether community takeover structure, liquidity, holder surface, and trench attention can turn that legacy archetype into a durable Solana-native narrative asset."
+      - generic: 2026-06-30 12:00
+      - link "Open Dispatch":
+        - /url: /signals/troll/updates/seu_troll_001
+    - article:
+      - paragraph: ANSEM / The Black Bull
+      - heading "Verdict Change" [level=3]
+      - generic: Verdict Change
+      - paragraph: Ansem's reported 67.38M $ANSEM airdrop to 700+ wallets strengthens the Black Bull's community-coordination signal and upgrades the desk verdict to Supportive Watch.
+      - generic: Unproven Sovereignty
+      - generic: Power Concentration
+      - generic: KOL Dependency
+      - generic: Live Watch
+      - generic: High Reflexivity
+      - generic: Signal Delta
+      - strong: 80 → 88 (+8)
+      - paragraph: "Analyst note: The airdrop improves the trench-revival thesis by expanding the narrative's community surface area. Concentration risk remains material because a large portion of distributed tokens reportedly clustered around a small number of wallets, so KOL dependency and power concentration stay elevated."
+      - generic: 2026-06-30 09:30
+      - link "Open Dispatch":
+        - /url: /signals/black-bull/updates/seu_black_bull_006
+    - article:
+      - paragraph: ANSEM / The Black Bull
+      - heading "Verdict Change" [level=3]
+      - generic: Verdict Change
+      - paragraph: Infopunks classifies ANSEM / The Black Bull as a high-signal but high-reflexivity narrative asset.
+      - generic: Unproven Sovereignty
+      - generic: Power Concentration
+      - generic: KOL Dependency
+      - generic: Live Watch
+      - generic: High Reflexivity
+      - generic: Signal Delta
+      - strong: 74 → 80 (+6)
+      - paragraph: "Analyst note: The report remains non-directional. It is a signal map, not financial advice."
+      - generic: 2026-06-28 18:20
+      - link "Open Dispatch":
+        - /url: /signals/black-bull/updates/seu_black_bull_005
+  - region "Risk Shifts":
+    - paragraph: Desk dispatches
+    - heading "Risk Shifts" [level=2]
+    - paragraph: Power, reflexivity, and verdict changes that require sovereignty checks.
+    - article:
+      - paragraph: ANSEM / The Black Bull
+      - heading "Verdict Change" [level=3]
+      - generic: Verdict Change
+      - paragraph: Infopunks updates Black Bull from a pure persona attention market into Coordination Market Emerging as redistribution, holder growth, and community-led media become central to the signal.
+      - generic: Unproven Sovereignty
+      - generic: Power Concentration
+      - generic: KOL Dependency
+      - generic: Live Watch
+      - generic: High Reflexivity
+      - generic: Signal Delta
+      - strong: 88 → 91 (+3)
+      - paragraph: "Analyst note: The latest signal shift is structural. Ansem's low-key activity, reported creator-fee redistribution, holder-growth narrative, and community media suggest Black Bull is moving from persona-led attention into community coordination. The desk keeps SUPPORTIVE WATCH active while monitoring whether the flywheel can persist beyond short-term incentives and concentrated attention."
+      - generic: 2026-07-01 09:00
+      - link "Open Dispatch":
+        - /url: /signals/black-bull/updates/seu_black_bull_007
+    - article:
+      - paragraph: TROLL / The Re-Indexed Archetype
+      - heading "Verdict Change" [level=3]
+      - generic: Verdict Change
+      - paragraph: Infopunks upgrades $TROLL to Durable Re-index after reclassifying its long circulation, 64,000+ holder surface, and legacy internet archetype survival as stronger evidence.
+      - generic: Power Concentration
+      - generic: Live Watch
+      - generic: Thin Evidence
+      - generic: High Reflexivity
+      - generic: Signal Delta
+      - strong: 86 → 90 (+4)
+      - paragraph: "Analyst note: TROLL's signal is not novelty. The signal is survival. More than 435 days in circulation and a 64,000+ holder surface suggest the meme has persisted through multiple rotations instead of relying only on fresh attention. The desk upgrades the verdict while continuing to monitor concentration, reflexivity, and evidence quality."
+      - generic: 2026-06-30 13:30
+      - link "Open Dispatch":
+        - /url: /signals/troll/updates/seu_troll_002
+    - article:
+      - paragraph: TROLL / The Re-Indexed Archetype
+      - heading "Verdict Change" [level=3]
+      - generic: Verdict Change
+      - paragraph: Infopunks opens $TROLL as the second re-indexed signal report, classifying it as a legacy internet archetype entering Solana-native community takeover form.
+      - generic: Power Concentration
+      - generic: Live Watch
+      - generic: Thin Evidence
+      - generic: High Reflexivity
+      - paragraph: "Analyst note: TROLL's signal is not novelty. The signal is resurrection. The meme already exists in internet memory; the desk is now watching whether community takeover structure, liquidity, holder surface, and trench attention can turn that legacy archetype into a durable Solana-native narrative asset."
+      - generic: 2026-06-30 12:00
+      - link "Open Dispatch":
+        - /url: /signals/troll/updates/seu_troll_001
+    - article:
+      - paragraph: ANSEM / The Black Bull
+      - heading "Verdict Change" [level=3]
+      - generic: Verdict Change
+      - paragraph: Ansem's reported 67.38M $ANSEM airdrop to 700+ wallets strengthens the Black Bull's community-coordination signal and upgrades the desk verdict to Supportive Watch.
+      - generic: Unproven Sovereignty
+      - generic: Power Concentration
+      - generic: KOL Dependency
+      - generic: Live Watch
+      - generic: High Reflexivity
+      - generic: Signal Delta
+      - strong: 80 → 88 (+8)
+      - paragraph: "Analyst note: The airdrop improves the trench-revival thesis by expanding the narrative's community surface area. Concentration risk remains material because a large portion of distributed tokens reportedly clustered around a small number of wallets, so KOL dependency and power concentration stay elevated."
+      - generic: 2026-06-30 09:30
+      - link "Open Dispatch":
+        - /url: /signals/black-bull/updates/seu_black_bull_006
+    - article:
+      - paragraph: ANSEM / The Black Bull
+      - heading "Verdict Change" [level=3]
+      - generic: Verdict Change
+      - paragraph: Infopunks classifies ANSEM / The Black Bull as a high-signal but high-reflexivity narrative asset.
+      - generic: Unproven Sovereignty
+      - generic: Power Concentration
+      - generic: KOL Dependency
+      - generic: Live Watch
+      - generic: High Reflexivity
+      - generic: Signal Delta
+      - strong: 74 → 80 (+6)
+      - paragraph: "Analyst note: The report remains non-directional. It is a signal map, not financial advice."
+      - generic: 2026-06-28 18:20
+      - link "Open Dispatch":
+        - /url: /signals/black-bull/updates/seu_black_bull_005
+    - article:
+      - paragraph: ANSEM / The Black Bull
+      - heading "Risk Shift" [level=3]
+      - generic: Risk Shift
+      - paragraph: Reflexivity risk increased as the asset became more dependent on attention loops between price, posting, and belief.
+      - generic: High Reflexivity
+      - generic: Live Watch
+      - generic: Signal Delta
+      - strong: 71 → 82 (+11)
+      - paragraph: "Analyst note: High reflexivity is not automatically bearish, but it means the loop requires active monitoring."
+      - generic: 2026-06-27 14:45
+      - link "Open Dispatch":
+        - /url: /signals/black-bull/updates/seu_black_bull_004
+    - article:
+      - paragraph: ANSEM / The Black Bull
+      - heading "Holder Shift" [level=3]
+      - generic: Holder Shift
+      - paragraph: Power concentration remains a sovereignty concern because attention, supply, and interpretation can cluster around a small set of actors.
+      - generic: Power Concentration
+      - generic: Live Watch
+      - generic: Signal Delta
+      - strong: 58 → 52 (-6)
+      - paragraph: "Analyst note: Narrative assets should be treated as reflexive systems where wallet power and symbolic power can reinforce each other."
+      - generic: 2026-06-26 09:15
+      - link "Open Dispatch":
+        - /url: /signals/black-bull/updates/seu_black_bull_003
+  - region "Reports Catalog":
+    - paragraph: Report catalog
+    - heading "Reports Catalog" [level=2]
+    - paragraph: Every live report card on the desk, structured to scale beyond Black Bull.
+    - article:
+      - paragraph: Attention Market / Narrative Asset
+      - heading "ANSEM / The Black Bull" [level=2]
+      - generic: Live Watch
+      - generic: SUPPORTIVE WATCH
+      - paragraph: The Black Bull is no longer only a persona-backed attention object. Reported creator-fee redistribution, tracker-visible holder growth, and community-led media suggest an emerging coordination market, while KOL dependency, power concentration, and reflexivity remain material.
+      - generic: High Reflexivity
+      - generic: KOL Dependency
+      - generic: Power Concentration
+      - generic: Unproven Sovereignty
+      - generic: Live Watch
+      - generic: signal 92
+      - generic: myth 88
+      - generic: reflexivity 86
+      - generic: sovereignty 45
+      - generic: updates 7
+      - generic: 2026-07-01 09:00
+      - generic: Verdict Change
+      - link "Open Report":
+        - /url: /signals/black-bull
+    - article:
+      - paragraph: Meme Archetype / Community Takeover / Re-indexed Internet Lore
+      - heading "TROLL / The Re-Indexed Archetype" [level=2]
+      - generic: Live Watch
+      - generic: DURABLE RE-INDEX
+      - paragraph: TROLL is not a fresh meme trying to become culture. It is old internet culture being reactivated by the trenches as a Solana-native community asset. Its strength comes from archetype survival, community takeover energy, and tracker-visible holder surface that has remained legible across multiple rotations.
+      - generic: Power Concentration
+      - generic: Live Watch
+      - generic: Thin Evidence
+      - generic: High Reflexivity
+      - generic: signal 90
+      - generic: myth 93
+      - generic: reflexivity 78
+      - generic: sovereignty 63
+      - generic: updates 2
+      - generic: 2026-06-30 13:30
+      - generic: Verdict Change
+      - link "Open Report":
+        - /url: /signals/troll
+  - region "Candidate Signals":
+    - paragraph: Desk queue
+    - heading "Candidate Signals" [level=2]
+    - paragraph: Signals waiting for evidence, review, or promotion into full reports.
+    - generic: 7 tracked
+    - paragraph: Mapped reports show what the desk has already processed. Candidate signals show what the desk is watching next.
+    - article:
+      - generic: Queued
+      - strong: "1"
+    - article:
+      - generic: Watching
+      - strong: "1"
+    - article:
+      - generic: Needs Evidence
+      - strong: "2"
+    - article:
+      - generic: Under Review
+      - strong: "1"
+    - article:
+      - generic: Promoted
+      - strong: "1"
+    - article:
+      - paragraph: Meme Asset
+      - heading "TROLL / The Re-Indexed Archetype" [level=2]
+      - generic: Promoted To Report
+      - generic: High Priority
+      - generic: Medium Risk
+      - generic: Solana
+      - generic: submitted by desk
+      - paragraph: "Candidate promoted to report: $TROLL / The Re-Indexed Archetype."
+      - generic: Live Watch
+      - generic: High Reflexivity
+      - generic: KOL Dependency
+      - generic: Thin Evidence
+      - generic: Power Concentration
+      - paragraph: "Why it matters: Legacy internet lore can re-enter the market as a community takeover signal without depending on a single persona source."
+      - link "https://dexscreener.com/solana/4w2cysotx6czaugmmwg13hdpy4qemg2czekyeqyk9ama":
+        - /url: https://dexscreener.com/solana/4w2cysotx6czaugmmwg13hdpy4qemg2czekyeqyk9ama
+      - link "/signals/troll":
+        - /url: /signals/troll
+      - link "Track Candidate":
+        - /url: /v1/signal-desk/candidates/candidate_troll_reindex
+    - article:
+      - paragraph: Attention Market
+      - heading "Next attention market around a major Solana persona" [level=2]
+      - generic: Watching
+      - generic: High Priority
+      - generic: Medium Risk
+      - generic: Solana
+      - generic: submitted by desk
+      - paragraph: The desk is tracking whether a familiar Solana persona is compressing social attention into a new market object.
+      - generic: Live Watch
+      - generic: High Reflexivity
+      - generic: Power Concentration
+      - generic: KOL Dependency
+      - paragraph: "Why it matters: Persona-led coordination can mint a market before durable ownership or utility becomes legible."
+      - link "/narratives/attention-markets":
+        - /url: /narratives/attention-markets
+      - link "Track Candidate":
+        - /url: /v1/signal-desk/candidates/candidate_sol_persona_attention
+    - article:
+      - paragraph: Agentic Narrative
+      - heading "TBD / Agentic meme asset gaining repeat mentions" [level=2]
+      - generic: Needs Evidence
+      - generic: Medium Priority
+      - generic: Unknown Risk
+      - generic: submitted by system
+      - paragraph: Repeat mentions suggest an agentic meme frame may be forming, but current evidence is still too thin for a mapped report.
+      - generic: Thin Evidence
+      - generic: Narrative Fatigue
+      - paragraph: "Why it matters: Repeated framing can signal that a meme is turning into a coordination rail instead of a one-cycle joke."
+      - generic: No linked evidence yet
+      - link "Track Candidate":
+        - /url: /v1/signal-desk/candidates/candidate_agentic_meme_repeat_mentions
+      - link "Needs Evidence":
+        - /url: "#submit-narrative-review"
+    - article:
+      - paragraph: Depin Signal
+      - heading "DePIN machine-payment narrative cluster" [level=2]
+      - generic: Under Review
+      - generic: High Priority
+      - generic: Low Risk
+      - generic: Solana
+      - generic: submitted by desk
+      - paragraph: The desk is grouping emerging machine-payment claims into one DePIN-adjacent narrative cluster for review.
+      - generic: Live Watch
+      - paragraph: "Why it matters: Machine payments can turn infrastructure coordination into investable narrative surface well before demand quality is settled."
+      - link "/machine-market/summary":
+        - /url: /machine-market/summary
+      - link "Track Candidate":
+        - /url: /v1/signal-desk/candidates/candidate_depin_machine_payments
+    - article:
+      - paragraph: Agentic Narrative
+      - heading "AI wallet coordination narrative" [level=2]
+      - generic: Queued
+      - generic: Medium Priority
+      - generic: Medium Risk
+      - generic: Base
+      - generic: submitted by community
+      - paragraph: This candidate watches whether AI wallet coordination is shifting from technical demo copy into a market myth.
+      - generic: Live Watch
+      - generic: Thin Evidence
+      - generic: Narrative Fatigue
+      - generic: Unproven Sovereignty
+      - paragraph: "Why it matters: If wallets become the story rather than the plumbing, the narrative can spread faster than the actual execution proof."
+      - link "/graph":
+        - /url: /graph
+      - link "Track Candidate":
+        - /url: /v1/signal-desk/candidates/candidate_ai_wallet_coordination
+    - article:
+      - paragraph: Market Myth
+      - heading "Carbon credit tokenization narrative under Article 6" [level=2]
+      - generic: Needs Evidence
+      - generic: Low Priority
+      - generic: Unknown Risk
+      - generic: submitted by desk
+      - paragraph: The desk is monitoring whether Article 6 language is being used to manufacture premature token legitimacy.
+      - generic: Thin Evidence
+      - generic: Narrative Fatigue
+      - paragraph: "Why it matters: Policy-linked myths can create surface-level credibility long before market structure or settlement discipline is proven."
+      - generic: No linked evidence yet
+      - link "Track Candidate":
+        - /url: /v1/signal-desk/candidates/candidate_article6_carbon
+      - link "Needs Evidence":
+        - /url: "#submit-narrative-review"
+    - article:
+      - paragraph: Unknown
+      - heading "Emerging Solana trench myth with unclear evidence" [level=2]
+      - generic: Rejected
+      - generic: Low Priority
+      - generic: High Risk
+      - generic: Solana
+      - generic: submitted by system
+      - paragraph: A trench story is circulating, but the desk cannot yet distinguish signal from recycled chatter.
+      - generic: Live Watch
+      - generic: Thin Evidence
+      - paragraph: "Why it matters: Rejected candidates still matter because weak evidence can still propagate as market belief."
+      - generic: No linked evidence yet
+      - link "Track Candidate":
+        - /url: /v1/signal-desk/candidates/candidate_solana_trench_myth
+  - region "Submit Narrative for Desk Review":
+    - paragraph: Desk intake
+    - heading "Submit Narrative for Desk Review" [level=2]
+    - paragraph: Submitting a narrative does not create a buy call. It adds a candidate for evidence review.
+    - generic: Narrative name
+    - textbox "Narrative name"
+    - generic: Ticker or tag optional
+    - textbox "Ticker or tag optional"
+    - generic: Chain or ecosystem optional
+    - textbox "Chain or ecosystem optional"
+    - generic: Why it matters
+    - textbox "Why it matters"
+    - generic: Evidence links
+    - textbox "Evidence links":
+      - /placeholder: One link per line
+    - generic: Submitter handle optional
+    - textbox "Submitter handle optional"
+    - button "Stage Submission"
+  - region "Related narrative routes":
+    - paragraph: Desk links
+    - link "Black Bull Signal Report":
+      - /url: /signals/black-bull
+    - link "Ansem Signal Source":
+      - /url: /signals/ansem
+    - link "Attention Markets Thesis":
+      - /url: /narratives/attention-markets
+    - link "Abundance Desk":
+      - /url: /abundance
+  - region "Desk Activity Timeline":
+    - paragraph: Desk activity
+    - heading "Desk Activity Timeline" [level=2]
+    - paragraph: Report launches, dispatches, risk shifts, and distribution surfaces in one restrained feed.
+    - article:
+      - paragraph: 2026-07-01 09:00
+      - heading "ANSEM / The Black Bull report published" [level=3]
+      - generic: report published
+      - paragraph: The Black Bull is no longer only a persona-backed attention object. Reported creator-fee redistribution, tracker-visible holder growth, and community-led media suggest an emerging coordination market, while KOL dependency, power concentration, and reflexivity remain material.
+      - link "Open Activity":
+        - /url: /signals/black-bull
+    - article:
+      - paragraph: 2026-07-01 09:00
+      - heading "Verdict Change published for ANSEM" [level=3]
+      - generic: dispatch published
+      - paragraph: Infopunks updates Black Bull from a pure persona attention market into Coordination Market Emerging as redistribution, holder growth, and community-led media become central to the signal.
+      - link "Open Activity":
+        - /url: /signals/black-bull/updates/seu_black_bull_007
+    - article:
+      - paragraph: 2026-07-01 09:00
+      - heading "Verdict changed for ANSEM" [level=3]
+      - generic: verdict change
+      - paragraph: Infopunks updates Black Bull from a pure persona attention market into Coordination Market Emerging as redistribution, holder growth, and community-led media become central to the signal.
+      - link "Open Activity":
+        - /url: /signals/black-bull/updates/seu_black_bull_007
+    - article:
+      - paragraph: 2026-07-01 09:00
+      - heading "ANSEM metadata refreshed" [level=3]
+      - generic: metadata updated
+      - paragraph: Narrative desk metadata and route mappings are live for report distribution.
+      - link "Open Activity":
+        - /url: /narratives
+    - article:
+      - paragraph: 2026-07-01 09:00
+      - heading "ANSEM OG cards available" [level=3]
+      - generic: og card generated
+      - paragraph: Report and dispatch PNG cards are ready for desk distribution.
+      - link "Open Activity":
+        - /url: /og/signals/black-bull.png
+    - article:
+      - paragraph: 2026-06-30 13:30
+      - heading "TROLL / The Re-Indexed Archetype report published" [level=3]
+      - generic: report published
+      - paragraph: TROLL is not a fresh meme trying to become culture. It is old internet culture being reactivated by the trenches as a Solana-native community asset. Its strength comes from archetype survival, community takeover energy, and tracker-visible holder surface that has remained legible across multiple rotations.
+      - link "Open Activity":
+        - /url: /signals/troll
+    - article:
+      - paragraph: 2026-06-30 13:30
+      - heading "Verdict Change published for TROLL" [level=3]
+      - generic: dispatch published
+      - paragraph: Infopunks upgrades $TROLL to Durable Re-index after reclassifying its long circulation, 64,000+ holder surface, and legacy internet archetype survival as stronger evidence.
+      - link "Open Activity":
+        - /url: /signals/troll/updates/seu_troll_002
+    - article:
+      - paragraph: 2026-06-30 13:30
+      - heading "Verdict changed for TROLL" [level=3]
+      - generic: verdict change
+      - paragraph: Infopunks upgrades $TROLL to Durable Re-index after reclassifying its long circulation, 64,000+ holder surface, and legacy internet archetype survival as stronger evidence.
+      - link "Open Activity":
+        - /url: /signals/troll/updates/seu_troll_002
+    - article:
+      - paragraph: 2026-06-30 13:30
+      - heading "TROLL metadata refreshed" [level=3]
+      - generic: metadata updated
+      - paragraph: Narrative desk metadata and route mappings are live for report distribution.
+      - link "Open Activity":
+        - /url: /narratives
+    - article:
+      - paragraph: 2026-06-30 13:30
+      - heading "TROLL OG cards available" [level=3]
+      - generic: og card generated
+      - paragraph: Report and dispatch PNG cards are ready for desk distribution.
+      - link "Open Activity":
+        - /url: /og/signals/troll.png
+    - article:
+      - paragraph: 2026-06-30 12:00
+      - heading "Verdict Change published for TROLL" [level=3]
+      - generic: dispatch published
+      - paragraph: Infopunks opens $TROLL as the second re-indexed signal report, classifying it as a legacy internet archetype entering Solana-native community takeover form.
+      - link "Open Activity":
+        - /url: /signals/troll/updates/seu_troll_001
+    - article:
+      - paragraph: 2026-06-30 12:00
+      - heading "Verdict changed for TROLL" [level=3]
+      - generic: verdict change
+      - paragraph: Infopunks opens $TROLL as the second re-indexed signal report, classifying it as a legacy internet archetype entering Solana-native community takeover form.
+      - link "Open Activity":
+        - /url: /signals/troll/updates/seu_troll_001
+    - article:
+      - paragraph: 2026-06-30 12:00
+      - 'heading "Candidate promoted to report: $TROLL / The Re-Indexed Archetype" [level=3]'
+      - generic: candidate promoted
+      - paragraph: "Candidate promoted to report: $TROLL / The Re-Indexed Archetype."
+      - link "Open Activity":
+        - /url: /signals/troll
+    - article:
+      - paragraph: 2026-06-30 09:30
+      - heading "Verdict Change published for ANSEM" [level=3]
+      - generic: dispatch published
+      - paragraph: Ansem's reported 67.38M $ANSEM airdrop to 700+ wallets strengthens the Black Bull's community-coordination signal and upgrades the desk verdict to Supportive Watch.
+      - link "Open Activity":
+        - /url: /signals/black-bull/updates/seu_black_bull_006
+    - article:
+      - paragraph: 2026-06-30 09:30
+      - heading "Verdict changed for ANSEM" [level=3]
+      - generic: verdict change
+      - paragraph: Ansem's reported 67.38M $ANSEM airdrop to 700+ wallets strengthens the Black Bull's community-coordination signal and upgrades the desk verdict to Supportive Watch.
+      - link "Open Activity":
+        - /url: /signals/black-bull/updates/seu_black_bull_006
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

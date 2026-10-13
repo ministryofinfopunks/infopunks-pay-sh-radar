@@ -1,0 +1,9 @@
+{
+  "disposition": "SUPERSEDED measurements; not final performance acceptance",
+  "files": [
+    "before/performance.json",
+    "after/performance.json",
+    "performance-clock-preliminary.json"
+  ],
+  "reason": "Before/after preliminary runs lacked identical response replay or native Resource Timing. Final accepted comparison uses performance-final.json with immutable fixture replay, Date-only control, native Performance, and resource-byte assertions."
+}

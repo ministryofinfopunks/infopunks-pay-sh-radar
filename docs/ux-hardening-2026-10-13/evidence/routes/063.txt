@@ -1,0 +1,77 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: No-Claim Ledger
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-no-claim-ledger-content"
+- banner:
+  - navigation "Machine No-Claim Ledger navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine No-Claim Ledger":
+  - paragraph: Machine No-Claim Ledger
+  - heading "Machine No-Claim Ledger" [level=1]
+  - paragraph: "Radar records restraint: 0 market-wide execution claims, scoped service-specific receipts, and no payment, benchmark, or winner claims without proof artifacts."
+  - generic "Machine no-claim ledger hero chips":
+    - generic: Radar records restraint
+    - generic: Governance before autonomy
+    - generic: Proof before trust
+    - generic: Machines should not spend blind
+  - region "Machine No-Claim Ledger":
+    - paragraph: No-Claim Ledger
+    - heading "Radar records restraint" [level=2]
+    - generic: Proof before trust
+    - generic "Machine no-claim doctrine":
+      - generic: Listed ≠ callable
+      - generic: Callable ≠ executed
+      - generic: Credentials ≠ payment proof
+      - generic: Route surface ≠ receipt
+      - generic: Service receipt ≠ market proof
+      - generic: Repeatability ≠ winner
+    - list:
+      - generic: "Market-wide execution claim: 0"
+      - generic: "source_type: derived_radar_state · Service receipt ≠ market proof."
+      - generic: "NAVER Maps execution claim: 0"
+      - generic: "source_type: public_context · NAVER Maps is navigation / review / not_attempted."
+      - generic: "Payment success claim: 0"
+      - generic: "source_type: radar_execution_receipt · Payment remains unconfirmed unless payment evidence exists."
+      - generic: "Benchmark claim: 0"
+      - generic: "source_type: benchmark_artifact · No benchmark artifact recorded unless explicitly linked."
+      - generic: "Winner claim: 0"
+      - generic: "source_type: derived_radar_state · No winner claim unless explicit criteria and artifact exist."
+      - generic: "Public demo counted as Radar proof: 0"
+      - generic: "source_type: public_context · Public context only. Not Radar execution evidence."
+      - generic: "Service-specific execution receipt: 0"
+      - generic: "source_type: radar_execution_receipt · Service-specific execution receipt. Not market-wide proof, not payment proof, not benchmark proof."
+      - generic: "Repeatability receipt: 0"
+      - generic: "source_type: radar_repeatability_receipt · Repeatability is route-specific. Not benchmark superiority."
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

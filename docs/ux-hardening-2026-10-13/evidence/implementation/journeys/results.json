@@ -1,0 +1,79 @@
+{
+  "source_sha": "1e7114e8549497d592f324c55a4ecf67065dced4",
+  "environment": "SYNTHETIC_LOCAL_AUTHORIZED_FIXTURE; real PostgreSQL/API; payments disabled",
+  "reports": [
+    {
+      "name": "anonymous_home_to_spend_deep_link",
+      "pass": true,
+      "evidence_expansion": true
+    },
+    {
+      "name": "real_pre_spend_insufficient_evidence",
+      "pass": true,
+      "no_receipt": true,
+      "no_execution": true
+    },
+    {
+      "name": "route_filter_and_sort",
+      "pass": true,
+      "sort": "risk"
+    },
+    {
+      "name": "service_route_search",
+      "pass": true,
+      "status": 200,
+      "actual_backend": true
+    },
+    {
+      "name": "authorized_judgment_inspection",
+      "pass": true,
+      "status": 200,
+      "display": "✓\nVerified evidence\n/ proceed\n\nIssuer signature and ancestry verified. Execution authorization remains separate.\n\njudgment id\njudgment_bf5bda24d2e154573f1f302b1cf8b1015dd579b43aefbf2c7f23f538ae3e1b22\nsubject id\nprovider_test\nissued at\n2026-10-13T11:23:42.208Z\nvalid until\n2026-10-13T12:23:42.208Z\ndecision\nproceed\nInspect cited Observation ui_int2_observation ↗\n\nParent records require independent tenant authentication. No parent evidence is loaded here.\n\nReceipt lifecycle · inspect each stage independently\n\n01 / OBSERVATION\n○\nMissing evidence\n\nNo stage record supplied.\n\n02 / JUDGMENT\n✓\nVerified evidence\n\nproceed\n\n03 / EXECUTION\n○\nMissing evidence\n\nNo stage record supplied.\n\n04 / EVALUATION\n○\nMissing evidence\n\nNo stage record supplied.\n\nInspect source receipt",
+      "credential_exposure": {
+        "url": false,
+        "storage": false,
+        "masked": true
+      }
+    },
+    {
+      "name": "private_receipt_cross_tenant_denial",
+      "pass": true,
+      "status": 404,
+      "previous_private_record_cleared": true,
+      "message": "Receipt unavailable for this authenticated identity.\n\nReturn to proof archive ↗"
+    },
+    {
+      "name": "authorized_execution_inspection",
+      "pass": true,
+      "status": 200,
+      "display": "○\nPending outcome\n/ pending\njudgment id\njudgment_bf5bda24d2e154573f1f302b1cf8b1015dd579b43aefbf2c7f23f538ae3e1b22\nexecution id\nui_int2_pending_execution\nexecuted at\n2026-10-13T11:23:42.208Z\nstatus\npending\nsettlement rail\ntest\nlatency ms\n10\ncost amount\n0\ncost asset\nUSDC\n\nThe execution outcome is pending. A recorded execution does not establish a verified service outcome.\n\nInspect parent Judgment ↗\n\nParent records require independent tenant authentication. No parent evidence is loaded here.\n\nReceipt lifecycle · inspect each stage independently\n\n01 / OBSERVATION\n○\nMissing evidence\n\nNo stage record supplied.\n\n02 / JUDGMENT\n○\nMissing evidence\n\nNo stage record supplied.\n\n03 / EXECUTION\n○\nPending outcome\n\npending\n\n04 / EVALUATION\n○\nMissing evidence\n\nNo stage record supplied.\n\nInspect source receipt",
+      "credential_exposure": {
+        "url": false,
+        "storage": false,
+        "masked": true
+      }
+    },
+    {
+      "name": "authorized_evaluation_inspection",
+      "pass": true,
+      "status": 200,
+      "display": "○\nRecord exists\n/ confirmed\nexecution id\nui_int2_completed_execution\nevaluation id\nui_int2_evaluation\nevaluated at\n2026-10-13T11:23:42.208Z\noutcome\nconfirmed\n\nEvaluation outcome: confirmed. This record does not change payment authorization.\n\nInspect parent Execution ↗\n\nParent records require independent tenant authentication. No parent evidence is loaded here.\n\nReceipt lifecycle · inspect each stage independently\n\n01 / OBSERVATION\n○\nMissing evidence\n\nNo stage record supplied.\n\n02 / JUDGMENT\n○\nMissing evidence\n\nNo stage record supplied.\n\n03 / EXECUTION\n○\nMissing evidence\n\nNo stage record supplied.\n\n04 / EVALUATION\n○\nRecord exists\n\nconfirmed\n\nInspect source receipt",
+      "credential_exposure": {
+        "url": false,
+        "storage": false,
+        "masked": true
+      }
+    },
+    {
+      "name": "anonymous_robinhood_read_only",
+      "pass": true,
+      "private_requests": [],
+      "heading": "Robinhood Chain,\nright now."
+    },
+    {
+      "name": "mobile_navigation_and_evidence",
+      "pass": true,
+      "escape_dismisses_menu": true
+    }
+  ]
+}

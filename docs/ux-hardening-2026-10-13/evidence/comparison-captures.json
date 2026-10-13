@@ -1,0 +1,62 @@
+[
+  {
+    "route": "/",
+    "width": 1440,
+    "height": 1000,
+    "file": "qa-desktop-home.jpg"
+  },
+  {
+    "route": "/spend-terminal",
+    "width": 1440,
+    "height": 1000,
+    "file": "qa-desktop-spend-terminal.jpg"
+  },
+  {
+    "route": "/receipts",
+    "width": 1440,
+    "height": 1000,
+    "file": "qa-desktop-receipts.jpg"
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "width": 1440,
+    "height": 1000,
+    "file": "qa-desktop-rh-chain-signal-desk.jpg"
+  },
+  {
+    "route": "/solana",
+    "width": 1440,
+    "height": 1000,
+    "file": "qa-desktop-solana.jpg"
+  },
+  {
+    "route": "/",
+    "width": 390,
+    "height": 844,
+    "file": "qa-mobile-home.jpg"
+  },
+  {
+    "route": "/spend-terminal",
+    "width": 390,
+    "height": 844,
+    "file": "qa-mobile-spend-terminal.jpg"
+  },
+  {
+    "route": "/receipts",
+    "width": 390,
+    "height": 844,
+    "file": "qa-mobile-receipts.jpg"
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "width": 390,
+    "height": 844,
+    "file": "qa-mobile-rh-chain-signal-desk.jpg"
+  },
+  {
+    "route": "/solana",
+    "width": 390,
+    "height": 844,
+    "file": "qa-mobile-solana.jpg"
+  }
+]

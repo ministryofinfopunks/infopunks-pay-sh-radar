@@ -1,0 +1,288 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: 100 Receipts
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#campaign-content"
+- main:
+  - paragraph: RH Chain / Day 1 / Batch 001
+  - heading "100 Tokens. 100 Receipts. One Public Memory." [level=1]
+  - paragraph: Flagship attention, post-NOXA rotation, and first utility claims
+  - paragraph: 5 reviewed · 5 total memory
+  - link "Open Daily Top 5":
+    - /url: "#daily-top-5"
+  - link "Open 4663 context":
+    - /url: /rh-chain-signal-desk/4663-index
+  - complementary:
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Manual snapshot
+      - generic: Status
+      - strong: Stale
+      - generic: Observed
+      - strong: Jul 16, 2026, 12:00 AM UTC
+      - generic: Relative age
+      - strong: Updated 89 days ago
+      - generic: Sources
+      - strong: Source required
+      - generic: Source policy
+      - paragraph: Day 1 is manually reviewed campaign memory. Provider context may add timestamps or market context but cannot replace evidence, classification, risk, or outcome fields.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - paragraph: Campaign inclusion is public intelligence memory, not endorsement, a safety determination, listing, financial advice, or an official Robinhood partnership.
+  - region "Campaign batch metadata":
+    - paragraph:
+      - generic: batch_id
+      - strong: rh_100_receipts_day_001
+    - paragraph:
+      - generic: day
+      - strong: "1"
+    - paragraph:
+      - generic: reviewed
+      - strong: "5"
+    - paragraph:
+      - generic: total reviewed
+      - strong: "5"
+  - region "Campaign Daily Top 5":
+    - paragraph: Daily Top 5
+    - heading "Five roles. Five exact contracts." [level=2]
+    - paragraph: Each card opens the matching Token Dossier and carries reviewed campaign memory into 4663 context.
+    - article:
+      - paragraph: Top Signal
+      - heading "CASHCAT" [level=3]
+      - paragraph: "0x020bfC650A365f8BB26819deAAbF3E21291018b4"
+      - paragraph: "Resolver: 100 receipts · approved signal"
+      - link "Open Token Dossier":
+        - /url: /rh-chain-signal-desk/tokens/0x020bfC650A365f8BB26819deAAbF3E21291018b4
+    - article:
+      - paragraph: Biggest Rotation
+      - heading "PONS" [level=3]
+      - paragraph: "0x39dBED3a2bd333467115dE45665cC57F813C4571"
+      - paragraph: "Resolver: 100 receipts · under receipt check"
+      - link "Open Token Dossier":
+        - /url: /rh-chain-signal-desk/tokens/0x39dBED3a2bd333467115dE45665cC57F813C4571
+    - article:
+      - paragraph: Strongest Meme Culture Fit
+      - heading "TENDIES" [level=3]
+      - paragraph: "0x45242320DBB855EeA8Fd36804C6487E10E97FCF9"
+      - paragraph: "Resolver: 100 receipts · watch only"
+      - link "Open Token Dossier":
+        - /url: /rh-chain-signal-desk/tokens/0x45242320DBB855EeA8Fd36804C6487E10E97FCF9
+    - article:
+      - paragraph: Narrative Watch
+      - heading "HOODRAT" [level=3]
+      - paragraph: "0x8e62F281f282686fCa6dCB39288069a93fC23F1c"
+      - paragraph: "Resolver: 100 receipts · watch only"
+      - link "Open Token Dossier":
+        - /url: /rh-chain-signal-desk/tokens/0x8e62F281f282686fCa6dCB39288069a93fC23F1c
+    - article:
+      - paragraph: Utility Claim Under Review
+      - heading "ARROW" [level=3]
+      - paragraph: "0xf2915d1e3C1B0c769d0c756Ec43F1c1f6c99cD03"
+      - paragraph: "Resolver: 100 receipts · needs more evidence"
+      - link "Open Token Dossier":
+        - /url: /rh-chain-signal-desk/tokens/0xf2915d1e3C1B0c769d0c756Ec43F1c1f6c99cD03
+  - region "Batch 001 reviewed assets":
+    - paragraph: Batch 001
+    - heading "Reviewed campaign memory" [level=2]
+    - paragraph: Day 1 is manually reviewed campaign memory. Provider context may add timestamps or market context but cannot replace evidence, classification, risk, or outcome fields.
+    - link "Campaign JSON":
+      - /url: /v1/rh-chain/campaigns/100-receipts
+    - article:
+      - paragraph: approved signal
+      - heading "CASHCAT" [level=3]
+      - generic: durable signal
+      - paragraph: "0x020bfC650A365f8BB26819deAAbF3E21291018b4"
+      - paragraph: "Resolver: 100 receipts · claims reviewed"
+      - paragraph: Flagship RH Chain attention asset with strong public visibility, liquidity context, and receipt trail. Approved signal means market-memory inclusion, not endorsement or safety.
+      - term: risk_state
+      - definition: profit_taking_pressure
+      - term: launch surface
+      - definition: NOXA
+      - term: reviewed_at
+      - definition: 2026-07-16T00:00:00.000Z
+      - term: outcome_check_due_at
+      - definition: 2026-07-23T00:00:00.000Z
+      - term: seven_day_outcome
+      - definition: pending
+      - term: attribution
+      - definition: Signal Desk public visibility
+      - paragraph: 7-day outcome check
+      - list:
+        - listitem: Did liquidity remain?
+        - listitem: Did volume collapse or normalize?
+        - listitem: Did evidence improve?
+        - listitem: Did deployer/creator context become clearer?
+        - listitem: Did clone risk rise?
+        - listitem: Did classification need downgrade or upgrade?
+      - paragraph: "Missing evidence: creator/deployer trace · updated liquidity snapshots · official source links if available"
+      - link "DexScreener pair":
+        - /url: https://dexscreener.com/robinhood/0xa70fc67c9f69da90b63a0e4c05d229954574e313
+      - link "Blockscout explorer":
+        - /url: https://robinhoodchain.blockscout.com/token/0x020bfC650A365f8BB26819deAAbF3E21291018b4
+      - generic: "@cashcat_token"
+      - link "Open CASHCAT Dossier":
+        - /url: /rh-chain-signal-desk/tokens/0x020bfC650A365f8BB26819deAAbF3E21291018b4
+    - article:
+      - paragraph: watch only
+      - heading "TENDIES" [level=3]
+      - generic: attention spike
+      - paragraph: "0x45242320DBB855EeA8Fd36804C6487E10E97FCF9"
+      - paragraph: "Resolver: 100 receipts · claims reviewed"
+      - paragraph: Strong RH Chain trading-culture meme with notable liquidity and volume context, but recent sharp price action increases rotation/profit-taking risk.
+      - term: risk_state
+      - definition: volatility_after_strong_move
+      - term: launch surface
+      - definition: Direct Uniswap V3
+      - term: reviewed_at
+      - definition: 2026-07-16T00:00:00.000Z
+      - term: outcome_check_due_at
+      - definition: 2026-07-23T00:00:00.000Z
+      - term: seven_day_outcome
+      - definition: pending
+      - term: attribution
+      - definition: User-provided intake
+      - paragraph: 7-day outcome check
+      - list:
+        - listitem: Did liquidity remain?
+        - listitem: Did volume collapse or normalize?
+        - listitem: Did evidence improve?
+        - listitem: Did deployer/creator context become clearer?
+        - listitem: Did clone risk rise?
+        - listitem: Did classification need downgrade or upgrade?
+      - paragraph: "Missing evidence: verified project accounts · creator wallet trace · updated holder/liquidity behavior"
+      - link "DexScreener pair":
+        - /url: https://dexscreener.com/robinhood/0x237609918f330add285b8bc5f8f2922283d1c4c5
+      - link "Blockscout explorer":
+        - /url: https://robinhoodchain.blockscout.com/token/0x45242320DBB855EeA8Fd36804C6487E10E97FCF9
+      - link "Open TENDIES Dossier":
+        - /url: /rh-chain-signal-desk/tokens/0x45242320DBB855EeA8Fd36804C6487E10E97FCF9
+    - article:
+      - paragraph: under receipt check
+      - heading "PONS" [level=3]
+      - generic: launchpad rotation signal
+      - paragraph: "0x39dBED3a2bd333467115dE45665cC57F813C4571"
+      - paragraph: "Resolver: 100 receipts · claims reviewed"
+      - paragraph: Important post-NOXA launchpad-rotation signal. Fee-routing, buyback, burn, and launchpad dominance claims require primary/on-chain receipts before stronger classification.
+      - term: risk_state
+      - definition: fee_claim_source_required
+      - term: launch surface
+      - definition: Direct Uniswap V3 / self-described launchpad-related token
+      - term: reviewed_at
+      - definition: 2026-07-16T00:00:00.000Z
+      - term: outcome_check_due_at
+      - definition: 2026-07-23T00:00:00.000Z
+      - term: seven_day_outcome
+      - definition: pending
+      - term: attribution
+      - definition: User-provided intake
+      - paragraph: 7-day outcome check
+      - list:
+        - listitem: Did liquidity remain?
+        - listitem: Did volume collapse or normalize?
+        - listitem: Did evidence improve?
+        - listitem: Did deployer/creator context become clearer?
+        - listitem: Did clone risk rise?
+        - listitem: Did classification need downgrade or upgrade?
+      - paragraph: "Missing evidence: primary Pons source · fee routing evidence · buyback/burn tx evidence · creator wallet trace · updated launchpad share evidence"
+      - link "DexScreener pair":
+        - /url: https://dexscreener.com/robinhood/0x10cc6bd38112cac182db90b6a71d8bb5939526ba
+      - link "Blockscout explorer":
+        - /url: https://robinhoodchain.blockscout.com/token/0x39dBED3a2bd333467115dE45665cC57F813C4571
+      - link "Open PONS Dossier":
+        - /url: /rh-chain-signal-desk/tokens/0x39dBED3a2bd333467115dE45665cC57F813C4571
+    - article:
+      - paragraph: watch only
+      - heading "HOODRAT" [level=3]
+      - generic: narrative candidate
+      - paragraph: "0x8e62F281f282686fCa6dCB39288069a93fC23F1c"
+      - paragraph: "Resolver: 100 receipts · claims reviewed"
+      - paragraph: Matt Furie / Robinhood mascot narrative candidate with active attention, but lower liquidity and Quick Intel issue keep it watch-only.
+      - term: risk_state
+      - definition: lower_liquidity_plus_quick_intel_flag
+      - term: launch surface
+      - definition: Direct Uniswap
+      - term: reviewed_at
+      - definition: 2026-07-16T00:00:00.000Z
+      - term: outcome_check_due_at
+      - definition: 2026-07-23T00:00:00.000Z
+      - term: seven_day_outcome
+      - definition: pending
+      - term: attribution
+      - definition: User-provided intake
+      - paragraph: 7-day outcome check
+      - list:
+        - listitem: Did liquidity remain?
+        - listitem: Did volume collapse or normalize?
+        - listitem: Did evidence improve?
+        - listitem: Did deployer/creator context become clearer?
+        - listitem: Did clone risk rise?
+        - listitem: Did classification need downgrade or upgrade?
+      - paragraph: "Missing evidence: verified project accounts · creator wallet trace · clearer narrative source trail · updated liquidity behavior"
+      - link "DexScreener pair":
+        - /url: https://dexscreener.com/robinhood/0x451c0da3b774045a822a129eedcc5c667dcbfdd8
+      - link "Blockscout explorer":
+        - /url: https://robinhoodchain.blockscout.com/token/0x8e62F281f282686fCa6dCB39288069a93fC23F1c
+      - link "Open HOODRAT Dossier":
+        - /url: /rh-chain-signal-desk/tokens/0x8e62F281f282686fCa6dCB39288069a93fC23F1c
+    - article:
+      - paragraph: source required
+      - heading "ARROW" [level=3]
+      - generic: defi gateway candidate
+      - paragraph: "0xf2915d1e3C1B0c769d0c756Ec43F1c1f6c99cD03"
+      - paragraph: "Resolver: 100 receipts · claims reviewed"
+      - paragraph: DeFi/utility narrative candidate. “Gateway for Robinhood DeFi” claims require project/source verification before stronger classification.
+      - term: risk_state
+      - definition: utility_claim_source_required
+      - term: launch surface
+      - definition: Direct Uniswap
+      - term: reviewed_at
+      - definition: 2026-07-16T00:00:00.000Z
+      - term: outcome_check_due_at
+      - definition: 2026-07-23T00:00:00.000Z
+      - term: seven_day_outcome
+      - definition: pending
+      - term: attribution
+      - definition: User-provided intake
+      - paragraph: 7-day outcome check
+      - list:
+        - listitem: Did liquidity remain?
+        - listitem: Did volume collapse or normalize?
+        - listitem: Did evidence improve?
+        - listitem: Did deployer/creator context become clearer?
+        - listitem: Did clone risk rise?
+        - listitem: Did classification need downgrade or upgrade?
+      - paragraph: "Missing evidence: verified project accounts · utility/product proof · audit/source links · creator wallet trace · updated liquidity behavior"
+      - link "DexScreener pair":
+        - /url: https://dexscreener.com/robinhood/0xe40d98d88038e0b844f844dce6ae3c79ec01ec53
+      - link "Blockscout explorer":
+        - /url: https://robinhoodchain.blockscout.com/token/0xf2915d1e3C1B0c769d0c756Ec43F1c1f6c99cD03
+      - link "Open ARROW Dossier":
+        - /url: /rh-chain-signal-desk/tokens/0xf2915d1e3C1B0c769d0c756Ec43F1c1f6c99cD03
+  - region "Campaign memory policy":
+    - paragraph: Campaign inclusion is public intelligence memory, not endorsement, a safety determination, listing, financial advice, or an official Robinhood partnership.
+    - paragraph: Exact-contract campaign memory outranks provider-only context. Seven-day outcomes remain pending until the follow-up review is recorded.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

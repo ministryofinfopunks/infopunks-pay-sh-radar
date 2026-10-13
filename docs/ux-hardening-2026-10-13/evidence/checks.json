@@ -1,0 +1,86 @@
+{
+  "date": "2026-10-13",
+  "timezone": "Asia/Colombo",
+  "design_guard": {
+    "command": "npm run check:design",
+    "exit_code": 0,
+    "patterns": 130
+  },
+  "focused_tests": {
+    "command": "npx vitest run tests/spend-terminal-canonical.test.tsx tests/ui-int2-receipt-inspection.test.tsx tests/radar-navigation-responsive.test.ts tests/homepage-performance.test.tsx tests/radar-delayed-malformed-range.test.tsx",
+    "files": 5,
+    "passed": 19,
+    "failed": 0,
+    "exit_code": 0,
+    "scope": "existing unit/jsdom/source guards"
+  },
+  "premium_static": {
+    "exit_code": 2,
+    "findings": 57,
+    "wcag_conformance_claim": false
+  },
+  "application_diff_against_qualified_source": [],
+  "integration_git_status": "",
+  "frozen_reference_hashes": [
+    {
+      "file": "/Users/ahdilm/.codex/worktrees/radar-terminal-secure-integration/Infopunks Pay.sh Intelligence Terminal/docs/design-system/references/ui-int2-approved-completed/loaded-desktop-home.png",
+      "expected_sha256": "b2265a021deef5cf3f3dc9a242ed4a27e1754375952cb6c00d24654df004b797",
+      "actual_sha256": "b2265a021deef5cf3f3dc9a242ed4a27e1754375952cb6c00d24654df004b797",
+      "matches": true
+    },
+    {
+      "file": "/Users/ahdilm/.codex/worktrees/radar-terminal-secure-integration/Infopunks Pay.sh Intelligence Terminal/docs/design-system/references/ui-int2-approved-completed/loaded-desktop-receipts.png",
+      "expected_sha256": "aaa8013fda7f7b044376c0ca41eb041da9d51cb304a53daa275f63249bea4a3c",
+      "actual_sha256": "aaa8013fda7f7b044376c0ca41eb041da9d51cb304a53daa275f63249bea4a3c",
+      "matches": true
+    },
+    {
+      "file": "/Users/ahdilm/.codex/worktrees/radar-terminal-secure-integration/Infopunks Pay.sh Intelligence Terminal/docs/design-system/references/ui-int2-approved-completed/loaded-desktop-rh-chain-signal-desk.png",
+      "expected_sha256": "49fd61897f4d2597ffdcbc862924536abe7733a03a72121ad50b52c35336b3dc",
+      "actual_sha256": "49fd61897f4d2597ffdcbc862924536abe7733a03a72121ad50b52c35336b3dc",
+      "matches": true
+    },
+    {
+      "file": "/Users/ahdilm/.codex/worktrees/radar-terminal-secure-integration/Infopunks Pay.sh Intelligence Terminal/docs/design-system/references/ui-int2-approved-completed/loaded-desktop-solana.png",
+      "expected_sha256": "28e8d30107db6716917eeb571aa05fcc671e38ef4efc228246123a6acf787bbb",
+      "actual_sha256": "28e8d30107db6716917eeb571aa05fcc671e38ef4efc228246123a6acf787bbb",
+      "matches": true
+    },
+    {
+      "file": "/Users/ahdilm/.codex/worktrees/radar-terminal-secure-integration/Infopunks Pay.sh Intelligence Terminal/docs/design-system/references/ui-int2-approved-completed/loaded-desktop-spend-terminal.png",
+      "expected_sha256": "bd9dfb2c5a489af08eee77aff82bceafa1b59dba93568ce0147564f3b4c574ac",
+      "actual_sha256": "bd9dfb2c5a489af08eee77aff82bceafa1b59dba93568ce0147564f3b4c574ac",
+      "matches": true
+    },
+    {
+      "file": "/Users/ahdilm/.codex/worktrees/radar-terminal-secure-integration/Infopunks Pay.sh Intelligence Terminal/docs/design-system/references/ui-int2-approved-completed/loaded-mobile-home.png",
+      "expected_sha256": "5d3e260bad92e3305db9e0629fa3f384b11a35ca96aa42f8a44bbb9b3ec462bb",
+      "actual_sha256": "5d3e260bad92e3305db9e0629fa3f384b11a35ca96aa42f8a44bbb9b3ec462bb",
+      "matches": true
+    },
+    {
+      "file": "/Users/ahdilm/.codex/worktrees/radar-terminal-secure-integration/Infopunks Pay.sh Intelligence Terminal/docs/design-system/references/ui-int2-approved-completed/loaded-mobile-receipts.png",
+      "expected_sha256": "5f21031bd17aaaa5173724d5ff432d6a38e1e2a2fc5d1e080aa70d591f84cd70",
+      "actual_sha256": "5f21031bd17aaaa5173724d5ff432d6a38e1e2a2fc5d1e080aa70d591f84cd70",
+      "matches": true
+    },
+    {
+      "file": "/Users/ahdilm/.codex/worktrees/radar-terminal-secure-integration/Infopunks Pay.sh Intelligence Terminal/docs/design-system/references/ui-int2-approved-completed/loaded-mobile-rh-chain-signal-desk.png",
+      "expected_sha256": "1eb9418c6dfbed5a28473e7d001a41d97853e4a9aa797fc18060c6609af32427",
+      "actual_sha256": "1eb9418c6dfbed5a28473e7d001a41d97853e4a9aa797fc18060c6609af32427",
+      "matches": true
+    },
+    {
+      "file": "/Users/ahdilm/.codex/worktrees/radar-terminal-secure-integration/Infopunks Pay.sh Intelligence Terminal/docs/design-system/references/ui-int2-approved-completed/loaded-mobile-solana.png",
+      "expected_sha256": "f178f8b96c6678acef5443e0bccb17f08ac83b6e703def629ddc4e3b61a26d57",
+      "actual_sha256": "f178f8b96c6678acef5443e0bccb17f08ac83b6e703def629ddc4e3b61a26d57",
+      "matches": true
+    },
+    {
+      "file": "/Users/ahdilm/.codex/worktrees/radar-terminal-secure-integration/Infopunks Pay.sh Intelligence Terminal/docs/design-system/references/ui-int2-approved-completed/loaded-mobile-spend-terminal.png",
+      "expected_sha256": "87b2f044c6976b8a9aa888fbe5aad94306d100fa55e170ae8665ddbb1e791580",
+      "actual_sha256": "87b2f044c6976b8a9aa888fbe5aad94306d100fa55e170ae8665ddbb1e791580",
+      "matches": true
+    }
+  ]
+}

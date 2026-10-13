@@ -1,0 +1,393 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: Risk
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#clone-radar-content"
+- main:
+  - paragraph: RH Chain risk intelligence
+  - heading "Clone & Impersonator Radar" [level=1]
+  - paragraph: The market moves fast. The copies move faster.
+  - paragraph: Suspected patterns. Receipts required.
+  - link "Read active warnings":
+    - /url: "#active-warnings"
+  - link "Submit evidence":
+    - /url: /rh-chain-signal-desk/submit
+  - complementary:
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Manual snapshot
+      - generic: Status
+      - strong: Stale
+      - generic: Observed
+      - strong: Jul 9, 2026, 4:34 AM UTC
+      - generic: Relative age
+      - strong: Updated 96 days ago
+      - generic: Sources
+      - strong: Source required
+      - generic: Source policy
+      - paragraph: Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - paragraph: Radar entries are suspected or unverified risk patterns, not definitive misconduct findings, token safety determinations, trading advice, or an official Robinhood partnership.
+  - paragraph: Active Warnings
+  - heading "Requires review" [level=2]
+  - article:
+    - paragraph: Suspected low liquidity clone
+    - heading "HOOD" [level=3]
+    - generic: source required
+    - paragraph: Suspected low liquidity clone pattern. Seeded watch slot created from ticker-attention risk. No contract, pool, or explorer receipt is attached.
+    - term: Review
+    - definition: queued for manual review
+    - term: Confidence
+    - definition: low
+    - term: Data mode
+    - definition: seeded
+    - paragraph: "Keep visible as an intake object only; do not imply Robinhood affiliation or market readiness. Requires review: verified contract, explorer link, liquidity pool receipt, non-affiliation context"
+    - article "Clone Alert Card share card":
+      - generic: INFOPUNKS
+      - strong: Clone Alert Card
+      - paragraph: HOOD
+      - generic: Finding
+      - paragraph: Suspected low liquidity clone pattern. Seeded watch slot created from ticker-attention risk. No contract, pool, or explorer receipt is attached.
+      - generic: Risk caveat
+      - paragraph: Keep visible as an intake object only; do not imply Robinhood affiliation or market readiness.
+      - generic: 2026-07-09T04:10:00.000Z
+      - generic: Clone Radar · queued_for_manual_review
+      - link "Open desk ↗":
+        - /url: /rh-chain-signal-desk/clone-radar
+      - button "Copy link"
+  - article:
+    - paragraph: Suspected low liquidity clone
+    - heading "IPO" [level=3]
+    - generic: source required
+    - paragraph: Suspected low liquidity clone pattern. Seeded stock-token spillover candidate. Useful as a narrative marker, not a verified token signal.
+    - term: Review
+    - definition: needs more evidence
+    - term: Confidence
+    - definition: low
+    - term: Data mode
+    - definition: seeded
+    - paragraph: "IPO language can create early-entry pressure. Keep the proof threshold high. Requires review: contract receipt, website provenance, liquidity receipt, official non-affiliation note"
+    - article "Clone Alert Card share card":
+      - generic: INFOPUNKS
+      - strong: Clone Alert Card
+      - paragraph: IPO
+      - generic: Finding
+      - paragraph: Suspected low liquidity clone pattern. Seeded stock-token spillover candidate. Useful as a narrative marker, not a verified token signal.
+      - generic: Risk caveat
+      - paragraph: IPO language can create early-entry pressure. Keep the proof threshold high.
+      - generic: 2026-07-09T04:20:00.000Z
+      - generic: Clone Radar · needs_more_evidence
+      - link "Open desk ↗":
+        - /url: /rh-chain-signal-desk/clone-radar
+      - button "Copy link"
+  - article:
+    - paragraph: Suspected impersonator
+    - heading "SHERW" [level=3]
+    - generic: high risk
+    - paragraph: Suspected impersonator pattern. Manual research flagged brand-adjacent myth risk and likely copycat gravity. No deployer receipts attached.
+    - term: Review
+    - definition: do not touch yet
+    - term: Confidence
+    - definition: medium
+    - term: Data mode
+    - definition: manual
+    - paragraph: "Public visibility here is a caution marker, not promotion. Requires review: deployer history, funding path, ownership controls, contract similarity review"
+    - article "Clone Alert Card share card":
+      - generic: INFOPUNKS
+      - strong: Clone Alert Card
+      - paragraph: SHERW
+      - generic: Finding
+      - paragraph: Suspected impersonator pattern. Manual research flagged brand-adjacent myth risk and likely copycat gravity. No deployer receipts attached.
+      - generic: Risk caveat
+      - paragraph: Public visibility here is a caution marker, not promotion.
+      - generic: 2026-07-09T04:26:00.000Z
+      - generic: Clone Radar · do_not_touch_yet
+      - link "Open desk ↗":
+        - /url: /rh-chain-signal-desk/clone-radar
+      - button "Copy link"
+  - article:
+    - paragraph: Suspected low liquidity clone
+    - heading "DIVY" [level=3]
+    - generic: do not touch yet
+    - paragraph: Suspected low liquidity clone pattern. Seeded dividend/yield risk marker. Claim language is high-risk and no payout mechanism receipt exists.
+    - term: Review
+    - definition: rejected low receipt quality
+    - term: Confidence
+    - definition: low
+    - term: Data mode
+    - definition: seeded
+    - paragraph: "Yield language without receipts should stay blocked from promotion. Requires review: contract, legal framing, payout mechanism receipt, liquidity source"
+    - article "Clone Alert Card share card":
+      - generic: INFOPUNKS
+      - strong: Clone Alert Card
+      - paragraph: DIVY
+      - generic: Finding
+      - paragraph: Suspected low liquidity clone pattern. Seeded dividend/yield risk marker. Claim language is high-risk and no payout mechanism receipt exists.
+      - generic: Risk caveat
+      - paragraph: Yield language without receipts should stay blocked from promotion.
+      - generic: 2026-07-09T04:34:00.000Z
+      - generic: Clone Radar · rejected_low_receipt_quality
+      - link "Open desk ↗":
+        - /url: /rh-chain-signal-desk/clone-radar
+      - button "Copy link"
+  - paragraph: Duplicate Ticker Watch
+  - heading "Same name, unresolved identity" [level=2]
+  - paragraph: No repeated disclosed ticker-to-contract relationships are currently in public desk memory.
+  - paragraph: Fake Volume / Low Liquidity Watch
+  - heading "Patterns before claims" [level=2]
+  - article:
+    - paragraph: Suspected low liquidity clone
+    - heading "HOOD" [level=3]
+    - generic: source required
+    - paragraph: Suspected low liquidity clone pattern. Seeded watch slot created from ticker-attention risk. No contract, pool, or explorer receipt is attached.
+    - term: Review
+    - definition: queued for manual review
+    - term: Confidence
+    - definition: low
+    - term: Data mode
+    - definition: seeded
+    - paragraph: "Keep visible as an intake object only; do not imply Robinhood affiliation or market readiness. Requires review: verified contract, explorer link, liquidity pool receipt, non-affiliation context"
+  - article:
+    - paragraph: Suspected deployer cluster
+    - heading "RAILS" [level=3]
+    - generic: medium watch
+    - paragraph: Suspected deployer cluster pattern. Manual research notes show strong rail-language compression, but the desk has no canonical pool or contract receipt.
+    - term: Review
+    - definition: under receipt check
+    - term: Confidence
+    - definition: medium
+    - term: Data mode
+    - definition: manual
+    - paragraph: "Receipt check should separate actual liquidity depth from screenshots and route chatter. Requires review: pool reserves, contract provenance, deployer wallet, holder distribution"
+  - article:
+    - paragraph: Suspected low liquidity clone
+    - heading "IPO" [level=3]
+    - generic: source required
+    - paragraph: Suspected low liquidity clone pattern. Seeded stock-token spillover candidate. Useful as a narrative marker, not a verified token signal.
+    - term: Review
+    - definition: needs more evidence
+    - term: Confidence
+    - definition: low
+    - term: Data mode
+    - definition: seeded
+    - paragraph: "IPO language can create early-entry pressure. Keep the proof threshold high. Requires review: contract receipt, website provenance, liquidity receipt, official non-affiliation note"
+  - article:
+    - paragraph: Suspected low liquidity clone
+    - heading "TICKR" [level=3]
+    - generic: medium watch
+    - paragraph: Suspected low liquidity clone pattern. Seeded abstraction for ticker-memory behavior. No live market claim is made.
+    - term: Review
+    - definition: watch only
+    - term: Confidence
+    - definition: low
+    - term: Data mode
+    - definition: seeded
+    - paragraph: "Keep as a memory primitive for how symbols propagate across finance memes. Requires review: market surface, contract, pool, independent holder receipts"
+  - article:
+    - paragraph: Suspected low liquidity clone
+    - heading "ROUTE" [level=3]
+    - generic: low watch
+    - paragraph: Suspected low liquidity clone pattern. Manual research packet has internally linked seed receipts for route-language monitoring, but no external market verification.
+    - term: Review
+    - definition: approved signal
+    - term: Confidence
+    - definition: medium
+    - term: Data mode
+    - definition: manual
+    - paragraph: "Approved means the signal can be remembered and watched; it is not a listing or recommendation. Requires review: external explorer receipt, independent liquidity source, holder concentration review"
+  - article:
+    - paragraph: Suspected low liquidity clone
+    - heading "DIVY" [level=3]
+    - generic: do not touch yet
+    - paragraph: Suspected low liquidity clone pattern. Seeded dividend/yield risk marker. Claim language is high-risk and no payout mechanism receipt exists.
+    - term: Review
+    - definition: rejected low receipt quality
+    - term: Confidence
+    - definition: low
+    - term: Data mode
+    - definition: seeded
+    - paragraph: "Yield language without receipts should stay blocked from promotion. Requires review: contract, legal framing, payout mechanism receipt, liquidity source"
+  - paragraph: Vampire / Rug Pattern Watch
+  - heading "Suspicion is a prompt to review, not a verdict." [level=2]
+  - article:
+    - paragraph: Suspected liquidity claim unverified
+    - heading "HOOD" [level=3]
+    - generic: requires review
+    - paragraph: Liquidity claim remains unverified. Seeded watch slot created from ticker-attention risk. No contract, pool, or explorer receipt is attached.
+    - term: Surface
+    - definition: unknown manual
+    - term: Confidence
+    - definition: low
+    - term: Observed
+    - definition: 2026-07-09T03:45:00.000Z
+    - paragraph: "Next review: Attach contract and explorer receipts before any receipt check can begin."
+  - article:
+    - paragraph: Suspected liquidity claim unverified
+    - heading "RAILS" [level=3]
+    - generic: requires review
+    - paragraph: Liquidity claim remains unverified. Manual research notes show strong rail-language compression, but the desk has no canonical pool or contract receipt.
+    - term: Surface
+    - definition: unknown manual
+    - term: Confidence
+    - definition: medium
+    - term: Observed
+    - definition: 2026-07-09T03:45:00.000Z
+    - paragraph: "Next review: Map pool and deployer receipts, then reclassify as watch-only or needs-more-evidence."
+  - article:
+    - paragraph: Suspected liquidity claim unverified
+    - heading "IPO" [level=3]
+    - generic: requires review
+    - paragraph: Liquidity claim remains unverified. Seeded stock-token spillover candidate. Useful as a narrative marker, not a verified token signal.
+    - term: Surface
+    - definition: unknown manual
+    - term: Confidence
+    - definition: low
+    - term: Observed
+    - definition: 2026-07-09T03:45:00.000Z
+    - paragraph: "Next review: Wait for public contract and liquidity receipts with timestamps."
+  - article:
+    - paragraph: Suspected liquidity claim unverified
+    - heading "TICKR" [level=3]
+    - generic: requires review
+    - paragraph: Liquidity claim remains unverified. Seeded abstraction for ticker-memory behavior. No live market claim is made.
+    - term: Surface
+    - definition: unknown manual
+    - term: Confidence
+    - definition: low
+    - term: Observed
+    - definition: 2026-07-09T03:45:00.000Z
+    - paragraph: "Next review: Track whether a real contract appears and whether receipts outlast first-rotation attention."
+  - article:
+    - paragraph: Suspected vampire copycat risk
+    - heading "SHERW" [level=3]
+    - generic: requires review
+    - paragraph: Suspected vampire/copycat pattern. Manual research flagged brand-adjacent myth risk and likely copycat gravity. No deployer receipts attached.
+    - term: Surface
+    - definition: unknown manual
+    - term: Confidence
+    - definition: medium
+    - term: Observed
+    - definition: 2026-07-09T03:45:00.000Z
+    - paragraph: "Next review: Require deployer and ownership receipts before any upgrade."
+  - article:
+    - paragraph: Suspected liquidity claim unverified
+    - heading "ROUTE" [level=3]
+    - generic: requires review
+    - paragraph: Liquidity claim remains unverified. Manual research packet has internally linked seed receipts for route-language monitoring, but no external market verification.
+    - term: Surface
+    - definition: unknown manual
+    - term: Confidence
+    - definition: medium
+    - term: Observed
+    - definition: 2026-07-09T03:45:00.000Z
+    - paragraph: "Next review: Keep receipt freshness visible and downgrade if external proof does not arrive."
+  - article:
+    - paragraph: Suspected liquidity claim unverified
+    - heading "DIVY" [level=3]
+    - generic: requires review
+    - paragraph: Liquidity claim remains unverified. Seeded dividend/yield risk marker. Claim language is high-risk and no payout mechanism receipt exists.
+    - term: Surface
+    - definition: unknown manual
+    - term: Confidence
+    - definition: low
+    - term: Observed
+    - definition: 2026-07-09T03:45:00.000Z
+    - paragraph: "Next review: Do not upgrade without hard mechanism proof and source-linked risk notes."
+  - link "Submit risk evidence":
+    - /url: /rh-chain-signal-desk/submit
+  - paragraph: Platform Risk Categories
+  - heading "Origin confusion gets its own watch" [level=2]
+  - article:
+    - heading "Duplicate ticker" [level=3]
+    - paragraph: Same-name claims require exact-contract review before identity is inferred.
+  - article:
+    - heading "Impersonator" [level=3]
+    - paragraph: Branding and social resemblance are signals to verify, not a misconduct finding.
+  - article:
+    - heading "Vampire / copycat risk" [level=3]
+    - paragraph: Similarity, migration, or brand-adjacent claims remain review cues, not a conclusion about intent.
+  - article:
+    - heading "Fake relaunch risk" [level=3]
+    - paragraph: A relaunch claim needs canonical contracts, source timestamps, and reviewed origin links.
+  - article:
+    - heading "Launchpad displacement risk" [level=3]
+    - paragraph: When launch surfaces fragment, copies, fake relaunches, and origin confusion can spread across venues. Track the exact launch origin and source timestamp.
+  - article:
+    - heading "Duplicate social claim" [level=3]
+    - paragraph: Social resemblance or repeated handles must be matched to a canonical source before identity is inferred.
+  - article:
+    - heading "Liquidity claim unverified" [level=3]
+    - paragraph: A pool, screenshot, or volume claim does not establish reserves, depth, or exit reliability.
+  - article:
+    - heading "Creator-fee claim uncertain" [level=3]
+    - paragraph: Fee terms require primary terms and a dated receipt before they are promoted.
+  - article:
+    - heading "Fee-model claim unverified" [level=3]
+    - paragraph: Fee-model changes require primary terms or on-chain evidence before promotion.
+  - article:
+    - heading "Burn / buyback claim unverified" [level=3]
+    - paragraph: Burn and buyback claims require transaction-level evidence before they become desk memory.
+  - article:
+    - heading "Creator-revenue claim uncertain" [level=3]
+    - paragraph: Creator-revenue routing claims remain uncertain until primary terms or on-chain routing evidence exists.
+  - article:
+    - heading "Front-end dependency risk" [level=3]
+    - paragraph: Interface availability and canonical launch origin can diverge; status alone is not proof.
+  - article:
+    - heading "Direct Uniswap low-liquidity risk" [level=3]
+    - paragraph: A direct pool does not establish reliable liquidity, identity, or safety.
+  - paragraph: How Infopunks Flags Risk
+  - heading "Signals that require a slower read" [level=2]
+  - article:
+    - heading "Repeated ticker" [level=3]
+    - paragraph: The same ticker appears against more than one disclosed contract; it remains unresolved until manual review.
+  - article:
+    - heading "Unverifiable launch source" [level=3]
+    - paragraph: Launch claims without a reviewable contract, pair, or source link remain context, not identity.
+  - article:
+    - heading "Thin liquidity" [level=3]
+    - paragraph: Limited or unverified pool evidence can make surface activity unreliable.
+  - article:
+    - heading "Suspicious deployer" [level=3]
+    - paragraph: Deployer history or clustered claims are verification gates, not a definitive finding.
+  - article:
+    - heading "Fake social links" [level=3]
+    - paragraph: Social links must be source-checked; a link alone does not establish a canonical channel.
+  - article:
+    - heading "Conflicting contract claims" [level=3]
+    - paragraph: Different contract claims for one identity remain unresolved until receipts align.
+  - paragraph: Improve the record
+  - heading "Bring risk evidence, not hype." [level=2]
+  - paragraph: Submit contracts, launch links, explorer receipts, liquidity context, or conflicting-identity evidence for manual review.
+  - link "Submit risk evidence":
+    - /url: /rh-chain-signal-desk/submit
+  - link "View Review Queue":
+    - /url: /rh-chain-signal-desk/review-queue
+  - link "Share risk context":
+    - /url: /rh-chain-signal-desk/distribution-pack
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

@@ -1,0 +1,146 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Comparable Routes
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-comparable-routes-content"
+- banner:
+  - navigation "Machine Comparable Routes navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Comparable Routes":
+  - paragraph: Comparable Route Discovery
+  - heading "Machine Comparable Routes" [level=1]
+  - paragraph: Comparable routes are required before benchmarks.
+  - paragraph: Same task, same input class, same output normalization, same success criteria.
+  - region "Machine comparable route caveats":
+    - paragraph: Machine Market benchmarks require robotic.sh-listed services.
+    - paragraph: Pay.sh can be the rail, but robotic.sh visibility anchors the benchmark lane.
+    - paragraph: No robotic.sh-listed comparable route, no Machine Market benchmark.
+    - paragraph: If nothing compatible exists, Radar moves back to evidence acquisition.
+    - paragraph: No comparable route, no benchmark.
+    - paragraph: Methodology before leaderboard.
+    - paragraph:
+      - link "View benchmark readiness":
+        - /url: /machine-benchmark-readiness
+      - link "View benchmark methodology":
+        - /url: /machine-benchmark-methodology
+      - link "View translation evidence plan":
+        - /url: /machine-translation-evidence
+      - link "Back to Machine Market":
+        - /url: /machine-market
+      - link "View first safe route queue":
+        - /url: /machine-first-safe-routes
+  - region "Machine comparable routes summary":
+    - article:
+      - text: Claim posture
+      - strong: methodology-only
+      - text: no leaderboard posture
+    - article:
+      - text: Benchmark posture
+      - strong: blocked without comparable routes
+      - text: readiness planning only
+    - article:
+      - text: Lanes tracked
+      - strong: "4"
+      - text: candidate route lanes
+    - article:
+      - text: Comparable-ready lanes
+      - strong: "0"
+      - text: at least two candidate routes
+  - region "Machine comparable route lanes":
+    - paragraph: Methodology contracts
+    - heading "4 comparable-route lanes" [level=2]
+    - table "Machine comparable route table":
+      - text: Scroll horizontally for all columns →
+      - row:
+        - cell "Machine Translation machine_translation":
+          - strong: Machine Translation
+          - generic: machine_translation
+        - cell "anytrans (machine_translation_safe_phrase, blocked) · alibaba-machine-translation-general (machine_translation_safe_phrase, blocked)":
+          - generic: anytrans (machine_translation_safe_phrase, blocked) · alibaba-machine-translation-general (machine_translation_safe_phrase, blocked)
+        - cell "no":
+          - generic: "no"
+        - cell "comparable_route_missing":
+          - generic: comparable_route_missing
+        - 'cell "same_task, same_input_class, same_output_normalization, same_success_criteria, same_cost_latency_capture. inputs: same phrase set, same source/target language pairs, same max_cost policy. outputs: normalized translated_text and minimal metadata fields. normalization: trim/lowercase canonical comparison, locale-safe unicode normalization. success: parseable translation output, non-empty translated_text, policy-safe response. run_count_target: 3. cost/latency: execution_latency_ms, payment_status, payment_evidence. safety: no sensitive text payloads, no benchmark ranking claims, service-specific receipt scope only. readiness effect: single route only; benchmark lane remains blocked"':
+          - generic: "same_task, same_input_class, same_output_normalization, same_success_criteria, same_cost_latency_capture. inputs: same phrase set, same source/target language pairs, same max_cost policy. outputs: normalized translated_text and minimal metadata fields. normalization: trim/lowercase canonical comparison, locale-safe unicode normalization. success: parseable translation output, non-empty translated_text, policy-safe response. run_count_target: 3. cost/latency: execution_latency_ms, payment_status, payment_evidence. safety: no sensitive text payloads, no benchmark ranking claims, service-specific receipt scope only. readiness effect: single route only; benchmark lane remains blocked"
+        - cell "Keep route evidence state explicit (candidate_unproven or fixture_only caveats) and collect service-specific proven receipts."
+      - 'row "Data Query / BigQuery data_query_bigquery bigquery (bigquery_bounded_query, candidate_unproven) no comparable_route_missing same_task, same_input_class, same_output_normalization, same_success_criteria, same_cost_latency_capture. inputs: bounded public/synthetic SQL only, fixed row and column limits. outputs: normalized table schema/rows with deterministic ordering. normalization: stable row ordering, type-normalized scalar serialization. success: query completes, bounded rows returned, parseable schema. run_count_target: 3. cost/latency: execution_latency_ms, payment_status, payment_evidence. safety: no sensitive production datasets, no benchmark ranking claims, service-specific receipt scope only. readiness effect: single route only; benchmark lane remains blocked Add a second comparable data-query route with identical bounded-query contract."':
+        - cell "Data Query / BigQuery data_query_bigquery":
+          - strong: Data Query / BigQuery
+          - generic: data_query_bigquery
+        - cell "bigquery (bigquery_bounded_query, candidate_unproven)":
+          - generic: bigquery (bigquery_bounded_query, candidate_unproven)
+        - cell "no":
+          - generic: "no"
+        - cell "comparable_route_missing":
+          - generic: comparable_route_missing
+        - 'cell "same_task, same_input_class, same_output_normalization, same_success_criteria, same_cost_latency_capture. inputs: bounded public/synthetic SQL only, fixed row and column limits. outputs: normalized table schema/rows with deterministic ordering. normalization: stable row ordering, type-normalized scalar serialization. success: query completes, bounded rows returned, parseable schema. run_count_target: 3. cost/latency: execution_latency_ms, payment_status, payment_evidence. safety: no sensitive production datasets, no benchmark ranking claims, service-specific receipt scope only. readiness effect: single route only; benchmark lane remains blocked"':
+          - generic: "same_task, same_input_class, same_output_normalization, same_success_criteria, same_cost_latency_capture. inputs: bounded public/synthetic SQL only, fixed row and column limits. outputs: normalized table schema/rows with deterministic ordering. normalization: stable row ordering, type-normalized scalar serialization. success: query completes, bounded rows returned, parseable schema. run_count_target: 3. cost/latency: execution_latency_ms, payment_status, payment_evidence. safety: no sensitive production datasets, no benchmark ranking claims, service-specific receipt scope only. readiness effect: single route only; benchmark lane remains blocked"
+        - cell "Add a second comparable data-query route with identical bounded-query contract."
+      - 'row "Storage / Stableupload storage_stableupload stableupload (stableupload_tiny_fixture, candidate_unproven) no comparable_route_missing same_task, same_input_class, same_output_normalization, same_success_criteria, same_cost_latency_capture. inputs: same tiny non-sensitive fixture and declared hash. outputs: normalized upload reference, size, and hash fields. normalization: hash-first comparison, deterministic metadata field ordering. success: upload accepted, metadata recorded, fixture hash preserved. run_count_target: 3. cost/latency: execution_latency_ms, payment_status, payment_evidence. safety: no private data uploads, tiny fixture only, no benchmark ranking claims. readiness effect: single route only; benchmark lane remains blocked Add a second storage route with the same tiny-fixture contract."':
+        - cell "Storage / Stableupload storage_stableupload":
+          - strong: Storage / Stableupload
+          - generic: storage_stableupload
+        - cell "stableupload (stableupload_tiny_fixture, candidate_unproven)":
+          - generic: stableupload (stableupload_tiny_fixture, candidate_unproven)
+        - cell "no":
+          - generic: "no"
+        - cell "comparable_route_missing":
+          - generic: comparable_route_missing
+        - 'cell "same_task, same_input_class, same_output_normalization, same_success_criteria, same_cost_latency_capture. inputs: same tiny non-sensitive fixture and declared hash. outputs: normalized upload reference, size, and hash fields. normalization: hash-first comparison, deterministic metadata field ordering. success: upload accepted, metadata recorded, fixture hash preserved. run_count_target: 3. cost/latency: execution_latency_ms, payment_status, payment_evidence. safety: no private data uploads, tiny fixture only, no benchmark ranking claims. readiness effect: single route only; benchmark lane remains blocked"':
+          - generic: "same_task, same_input_class, same_output_normalization, same_success_criteria, same_cost_latency_capture. inputs: same tiny non-sensitive fixture and declared hash. outputs: normalized upload reference, size, and hash fields. normalization: hash-first comparison, deterministic metadata field ordering. success: upload accepted, metadata recorded, fixture hash preserved. run_count_target: 3. cost/latency: execution_latency_ms, payment_status, payment_evidence. safety: no private data uploads, tiny fixture only, no benchmark ranking claims. readiness effect: single route only; benchmark lane remains blocked"
+        - cell "Add a second storage route with the same tiny-fixture contract."
+      - 'row "Navigation / NAVER geocode navigation_naver_geocode naver-maps (naver_geocode_lookup, candidate_unproven) no comparable_route_missing same_task, same_input_class, same_output_normalization, same_success_criteria, same_cost_latency_capture. inputs: same public landmark/address lookup set, non-operational mode only. outputs: normalized geocode coordinates and address match confidence. normalization: coordinate precision normalization and consistent address tokenization. success: valid coordinate pair returned with parseable address metadata. run_count_target: 3. cost/latency: execution_latency_ms, payment_status, payment_evidence. safety: no robot command, no physical movement, no live navigation instruction, no benchmark ranking claims. readiness effect: single route only; benchmark lane remains blocked Add a second non-operational geocode route with the same bounded lookup contract."':
+        - cell "Navigation / NAVER geocode navigation_naver_geocode":
+          - strong: Navigation / NAVER geocode
+          - generic: navigation_naver_geocode
+        - cell "naver-maps (naver_geocode_lookup, candidate_unproven)":
+          - generic: naver-maps (naver_geocode_lookup, candidate_unproven)
+        - cell "no":
+          - generic: "no"
+        - cell "comparable_route_missing":
+          - generic: comparable_route_missing
+        - 'cell "same_task, same_input_class, same_output_normalization, same_success_criteria, same_cost_latency_capture. inputs: same public landmark/address lookup set, non-operational mode only. outputs: normalized geocode coordinates and address match confidence. normalization: coordinate precision normalization and consistent address tokenization. success: valid coordinate pair returned with parseable address metadata. run_count_target: 3. cost/latency: execution_latency_ms, payment_status, payment_evidence. safety: no robot command, no physical movement, no live navigation instruction, no benchmark ranking claims. readiness effect: single route only; benchmark lane remains blocked"':
+          - generic: "same_task, same_input_class, same_output_normalization, same_success_criteria, same_cost_latency_capture. inputs: same public landmark/address lookup set, non-operational mode only. outputs: normalized geocode coordinates and address match confidence. normalization: coordinate precision normalization and consistent address tokenization. success: valid coordinate pair returned with parseable address metadata. run_count_target: 3. cost/latency: execution_latency_ms, payment_status, payment_evidence. safety: no robot command, no physical movement, no live navigation instruction, no benchmark ranking claims. readiness effect: single route only; benchmark lane remains blocked"
+        - cell "Add a second non-operational geocode route with the same bounded lookup contract."
+  - region "Machine translation evidence requirements":
+    - paragraph: Evidence requirements
+    - heading "Machine Translation eligibility blockers" [level=2]
+    - paragraph: "Route states: anytrans=blocked · alibaba-machine-translation-general=blocked"
+    - paragraph: "Missing service identity: anytrans, alibaba-machine-translation-general"
+    - paragraph: "Missing route surface: anytrans, alibaba-machine-translation-general"
+    - paragraph: "Missing receipt: anytrans, alibaba-machine-translation-general"
+    - paragraph: "Missing comparable route: yes"
+    - paragraph: "Missing run-count target: yes (target=3)"
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

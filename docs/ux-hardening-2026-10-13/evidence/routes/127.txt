@@ -1,0 +1,154 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: service_market_research
+- paragraph:
+  - generic: "[ 06 ]"
+  - text: SERVICES / SERVICE DOSSIERS
+- main "Service detail":
+  - paragraph: Pre-Spend Service Detail
+  - heading "service_market_research" [level=1]
+  - paragraph: Compare observed routes, blockers, evidence artifacts, and recommendation posture before service-level spend decisions.
+  - region "Pre-spend intelligence metrics":
+    - article:
+      - text: Legacy diagnostic records
+      - strong: "3"
+    - article:
+      - text: routes indexed
+      - strong: "6"
+    - article:
+      - text: providers scored
+      - strong: "5"
+    - article:
+      - text: receipts generated
+      - strong: "11"
+    - article:
+      - text: pre-spend checks completed
+      - strong: "6"
+    - article:
+      - text: human validations submitted
+      - strong: "3"
+    - article:
+      - text: failed routes avoided
+      - strong: "0"
+    - article:
+      - text: claims challenged
+      - strong: "2"
+    - article:
+      - text: repeatable routes discovered
+      - strong: "3"
+  - paragraph: Evidence view
+  - heading "Service evidence" [level=2]
+  - article:
+    - generic: service ID
+    - strong: service_market_research
+  - article:
+    - generic: category
+    - strong: market_research
+  - article:
+    - generic: supported inputs
+    - strong: query, topic, geo_scope
+  - article:
+    - generic: available routes
+    - strong:
+      - link "route_pay_sh_market_research_01":
+        - /url: /routes/route_pay_sh_market_research_01
+      - link "route_pay_sh_market_research_03":
+        - /url: /routes/route_pay_sh_market_research_03
+  - article:
+    - generic: observed cost range
+    - strong: 0.25 USDC to 0.31 USDC
+  - article:
+    - generic: observed latency range
+    - strong: 780-1600 ms
+  - article:
+    - generic: best observed route
+    - strong:
+      - link "route_pay_sh_market_research_03":
+        - /url: /routes/route_pay_sh_market_research_03
+  - article:
+    - generic: cheapest observed route
+    - strong:
+      - link "route_pay_sh_market_research_01":
+        - /url: /routes/route_pay_sh_market_research_01
+  - article:
+    - generic: safest first attempt
+    - strong:
+      - link "route_pay_sh_market_research_03":
+        - /url: /routes/route_pay_sh_market_research_03
+  - article:
+    - generic: fastest repeatable route
+    - strong:
+      - link "route_pay_sh_market_research_03":
+        - /url: /routes/route_pay_sh_market_research_03
+  - article:
+    - generic: known blockers
+    - strong: prompt quality affects result quality
+  - article:
+    - generic: evidence artifacts
+    - strong: artifact_market_research_benchmark_001, artifact_market_research_claim_log_001
+  - article:
+    - generic: benchmark readiness
+    - strong: human_validated
+  - article:
+    - generic: pre-spend recommendation
+    - strong: Use Oracle Verification Fabric first for verified pre-spend decisions. Lattice is acceptable with prompt discipline.
+  - article:
+    - generic: linked receipts
+    - strong:
+      - link "receipt_003":
+        - /url: /receipts/receipt_003
+      - link "receipt_001":
+        - /url: /receipts/receipt_001
+      - link "receipt_002":
+        - /url: /receipts/receipt_002
+      - link "receipt_004":
+        - /url: /receipts/receipt_004
+  - paragraph: Best route decision map
+  - heading "Best route decision map" [level=2]
+  - article:
+    - generic: best observed route
+    - strong:
+      - link "route_pay_sh_market_research_03":
+        - /url: /routes/route_pay_sh_market_research_03
+  - article:
+    - generic: cheapest route
+    - strong:
+      - link "route_pay_sh_market_research_01":
+        - /url: /routes/route_pay_sh_market_research_01
+  - article:
+    - generic: safest first attempt
+    - strong:
+      - link "route_pay_sh_market_research_03":
+        - /url: /routes/route_pay_sh_market_research_03
+  - article:
+    - generic: fastest repeatable route
+    - strong:
+      - link "route_pay_sh_market_research_03":
+        - /url: /routes/route_pay_sh_market_research_03
+  - paragraph: Best observed route is route_pay_sh_market_research_03. Cheapest route is route_pay_sh_market_research_01. Safest first attempt is route_pay_sh_market_research_03. Fastest repeatable route is route_pay_sh_market_research_03.
+  - paragraph: Linked route set
+  - heading "Linked route set" [level=2]
+  - paragraph: route_pay_sh_market_research_01
+  - paragraph: route_pay_sh_market_research_03
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

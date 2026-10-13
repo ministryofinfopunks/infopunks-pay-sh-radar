@@ -1,0 +1,7 @@
+{
+  "source_sha": "1e7114e8549497d592f324c55a4ecf67065dced4",
+  "baseline": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "protected_files": 292,
+  "changed_protected_files": [],
+  "scope": "All tracked non-web src, migrations, package manifest and lockfile unchanged; no independent security certification"
+}

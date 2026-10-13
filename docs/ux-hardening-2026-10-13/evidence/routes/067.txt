@@ -1,0 +1,363 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Readiness Matrix
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-readiness-content"
+- banner:
+  - navigation "Machine Readiness Matrix navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Readiness Matrix":
+  - paragraph: Machine Economy Readiness Matrix
+  - heading "Machine Readiness Matrix" [level=1]
+  - paragraph: 13 services mapped. 0 robotic.sh market-wide execution claims. 0 service-specific execution receipts recorded.
+  - paragraph: Cloud Translation remains the selected controlled action. Coverage and preflight do not imply execution. Repeatability remains missing without service-specific receipts.
+  - generic "Readiness matrix principles":
+    - generic: robotic.sh only
+    - generic: planning only
+    - generic: receipts decide claims
+  - region "Readiness Matrix Brief":
+    - paragraph: Readiness Matrix Brief
+    - heading "Readiness Matrix Brief" [level=2]
+    - button "Copy brief"
+    - paragraph: 13 robotic.sh services mapped across the readiness ladder. 1 proof plan selected. 0 robotic.sh market-wide execution claims. 0 service-specific execution receipts. 0 repeatability receipts. Execution remains receipt-driven.
+    - paragraph: No market-wide execution claim. No benchmark claim. No winner claim. Execution remains receipt-driven.
+  - region "Readiness matrix caveats":
+    - paragraph: 13 services mapped. 0 robotic.sh market-wide execution claims. 0 service-specific execution receipts recorded.
+    - paragraph: 0 payment success claims. 0 benchmark claims. 0 winner claims.
+    - paragraph: Pay.sh routes tracked separately. Cloud Translation is the current controlled action, not a winner.
+    - paragraph:
+      - link "View market map":
+        - /url: /machine-market-map
+      - link "View public snapshot":
+        - /url: /machine-economy-snapshot
+      - link "View rail coverage":
+        - /url: /machine-rail-coverage
+  - group "Evidence methodology drawer":
+    - generic "Evidence methodology Evidence methodology Definitions for listed, classified, policy_mapped, preflight_recorded, proof_path, proof_plan_selected, execution_receipt, and repeatability_receipt.":
+      - generic: Evidence methodology
+      - strong: Evidence methodology
+      - generic: Definitions for listed, classified, policy_mapped, preflight_recorded, proof_path, proof_plan_selected, execution_receipt, and repeatability_receipt.
+  - region "Machine readiness matrix table":
+    - paragraph: Readiness Matrix
+    - heading "13 robotic.sh-visible services" [level=2]
+    - generic: Execution and repeatability stay missing for services without a service-specific receipt.
+    - table "Machine readiness matrix":
+      - text: Scroll horizontally for all columns →
+      - row "QVAC qvac Tether review complete complete complete review review missing missing missing":
+        - cell "QVAC qvac":
+          - strong: QVAC
+          - generic: qvac
+        - cell "Tether"
+        - cell "review"
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "review":
+          - generic: review
+        - cell "review":
+          - generic: review
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+      - row "Generative Language generative-language Google not recorded complete complete complete missing review missing missing missing":
+        - cell "Generative Language generative-language":
+          - strong: Generative Language
+          - generic: generative-language
+        - cell "Google"
+        - cell "not recorded"
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "missing":
+          - generic: missing
+        - cell "review":
+          - generic: review
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+      - row "BigQuery bigquery Google not recorded complete complete complete missing missing missing missing missing":
+        - cell "BigQuery bigquery":
+          - strong: BigQuery
+          - generic: bigquery
+        - cell "Google"
+        - cell "not recorded"
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+      - row "Document AI document-ai Google allow complete complete complete complete complete missing missing missing":
+        - cell "Document AI document-ai":
+          - strong: Document AI
+          - generic: document-ai
+        - cell "Google"
+        - cell "allow"
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+      - row "Stableupload stableupload Stableupload review complete complete complete review complete missing missing missing":
+        - cell "Stableupload stableupload":
+          - strong: Stableupload
+          - generic: stableupload
+        - cell "Stableupload"
+        - cell "review"
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "review":
+          - generic: review
+        - cell "complete":
+          - generic: complete
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+      - row "Cloud Translation cloud-translation Google allow complete complete complete complete complete complete missing missing":
+        - cell "Cloud Translation cloud-translation":
+          - strong: Cloud Translation
+          - generic: cloud-translation
+        - cell "Google"
+        - cell "allow"
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+      - row "Claude claude Anthropic not recorded complete complete complete missing review missing missing missing":
+        - cell "Claude claude":
+          - strong: Claude
+          - generic: claude
+        - cell "Anthropic"
+        - cell "not recorded"
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "missing":
+          - generic: missing
+        - cell "review":
+          - generic: review
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+      - row "ChatGPT chatgpt OpenAI not recorded complete complete complete missing review missing missing missing":
+        - cell "ChatGPT chatgpt":
+          - strong: ChatGPT
+          - generic: chatgpt
+        - cell "OpenAI"
+        - cell "not recorded"
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "missing":
+          - generic: missing
+        - cell "review":
+          - generic: review
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+      - row "2Captcha 2captcha 2Captcha review complete complete complete review missing missing missing missing":
+        - cell "2Captcha 2captcha":
+          - strong: 2Captcha
+          - generic: 2captcha
+        - cell "2Captcha"
+        - cell "review"
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "review":
+          - generic: review
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+      - row "Firecrawl firecrawl Firecrawl not recorded complete complete complete missing review missing missing missing":
+        - cell "Firecrawl firecrawl":
+          - strong: Firecrawl
+          - generic: firecrawl
+        - cell "Firecrawl"
+        - cell "not recorded"
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "missing":
+          - generic: missing
+        - cell "review":
+          - generic: review
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+      - row "Wolfram Alpha wolfram-alpha Wolfram Research not recorded complete complete complete missing review missing missing missing":
+        - cell "Wolfram Alpha wolfram-alpha":
+          - strong: Wolfram Alpha
+          - generic: wolfram-alpha
+        - cell "Wolfram Research"
+        - cell "not recorded"
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "missing":
+          - generic: missing
+        - cell "review":
+          - generic: review
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+      - row "Exa exa Exa not recorded complete complete complete missing review missing missing missing":
+        - cell "Exa exa":
+          - strong: Exa
+          - generic: exa
+        - cell "Exa"
+        - cell "not recorded"
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "missing":
+          - generic: missing
+        - cell "review":
+          - generic: review
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+      - row "NAVER Maps naver-maps NAVER not recorded complete complete complete missing review missing missing missing":
+        - cell "NAVER Maps naver-maps":
+          - strong: NAVER Maps
+          - generic: naver-maps
+        - cell "NAVER"
+        - cell "not recorded"
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "complete":
+          - generic: complete
+        - cell "missing":
+          - generic: missing
+        - cell "review":
+          - generic: review
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+        - cell "missing":
+          - generic: missing
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

@@ -1,0 +1,55 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: receipts
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- navigation "4663 navigation":
+  - link "Now":
+    - /url: /4663#now
+  - link "Watch":
+    - /url: /4663#watch
+  - link "Call":
+    - /url: /4663#call
+  - link "Proof":
+    - /url: /4663#proof
+- main:
+  - generic: //4663 / 04
+  - heading "RECEIPTS" [level=1]
+  - paragraph: MEMORY WITH BOUNDARIES.
+  - article:
+    - text: "01"
+    - heading "SIGNAL CARD" [level=2]
+    - paragraph: Public editorial intelligence. It can evolve with review.
+  - article:
+    - text: "02"
+    - heading "EVIDENCE RECEIPT" [level=2]
+    - paragraph: A machine-verifiable observation with source and time.
+  - article:
+    - text: "03"
+    - heading "PROTOCOL RECEIPT" [level=2]
+    - paragraph: A canonical CALL, RESOLUTION, or GENESIS FINALIZATION object.
+  - heading "CALL RECEIPTS" [level=2]
+  - paragraph: No Call Receipts exist in the current store.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

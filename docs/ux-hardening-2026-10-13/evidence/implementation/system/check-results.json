@@ -1,0 +1,68 @@
+{
+  "source_sha": "a463ee3f38d9312c9ce69794d74494d1ad25e476",
+  "platform": "macOS-14.4.1-arm64-arm-64bit",
+  "databases": [
+    "unified_radar_eb5f6a0585c3",
+    "unified_radar_eb5f6a0585c3_resilience",
+    "unified_radar_eb5f6a0585c3_migration",
+    "unified_radar_eb5f6a0585c3_restore"
+  ],
+  "scope": "disposable localhost only; no external payment or production data",
+  "checks": [
+    {
+      "name": "runtime",
+      "command": [
+        "node",
+        "--version"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.043,
+      "raw_log": "output/ux-hardening/system/runtime.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 19.258,
+      "raw_log": "output/ux-hardening/system/typecheck.log"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 18.261,
+      "raw_log": "output/ux-hardening/system/lint.log"
+    },
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.58,
+      "raw_log": "output/ux-hardening/system/build.log"
+    },
+    {
+      "name": "migration-inventory",
+      "command": [
+        "npm",
+        "run",
+        "migrations:validate"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.268,
+      "raw_log": "output/ux-hardening/system/migration-inventory.log"
+    }
+  ],
+  "disposition": "SUPERSEDED: stopped preliminary qualification after final readable-error correction; final evidence is system-final."
+}

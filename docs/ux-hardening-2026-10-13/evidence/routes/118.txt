@@ -1,0 +1,75 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: Scout Agent
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#rh-chain-content"
+- main:
+  - paragraph: Public Intelligence Desk
+  - heading "RH Chain Scout Agent" [level=1]
+  - paragraph: Wall Street rails. Meme liquidity. Infopunks intelligence.
+  - paragraph: Intelligence desk, not casino.
+  - link "Open Meme Pulse":
+    - /url: "#meme-pulse"
+  - link "Submit source evidence":
+    - /url: /rh-chain-signal-desk/submit
+  - complementary "Desk policy":
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Manual snapshot
+      - generic: Status
+      - strong: Stale
+      - generic: Observed
+      - strong: Jul 19, 2026, 12:00 AM UTC
+      - generic: Relative age
+      - strong: Updated 86 days ago
+      - generic: Sources
+      - strong: "14"
+      - generic: Source policy
+      - paragraph: Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - note "Independent intelligence disclaimer":
+      - strong: Independent Infopunks intelligence surface.
+      - generic: Not affiliated with or endorsed by Robinhood.
+      - generic: No buy, sell, or listing recommendation.
+  - region "RH Chain Scout Agent":
+    - paragraph: Read-only intelligence assistant
+    - heading "RH Chain Scout Agent" [level=2]
+    - paragraph: Reads the desk. Remembers the receipts. Never trades.
+    - button "What changed in the last 24h?"
+    - button "What are the biggest risks right now?"
+    - button "What is the strongest RH Chain narrative?"
+    - button "What happened with NOXA?"
+    - button "What does launchpad fragmentation mean?"
+    - button "Which launch surfaces are being watched?"
+    - button "Check a token contract"
+    - button "Show launch surface context"
+    - button "Show access surface context"
+    - generic: Ask the Scout
+    - textbox "Ask the RH Chain Scout": What changed in the last 24h on RH Chain?
+    - button "Read desk memory"
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

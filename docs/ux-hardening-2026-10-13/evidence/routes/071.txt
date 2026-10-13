@@ -1,0 +1,148 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Translation Evidence
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-translation-evidence-content"
+- banner:
+  - navigation "Machine Translation Evidence navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Translation Evidence Acquisition Plan":
+  - paragraph: Evidence Acquisition
+  - heading "Machine Translation Evidence Plan" [level=1]
+  - paragraph: Plan route identity, route surface, receipts, and repeatability before re-checking benchmark gate.
+  - region "Machine translation evidence caveats":
+    - paragraph: Machine Market benchmarks require robotic.sh-listed services.
+    - paragraph: Pay.sh can be the rail, but robotic.sh visibility anchors the benchmark lane.
+    - paragraph: No robotic.sh-listed comparable route, no Machine Market benchmark.
+    - paragraph: If nothing compatible exists, Radar moves back to evidence acquisition.
+    - paragraph: candidate_unproven does not open benchmark gate.
+    - paragraph: fixture_only does not open benchmark gate unless explicitly allowed by methodology.
+    - paragraph: proven requires successful service-specific receipt evidence.
+    - paragraph: Two proven comparable routes are required before benchmark gate can open.
+    - paragraph:
+      - link "Back to Machine Market":
+        - /url: /machine-market
+      - link "View comparable routes":
+        - /url: /machine-comparable-routes
+      - link "View benchmark readiness":
+        - /url: /machine-benchmark-readiness
+      - link "View benchmark methodology":
+        - /url: /machine-benchmark-methodology
+      - link "View proof ladder":
+        - /url: /machine-proof-ladder
+  - region "Machine benchmark gate check":
+    - paragraph: Benchmark gate check
+    - heading "Benchmark gate" [level=2]
+    - paragraph: Benchmark gate is closed until comparable routes, methodology, and readiness all pass.
+    - paragraph: "Gate status: closed"
+    - paragraph: "Why closed: comparable_routes_missing, comparable_routes_not_proven, methodology_incomplete, readiness_not_benchmark_ready, repeatability_missing, task_class_mismatch, input_class_mismatch, output_normalization_mismatch, success_criteria_mismatch, run_count_target_mismatch, safety_policy_blocked"
+    - paragraph: "What must happen next: robotic_sh_visible_service_identity = present · readiness_status = benchmark_ready · methodology_artifact_schema = present · comparable_route_count >= 2 · routes share task class · routes share input class · routes share output normalization · routes share success criteria · routes share run count target · safety/policy constraints pass"
+    - paragraph: "No benchmark claim: true"
+    - paragraph: "No winner claim: true"
+  - region "Machine translation evidence summary":
+    - article:
+      - text: Comparable route count
+      - strong: "1"
+      - text: eligible translation routes
+    - article:
+      - text: Proven comparable routes
+      - strong: "0"
+      - text: must be at least 2
+    - article:
+      - text: Run count target
+      - strong: "3"
+      - text: per proven route
+    - article:
+      - text: Benchmark gate
+      - strong: closed
+      - text: closed until full proof conditions are met
+  - region "Machine translation evidence route table":
+    - paragraph: Candidate routes
+    - heading "3 route evidence tracks" [level=2]
+    - table "Machine translation evidence routes":
+      - text: Scroll horizontally for all columns →
+      - row "anytrans translation:POST:/translate missing missing machine_translation_safe_phrase none missing no blocked missing_service_identity, missing_route_surface, missing_receipt, missing_run_count_target Record route identity":
+        - cell "anytrans translation:POST:/translate":
+          - strong: anytrans
+          - generic: translation:POST:/translate
+        - cell "missing"
+        - cell "missing"
+        - cell "machine_translation_safe_phrase"
+        - cell "none"
+        - cell "missing"
+        - cell "no":
+          - generic: "no"
+        - cell "blocked":
+          - generic: blocked
+        - cell "missing_service_identity, missing_route_surface, missing_receipt, missing_run_count_target":
+          - generic: missing_service_identity, missing_route_surface, missing_receipt, missing_run_count_target
+        - cell "Record route identity"
+      - row "alibaba-machine-translation-general alibaba-machine-translation-general:POST:/api/translate/web/general missing missing machine_translation_safe_phrase none missing no blocked missing_service_identity, missing_route_surface, missing_receipt, missing_run_count_target Record route identity":
+        - cell "alibaba-machine-translation-general alibaba-machine-translation-general:POST:/api/translate/web/general":
+          - strong: alibaba-machine-translation-general
+          - generic: alibaba-machine-translation-general:POST:/api/translate/web/general
+        - cell "missing"
+        - cell "missing"
+        - cell "machine_translation_safe_phrase"
+        - cell "none"
+        - cell "missing"
+        - cell "no":
+          - generic: "no"
+        - cell "blocked":
+          - generic: blocked
+        - cell "missing_service_identity, missing_route_surface, missing_receipt, missing_run_count_target":
+          - generic: missing_service_identity, missing_route_surface, missing_receipt, missing_run_count_target
+        - cell "Record route identity"
+      - row "cloud-translation cloud-translation:POST:/translateText present present machine_translation_safe_phrase none missing yes candidate_unproven missing_receipt, missing_run_count_target Ingest service-specific receipt":
+        - cell "cloud-translation cloud-translation:POST:/translateText":
+          - strong: cloud-translation
+          - generic: cloud-translation:POST:/translateText
+        - cell "present"
+        - cell "present"
+        - cell "machine_translation_safe_phrase"
+        - cell "none"
+        - cell "missing"
+        - cell "yes":
+          - generic: "yes"
+        - cell "candidate_unproven":
+          - generic: candidate_unproven
+        - cell "missing_receipt, missing_run_count_target":
+          - generic: missing_receipt, missing_run_count_target
+        - cell "Ingest service-specific receipt"
+  - region "Machine translation evidence acquisition ctas":
+    - paragraph: "Current blockers: missing_service_identity, missing_route_surface, missing_receipt, missing_run_count_target, missing_comparable_route"
+    - paragraph: "CTAs: Record route identity · Record route surface · Ingest service-specific receipt · Generate repeatability pack · Re-check benchmark gate"
+    - paragraph: "No benchmark claim: true"
+    - paragraph: "No winner claim: true"
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

@@ -1,0 +1,129 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: ipx pltr
+- paragraph:
+  - generic: "[ 13 ]"
+  - text: IPX PLTR / RESEARCH LAB
+- main:
+  - generic: HYPOTHETICAL MARKET SIMULATOR
+  - generic: LAB
+  - heading "IPX / PLTR // PREFLIGHT LAB" [level=1]:
+    - text: IPX / PLTR
+    - emphasis: // PREFLIGHT LAB
+  - paragraph: Two forms of intelligence. One hypothetical market.
+  - generic: No token has been launched. No transaction is executed. Every simulation uses a frozen PLTR state.
+  - text: SIMULATION INPUT CONTRACT
+  - heading "Freeze the world. Change the design." [level=2]:
+    - text: Freeze the world.
+    - text: Change the design.
+  - paragraph: The state identifier is explicit. “Latest” is rejected. Quantities below are illustrative simulation parameters—not launch recommendations.
+  - group "01 · FROZEN PLTR STATE":
+    - generic: 01 · FROZEN PLTR STATE
+    - generic: OBSERVATION ID
+    - textbox "Frozen PLTR state observation ID": pltr-preflight-52406504-20260902074509000
+    - generic: EXPECTED STATE
+    - generic: READY_FOR_SIMULATION
+    - generic: One immutable observation. No live field assembly.
+  - group "02 · ARCHITECTURE":
+    - generic: 02 · ARCHITECTURE
+    - button "A PLTR NATIVE IPX / PLTR carries identity, capital and execution.":
+      - generic: A
+      - generic: PLTR NATIVE
+      - generic: IPX / PLTR carries identity, capital and execution.
+    - button "B PLTR ANCHOR IPX / PLTR preserves identity and capital while crypto quotes can carry flow." [pressed]:
+      - generic: B
+      - generic: PLTR ANCHOR
+      - generic: IPX / PLTR preserves identity and capital while crypto quotes can carry flow.
+    - button "C PLTR RESERVE ANCHOR A smaller identity market is separated from a disclosed PLTR reserve.":
+      - generic: C
+      - generic: PLTR RESERVE ANCHOR
+      - generic: A smaller identity market is separated from a disclosed PLTR reserve.
+  - group "03 · HYPOTHETICAL MARKET CONFIGURATION":
+    - generic: 03 · HYPOTHETICAL MARKET CONFIGURATION
+    - generic: IPX TOTAL SUPPLY
+    - textbox "IPX TOTAL SUPPLY": "100000000"
+    - generic: IPX CIRCULATING
+    - textbox "IPX CIRCULATING": "10000000"
+    - generic: PLTR PER IPX
+    - textbox "PLTR PER IPX": "0.01"
+    - generic: PLTR IN IPX / PLTR LP
+    - textbox "PLTR IN IPX / PLTR LP": "300"
+    - generic: IPX IN IPX / PLTR LP
+    - textbox "IPX IN IPX / PLTR LP": "30000"
+    - generic: SEPARATE PLTR RESERVE
+    - textbox "SEPARATE PLTR RESERVE": "200"
+    - generic: LOWER TICK
+    - textbox "LOWER TICK": "-60000"
+    - generic: UPPER TICK
+    - textbox "UPPER TICK": "-30000"
+    - generic: V4 FEE / TICK SPACING
+    - textbox "V4 FEE / TICK SPACING": 3000 / 200
+    - generic "EXECUTION TOPOLOGY"
+  - button "SIMULATE":
+    - text: SIMULATE
+    - generic: →
+  - region "Shadow Lab":
+    - generic: IPX / PLTR PREFLIGHT LAB v0.5.1
+    - heading "SHADOW LAB" [level=2]
+    - paragraph: Pinned designs replay unchanged against explicit READY PLTR states. Research only—economic architecture first, venue implementation later.
+    - article:
+      - generic: NATIVE
+      - generic: PLTR NATIVE
+      - generic: "VERDICT: SHADOW WINDOW INSUFFICIENT"
+      - generic: "N SNAPSHOTS: 0+"
+      - code: sha256:b1cda6abe5ddf48bbed092f14c3df21a188fb6d405101d1914932506a6fd7505
+      - emphasis: CONCENTRATION · USABLE MODELED CAPACITY · BASIS · SESSION · IMPACT STATE
+    - article:
+      - generic: ANCHOR
+      - generic: PLTR ANCHOR
+      - generic: "VERDICT: SHADOW WINDOW INSUFFICIENT"
+      - generic: "N SNAPSHOTS: 0+"
+      - code: sha256:76110f1968645a4e16b5f3143ae8d557e58abdfba0138d78c8b691c502881f10
+      - emphasis: CONCENTRATION · USABLE MODELED CAPACITY · BASIS · SESSION · IMPACT STATE
+    - article:
+      - generic: RESERVE ANCHOR
+      - generic: PLTR RESERVE ANCHOR
+      - generic: "VERDICT: SHADOW WINDOW INSUFFICIENT"
+      - generic: "N SNAPSHOTS: 0+"
+      - code: sha256:13bc3fd34095c6391a0ddb0bf5858b8a2f7cf0840161003341013dbb33bca212
+      - emphasis: CONCENTRATION · USABLE MODELED CAPACITY · BASIS · SESSION · IMPACT STATE
+    - text: IDENTITY MARKET EFFICIENCY
+    - heading "CONCENTRATION / CAPACITY FRONTIER" [level=3]:
+      - text: CONCENTRATION /
+      - text: CAPACITY FRONTIER
+    - paragraph: IME tracks modeled usable capacity per percentage point of first-party PLTR concentration. It is not a token score, recommendation, or venue decision.
+    - generic: MODELED USABLE MARKET CAPACITY ↑
+    - generic: •
+    - generic: •
+    - generic: •
+    - generic: FIRST-PARTY PLTR CONCENTRATION →
+    - generic: PLTR STATE
+    - generic: →
+    - generic: SIMULATION
+    - generic: →
+    - generic: DRAFT VERDICT
+    - generic: →
+    - generic: NEXT PLTR STATE
+    - paragraph: Timeline records associated supply, basis, session and market-structure changes. It does not assert causation.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

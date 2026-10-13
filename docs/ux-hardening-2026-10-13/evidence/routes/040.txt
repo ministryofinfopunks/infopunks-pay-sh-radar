@@ -1,0 +1,241 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Reputation Ledger
+- paragraph:
+  - generic: "[ 15 ]"
+  - text: HERMES / WALLET MEMORY
+- link "Skip to content":
+  - /url: "#hermes-ledger-content"
+- main:
+  - paragraph: Provider and Route Memory
+  - heading "Reputation Ledger" [level=1]
+  - paragraph: One receipt is evidence. One claim is judgment. Many judgments become reputation.
+  - link "Open Ledger JSON":
+    - /url: /v1/hermes/reputation-ledger
+  - link "Back to Hermes Desk":
+    - /url: /hermes
+  - paragraph: Stateless ledger
+  - paragraph: Reputation Impact metadata is aggregated from deterministic promoted Hermes claims. No live Hermes sidecar is required.
+  - region "Reputation Ledger":
+    - paragraph: Reputation Ledger
+    - heading "One receipt is evidence. One claim is judgment. Many judgments become reputation." [level=2]
+    - link "GET ledger":
+      - /url: /v1/hermes/reputation-ledger
+    - link "Open ledger":
+      - /url: /hermes/reputation-ledger
+    - paragraph: One receipt is evidence.
+    - paragraph: One claim is judgment.
+    - paragraph: Many judgments become reputation.
+    - region "Reputation Ledger summary":
+      - article:
+        - text: entries
+        - strong: "3"
+        - text: targets with reviewed claims
+      - article:
+        - text: trusted
+        - strong: "0"
+        - text: evidence-backed trust
+      - article:
+        - text: watchlist
+        - strong: "2"
+        - text: needs more evidence
+      - article:
+        - text: degraded
+        - strong: "1"
+        - text: negative movement
+      - article:
+        - text: disputed
+        - strong: "0"
+        - text: challenged memory
+    - article "Lattice Research Relay reputation ledger entry":
+      - paragraph: provider
+      - generic: Degraded
+      - heading "Lattice Research Relay" [level=3]
+      - paragraph:
+        - generic: target_id
+        - generic: provider_pay_sh_lattice
+      - paragraph:
+        - generic: trust_score
+        - generic: "0"
+      - paragraph:
+        - generic: impact_total
+        - generic: "0"
+      - paragraph:
+        - generic: counts
+        - generic: positive=0 watch=0 negative=1 disputed=0
+      - paragraph:
+        - generic: latest_event
+        - generic: 2026-07-02T11:27:00.000Z
+      - paragraph:
+        - generic: source_claims
+        - generic: claim_hermes_promoted_hermes_agentic_market_provider_risk_review
+      - paragraph:
+        - generic: source_receipts
+        - generic: receipt_hermes_hermes_agentic_market_provider_risk_review
+      - paragraph:
+        - generic: source_runs
+        - generic: hermes_agentic_market_provider_risk_review
+      - generic "Lattice Research Relay decision history":
+        - generic: negative / do_not_use_yet
+        - generic: rejected at 2026-07-02T11:27:00.000Z
+        - generic: Legacy claim intake has no reputation authority; a verified EvaluationReceipt is required.
+        - generic: review_state=rejected
+        - generic: source_decision=do_not_use_yet
+    - article "POST /market/research (provider_pay_sh_lattice) reputation ledger entry":
+      - paragraph: route
+      - generic: Watchlist
+      - heading "POST /market/research (provider_pay_sh_lattice)" [level=3]
+      - paragraph:
+        - generic: target_id
+        - generic: route_pay_sh_market_research_01
+      - paragraph:
+        - generic: trust_score
+        - generic: "0"
+      - paragraph:
+        - generic: impact_total
+        - generic: "0"
+      - paragraph:
+        - generic: counts
+        - generic: positive=0 watch=1 negative=0 disputed=0
+      - paragraph:
+        - generic: latest_event
+        - generic: 2026-07-02T09:14:00.000Z
+      - paragraph:
+        - generic: source_claims
+        - generic: claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check
+      - paragraph:
+        - generic: source_receipts
+        - generic: receipt_hermes_hermes_pay_sh_route_pre_spend_check
+      - paragraph:
+        - generic: source_runs
+        - generic: hermes_pay_sh_route_pre_spend_check
+      - generic "POST /market/research (provider_pay_sh_lattice) decision history":
+        - generic: watch / caution
+        - generic: needs_more_evidence at 2026-07-02T09:14:00.000Z
+        - generic: Legacy claim intake has no reputation authority; a verified EvaluationReceipt is required.
+        - generic: review_state=needs_more_evidence
+        - generic: source_decision=caution
+    - article "Market Research reputation ledger entry":
+      - paragraph: service
+      - generic: Watchlist
+      - heading "Market Research" [level=3]
+      - paragraph:
+        - generic: target_id
+        - generic: service_market_research
+      - paragraph:
+        - generic: trust_score
+        - generic: "0"
+      - paragraph:
+        - generic: impact_total
+        - generic: "0"
+      - paragraph:
+        - generic: counts
+        - generic: positive=0 watch=1 negative=0 disputed=0
+      - paragraph:
+        - generic: latest_event
+        - generic: 2026-07-03T06:00:00.000Z
+      - paragraph:
+        - generic: source_claims
+        - generic: claim_hermes_promoted_hermes_signal_hunt_narrative_scan
+      - paragraph:
+        - generic: source_receipts
+        - generic: receipt_hermes_hermes_signal_hunt_narrative_scan
+      - paragraph:
+        - generic: source_runs
+        - generic: hermes_signal_hunt_narrative_scan
+      - generic "Market Research decision history":
+        - generic: watch / unproven
+        - generic: needs_more_evidence at 2026-07-03T06:00:00.000Z
+        - generic: Legacy claim intake has no reputation authority; a verified EvaluationReceipt is required.
+        - generic: review_state=needs_more_evidence
+        - generic: source_decision=unproven
+    - region "Provider Impact Surface":
+      - paragraph: Provider Impact Surface
+      - heading "Provider trust from reviewed claims." [level=3]
+      - link "GET providers":
+        - /url: /v1/hermes/reputation-ledger/providers
+      - article "Lattice Research Relay reputation ledger entry":
+        - paragraph: provider
+        - generic: Degraded
+        - heading "Lattice Research Relay" [level=3]
+        - paragraph:
+          - generic: target_id
+          - generic: provider_pay_sh_lattice
+        - paragraph:
+          - generic: trust_score
+          - generic: "0"
+        - paragraph:
+          - generic: impact_total
+          - generic: "0"
+        - paragraph:
+          - generic: counts
+          - generic: positive=0 watch=0 negative=1 disputed=0
+        - paragraph:
+          - generic: latest_event
+          - generic: 2026-07-02T11:27:00.000Z
+        - paragraph:
+          - generic: source_claims
+          - generic: claim_hermes_promoted_hermes_agentic_market_provider_risk_review
+        - paragraph:
+          - generic: source_receipts
+          - generic: receipt_hermes_hermes_agentic_market_provider_risk_review
+        - paragraph:
+          - generic: source_runs
+          - generic: hermes_agentic_market_provider_risk_review
+        - paragraph: negative impact from claim_hermes_promoted_hermes_agentic_market_provider_risk_review
+    - region "Route Impact Surface":
+      - paragraph: Route Impact Surface
+      - heading "Route trust from reviewed claims." [level=3]
+      - link "GET routes":
+        - /url: /v1/hermes/reputation-ledger/routes
+      - article "POST /market/research (provider_pay_sh_lattice) reputation ledger entry":
+        - paragraph: route
+        - generic: Watchlist
+        - heading "POST /market/research (provider_pay_sh_lattice)" [level=3]
+        - paragraph:
+          - generic: target_id
+          - generic: route_pay_sh_market_research_01
+        - paragraph:
+          - generic: trust_score
+          - generic: "0"
+        - paragraph:
+          - generic: impact_total
+          - generic: "0"
+        - paragraph:
+          - generic: counts
+          - generic: positive=0 watch=1 negative=0 disputed=0
+        - paragraph:
+          - generic: latest_event
+          - generic: 2026-07-02T09:14:00.000Z
+        - paragraph:
+          - generic: source_claims
+          - generic: claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check
+        - paragraph:
+          - generic: source_receipts
+          - generic: receipt_hermes_hermes_pay_sh_route_pre_spend_check
+        - paragraph:
+          - generic: source_runs
+          - generic: hermes_pay_sh_route_pre_spend_check
+        - paragraph: watch impact from claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

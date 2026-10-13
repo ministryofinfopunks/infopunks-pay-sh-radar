@@ -1,0 +1,88 @@
+Skip to content
+INFOPUNKS
+RADAR / INTELLIGENCE TERMINAL
+RADAR
+SOLANA
+ROBINHOOD CHAIN
+PROOF
+DEVELOPERS
+ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+Proof archive / destinations and network context
+Radar
+/
+Proof archive
+/
+ui_int2_pending_execution
+
+[ 04 ] RECEIPTS / PROOF ARCHIVE
+
+Inspect execution evidence.
+
+Private provenance. Authenticated ownership. Each stage is inspected independently.
+
+ui_int2_pending_execution
+
+Tenant access key
+Show
+
+An operator-issued key is required for your tenant and agent identity. Ask your operator for access or consult the integration reference. Your key stays in this page's memory. This operation cannot authorize payment or execute an action.
+
+Inspect receipt
+○
+Pending outcome
+/ pending
+judgment id
+judgment_bf5bda24d2e154573f1f302b1cf8b1015dd579b43aefbf2c7f23f538ae3e1b22
+execution id
+ui_int2_pending_execution
+executed at
+2026-10-13T11:23:42.208Z
+status
+pending
+settlement rail
+test
+latency ms
+10
+cost amount
+0
+cost asset
+USDC
+
+The execution outcome is pending. A recorded execution does not establish a verified service outcome.
+
+Inspect parent Judgment ↗
+
+Parent records require independent tenant authentication. No parent evidence is loaded here.
+
+Receipt lifecycle · inspect each stage independently
+
+01 / OBSERVATION
+○
+Missing evidence
+
+No stage record supplied.
+
+02 / JUDGMENT
+○
+Missing evidence
+
+No stage record supplied.
+
+03 / EXECUTION
+○
+Pending outcome
+
+pending
+
+04 / EVALUATION
+○
+Missing evidence
+
+No stage record supplied.
+
+Inspect source receipt
+Observation → Judgment → Execution → Evaluation
+INFOPUNKS RADAR
+// THE INTELLIGENCE TERMINAL
+ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+API CONTRACT

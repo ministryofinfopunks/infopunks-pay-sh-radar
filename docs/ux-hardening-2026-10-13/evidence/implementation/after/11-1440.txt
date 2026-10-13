@@ -1,0 +1,526 @@
+Skip to content
+INFOPUNKS
+RADAR / INTELLIGENCE TERMINAL
+RADAR
+SOLANA
+ROBINHOOD CHAIN
+PROOF
+DEVELOPERS
+ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+Robinhood Chain / destinations and network context
+Radar
+/
+Robinhood Chain
+/
+robinhood chain
+
+[ 11 ] ROBINHOOD CHAIN / ONCHAIN FINANCE
+
+PUBLIC INTELLIGENCE DESK
+
+RH Chain Signal Desk
+
+Wall Street rails. Meme liquidity. Infopunks intelligence.
+
+INTELLIGENCE DESK, NOT CASINO.
+
+Open Meme Pulse
+Submit source evidence
+SOURCE MODE
+Manual Snapshot
+STATUS
+Stale
+OBSERVED
+Jul 19, 2026, 12:00 AM UTC
+RELATIVE AGE
+Updated 86 Days Ago
+SOURCES
+14
+SOURCE POLICY
+
+Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.
+
+DOCTRINE
+
+External data gives context. Infopunks gives judgment. Receipts create memory.
+
+Independent Infopunks intelligence surface.
+Not affiliated with or endorsed by Robinhood.
+No buy, sell, or listing recommendation.
+
+PUBLIC INTELLIGENCE FOR CHAIN 4663
+
+BRIEF
+ANALYST
+Know what is moving.
+Know what is real.
+
+Independent intelligence, risk memory and market signals for Robinhood Chain.
+
+External data gives context. Infopunks gives judgment.
+
+Paste an RH Chain contract
+Check 4663
+
+Exact-contract context only. This check is not an approval or recommendation.
+
+TODAY ON 4663
+MARKET STATE
+stale
+TOP SIGNAL
+CASHCAT · Flagship RH Chain attention asset with strong public visibility, liquidity context, and receipt trail. Approved signal means market-memory inclusion, not endorsement or safety.
+BIGGEST RISK
+Suspected low liquidity clone pattern. Seeded dividend/yield risk marker. Claim language is high-risk and no payout mechanism receipt exists.
+LATEST RECEIPT
+Receipt #006
+OPEN REVIEWS
+5
+OBSERVED
+2026-07-19 00:00 UTC
+SOURCES
+14
+View source policy
+
+Independent Infopunks intelligence. Not affiliated with or endorsed by Robinhood. No buy, sell, or listing recommendation.
+
+DAILY PULSE
+
+Today on 4663
+Four decisions. One minute. Every claim keeps its evidence state.
+
+TOP SIGNAL
+
+STALE
+CASHCAT · Flagship RH Chain attention asset with strong public visibility, liquidity context, and receipt trail. Approved signal means market-memory inclusion, not endorsement or safety.
+REVIEWED MEMORY
+2026-07-16 00:00 UTC
+1 SOURCE
+Open Top Signal ↗
+
+ATTENTION SHIFT
+
+STALE
+ROUTE · Active speculation with usable desk memory. External receipts still required.
+ATTENTION CONTEXT
+2026-07-09 03:45 UTC
+1 SOURCE
+Open Attention Shift ↗
+
+RISK ALERT
+
+STALE
+Suspected low liquidity clone pattern. Seeded dividend/yield risk marker. Claim language is high-risk and no payout mechanism receipt exists.
+REQUIRES REVIEW
+2026-07-09 03:45 UTC
+1 SOURCE
+Open Risk Alert ↗
+
+RECEIPT UPDATE
+
+STALE
+Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers
+REVIEWED MEMORY
+2026-07-19 00:00 UTC
+1 SOURCE
+Open Receipt Update ↗
+
+DAILY RECEIPT #006
+
+2026-07-19 · MANUAL
+Share Receipt ⌄
+Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers
+
+The market forgets. 4663 remembers.
+
+STALE
+TOP SIGNAL
+
+Volume remains resilient after the NOXA disruption, but the market is now separating into meme, RWA, agent, and infrastructure layers rather than moving as one launch-week trade.
+
+BIGGEST RISK
+
+Launchpad fragmentation, duplicate tickers, paid attention, and unverified RWA or agent claims can make surface-level momentum look stronger than reviewed signal.
+
+STRONGEST NARRATIVE
+
+RH Chain is maturing from meme rocket ship into a multi-layer attention market: memes onboard users, RWAs create institutional gravity, and agents become the next automation primitive.
+
+INFOPUNKS VERDICT
+
+Memes onboard attention. RWAs create gravity. Agents create the next primitive. 4663 tracks which layer gains power next.
+
+LIQUIDITY
+Volume remains strong but below peak launch-week frenzy. Chain-wide metrics are source/timestamp dependent; no exact chain-wide values are asserted. Uniswap remains a major venue in existing source context.
+
+DEPLOYER WATCH
+Launchpad market-share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless provider receipts, primary sources, or operational on-chain evidence are attached.
+
+STOCK-TOKEN SPILLOVER
+Leadership messaging continues to re-center programmable real-world assets and tokenized finance, but that narrative is source_required unless primary or on-chain evidence supports the claim.
+
+LAUNCH-SURFACE CONTEXT
+Layer separation is RH Chain market-structure context, not proof of cross-chain migration, lasting usage, or token quality.
+
+OBSERVED 2026-07-19 00:00 UTC
+1 SOURCE
+Read full receipt
+
+4663 MOVERS
+
+What is moving
+Ranked attention with the caveat still attached.
+View Full 4663 Index
+01
+STALE
+ROUTE
+
+Route Memory
+
+60
+/ 100
+
+ACTIVE SPECULATION
+
+Active speculation with usable desk memory. External receipts still required.
+
+PRIMARY RISK
+low watch
+
+Open index record
+Share
+02
+STALE
+RAILS
+
+Wall Street Rails
+
+55
+/ 100
+
+ACTIVE SPECULATION
+
+Strong watch shape, but still receipt-gated. Liquidity and deployer proof decide.
+
+PRIMARY RISK
+medium watch
+
+Open index record
+Share
+03
+STALE
+HOOD
+
+Hood Rail
+
+51
+/ 100
+
+ACTIVE SPECULATION
+
+Active speculation. Familiar ticker language is attention, not proof.
+
+PRIMARY RISK
+source required
+
+Open index record
+Share
+
+RISK RADAR
+
+Where the story can break
+Identity, liquidity, and deployer evidence are reviewed as separate instruments.
+IDENTITY
+Identity Risk
+CRITICAL REVIEW
+ACTIVE ALERTS
+1
+
+Any RH Chain meme slot without a verified contract remains a claim, not a market signal.
+
+2026-07-09 03:45 UTC
+SOURCE REQUIRED
+Open Risk Radar
+LIQUIDITY
+Liquidity Risk
+HIGH
+ACTIVE ALERTS
+1
+
+Thin pools can make attention look like liquidity while exits remain fragile.
+
+2026-07-09 03:45 UTC
+SOURCE REQUIRED
+Open Risk Radar
+DEPLOYER
+Deployer Risk
+HIGH
+ACTIVE ALERTS
+1
+
+Copycat deployers may wrap stock-token language in familiar ticker bait.
+
+2026-07-09 03:45 UTC
+SOURCE REQUIRED
+Open Risk Radar
+
+MEME PULSE
+
+Attention, with identity attached
+Compact dossiers first. Raw fields remain one deliberate step away.
+Open Meme Pulse
+ALL
+REVIEWED
+AUTO-OBSERVED
+RISK
+SEARCH
+CARDS
+ANALYST TABLE
+AUTO-OBSERVED
+ROUTE
+
+Route Memory
+
+LOW WATCH
+
+Active speculation with usable desk memory. External receipts still required.
+
+STALE
+
+Observed 2026-07-09 03:45 UTC.
+
+Contract unavailable
+Submit evidence
+AUTO-OBSERVED
+RAILS
+
+Wall Street Rails
+
+MEDIUM WATCH
+
+Strong watch shape, but still receipt-gated. Liquidity and deployer proof decide.
+
+STALE
+
+Observed 2026-07-09 03:45 UTC.
+
+Contract unavailable
+Submit evidence
+AUTO-OBSERVED
+HOOD
+
+Hood Rail
+
+SOURCE REQUIRED
+
+Active speculation. Familiar ticker language is attention, not proof.
+
+STALE
+
+Observed 2026-07-09 03:45 UTC.
+
+Contract unavailable
+Submit evidence
+AUTO-OBSERVED
+IPO
+
+Meme IPO Desk
+
+SOURCE REQUIRED
+
+High-risk attention until contract, pool, and non-affiliation receipts exist.
+
+STALE
+
+Observed 2026-07-09 03:45 UTC.
+
+Contract unavailable
+Submit evidence
+AUTO-OBSERVED
+TICKR
+
+Ticker Memory
+
+MEDIUM WATCH
+
+Watch-only memory object. Useful for signal tracking, not conviction.
+
+STALE
+
+Observed 2026-07-09 03:45 UTC.
+
+Contract unavailable
+Submit evidence
+AUTO-OBSERVED
+SHERW
+
+Sherwood Loop
+
+HIGH RISK
+
+Do not touch yet. Risk evidence outruns signal evidence.
+
+STALE
+
+Observed 2026-07-09 03:45 UTC.
+
+Contract unavailable
+Submit evidence
+
+LAUNCH AND ACCESS ROUTES
+
+Remember the route
+Edges appear only where exact reviewed evidence supports them.
+Open Launch Surface Watch
+LAUNCH SURFACE
+Source required
+
+No exact reviewed origin attached.
+
+↓
+LIQUIDITY ROUTE
+Route incomplete
+
+No route edge has been inferred.
+
+↓
+ACCESS SURFACE
+Robinhood Wallet
+
+Access surface is known, but its edge to this route is source required.
+
+↓
+REVIEW STATE
+source required
+
+Route incomplete
+
+MAIN RISK
+
+Official wallet surface is access context only; wallet availability does not verify any token, route, or integration.
+
+timestamp unavailable
+
+REVIEW QUEUE
+
+What still needs a receipt
+Three public review moments; long reviewer notes stay in the evidence layer.
+View Review Queue
+NEWEST SUBMISSION
+REJECTED LOW RECEIPT QUALITY
+DIVY
+EVIDENCE
+source required
+MISSING
+4
+RISK
+do not touch yet
+
+Do not upgrade without hard mechanism proof and source-linked risk notes.
+
+2026-07-09 04:34 UTC
+Open review
+STRONGEST EVIDENCE PACKET
+APPROVED SIGNAL
+ROUTE
+EVIDENCE
+partial
+MISSING
+3
+RISK
+low watch
+
+Keep receipt freshness visible and downgrade if external proof does not arrive.
+
+2026-07-09 04:30 UTC
+Open review
+HIGHEST-RISK UNRESOLVED
+DO NOT TOUCH YET
+SHERW
+EVIDENCE
+source required
+MISSING
+4
+RISK
+high risk
+
+Require deployer and ownership receipts before any upgrade.
+
+2026-07-09 04:26 UTC
+Open review
+
+CHAIN PULSE
+
+Market context, after judgment
+Provider context can describe the weather. It cannot rewrite the receipt.
+Open Live Snapshot
+TVL
+source pending
+
+SOURCE REQUIRED
+
+DEX VOLUME
+source pending
+
+SOURCE REQUIRED
+
+STABLECOIN CONTEXT
+source pending
+
+SOURCE REQUIRED
+
+FEES
+Unavailable
+
+UNAVAILABLE
+
+STOCK-TOKEN ACTIVITY
+narrative watch
+
+NARRATIVE WATCH
+
+ATTENTION VELOCITY
+4663 watch active
+
+NARRATIVE WATCH
+
+PROTOCOL CONTEXT
+Stock-token wrapper lanes
+
+Chain-specific protocol TVL not verified.
+
+BRIDGE-RISK INSIGHT
+
+Treat bridge screenshots as claims until routes, contracts, and receipts match.
+
+Observed 2026-07-09 03:45 UTC
+
+METHODOLOGY
+
+How to use this desk
+Check a contract. Read the receipt. Review the sources. Submit missing evidence.
+
+01
+External data gives context
+
+02
+Exact contracts establish identity
+
+03
+Receipts preserve reviewed judgment
+
+04
+Unknown data remains unknown
+
+Methodology
+Source policy
+Distribution pack
+API
+The market forgets. 4663 remembers.
+
+Independent public intelligence. Not affiliated with Robinhood. No buy or sell recommendation.
+
+Observation → Judgment → Execution → Evaluation
+INFOPUNKS RADAR
+// THE INTELLIGENCE TERMINAL
+ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+API CONTRACT
