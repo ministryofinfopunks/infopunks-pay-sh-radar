@@ -1,0 +1,196 @@
+{
+  "fixture_only": true,
+  "description": "Actual app.inject responses to synthetic in-memory fixtures; no upstream provider calls or measured live market values. Timestamps are the local fixture capture time.",
+  "provider_request_attempts": 0,
+  "endpoint": "/v1/4663/stock-tokens/0x1111111111111111111111111111111111111111/evidence",
+  "before_no_persisted_identity": {
+    "status": 404,
+    "body": {
+      "error": "canonical_stock_contract_not_found"
+    }
+  },
+  "after_persisted_registry_and_market": {
+    "status": 200,
+    "body": {
+      "data": {
+        "object_type": "STOCK_TOKEN_EVIDENCE",
+        "methodology_version": "stock-token-evidence-v1",
+        "evaluated_at": "2026-10-12T19:18:45.127Z",
+        "chain_id": 4663,
+        "identity": {
+          "asset_id": "synthetic-stock",
+          "ticker": "FIXTURE",
+          "name": "Synthetic Stock Fixture",
+          "contract": "0x1111111111111111111111111111111111111111",
+          "status": "ASSET_STATUS_ACTIVE",
+          "registry_source_url": "https://api.robinhood.com/rhj/assets",
+          "observed_at": "2026-10-12T19:18:45.125Z",
+          "fetched_at": "2026-10-12T19:18:45.125Z",
+          "freshness": {
+            "observed_at": "2026-10-12T19:18:45.125Z",
+            "age_ms": 2,
+            "state": "fresh"
+          }
+        },
+        "corporate_actions": {
+          "scope": "ISSUER_MULTIPLIER_METADATA_ONLY",
+          "current_multiplier": "2",
+          "pending_multiplier": null,
+          "effective_at": null,
+          "metadata_complete": true,
+          "adjustment_pending": false,
+          "full_history_available": false
+        },
+        "market_context": {
+          "snapshot_id": "synthetic-stock-market",
+          "pair_id": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "source_url": "https://dexscreener.com/robinhood/example",
+          "observed_at": "2026-10-12T19:18:45.125Z",
+          "fetched_at": "2026-10-12T19:18:45.125Z",
+          "time_basis": "PROVIDER_FETCH",
+          "freshness": {
+            "observed_at": "2026-10-12T19:18:45.125Z",
+            "age_ms": 2,
+            "state": "fresh"
+          },
+          "price_usd": 1,
+          "liquidity_usd": 1000,
+          "rolling_volume_24h_usd": 300,
+          "indexed_transactions_24h": 7,
+          "scope": "ONE_SELECTED_PROVIDER_POOL",
+          "executable_capacity_verified": false
+        },
+        "issuer_reference": null,
+        "onchain_supply": null,
+        "route_evidence": {
+          "route_id": "market_context",
+          "pool_id": null,
+          "observation_id": null,
+          "coverage": "NOT_REQUESTED",
+          "missing_inputs": [],
+          "basis": null,
+          "existing_preflight_url": null,
+          "live_quote_available": false,
+          "execution_authorized": false
+        },
+        "coverage": {
+          "inputs": {
+            "registry": true,
+            "multiplier_metadata": true,
+            "issuer_reference": false,
+            "onchain_supply": false,
+            "indexed_dex_price": true,
+            "indexed_liquidity": true,
+            "issuer_terms": false,
+            "full_corporate_action_history": false
+          },
+          "fresh_input_count": 4,
+          "required_input_count": 8,
+          "missing_inputs": [
+            "ISSUER_REFERENCE_UNAVAILABLE_OR_STALE",
+            "ONCHAIN_SUPPLY_UNAVAILABLE_OR_STALE",
+            "ISSUER_TERMS_AND_FULL_CORPORATE_ACTION_HISTORY_NOT_COLLECTED"
+          ],
+          "full_product_coverage": "INCOMPLETE"
+        },
+        "execution_authorized": false
+      }
+    }
+  },
+  "unsupported_route": {
+    "status": 200,
+    "body": {
+      "data": {
+        "object_type": "STOCK_TOKEN_EVIDENCE",
+        "methodology_version": "stock-token-evidence-v1",
+        "evaluated_at": "2026-10-12T19:18:45.128Z",
+        "chain_id": 4663,
+        "identity": {
+          "asset_id": "synthetic-stock",
+          "ticker": "FIXTURE",
+          "name": "Synthetic Stock Fixture",
+          "contract": "0x1111111111111111111111111111111111111111",
+          "status": "ASSET_STATUS_ACTIVE",
+          "registry_source_url": "https://api.robinhood.com/rhj/assets",
+          "observed_at": "2026-10-12T19:18:45.125Z",
+          "fetched_at": "2026-10-12T19:18:45.125Z",
+          "freshness": {
+            "observed_at": "2026-10-12T19:18:45.125Z",
+            "age_ms": 3,
+            "state": "fresh"
+          }
+        },
+        "corporate_actions": {
+          "scope": "ISSUER_MULTIPLIER_METADATA_ONLY",
+          "current_multiplier": "2",
+          "pending_multiplier": null,
+          "effective_at": null,
+          "metadata_complete": true,
+          "adjustment_pending": false,
+          "full_history_available": false
+        },
+        "market_context": {
+          "snapshot_id": "synthetic-stock-market",
+          "pair_id": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "source_url": "https://dexscreener.com/robinhood/example",
+          "observed_at": "2026-10-12T19:18:45.125Z",
+          "fetched_at": "2026-10-12T19:18:45.125Z",
+          "time_basis": "PROVIDER_FETCH",
+          "freshness": {
+            "observed_at": "2026-10-12T19:18:45.125Z",
+            "age_ms": 3,
+            "state": "fresh"
+          },
+          "price_usd": 1,
+          "liquidity_usd": 1000,
+          "rolling_volume_24h_usd": 300,
+          "indexed_transactions_24h": 7,
+          "scope": "ONE_SELECTED_PROVIDER_POOL",
+          "executable_capacity_verified": false
+        },
+        "issuer_reference": null,
+        "onchain_supply": null,
+        "route_evidence": {
+          "route_id": "pltr_uniswap_v4_simulation",
+          "pool_id": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "observation_id": null,
+          "coverage": "UNSUPPORTED",
+          "missing_inputs": [
+            "ROUTE_NOT_SUPPORTED_FOR_ASSET",
+            "VERIFIED_FRESH_ROUTE_DEPTH_REQUIRED",
+            "VERIFIED_ROUTE_PRICE_REQUIRED",
+            "FRESH_REFERENCE_REQUIRED",
+            "FRESH_ONCHAIN_SUPPLY_REQUIRED",
+            "OPEN_SESSION_ALIGNED_ROUTE_BASIS_REQUIRED",
+            "EXISTING_SIMULATION_PREREQUISITES_INCOMPLETE"
+          ],
+          "basis": null,
+          "existing_preflight_url": null,
+          "live_quote_available": false,
+          "execution_authorized": false
+        },
+        "coverage": {
+          "inputs": {
+            "registry": true,
+            "multiplier_metadata": true,
+            "issuer_reference": false,
+            "onchain_supply": false,
+            "indexed_dex_price": true,
+            "indexed_liquidity": true,
+            "issuer_terms": false,
+            "full_corporate_action_history": false
+          },
+          "fresh_input_count": 4,
+          "required_input_count": 8,
+          "missing_inputs": [
+            "ISSUER_REFERENCE_UNAVAILABLE_OR_STALE",
+            "ONCHAIN_SUPPLY_UNAVAILABLE_OR_STALE",
+            "ISSUER_TERMS_AND_FULL_CORPORATE_ACTION_HISTORY_NOT_COLLECTED"
+          ],
+          "full_product_coverage": "INCOMPLETE"
+        },
+        "execution_authorized": false
+      }
+    }
+  }
+}
