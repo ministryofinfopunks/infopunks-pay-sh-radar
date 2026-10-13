@@ -1,4 +1,5 @@
-import { InMemoryAutomatedObservationStore, PostgresAutomatedObservationStore, RhAutomatedObservationReceiptService, completedObservationDay, type AutomatedObservationStore } from '../services/rhAutomatedObservationReceiptService';
+import { PostgresFrontdoorOpenLoopStore } from '../services/rh4663OpenLoopStore';
+import { InMemoryAutomatedObservationStore, PostgresAutomatedObservationStore, RhAutomatedObservationReceiptService, automatedObservationSummary, completedObservationDay, type AutomatedObservationStore } from '../services/rhAutomatedObservationReceiptService';
 import { startRhChainMarketScheduler } from '../services/rhChainMarketScheduler';
 import { registerIpxLaunchRoutes } from './ipxLaunchRoutes';
 import { MemoryEconomicAccountingStore, PostgresEconomicAccountingStore } from '../persistence/economicAccountingStore';
@@ -1214,6 +1215,7 @@ export async function createApp(
     }
   };
   const rh4663Frontdoor = new Rh4663FrontdoorService({
+    daily_observation: async () => automatedObservationSummary(await rhAutomatedObservationStore.published(new Date(Date.now() - 86400000).toISOString().slice(0, 10))),
     market_categories: () => rhChainCategoryIntelligence.read(),
     census: () => rmmCensus.latest(),
     watch: () => reflexiveWatch.snapshot(),
@@ -1223,6 +1225,7 @@ export async function createApp(
     shadow: () => ipxPltrShadowObservation.status(),
     // Production must never silently turn the shared ETag namespace into an
     // ephemeral process-local counter. Development/test may use memory.
+    loop_store: rhChainPostgresPool ? new PostgresFrontdoorOpenLoopStore(rhChainPostgresPool) : undefined,
     version_store: rhChainPostgresPool ? new PostgresFrontdoorVersionStore(rhChainPostgresPool, { allow_ephemeral_fallback: !config.isProduction }) : undefined,
     change_event_store: options.frontdoorChangeEventStore ?? (rhChainPostgresPool ? new PostgresFrontdoorChangeEventStore(rhChainPostgresPool) : new InMemoryFrontdoorChangeEventStore()),
     require_durable_version: config.isProduction,
@@ -3190,6 +3193,7 @@ export async function createApp(
     }) };
   });
   app.get<{ Params: { date: string } }>('/v1/4663/daily-observations/:date', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store');
     try { completedObservationDay(req.params.date, new Date()); } catch { return reply.header('Cache-Control', 'no-store').code(400).send({ error: 'invalid_or_incomplete_utc_day' }); }
     const editions = await rhAutomatedObservationStore.published(req.params.date);
     const etag = `"observation-${editions.map(e => e.receipt.content_hash).join('-')}"`;
@@ -3200,6 +3204,7 @@ export async function createApp(
   app.post<{ Params: { date: string }; Body: { supersedes?: string; reason?: string } }>('/internal/4663/daily-observations/:date/finalize', async (req, reply) => {
     reply.header('Cache-Control', 'private, no-store');
     const reviewer = rh4663OperationalGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
+    if ((req.body?.supersedes !== undefined && typeof req.body.supersedes !== 'string') || (req.body?.reason !== undefined && typeof req.body.reason !== 'string')) return reply.code(400).send({ error: 'correction_fields_must_be_strings' });
     if (Boolean(req.body?.supersedes) !== Boolean(req.body?.reason)) return reply.code(400).send({ error: 'supersession_and_reason_required' });
     try {
       const correction = req.body?.supersedes ? { supersedes: req.body.supersedes, reason: req.body.reason! } : undefined;

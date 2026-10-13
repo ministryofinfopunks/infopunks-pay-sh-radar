@@ -1,3 +1,5 @@
+import type { AutomatedObservationSummary } from './rhAutomatedObservationReceiptService';
+import { InMemoryFrontdoorOpenLoopStore, type FrontdoorOpenLoopStore } from './rh4663OpenLoopStore';
 /**
  * The 4663 Front Door is a read model. It never writes, re-scores, or mutates
  * canonical Radar, Watch, Census, Pulse, or receipt objects.
@@ -57,6 +59,7 @@ export type Rh4663FrontdoorState = {
   system_status: { state: 'available' | 'partial' | 'stale' | 'degraded'; source_health: Record<'census' | 'watch' | 'preflight' | 'pulse' | 'signals', FrontdoorSourceHealth> };
   source_refs: FrontdoorSourceRef[];
   market_categories?: RhCategoryIntelligence | null;
+  daily_observation?: AutomatedObservationSummary | null;
   market_source_health?: FrontdoorSourceHealth;
   /** Optional Phase 9 presentation lens. It is public, derived, and never personalised. */
   campaign?: Rh4663CampaignProjection;
@@ -73,7 +76,9 @@ export type Rh4663FrontdoorDependencies = {
   census: () => Promise<Census | null>; watch: () => Promise<Watch>; preflight: () => Promise<Preflight | null>; pulse: () => Promise<Pulse>; signals: () => Promise<Signal[]>; now?: () => Date; ttl_ms?: number;
   /** Stored observations only, with category-specific evidence gates. */
   market_categories?: () => Promise<RhCategoryIntelligence>;
+  daily_observation?: () => Promise<AutomatedObservationSummary | null>;
   version_store?: FrontdoorVersionStore;
+  loop_store?: FrontdoorOpenLoopStore;
   change_event_store?: FrontdoorChangeEventStore;
   shadow?: () => Promise<ShadowObservation | null>;
   require_durable_version?: boolean;
@@ -93,6 +98,7 @@ export type FrontdoorVersionRecord = { fingerprint: string; sources: Record<stri
 export type ShadowObservation = { last_refresh_at?: string | null; latest_ready_snapshot?: { observation_id: string; observed_at: string | null } | null; ready_snapshot_count: number; evidence_window?: { satisfied: boolean; minimum_ready_snapshots: number; target_calendar_days?: readonly number[] }; candidates?: Record<string, { verdict: string | null; previous_verdict: string | null; ready_snapshot_count: number }>; next_action?: string };
 export interface FrontdoorVersionStore {
   readonly durability: FrontdoorVersionDurability;
+  advanceWithEvents?(fingerprint: string, sources: Record<string, string>, events: (version: number, before: Record<string, string> | undefined) => FrontdoorChangeEvent[]): Promise<{ version: number; changed: string[]; previous_sources?: Record<string, string> }>;
   advance(fingerprint: string, sources: Record<string, string>): Promise<{ version: number; changed: string[]; previous_sources?: Record<string, string> }>;
 }
 export interface FrontdoorChangeEventStore {
@@ -117,19 +123,22 @@ export class InMemoryFrontdoorChangeEventStore implements FrontdoorChangeEventSt
 }
 /** Durable singleton counter for production; the in-memory store remains the local/test fallback. */
 export class PostgresFrontdoorVersionStore implements FrontdoorVersionStore {
-  private readonly pool: pg.Pool; private readonly fallback = new InMemoryFrontdoorVersionStore(); private readonly allowEphemeralFallback: boolean; private initialized: Promise<void> | null = null; private fallbackActive = false;
-  constructor(source: PostgresPoolSource, options: { allow_ephemeral_fallback?: boolean } = {}) { this.pool = resolvePostgresPool(source).pool; this.allowEphemeralFallback = options.allow_ephemeral_fallback ?? true; }
+  private readonly pool: pg.Pool; private readonly eventHistory: PostgresFrontdoorChangeEventStore; private readonly fallback = new InMemoryFrontdoorVersionStore(); private readonly allowEphemeralFallback: boolean; private initialized: Promise<void> | null = null; private fallbackActive = false;
+  constructor(source: PostgresPoolSource, options: { allow_ephemeral_fallback?: boolean } = {}) { this.pool = resolvePostgresPool(source).pool; this.eventHistory = new PostgresFrontdoorChangeEventStore(this.pool); this.allowEphemeralFallback = options.allow_ephemeral_fallback ?? true; }
   get durability(): FrontdoorVersionDurability { return this.fallbackActive ? 'EPHEMERAL' : 'PERSISTENT'; }
-  async advance(fingerprint: string, sources: Record<string, string>) {
+  async advance(fingerprint: string, sources: Record<string, string>) { return this.advanceWithEvents(fingerprint, sources, () => []); }
+  async advanceWithEvents(fingerprint: string, sources: Record<string, string>, events: (version: number, before: Record<string, string> | undefined) => FrontdoorChangeEvent[]) {
     if (this.fallbackActive) return this.fallback.advance(fingerprint, sources);
     try {
-      await this.ensure(); const client = await this.pool.connect();
+      await this.ensure(); await this.eventHistory.recent(1); const client = await this.pool.connect();
       try {
-        await client.query('begin'); await client.query("select pg_advisory_xact_lock(hashtext('rh4663-frontdoor-version'))");
+        await client.query('begin'); await client.query("select pg_advisory_xact_lock(hashtext(current_schema() || ':rh4663-frontdoor-version'))");
         const prior = await client.query<{ fingerprint: string; sources: Record<string, string>; version: number }>('select fingerprint, sources, version from rh4663_frontdoor_version where singleton = true for update');
         const row = prior.rows[0]; if (row?.fingerprint === fingerprint) { await client.query('commit'); return { version: Number(row.version), changed: [], previous_sources: row.sources }; }
         const changed = Object.keys(sources).filter((key) => !row || row.sources[key] !== sources[key]); const version = Number(row?.version ?? 0) + 1;
-        await client.query('insert into rh4663_frontdoor_version (singleton, fingerprint, sources, version) values (true, $1, $2::jsonb, $3) on conflict (singleton) do update set fingerprint = excluded.fingerprint, sources = excluded.sources, version = excluded.version, updated_at = now()', [fingerprint, JSON.stringify(sources), version]); await client.query('commit'); return { version, changed, previous_sources: row?.sources };
+        await client.query('insert into rh4663_frontdoor_version (singleton, fingerprint, sources, version) values (true, $1, $2::jsonb, $3) on conflict (singleton) do update set fingerprint = excluded.fingerprint, sources = excluded.sources, version = excluded.version, updated_at = now()', [fingerprint, JSON.stringify(sources), version]);
+        await insertFrontdoorEvents(client, events(version, row?.sources));
+        await client.query('commit'); return { version, changed, previous_sources: row?.sources };
       } catch (error) { await client.query('rollback').catch(() => undefined); throw error; } finally { client.release(); }
     } catch (error) {
       if (!this.allowEphemeralFallback) throw error;
@@ -147,36 +156,47 @@ export class PostgresFrontdoorChangeEventStore implements FrontdoorChangeEventSt
   async append(events: FrontdoorChangeEvent[]) {
     if (!events.length) return;
     await this.ensure(); const client = await this.pool.connect();
-    try { await client.query('begin'); for (const event of events) await client.query('insert into rh4663_frontdoor_change_events (event_id, frontdoor_version, occurred_at, source_type, source_ref, change_type, headline, before_value, after_value, importance, deep_link, source_observed_at) values ($1,$2,$3,$4,$5::jsonb,$6,$7,$8::jsonb,$9::jsonb,$10,$11,$12) on conflict (event_id) do nothing', [event.event_id, event.frontdoor_version, event.occurred_at, event.source_type, JSON.stringify(event.source_ref), event.change_type, event.headline, JSON.stringify(event.before), JSON.stringify(event.after), event.importance, event.deep_link, event.source_observed_at]); await client.query("delete from rh4663_frontdoor_change_events where occurred_at < now() - interval '30 days'"); await client.query('commit'); }
+    try { await client.query('begin'); await insertFrontdoorEvents(client, events); await client.query("delete from rh4663_frontdoor_change_events where occurred_at < now() - interval '30 days'"); await client.query('commit'); }
     catch (error) { await client.query('rollback').catch(() => undefined); throw error; } finally { client.release(); }
   }
-  async recent(limit = 60) { await this.ensure(); const result = await this.pool.query<FrontdoorChangeEvent>('select event_id, frontdoor_version, occurred_at, source_type, source_ref, change_type, headline, before_value as before, after_value as after, importance, deep_link, source_observed_at from rh4663_frontdoor_change_events order by occurred_at desc, event_id desc limit $1', [Math.min(200, Math.max(1, limit))]); return result.rows.map((row) => ({ ...row, object_type: 'FRONTDOOR_CHANGE_EVENT' as const })); }
+  async recent(limit = 60) { await this.ensure(); const result = await this.pool.query<FrontdoorChangeEvent>('select event_id, frontdoor_version, occurred_at, source_type, source_ref, change_type, headline, before_value as before, after_value as after, importance, deep_link, source_observed_at from rh4663_frontdoor_change_events order by occurred_at desc, event_id desc limit $1', [Math.min(200, Math.max(1, limit))]); return result.rows.map((row) => ({ ...row, frontdoor_version: Number(row.frontdoor_version), occurred_at: new Date(row.occurred_at).toISOString(), source_observed_at: row.source_observed_at ? new Date(row.source_observed_at).toISOString() : null, object_type: 'FRONTDOOR_CHANGE_EVENT' as const })); }
   private ensure() { if (!this.initialized) this.initialized = this.pool.query('create table if not exists rh4663_frontdoor_change_events (event_id text primary key, frontdoor_version bigint not null, occurred_at timestamptz not null, source_type text not null, source_ref jsonb not null, change_type text not null, headline text not null, before_value jsonb, after_value jsonb not null, importance integer not null, deep_link text not null, source_observed_at timestamptz); create index if not exists rh4663_frontdoor_change_events_version_idx on rh4663_frontdoor_change_events (frontdoor_version desc); create index if not exists rh4663_frontdoor_change_events_occurred_idx on rh4663_frontdoor_change_events (occurred_at desc)').then(() => undefined).catch((error) => { this.initialized = null; throw error; }); return this.initialized; }
+}
+
+async function insertFrontdoorEvents(client: pg.PoolClient, events: FrontdoorChangeEvent[]) {
+  for (const event of events) await client.query('insert into rh4663_frontdoor_change_events (event_id, frontdoor_version, occurred_at, source_type, source_ref, change_type, headline, before_value, after_value, importance, deep_link, source_observed_at) values ($1,$2,$3,$4,$5::jsonb,$6,$7,$8::jsonb,$9::jsonb,$10,$11,$12) on conflict (event_id) do nothing', [event.event_id, event.frontdoor_version, event.occurred_at, event.source_type, JSON.stringify(event.source_ref), event.change_type, event.headline, JSON.stringify(event.before), JSON.stringify(event.after), event.importance, event.deep_link, event.source_observed_at]);
 }
 
 export class Rh4663FrontdoorService {
   private cached: { expires_at: number; state: Rh4663FrontdoorState } | null = null;
+  private inFlight: Promise<Rh4663FrontdoorState> | null = null;
   private cacheHits = 0; private cacheMisses = 0; private sourceFailures = 0;
   private readonly now: () => Date;
   private readonly ttlMs: number;
   private readonly versions: FrontdoorVersionStore;
   private readonly requireDurableVersion: boolean;
   private readonly changeEvents: FrontdoorChangeEventStore;
+  private readonly loops: FrontdoorOpenLoopStore;
   private lastSourceReads: Record<string, { duration_ms: number; failure_class: string | null }> = {};
-  constructor(private readonly deps: Rh4663FrontdoorDependencies) { this.now = deps.now ?? (() => new Date()); this.ttlMs = deps.ttl_ms ?? 15_000; this.versions = deps.version_store ?? new InMemoryFrontdoorVersionStore(); this.changeEvents = deps.change_event_store ?? new InMemoryFrontdoorChangeEventStore(); this.requireDurableVersion = deps.require_durable_version ?? false; }
-  async read() {
+  constructor(private readonly deps: Rh4663FrontdoorDependencies) { this.now = deps.now ?? (() => new Date()); this.ttlMs = deps.ttl_ms ?? 15_000; this.versions = deps.version_store ?? new InMemoryFrontdoorVersionStore(); this.changeEvents = deps.change_event_store ?? new InMemoryFrontdoorChangeEventStore(); this.loops = deps.loop_store ?? new InMemoryFrontdoorOpenLoopStore(); this.requireDurableVersion = deps.require_durable_version ?? false; }
+  async read(): Promise<Rh4663FrontdoorState> {
+    if (!this.inFlight) this.inFlight = this.readSnapshot().finally(() => { this.inFlight = null; });
+    return structuredClone(await this.inFlight);
+  }
+  private async readSnapshot() {
     const at = this.now();
     if (this.cached && this.cached.expires_at > at.getTime()) { this.cacheHits += 1; return structuredClone(this.cached.state); }
     this.cacheMisses += 1;
     if (this.requireDurableVersion && this.versions.durability !== 'PERSISTENT') throw new Rh4663FrontdoorError('frontdoor_version_durability_required', 503);
-    const [census, watch, preflight, pulse, signals, shadow, market] = await Promise.all([
+    const [census, watch, preflight, pulse, signals, shadow, market, daily] = await Promise.all([
       boundedSourceRead(this.deps.census, this.deps.source_timeout_ms ?? 250),
       boundedSourceRead(this.deps.watch, this.deps.source_timeout_ms ?? 250),
       boundedSourceRead(this.deps.preflight, this.deps.source_timeout_ms ?? 250),
       boundedSourceRead(this.deps.pulse, this.deps.source_timeout_ms ?? 250),
       boundedSourceRead(this.deps.signals, this.deps.source_timeout_ms ?? 250),
       boundedSourceRead(this.deps.shadow ?? (() => Promise.resolve(null)), this.deps.source_timeout_ms ?? 250),
-      boundedSourceRead(this.deps.market_categories ?? (() => Promise.resolve(null)), this.deps.source_timeout_ms ?? 250)
+      boundedSourceRead(this.deps.market_categories ?? (() => Promise.resolve(null)), this.deps.source_timeout_ms ?? 250),
+      boundedSourceRead(this.deps.daily_observation ?? (() => Promise.resolve(null)), this.deps.source_timeout_ms ?? 250)
     ]);
     this.lastSourceReads = Object.fromEntries(Object.entries({ census, watch, preflight, pulse, signals, shadow, market }).map(([source, result]) => [source, { duration_ms: result.duration_ms, failure_class: result.failure_class }]));
     this.sourceFailures += [census, watch, preflight, pulse, signals, shadow, market].filter((item) => item.result.status === 'rejected').length;
@@ -191,6 +211,7 @@ export class Rh4663FrontdoorService {
       source_reads: { census, watch, preflight, pulse, signals },
       failures: { census: failure(census.result), watch: failure(watch.result), preflight: failure(preflight.result), pulse: failure(pulse.result), signals: failure(signals.result) }
     });
+    if (this.deps.daily_observation) state.daily_observation = daily.result.status === 'fulfilled' ? daily.result.value : null;
     if (this.deps.market_categories) {
       const projection = market.result.status === 'fulfilled' ? market.result.value : null;
       state.market_categories = projection;
@@ -217,11 +238,14 @@ export class Rh4663FrontdoorService {
         state.campaign = { active: false, campaign_id: null, state: null, hero: null, open_loop: null, call_ref: null, share_ref: null };
       }
     }
+    state.open_loops = (await this.loops.reconcile(state.open_loops, at)).slice(0, 4);
     const sources = semanticSources(state, this.deps.ignore_personal_pulse_changes ?? false);
     const fingerprint = JSON.stringify(sources);
     let version: { version: number; changed: string[]; previous_sources?: Record<string, string> };
     try {
-      version = await this.versions.advance(fingerprint, sources);
+      version = this.versions.advanceWithEvents
+        ? await this.versions.advanceWithEvents(fingerprint, sources, (n, before) => buildChangeEvents(n, before, sources, state, at))
+        : await this.versions.advance(fingerprint, sources);
     } catch (error) {
       if (this.requireDurableVersion) throw new Rh4663FrontdoorError('frontdoor_version_durability_required', 503);
       throw error;
@@ -230,7 +254,7 @@ export class Rh4663FrontdoorService {
     state.frontdoor_version = { object_type: 'FRONTDOOR_VERSION', version: version.version, changed: version.changed, generated_at: at.toISOString() };
     state.frontdoor_version_durability = this.versions.durability;
     try {
-      if (version.changed.length) await this.changeEvents.append(buildChangeEvents(version.version, version.previous_sources, semanticSources(state, this.deps.ignore_personal_pulse_changes ?? false), state, at));
+      if (version.changed.length && (!this.versions.advanceWithEvents || this.versions.durability === 'EPHEMERAL')) await this.changeEvents.append(buildChangeEvents(version.version, version.previous_sources, semanticSources(state, this.deps.ignore_personal_pulse_changes ?? false), state, at));
       state.change_events = await this.changeEvents.recent();
     } catch {
       // Change history is a return-habit enhancement; it must never take down NOW/WATCH/LOOPS.
@@ -307,11 +331,13 @@ function semanticSources(state: Rh4663FrontdoorState, ignorePersonalPulseChanges
       : { current_call: state.current_call, proof_summary: state.proof_summary }),
     CAMPAIGN: JSON.stringify(state.campaign ?? null),
     MARKET_OBSERVATIONS: JSON.stringify({ projection_id: state.market_categories?.projection_id ?? null, health: state.market_source_health ?? null }),
+    OPEN_LOOPS: JSON.stringify({ loops }),
+    DAILY_OBSERVATIONS: JSON.stringify(state.daily_observation ?? null),
     SYSTEM: JSON.stringify(Object.fromEntries(Object.entries(state.system_status.source_health).map(([key, h]) => [key, { status: h.status, health_state: h.health_state, observed_at: h.observed_at, failure_class: h.failure_class }])))
   };
 }
 function cardFingerprint(card: FrontdoorCard) { return { id: card.id, topic: card.topic, headline: card.headline, summary: card.summary, primary_metric: card.primary_metric, delta: card.delta, evidence_state: card.evidence_state, freshness: card.freshness, source: card.source_ref.source_id, deep_link: card.deep_link }; }
-function loopFingerprint(loop: OpenLoop) { return { loop_id: loop.loop_id, question: loop.question, source_type: loop.source_type, state: loop.state, progress: loop.progress, opened_at: loop.opened_at, expected_checkpoint_at: loop.expected_checkpoint_at, current_evidence: loop.current_evidence, next_evidence_needed: loop.next_evidence_needed, deep_link: loop.deep_link }; }
+function loopFingerprint(loop: OpenLoop) { return { loop_id: loop.loop_id, question: loop.question, source_type: loop.source_type, state: loop.state, progress: loop.progress.type === 'TIME_TO_CHECKPOINT' ? { type: loop.progress.type, checkpoint_at: loop.progress.checkpoint_at } : loop.progress, opened_at: loop.opened_at, expected_checkpoint_at: loop.expected_checkpoint_at, current_evidence: loop.current_evidence, next_evidence_needed: loop.next_evidence_needed, resolution_condition: loop.resolution_condition, falsification_condition: loop.falsification_condition, source_ref: { ...loop.source_ref, observed_at: null }, deep_link: loop.deep_link }; }
 
 function countProgress(numerator: number, denominator: number, noun: string): OpenLoopProgress { return { type: 'COUNT', numerator: Math.max(0, numerator), denominator: Math.max(0, denominator), label: `${Math.max(0, numerator)} / ${Math.max(0, denominator)} ${noun}` }; }
 function timeProgress(checkpointAt: string, now: Date, label: string): OpenLoopProgress { const checkpoint = Date.parse(checkpointAt); const remaining = Number.isFinite(checkpoint) ? Math.round((checkpoint - now.getTime()) / 1000) : null; return { type: 'TIME_TO_CHECKPOINT', checkpoint_at: checkpointAt, seconds_remaining: remaining === null ? null : Math.max(0, remaining), label: remaining !== null && remaining > 0 ? `${label} IN ${formatDuration(remaining)}` : `${label} REACHED` }; }
@@ -328,16 +354,29 @@ function loopRank(loop: OpenLoop, now: Date): readonly number[] {
 function rankOpenLoops(loops: OpenLoop[], now: Date) { return [...loops].sort((a, b) => compareCards({ id: a.loop_id, rank: loopRank(a, now) }, { id: b.loop_id, rank: loopRank(b, now) })); }
 
 function buildChangeEvents(version: number, beforeSources: Record<string, string> | undefined, afterSources: Record<string, string>, state: Rh4663FrontdoorState, occurredAt: Date): FrontdoorChangeEvent[] {
-  return Object.keys(afterSources).filter((key) => !beforeSources || beforeSources[key] !== afterSources[key]).map((key) => {
+  return Object.keys(afterSources).filter((key) => !beforeSources || beforeSources[key] !== afterSources[key]) .flatMap((key) => {
+    if (key === 'OPEN_LOOPS') {
+      const previous = parseObject(beforeSources?.[key])?.loops as Array<Record<string, unknown>> | undefined;
+      const after = parseObject(afterSources[key])?.loops as Array<Record<string, unknown>> | undefined;
+      return (after ?? []).flatMap(loop => {
+        const before = previous?.find(old => old.loop_id === loop.loop_id) ?? null;
+        if (JSON.stringify(before) === JSON.stringify(loop)) return [];
+        const item = state.open_loops.find(item => item.loop_id === loop.loop_id)!;
+        const type: FrontdoorChangeType = !before ? 'NEW' : loop.state === 'RESOLVED' && before.state !== loop.state ? 'RESOLVED' : loop.state === 'FALSIFIED' && before.state !== loop.state ? 'FALSIFIED' : before.state !== loop.state ? 'STATE_TRANSITION' : 'COVERAGE_CHANGED';
+        return [{ object_type: 'FRONTDOOR_CHANGE_EVENT' as const, event_id: `frontdoor-change:${version}:loop:${item.loop_id}`, frontdoor_version: version, occurred_at: occurredAt.toISOString(), source_type: item.source_type, source_ref: item.source_ref, change_type: type, headline: `${item.question} · ${item.state.replaceAll('_', ' ')}`, before, after: loop, importance: 89, deep_link: item.deep_link, source_observed_at: item.source_ref.observed_at }];
+      });
+    }
     const descriptor = changeDescriptor(key, state); const before = parseObject(beforeSources?.[key]); const after = parseObject(afterSources[key]) ?? {};
     const changeType = before === null ? 'NEW' : changeTypeFor(key, before, after, state);
-    return { object_type: 'FRONTDOOR_CHANGE_EVENT' as const, event_id: `frontdoor-change:${version}:${key}`, frontdoor_version: version, occurred_at: occurredAt.toISOString(), source_type: descriptor.source_type, source_ref: descriptor.source_ref, change_type: changeType, headline: descriptor.headline, before, after, importance: descriptor.importance, deep_link: descriptor.deep_link, source_observed_at: descriptor.source_ref.observed_at };
+    return [{ object_type: 'FRONTDOOR_CHANGE_EVENT' as const, event_id: `frontdoor-change:${version}:${key}`, frontdoor_version: version, occurred_at: occurredAt.toISOString(), source_type: descriptor.source_type, source_ref: descriptor.source_ref, change_type: changeType, headline: descriptor.headline, before, after, importance: descriptor.importance, deep_link: descriptor.deep_link, source_observed_at: descriptor.source_ref.observed_at }];
   });
 }
 function parseObject(value: string | undefined): Record<string, unknown> | null { if (!value) return null; try { const parsed = JSON.parse(value) as unknown; return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : null; } catch { return null; } }
-function changeTypeFor(key: string, before: Record<string, unknown>, after: Record<string, unknown>, state: Rh4663FrontdoorState): FrontdoorChangeType { if (key === 'PULSE' && (after.current_call as Record<string, unknown> | undefined)?.resolution_state && (after.current_call as Record<string, unknown> | undefined)?.resolution_state !== (before.current_call as Record<string, unknown> | undefined)?.resolution_state) return 'RESOLVED'; if (key === 'RMM_CENSUS' && Array.isArray(before.loops) && (!Array.isArray(after.loops) || after.loops.length === 0)) return 'RESOLVED'; const aiFalsified = state.open_loops.some((loop) => loop.source_type === 'AI_NVDA_CAPITAL_VS_FLOW' && loop.state === 'FALSIFIED') || state.watch_cards.some((card) => card.id.includes('AI_NVDA') && card.topic === 'FALSIFICATION'); if ((key === 'WATCH_CASES' && state.watch_cards.some((card) => card.topic === 'FALSIFICATION')) || (key === 'AI_NVDA_CASE' && aiFalsified)) return 'FALSIFIED'; if (key === 'AI_NVDA_CASE' && after.loops && before.loops && JSON.stringify(after.loops).includes('FALSIFIED') && !JSON.stringify(before.loops).includes('FALSIFIED')) return 'FALSIFIED'; if (key === 'RMM_CENSUS') return 'COVERAGE_CHANGED'; if (key === 'PLTR_SHADOW') return 'EVIDENCE_ADDED'; if (key === 'WATCH_CASES' || key === 'AI_NVDA_CASE') return 'STATE_TRANSITION'; return 'UPDATED'; }
+function changeTypeFor(key: string, before: Record<string, unknown>, after: Record<string, unknown>, state: Rh4663FrontdoorState): FrontdoorChangeType { if (key === 'PULSE' && (after.current_call as Record<string, unknown> | undefined)?.resolution_state && (after.current_call as Record<string, unknown> | undefined)?.resolution_state !== (before.current_call as Record<string, unknown> | undefined)?.resolution_state) return 'RESOLVED'; if (key === 'RMM_CENSUS' && Array.isArray(before.loops) && (!Array.isArray(after.loops) || after.loops.length === 0)) return 'RESOLVED'; const aiFalsified = state.open_loops.some((loop) => loop.source_type === 'AI_NVDA_CAPITAL_VS_FLOW' && loop.state === 'FALSIFIED') || state.watch_cards.some((card) => card.id.includes('AI_NVDA') && card.topic === 'FALSIFICATION'); if ((key === 'WATCH_CASES' && state.watch_cards.some((card) => card.topic === 'FALSIFICATION')) || (key === 'AI_NVDA_CASE' && aiFalsified)) return 'FALSIFIED'; if (key === 'AI_NVDA_CASE' && after.loops && before.loops && JSON.stringify(after.loops).includes('FALSIFIED') && !JSON.stringify(before.loops).includes('FALSIFIED')) return 'FALSIFIED'; if (key === 'MARKET_LOOPS') return 'STATE_TRANSITION'; if (key === 'RMM_CENSUS') return 'COVERAGE_CHANGED'; if (key === 'PLTR_SHADOW') return 'EVIDENCE_ADDED'; if (key === 'WATCH_CASES' || key === 'AI_NVDA_CASE') return 'STATE_TRANSITION'; return 'UPDATED'; }
 function changeDescriptor(key: string, state: Rh4663FrontdoorState): { source_type: string; source_ref: FrontdoorSourceRef; headline: string; importance: number; deep_link: string } {
   const find = (type: string, href: string) => state.source_refs.find((item) => item.source_type === type) ?? ref(type, key, href, null);
+  if (key === 'DAILY_OBSERVATIONS') return { source_type: 'automated_observation', source_ref: ref('automated_observation', state.daily_observation?.edition_id ?? 'unavailable', state.daily_observation?.evidence_href ?? '/4663#now', state.daily_observation?.window.end ?? null), headline: state.daily_observation?.supersedes ? 'Daily observation evidence corrected' : 'Daily factual observation edition changed', importance: 90, deep_link: state.daily_observation?.evidence_href ?? '/4663#now' };
+  if (key === 'MARKET_LOOPS') return { source_type: 'market_observation', source_ref: find('market_observation', '/v1/4663/market/categories'), headline: 'Market evidence question changed', importance: 89, deep_link: '/4663#open-loops' };
   if (key === 'MARKET_OBSERVATIONS') return { source_type: 'market_observation', source_ref: find('market_observation', '/v1/4663/market/categories'), headline: 'Stored market observations or category coverage changed', importance: 88, deep_link: '/4663#market-categories' };
   if (key === 'RMM_CENSUS') return { source_type: 'RMM_CATEGORY_CENSUS', source_ref: find('rmm_census', '/v1/4663/reflexive/census'), headline: 'RMM Census updated', importance: 96, deep_link: '/4663/reflexive/census' };
   if (key === 'AI_NVDA_CASE') return { source_type: 'AI_NVDA_CAPITAL_VS_FLOW', source_ref: find('reflexive_watch', '/v1/4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW'), headline: 'AI/NVDA state changed', importance: 100, deep_link: '/4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW' };

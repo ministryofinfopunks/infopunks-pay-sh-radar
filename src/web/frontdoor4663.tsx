@@ -1,6 +1,6 @@
 import { startRhChainMarketRevalidation } from './rhChainMarketRevalidation';
 import { Rh4663MarketCategories } from './marketIntelligence/rh4663MarketCategories';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import type { Rh4663CallReceipt, Rh4663RotationOption } from '../services/rh4663Service';
 import type { Rh4663ProofProfile } from '../services/rh4663ResolutionService';
@@ -9,10 +9,13 @@ import type { My4663FollowInput, My4663SubjectType } from '../services/rh4663My4
 
 type Pulse = Rh4663FrontdoorState['current_call'];
 
-type EvidenceState = 'OBSERVED' | 'VERIFIED' | 'MIXED' | 'WATCH' | 'UNRESOLVED' | 'BLOCK' | 'DEGRADE' | 'FALSIFIED' | 'INSUFFICIENT DATA';
+type EvidenceState = 'RESOLVED' | 'OBSERVED' | 'VERIFIED' | 'MIXED' | 'WATCH' | 'UNRESOLVED' | 'BLOCK' | 'DEGRADE' | 'FALSIFIED' | 'INSUFFICIENT DATA';
 
 function evidenceState(value?: string | null): EvidenceState {
   const state = (value ?? '').toUpperCase().replaceAll('-', '_').replaceAll(' ', '_');
+  if (state === 'RESOLVED') return 'RESOLVED';
+  if (state === 'BLOCKED_BY_DATA') return 'INSUFFICIENT DATA';
+  if (state === 'OBSERVING' || state === 'AWAITING_CHECKPOINT' || state === 'OPEN' || state === 'STALE') return 'UNRESOLVED';
   if (state === 'OBSERVED') return 'OBSERVED';
   if (state.includes('VERIFY') || state.includes('VERIFIED') || state === 'FRESH' || state === 'PUBLISHED' || state === 'AVAILABLE') return 'VERIFIED';
   if (state.includes('MIX')) return 'MIXED';
@@ -24,13 +27,21 @@ function evidenceState(value?: string | null): EvidenceState {
   return 'INSUFFICIENT DATA';
 }
 
+export function DailyObservationCard({ edition }: { edition: Rh4663FrontdoorState['daily_observation'] }) {
+  if (!edition) return null;
+  const delta = (value: number | null) => value === null ? 'unavailable' : `${value > 0 ? '+' : ''}$${value.toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
+  return <article className="fd-card" aria-labelledby="daily-observation-title"><p>YESTERDAY · {edition.utc_day} UTC</p><h3 id="daily-observation-title">What changed on Robinhood Chain?</h3><span className="fd-card-summary">{edition.market_count} exact-pair records across {edition.covered_contract_count} contracts. Changes describe recorded sample endpoints.</span>
+    {edition.findings.map(f => <div key={f.contract + f.pair} className="fd-daily-finding"><code>{f.contract}</code><p>Liquidity change {delta(f.liquidity_delta)} · rolling 24h volume change {delta(f.rolling_volume_delta)}</p><small>Observed {f.observed_start} → {f.observed_end}</small><ResearchLink href={f.source_url}>Source</ResearchLink></div>)}
+    <details><summary>{edition.coverage_gaps.length} coverage gaps</summary><ul>{edition.coverage_gaps.map(g => <li key={g}>{g.toLowerCase().replaceAll('_', ' ')}</li>)}</ul></details><footer><EvidenceBadge state="OBSERVED" /><ResearchLink href={edition.evidence_href}>Edition + evidence</ResearchLink></footer></article>;
+}
+
 export function FreshnessBadge({ at, pending }: { at?: string | null; pending?: boolean }) {
   if (pending) return <span className="fd-freshness" aria-label="Freshness: D7 pending">D7 pending</span>;
   const timestamp = at ? new Date(at).getTime() : NaN;
   if (Number.isNaN(timestamp)) return <span className="fd-freshness" aria-label="Freshness: insufficient data">—</span>;
   const minutes = Math.max(0, Math.floor((Date.now() - timestamp) / 60_000));
-  const label = minutes < 2 ? 'LIVE' : minutes < 60 ? `${minutes}m` : minutes < 1_440 ? `${Math.floor(minutes / 60)}h` : `${Math.floor(minutes / 1_440)}d`;
-  return <time className="fd-freshness" dateTime={at ?? undefined} aria-label={`Freshness: ${label}`}>{label}</time>;
+  const label = minutes < 2 ? '<2m' : minutes < 60 ? `${minutes}m` : minutes < 1_440 ? `${Math.floor(minutes / 60)}h` : `${Math.floor(minutes / 1_440)}d`;
+  return <time className="fd-freshness" dateTime={at ?? undefined} title={new Date(timestamp).toISOString()} aria-label={`Observed ${new Date(timestamp).toISOString()}, ${label} ago`}>{label}</time>;
 }
 
 export function EvidenceBadge({ state }: { state?: string | null }) {
@@ -52,7 +63,7 @@ function FollowControl({ follow, following = false, onToggleFollow }: FollowProp
 type CardProps = { topic: string; conclusion: string; metric: string; delta?: string; evidence?: string; freshness?: string | null; href: string; shareId?: string; sourceHref?: string; summary?: string } & FollowProps;
 function FrontdoorShare({ shareId }: { shareId?: string }) { if (!shareId) return null; const [status, setStatus] = useState(''); const href = `/4663/share/${encodeURIComponent(shareId)}`; async function share() { frontdoorEvent('share_clicked', shareId); try { const url = new URL(href, window.location.origin).toString(); if (navigator.share) { await navigator.share({ title: '//4663 evidence', text: 'A source-bound Infopunks //4663 finding.', url }); frontdoorEvent('share_native_completed', shareId); } else { await navigator.clipboard.writeText(url); frontdoorEvent('share_link_copied', shareId); setStatus('Link copied.'); } } catch { /* native-sheet cancellation leaves the finding untouched */ } } return <><button className="fd-share" type="button" onClick={share} aria-label="Share this evidence">SHARE</button><span className="sr-only" role="status" aria-live="polite">{status}</span></>; }
 export function NowCard(props: CardProps) { return <article className="fd-card fd-now-card"><p>{props.topic}</p><h3>{props.conclusion}</h3>{props.summary && <span className="fd-card-summary">{props.summary}</span>}<MetricDelta metric={props.metric} delta={props.delta} /><footer><EvidenceBadge state={props.evidence} /><FreshnessBadge at={props.freshness} /><FollowControl follow={props.follow} following={props.following} onToggleFollow={props.onToggleFollow} /><FrontdoorShare shareId={props.shareId} /><ResearchLink href={props.href}>Dossier</ResearchLink>{props.sourceHref && <ResearchLink href={props.sourceHref}>Source</ResearchLink>}</footer></article>; }
-export function WatchCard(props: CardProps) { return <article className="fd-card fd-watch-card"><p>{props.topic}</p><h3>{props.conclusion}</h3><footer><EvidenceBadge state={props.evidence ?? 'WATCH'} /><FreshnessBadge at={props.freshness} /><FollowControl follow={props.follow} following={props.following} onToggleFollow={props.onToggleFollow} /><FrontdoorShare shareId={props.shareId} /><ResearchLink href={props.href}>Case</ResearchLink></footer></article>; }
+export function WatchCard(props: CardProps) { return <article className="fd-card fd-watch-card"><p>{props.topic}</p><h3>{props.conclusion}</h3>{props.summary && <span className="fd-card-summary">{props.summary}</span>}<MetricDelta metric={props.metric} delta={props.delta} /><footer><EvidenceBadge state={props.evidence ?? 'WATCH'} /><FreshnessBadge at={props.freshness} /><FollowControl follow={props.follow} following={props.following} onToggleFollow={props.onToggleFollow} /><FrontdoorShare shareId={props.shareId} /><ResearchLink href={props.href}>Case</ResearchLink>{props.sourceHref && <ResearchLink href={props.sourceHref}>Source</ResearchLink>}</footer></article>; }
 const PRODUCT_SESSION_KEY = 'infopunks:4663:product-session';
 function anonymousProductSession() {
   try { const prior = window.sessionStorage.getItem(PRODUCT_SESSION_KEY); if (prior) return prior; const next = window.crypto?.randomUUID?.() ?? `session-${Math.random().toString(36).slice(2)}`; window.sessionStorage.setItem(PRODUCT_SESSION_KEY, next); return next; }
@@ -65,17 +76,32 @@ function frontdoorEvent(event: 'open_loop_viewed' | 'open_loop_opened' | 'open_l
 function campaignEvent(event: 'campaign_viewed' | 'campaign_hero_opened' | 'campaign_evidence_opened' | 'campaign_open_loop_followed' | 'campaign_call_started' | 'campaign_shared' | 'campaign_resolution_return' | 'campaign_completed_viewed', campaignId: string, windowId?: string, shareId?: string) {
   void fetch(toApiUrl(getApiBaseUrl(), '/v1/4663/campaign/events'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ event, surface: 'campaign', campaign_id: campaignId, window_id: windowId, share_object_id: shareId }), keepalive: true }).catch(() => undefined);
 }
-function loopCheckpoint(loop: OpenLoop) { if (!loop.expected_checkpoint_at) return 'AWAITING EVIDENCE'; const at = new Date(loop.expected_checkpoint_at); return Number.isNaN(at.getTime()) ? 'AWAITING EVIDENCE' : at.toLocaleDateString(undefined, { month: 'short', day: '2-digit', timeZone: 'UTC' }).toUpperCase(); }
+function useEvidenceVisibility(recordEvent: () => void, identity: string | null) {
+  const callback = useRef(recordEvent); callback.current = recordEvent;
+  const ref = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || !identity || typeof IntersectionObserver === 'undefined') return;
+    let visible = false, recorded = false;
+    const record = () => { if (!recorded && visible && document.visibilityState === 'visible') { recorded = true; callback.current(); } };
+    const observer = new IntersectionObserver(entries => { visible = entries.some(entry => entry.isIntersecting && entry.intersectionRatio >= .25); record(); }, { threshold: .25 });
+    observer.observe(element); document.addEventListener('visibilitychange', record);
+    return () => { observer.disconnect(); document.removeEventListener('visibilitychange', record); };
+  }, [identity]);
+  return ref;
+}
+export function useFrontdoorVisibleEvent(event: Parameters<typeof frontdoorEvent>[0] | null, id?: string) { return useEvidenceVisibility(() => { if (event) frontdoorEvent(event, id); }, event ? `${event}:${id ?? ''}` : null); }
+function loopCheckpoint(loop: OpenLoop) { if (loop.state === 'RESOLVED') return 'INPUTS PRESENT'; if (loop.state === 'FALSIFIED') return 'FALSIFIED'; if (!loop.expected_checkpoint_at) return 'AWAITING EVIDENCE'; const at = new Date(loop.expected_checkpoint_at); return Number.isNaN(at.getTime()) ? 'AWAITING EVIDENCE' : at.toLocaleDateString(undefined, { month: 'short', day: '2-digit', timeZone: 'UTC' }).toUpperCase(); }
 function loopProgress(loop: OpenLoop) { return typeof loop.progress === 'string' ? loop.progress : loop.progress.label; }
 export function OpenLoopCard({ loop, question, state, href, pending, following, onToggleFollow }: { loop?: OpenLoop; question?: string; state?: string; href?: string; pending?: boolean } & Omit<FollowProps, 'follow'>) {
   const item = loop; const title = item?.question ?? question ?? 'Open research loop'; const target = item?.deep_link ?? href ?? '/4663/reflexive'; const loopState = item?.state ?? state ?? 'OPEN';
-  useEffect(() => { frontdoorEvent('open_loop_viewed', item?.loop_id); if (following) frontdoorEvent('followed_open_loop_viewed', item?.loop_id); }, [item?.loop_id, following]);
+  const viewed = useFrontdoorVisibleEvent(item ? 'open_loop_viewed' : null, item?.loop_id);
   const follow = item ? { subject_type: 'OPEN_LOOP' as const, subject_id: item.loop_id } : null;
-  return <article className="fd-loop" data-loop-state={loopState}><details onToggle={(event) => { if (event.currentTarget.open) frontdoorEvent('open_loop_opened', item?.loop_id); }}><summary><span className="fd-loop-state">{loopState.replaceAll('_', ' ')}</span><h3>{title}</h3><span className="fd-loop-checkpoint">{item ? loopCheckpoint(item) : pending ? 'CHECKPOINT' : 'AWAITING EVIDENCE'}</span></summary>{item?.source_ref && <div className="fd-loop-detail"><p><b>WHY IT MATTERS</b>{item.short_context}</p><p><b>CURRENT EVIDENCE</b>{item.current_evidence}</p><p><b>WHAT WOULD CONFIRM IT?</b>{item.resolution_condition}</p>{item.falsification_condition && <p><b>WHAT WOULD FALSIFY IT?</b>{item.falsification_condition}</p>}<p><b>NEXT EVIDENCE</b>{item.next_evidence_needed}</p><p><b>PROGRESS</b>{loopProgress(item)}</p><p><b>SOURCE</b><a href={item.source_ref.href} onClick={() => frontdoorEvent('open_loop_source_opened', item.loop_id)}>{item.source_type} ↗</a></p></div>}</details><footer><EvidenceBadge state={loopState} />{item && <span className="fd-loop-progress">{loopProgress(item)}</span>}<FreshnessBadge at={item?.last_changed_at} /><FollowControl follow={follow} following={following} onToggleFollow={onToggleFollow} /><FrontdoorShare shareId={item ? `${item.state === 'FALSIFIED' ? 'radar_falsification' : item.source_type === 'AI_NVDA_CAPITAL_VS_FLOW' ? 'ai_nvda_checkpoint' : 'open_loop'}:${item.loop_id}` : undefined} /><ResearchLink href={target}>Research</ResearchLink></footer></article>;
+  return <article ref={viewed} className="fd-loop" data-loop-state={loopState}><details onToggle={(event) => { if (event.currentTarget.open) frontdoorEvent('open_loop_opened', item?.loop_id); }}><summary><span className="fd-loop-state">{loopState.replaceAll('_', ' ')}</span><h3>{title}</h3><span className="fd-loop-checkpoint">{item ? loopCheckpoint(item) : pending ? 'CHECKPOINT' : 'AWAITING EVIDENCE'}</span></summary>{item?.source_ref && <div className="fd-loop-detail"><p><b>WHY IT MATTERS</b>{item.short_context}</p><p><b>CURRENT EVIDENCE</b>{item.current_evidence}</p><p><b>WHAT WOULD CONFIRM IT?</b>{item.resolution_condition}</p>{item.falsification_condition && <p><b>WHAT WOULD FALSIFY IT?</b>{item.falsification_condition}</p>}<p><b>NEXT EVIDENCE</b>{item.next_evidence_needed}</p><p><b>PROGRESS</b>{loopProgress(item)}</p><p><b>SOURCE</b><a href={item.source_ref.href} onClick={() => frontdoorEvent('open_loop_source_opened', item.loop_id)}>{item.source_type} ↗</a></p></div>}</details><footer><EvidenceBadge state={loopState} />{item && <span className="fd-loop-progress">{loopProgress(item)}</span>}<FreshnessBadge at={item?.source_ref?.observed_at ?? item?.last_changed_at} /><FollowControl follow={follow} following={following} onToggleFollow={onToggleFollow} /><FrontdoorShare shareId={item ? `${item.state === 'FALSIFIED' ? 'radar_falsification' : item.source_type === 'AI_NVDA_CAPITAL_VS_FLOW' ? 'ai_nvda_checkpoint' : 'open_loop'}:${item.loop_id}` : undefined} /><ResearchLink href={target}>Research</ResearchLink></footer></article>;
 }
 
 export function PulseCard({ pulse }: { pulse: Pulse }) {
-  return <article id="call" className="fd-pulse-card"><div><p>CALL</p><h2>What happens next?</h2><span>Make one signed view. Resolution follows the published methodology.</span></div><div className="fd-pulse-meta"><MetricDelta metric={pulse.leading_rotation ? rotationLabel(pulse.leading_rotation) : 'OPEN'} delta={`${pulse.total_calls} calls`} /><EvidenceBadge state={pulse.state} /><FreshnessBadge at={pulse.opens_at} /></div><a className="fd-call-action" href="/4663/pulse">Make the call <span aria-hidden="true">→</span></a></article>;
+  return <article id="call" className="fd-pulse-card"><div><p>CALL</p><h2>What happens next?</h2><span>Make one signed view. Qualified event significance determines the rotation, not total investment return.</span></div><div className="fd-pulse-meta"><MetricDelta metric={pulse.leading_rotation ? rotationLabel(pulse.leading_rotation) : 'OPEN'} delta={`${pulse.total_calls} calls`} /><EvidenceBadge state={pulse.state} /><FreshnessBadge at={pulse.opens_at} /></div><a className="fd-call-action" href="/4663/pulse">Make the call <span aria-hidden="true">→</span></a></article>;
 }
 
 type MeCallState = {
@@ -215,7 +241,7 @@ export function CallLoop({ data, hideResolvedReturn = false }: { data: Rh4663Fro
 
   const isUnavailable = !data || personalStatus === 'unavailable';
   return <article id="call" className={`fd-call-loop fd-call-${String(effectiveLifecycle).toLowerCase()}`} data-call-state={effectiveLifecycle} aria-labelledby="call-title">
-    <div className="fd-call-head"><div><p>CALL</p><h2 id="call-title">What happens next?</h2><span>Next 24h rotation</span><span className="fd-call-state" role="status" aria-live="polite">{effectiveLifecycle.replaceAll('_', ' ')}</span></div><div className="fd-call-window" aria-live="polite"><strong>{pulse ? timeRemaining(pulse.closes_at, now) : 'UNAVAILABLE'}</strong><span>{pulse ? `Closes ${shortUtc(pulse.closes_at)}` : 'Pulse unavailable'}</span></div></div>
+    <div className="fd-call-head"><div><p>CALL</p><h2 id="call-title">What happens next?</h2><span>Next 24h rotation</span><span>Qualified event significance determines the outcome, not total investment return.</span><span className="fd-call-state" role="status" aria-live="polite">{effectiveLifecycle.replaceAll('_', ' ')}</span></div><div className="fd-call-window" aria-live="polite"><strong>{pulse ? timeRemaining(pulse.closes_at, now) : 'UNAVAILABLE'}</strong><span>{pulse ? `Closes ${shortUtc(pulse.closes_at)}` : 'Pulse unavailable'}</span></div></div>
     {isUnavailable && !data && <p className="fd-call-alert" role="status">PULSE UNAVAILABLE. NOW, WATCH, and OPEN LOOPS remain available.</p>}
     {isUnavailable && data && personalStatus === 'unavailable' && <p className="fd-call-alert" role="status">CALL STATUS TEMPORARILY UNAVAILABLE</p>}
     {personal?.has_called && !receipt && <section className="fd-call-return" aria-live="polite"><p>YOUR CALL</p><h3>{labelForCall(personal.selection)}</h3><strong>{personal.confidence}% confidence</strong><span>{resolutionPending ? 'RESOLUTION PENDING' : `RESOLVED ${personal.resolution_state}`}</span>{resolutionPending && <small>Canonical checkpoint: {shortUtc(pulse?.closes_at)}</small>}</section>}
@@ -267,13 +293,10 @@ export function SectionHeader({ id, title, question, action }: { id: string; tit
 
 function CampaignHero({ campaign }: { campaign: NonNullable<Rh4663FrontdoorState['campaign']> }) {
   const hero = campaign.hero;
-  useEffect(() => {
-    if (!campaign.active || !campaign.campaign_id) return;
-    campaignEvent(campaign.state === 'RESOLVING' ? 'campaign_resolution_return' : 'campaign_viewed', campaign.campaign_id, campaign.call_ref?.window_id, campaign.share_ref ?? undefined);
-  }, [campaign.active, campaign.campaign_id, campaign.state]);
+  const viewed = useEvidenceVisibility(() => { if (campaign.campaign_id) campaignEvent(campaign.state === 'RESOLVING' ? 'campaign_resolution_return' : 'campaign_viewed', campaign.campaign_id, campaign.call_ref?.window_id, campaign.share_ref ?? undefined); }, campaign.active ? `${campaign.campaign_id}:${campaign.state}` : null);
   if (!campaign.active || !campaign.campaign_id || !hero) return null;
   const actionEvent = hero.action.kind === 'MAKE_CALL' ? 'campaign_call_started' : hero.action.kind === 'FOLLOW_OPEN_LOOP' ? 'campaign_open_loop_followed' : 'campaign_evidence_opened';
-  return <section className={`fd-campaign ${campaign.degraded_reason ? 'is-degraded' : ''}`} aria-labelledby="campaign-title">
+  return <section ref={viewed} className={`fd-campaign ${campaign.degraded_reason ? 'is-degraded' : ''}`} aria-labelledby="campaign-title">
     <header><p>CAMPAIGN HERO · {campaign.state}</p><EvidenceBadge state={hero.evidence_state} /></header>
     <div className="fd-campaign-grid">
       <div><p>WHAT HAPPENED?</p><h2 id="campaign-title">{hero.statement}</h2>{hero.primary_metric && <strong>{hero.primary_metric}</strong>}</div>
@@ -296,16 +319,17 @@ type MeChangesState = { authenticated: boolean; resolved_call: ResolvedReturn | 
 
 type ReturnHabitContext = ReturnType<typeof useReturnHabit>;
 function useReturnHabit(data: Rh4663FrontdoorState | null) {
-  const [cursor, setCursor] = useState<FrontdoorCursor | null | undefined>(undefined);
+  const [cursor] = useState<FrontdoorCursor | null>(readFrontdoorCursor);
+  const baselineRecorded = useRef(false);
   const [globalChanges, setGlobalChanges] = useState<FrontdoorChangeEvent[]>([]);
   const [personal, setPersonal] = useState<MeChangesState | null>(null);
   useEffect(() => {
     if (!data?.frontdoor_version?.version) return;
-    const prior = readFrontdoorCursor(); setCursor(prior);
+    const prior = cursor;
     const changed = prior && data.frontdoor_version.version > prior.version ? (data.change_events ?? []).filter((event) => event.frontdoor_version > prior.version) : [];
     setGlobalChanges(changed);
-    if (prior && data.frontdoor_version.version > prior.version) frontdoorEvent('frontdoor_return_visit');
-    writeFrontdoorCursor(data.frontdoor_version.version);
+    // A visible document records the rendered global snapshot, never individual object views.
+    if (!baselineRecorded.current && document.visibilityState === 'visible') { baselineRecorded.current = true; writeFrontdoorCursor(data.frontdoor_version.version); }
   }, [data?.frontdoor_version?.version]);
   useEffect(() => {
     let cancelled = false;
@@ -320,14 +344,13 @@ function useReturnHabit(data: Rh4663FrontdoorState | null) {
 
 function ReturnHabitView({ data, context, my }: { data: Rh4663FrontdoorState | null; context: ReturnHabitContext; my?: ReturnType<typeof useMy4663> }) {
   const { cursor, globalChanges, personal } = context;
-  useEffect(() => { if (personal?.resolved_call) frontdoorEvent('resolved_call_return_viewed', personal.resolved_call.window_id); }, [personal?.resolved_call?.resolution_receipt_id]);
-  useEffect(() => { if (globalChanges.length) frontdoorEvent('return_change_summary_viewed'); }, [globalChanges.length]);
+  const viewed = useFrontdoorVisibleEvent(globalChanges.length ? 'return_change_summary_viewed' : personal?.resolved_call ? 'resolved_call_return_viewed' : null, personal?.resolved_call?.window_id);
   const resolved = personal?.resolved_call;
   if (!resolved && !globalChanges.length && !my) return cursor === null ? <p className="fd-live-intelligence" role="status">LIVE INTELLIGENCE</p> : null;
-  return <section className={`fd-return-summary ${resolved ? 'has-resolved-call' : ''}`} aria-live="polite" aria-labelledby="return-summary-title">
+  return <section ref={viewed} className={`fd-return-summary ${resolved ? 'has-resolved-call' : ''}`} aria-live="polite" aria-labelledby="return-summary-title">
     {resolved && <div className="fd-resolved-return"><p>YOUR CALL RESOLVED</p><h2 id="return-summary-title">{labelForCall(resolved.called_category)} <span>{resolved.outcome === 'CORRECT' ? '✓' : '·'}</span></h2><span>Resolved as {labelForCall(resolved.resolved_category)} · {resolved.confidence}% confidence</span><div><a href={resolved.deep_link} onClick={() => frontdoorEvent('return_change_opened', resolved.window_id)}>View resolution receipt ↗</a><a href="/4663/pulse">Make today’s call →</a></div></div>}
     {my && <My4663Module data={data} my={my} />}
-    {globalChanges.length > 0 && <div className="fd-global-return"><p>{resolved ? `${globalChanges.length} OTHER THINGS CHANGED` : `${globalChanges.length} THINGS CHANGED`}</p><h2>{resolved ? 'The research moved while you were away.' : 'Since your last visit.'}</h2><div className="fd-change-list">{globalChanges.slice(0, 3).map((event) => <a key={event.event_id} href={event.deep_link} onClick={() => frontdoorEvent('return_change_opened', event.source_type)}><span><b>{event.source_type.replaceAll('_', ' ')}</b><time>{relativeChanged(event.occurred_at)}</time></span><strong>{event.headline}</strong><small>Source observed {relativeChanged(event.source_observed_at)}</small></a>)}</div></div>}
+    {globalChanges.length > 0 && <div className="fd-global-return"><p>{resolved ? `${globalChanges.length} OTHER THINGS CHANGED` : `${globalChanges.length} THINGS CHANGED`}</p><h2>{resolved ? 'The research changed.' : 'Recent changes since your last recorded view.'}</h2><div className="fd-change-list">{globalChanges.slice(0, 3).map((event) => <a key={event.event_id} href={event.deep_link} onClick={() => frontdoorEvent('return_change_opened', event.source_type)}><span><b>{event.source_type.replaceAll('_', ' ')}</b><time>{relativeChanged(event.occurred_at)}</time></span><strong>{event.headline}</strong><small>Source observed {relativeChanged(event.source_observed_at)}</small></a>)}</div></div>}
   </section>;
 }
 
@@ -364,11 +387,10 @@ function useMy4663(data: Rh4663FrontdoorState | null) {
     const query = new URLSearchParams({ follows: JSON.stringify(follows) }); if (cursor) query.set('last_seen_my4663_event_id', cursor);
     void fetch(toApiUrl(getApiBaseUrl(), `/v1/4663/me?${query.toString()}`), { headers: { accept: 'application/json' } })
       .then(async (response) => { if (!response.ok) throw new Error(); return response.json() as Promise<{ data: My4663State }>; })
-      .then((body) => { if (!cancelled && body.data?.object_type === 'MY_4663_STATE') { setState(body.data); try { if (body.data.last_seen_my4663_event_id) window.localStorage.setItem(MY_4663_CURSOR_KEY, body.data.last_seen_my4663_event_id); } catch { /* cursor is an enhancement */ } } })
+      .then((body) => { if (!cancelled && body.data?.object_type === 'MY_4663_STATE') { setState(body.data); } })
       .catch(() => { if (!cancelled) setState(null); });
     return () => { cancelled = true; };
   }, [data?.frontdoor_version?.version, refresh]);
-  useEffect(() => { if (state) { frontdoorEvent('my4663_viewed'); if (state.changed_followed_subjects.length) frontdoorEvent('followed_subject_return'); } }, [state?.last_seen_my4663_event_id]);
   const toggle = (subject: FollowSubject) => {
     const key = followKey(subject); const existing = follows.some((item) => followKey(item) === key);
     if (existing) {
@@ -389,6 +411,7 @@ function subjectForCard(card: Rh4663FrontdoorState['now_cards'][number] | Rh4663
   return null;
 }
 function My4663Module({ data, my }: { data: Rh4663FrontdoorState | null; my: ReturnType<typeof useMy4663> }) {
+  const viewed = useEvidenceVisibility(() => { if (!my.state) return; frontdoorEvent('my4663_viewed'); if (my.state.changed_followed_subjects.length) frontdoorEvent('followed_subject_return'); try { if (my.state.last_seen_my4663_event_id) window.localStorage.setItem(MY_4663_CURSOR_KEY, my.state.last_seen_my4663_event_id); } catch { /* Local cursor is optional. */ } }, my.state?.last_seen_my4663_event_id ?? null);
   const changed = my.state?.changed_followed_subjects ?? [];
   const following = (subject: FollowSubject | null) => Boolean(subject && my.follows.some((item) => followKey(item) === followKey(subject)));
   const suggestions: Array<{ label: string; subject: FollowSubject }> = [
@@ -396,10 +419,10 @@ function My4663Module({ data, my }: { data: Rh4663FrontdoorState | null; my: Ret
     { label: 'AI/NVDA', subject: { subject_type: 'WATCH_CASE' as const, subject_id: 'AI_NVDA_CAPITAL_VS_FLOW' } },
     { label: 'RMM', subject: { subject_type: 'MISSION_TOKEN' as const, subject_id: 'RMM' } }
   ].filter((item) => item.label !== 'PLTR' || Boolean(data?.now_cards?.some((card) => subjectForCard(card)?.subject_id === 'PLTR'))).filter((item) => item.label !== 'AI/NVDA' || Boolean(data?.watch_cards?.some((card) => subjectForCard(card)?.subject_id === 'AI_NVDA_CAPITAL_VS_FLOW') || data?.open_loops?.some((loop) => loop.source_type === 'AI_NVDA_CAPITAL_VS_FLOW'))).filter((item) => item.label !== 'RMM' || Boolean(data?.now_cards?.some((card) => subjectForCard(card)?.subject_id === 'RMM'))).slice(0, 3);
-  if (!my.follows.length) return <section className="fd-my4663 fd-my4663-empty" aria-labelledby="my4663-title"><div><p>MY 4663</p><h2 id="my4663-title">Follow what matters.</h2><span>Follow the markets and research questions you care about.</span></div><div className="fd-my4663-suggestions">{suggestions.map((item) => <button key={item.label} type="button" onClick={() => my.toggle(item.subject)}>{item.label}<span>FOLLOW</span></button>)}</div><span className="fd-follow-status" role="status" aria-live="polite">{my.announcement}</span></section>;
-  if (!changed.length) return <section className="fd-my4663" aria-labelledby="my4663-title"><div><p>MY 4663</p><h2 id="my4663-title">Following {my.follows.length} {my.follows.length === 1 ? 'subject' : 'subjects'}.</h2><span>Return when the research changes.</span></div><span className="fd-follow-status" role="status" aria-live="polite">{my.announcement}</span></section>;
+  if (!my.follows.length) return <section ref={viewed} className="fd-my4663 fd-my4663-empty" aria-labelledby="my4663-title"><div><p>MY 4663</p><h2 id="my4663-title">Follow what matters.</h2><span>Follow the markets and research questions you care about.</span></div><div className="fd-my4663-suggestions">{suggestions.map((item) => <button key={item.label} type="button" onClick={() => my.toggle(item.subject)}>{item.label}<span>FOLLOW</span></button>)}</div><span className="fd-follow-status" role="status" aria-live="polite">{my.announcement}</span></section>;
+  if (!changed.length) return <section ref={viewed} className="fd-my4663" aria-labelledby="my4663-title"><div><p>MY 4663</p><h2 id="my4663-title">Following {my.follows.length} {my.follows.length === 1 ? 'subject' : 'subjects'}.</h2><span>Return when the research changes.</span></div><span className="fd-follow-status" role="status" aria-live="polite">{my.announcement}</span></section>;
   const resolved = changed.find((item) => item.event.change_type === 'RESOLVED');
-  return <section className="fd-my4663 is-changed" aria-labelledby="my4663-title"><div><p>{resolved ? `${resolved.display_label} RESOLVED` : `${changed.length} ${changed.length === 1 ? 'THING YOU FOLLOW CHANGED' : 'THINGS YOU FOLLOW CHANGED'}`}</p><h2 id="my4663-title">{resolved ? resolved.event.headline : 'This changed.'}</h2></div><div className="fd-my4663-list">{changed.slice(0, 4).map((item) => <a key={`${item.follow_id}:${item.event.event_id}`} href={item.event.deep_link} onClick={() => frontdoorEvent('followed_change_viewed', my.follows.find((follow) => followKey(follow) === item.follow_id)?.subject_id)}><b>{item.display_label}</b><strong>{item.event.headline}</strong><small>{item.event.change_type.replaceAll('_', ' ')}</small></a>)}</div><span className="fd-follow-status" role="status" aria-live="polite">{my.announcement}</span></section>;
+  return <section ref={viewed} className="fd-my4663 is-changed" aria-labelledby="my4663-title"><div><p>{resolved ? `${resolved.display_label} RESOLVED` : `${changed.length} ${changed.length === 1 ? 'THING YOU FOLLOW CHANGED' : 'THINGS YOU FOLLOW CHANGED'}`}</p><h2 id="my4663-title">{resolved ? resolved.event.headline : 'This changed.'}</h2></div><div className="fd-my4663-list">{changed.slice(0, 4).map((item) => <a key={`${item.follow_id}:${item.event.event_id}`} href={item.event.deep_link} onClick={() => frontdoorEvent('followed_change_viewed', my.follows.find((follow) => followKey(follow) === item.follow_id)?.subject_id)}><b>{item.display_label}</b><strong>{item.event.headline}</strong><small>{item.event.change_type.replaceAll('_', ' ')}</small></a>)}</div><span className="fd-follow-status" role="status" aria-live="polite">{my.announcement}</span></section>;
 }
 
 export function FrontdoorShell({ children, freshness }: { children: React.ReactNode; freshness?: string | null }) {
@@ -416,7 +439,7 @@ export function Frontdoor({ data, status, message }: { data: Rh4663FrontdoorStat
   const returnContext = useReturnHabit(data);
   const my = useMy4663(data);
   const follows = (subject: FollowSubject | null) => Boolean(subject && my.follows.some((item) => followKey(item) === followKey(subject)));
-  return <FrontdoorShell freshness={data?.freshness?.source_observed_at}><main className="fd-main"><section className="fd-hero" aria-labelledby="fd-title"><p>INFOPUNKS / ROBINHOOD CHAIN</p><h1 id="fd-title">Robinhood Chain,<br />right now.</h1><span>Signal extraction for the agentic economy. Before an agent spends, it checks Infopunks.</span></section>{(status !== 'ready' || systemMessage) && <p className={`fd-data-state ${status === 'degraded' ? 'is-degraded' : ''}`} role="status">{status === 'loading' ? 'Refreshing stored intelligence…' : systemMessage ?? `Data degraded. ${message ?? 'No market conclusion is inferred.'}`}</p>}<CampaignHero campaign={data?.campaign ?? { active: false, campaign_id: null, state: null, hero: null, open_loop: null, call_ref: null, share_ref: null }} /><ReturnHabitView data={data} context={returnContext} my={my} /><section id="now" className="fd-section" aria-labelledby="now-title"><SectionHeader id="now-title" title="NOW" question="What matters right now?" action={<FreshnessBadge at={data?.freshness?.source_observed_at} />} /><div className="fd-now-grid">{data?.now_cards?.filter(card => card.source_type !== 'market_observation' || observationNow - Date.parse(card.freshness ?? '') <= 15 * 60_000).slice(0, 5).map((card) => { const subject = subjectForCard(card); return <NowCard key={card.id} topic={card.topic} conclusion={card.headline} summary={card.summary} sourceHref={card.source_type === 'market_observation' ? card.source_ref.href : undefined} metric={card.primary_metric} delta={card.delta ?? undefined} evidence={card.evidence_state} freshness={card.freshness} href={card.deep_link} shareId={card.source_type === 'market_observation' ? undefined : `now_finding:${card.id}`} follow={subject} following={follows(subject)} onToggleFollow={my.toggle} />; }) ?? null}{unavailable && <p className="fd-empty">No derived market state is available yet.</p>}</div></section><Rh4663MarketCategories market={data?.market_categories} unavailable={status === 'degraded' || Boolean(data && !data.market_categories)} /><section id="watch" className="fd-section" aria-labelledby="watch-title"><SectionHeader id="watch-title" title="WATCH" question="What is developing?" action={<ResearchLink href="/4663/reflexive/watch">All cases</ResearchLink>} /><div className="fd-watch-grid">{data?.watch_cards?.slice(0, 4).map((card) => { const subject = subjectForCard(card); return <WatchCard key={card.id} topic={card.topic} conclusion={card.headline} metric={card.primary_metric} evidence={card.evidence_state} freshness={card.freshness} href={card.deep_link} shareId={card.source_type === 'market_observation' ? undefined : `watch_case:${card.id}`} follow={subject} following={follows(subject)} onToggleFollow={my.toggle} />; }) ?? null}{data && !data.watch_cards?.length && <p className="fd-empty">No developing cases are ready to surface.</p>}</div></section><section className="fd-section" aria-labelledby="loops-title"><SectionHeader id="loops-title" title="OPEN LOOPS" question="What still needs to be proved?" /><div className="fd-loop-grid">{data?.open_loops?.slice(0, 4).map((loop) => <OpenLoopCard key={loop.loop_id} loop={loop} following={follows({ subject_type: 'OPEN_LOOP', subject_id: loop.loop_id })} onToggleFollow={my.toggle} />) ?? null}{data && !data.open_loops?.length && <p className="fd-empty">No unresolved research loops are available.</p>}</div></section><CallLoop data={data} hideResolvedReturn={Boolean(returnContext.personal?.resolved_call)} /><section className="fd-section fd-proof-section" aria-labelledby="proof-title"><SectionHeader id="proof-title" title="PROOF" question="How good is your record?" /><ProofCard proof={proof} /></section></main><footer className="fd-footer"><p>Research stays deep until you ask for it.</p><details><summary>Open research</summary><div><a href="/4663/reflexive">Reflexive Radar</a><a href="/4663/reflexive/watch">Watch cases</a><a href="/4663/reflexive/census">Category Census</a><a href="/4663/reflexive/preflight/ipx-pltr">PLTR Preflight</a><a href="/4663/receipts">CALL + RESOLUTION receipts</a><a href="/rh-chain-signal-desk">Robinhood Chain desk</a></div></details></footer></FrontdoorShell>;
+  return <FrontdoorShell freshness={data?.freshness?.source_observed_at}><main className="fd-main"><section className="fd-hero" aria-labelledby="fd-title"><div className="fd-hero-copy"><p>INFOPUNKS / ROBINHOOD CHAIN</p><h1 id="fd-title">Robinhood Chain,<br />right now.</h1><span>Signal extraction for the agentic economy. Before an agent spends, it checks Infopunks.</span></div><img className="fd-signal-portrait" src="/artwork/signal-punk.webp" alt="" width="533" height="800" decoding="async" /></section>{(status !== 'ready' || systemMessage) && <p className={`fd-data-state ${status === 'degraded' ? 'is-degraded' : ''}`} role="status">{status === 'loading' ? 'Refreshing stored intelligence…' : systemMessage ?? `Data degraded. ${message ?? 'No market conclusion is inferred.'}`}</p>}<CampaignHero campaign={data?.campaign ?? { active: false, campaign_id: null, state: null, hero: null, open_loop: null, call_ref: null, share_ref: null }} /><ReturnHabitView data={data} context={returnContext} my={my} /><section id="now" className="fd-section" aria-labelledby="now-title"><SectionHeader id="now-title" title="NOW" question="What matters right now?" action={<FreshnessBadge at={data?.freshness?.source_observed_at} />} /><div className="fd-now-grid">{data?.now_cards?.filter(card => card.source_type !== 'market_observation' || observationNow - Date.parse(card.freshness ?? '') <= 15 * 60_000).slice(0, 5).map((card) => { const subject = subjectForCard(card); return <NowCard key={card.id} topic={card.topic} conclusion={card.headline} summary={card.summary} sourceHref={card.source_type === 'market_observation' ? card.source_ref.href : undefined} metric={card.primary_metric} delta={card.delta ?? undefined} evidence={card.evidence_state} freshness={card.freshness} href={card.deep_link} shareId={card.source_type === 'market_observation' ? undefined : `now_finding:${card.id}`} follow={subject} following={follows(subject)} onToggleFollow={my.toggle} />; }) ?? null}{unavailable && <p className="fd-empty">No derived market state is available yet.</p>}</div><DailyObservationCard edition={data?.daily_observation} /></section><Rh4663MarketCategories market={data?.market_categories} unavailable={status === 'degraded' || Boolean(data && !data.market_categories)} /><section id="watch" className="fd-section" aria-labelledby="watch-title"><SectionHeader id="watch-title" title="WATCH" question="What is developing?" action={<ResearchLink href="/4663/reflexive/watch">All cases</ResearchLink>} /><div className="fd-watch-grid">{data?.watch_cards?.slice(0, 4).map((card) => { const subject = subjectForCard(card); return <WatchCard key={card.id} topic={card.topic} conclusion={card.headline} summary={card.summary} sourceHref={card.source_ref.href} metric={card.primary_metric} evidence={card.evidence_state} freshness={card.freshness} href={card.deep_link} shareId={card.source_type === 'market_observation' ? undefined : `watch_case:${card.id}`} follow={subject} following={follows(subject)} onToggleFollow={my.toggle} />; }) ?? null}{data && !data.watch_cards?.length && <p className="fd-empty">No developing cases are ready to surface.</p>}</div></section><section id="open-loops" className="fd-section" aria-labelledby="loops-title"><SectionHeader id="loops-title" title="OPEN LOOPS" question="What still needs to be proved?" /><div className="fd-loop-grid">{data?.open_loops?.slice(0, 4).map((loop) => <OpenLoopCard key={loop.loop_id} loop={loop} following={follows({ subject_type: 'OPEN_LOOP', subject_id: loop.loop_id })} onToggleFollow={my.toggle} />) ?? null}{data && !data.open_loops?.length && <p className="fd-empty">No unresolved research loops are available.</p>}</div></section><CallLoop data={data} hideResolvedReturn={Boolean(returnContext.personal?.resolved_call)} /><section className="fd-section fd-proof-section" aria-labelledby="proof-title"><SectionHeader id="proof-title" title="PROOF" question="How good is your record?" /><ProofCard proof={proof} /></section></main><footer className="fd-footer"><p>Research stays deep until you ask for it.</p><details><summary>Open research</summary><div><a href="/4663/reflexive">Reflexive Radar</a><a href="/4663/reflexive/watch">Watch cases</a><a href="/4663/reflexive/census">Category Census</a><a href="/4663/reflexive/preflight/ipx-pltr">PLTR Preflight</a><a href="/4663/receipts">CALL + RESOLUTION receipts</a><a href="/rh-chain-signal-desk">Robinhood Chain desk</a></div></details></footer></FrontdoorShell>;
 }
 
 function rotationLabel(value: string) { return value.replaceAll('_', ' '); }

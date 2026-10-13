@@ -15,7 +15,9 @@ export const RH_CHAIN_REQUIRED_MIGRATIONS: readonly RhChainMigrationRequirement[
   { id: '20260908_010', file: '20260908_010_rh4663_product_intelligence.up.sql', tables: ['rh4663_product_intelligence_events'], indexes: ['rh4663_product_intelligence_events_window_idx', 'rh4663_product_intelligence_events_campaign_window_idx', 'rh4663_product_intelligence_events_call_idx'] },
   { id: '20261007_011', file: '20261007_011_canonical_receipt_spine.up.sql', tables: ['observation_receipts', 'judgment_receipts', 'execution_receipts', 'evaluation_receipts', 'judgment_observations'], indexes: ['observation_receipts_subject_idx', 'judgment_receipts_subject_idx', 'execution_receipts_judgment_idx', 'evaluation_receipts_execution_idx', 'judgment_observations_observation_idx'] },
   { id: '20261008_016', file: '20261008_016_rh_usdg_accounting.up.sql', tables: ['settled_judgment_revenue', 'recorded_protocol_costs'], indexes: ['execution_proof_one_authorization_idx', 'execution_proof_one_settlement_idx'] },
-  { id: '20261012_024', file: '20261012_024_rh_market_observation_history.up.sql', tables: ['rh_chain_market_aggregates'], indexes: ['rh_chain_market_aggregates_contract_time_idx', 'rh_chain_market_aggregates_retention_idx'] }
+  { id: '20261012_024', file: '20261012_024_rh_market_observation_history.up.sql', tables: ['rh_chain_market_aggregates'], indexes: ['rh_chain_market_aggregates_contract_time_idx', 'rh_chain_market_aggregates_retention_idx'] },
+  { id: '20261013_025', file: '20261013_025_rh_automated_observation_receipts.up.sql', tables: ['rh_automated_observation_receipts', 'rh_automated_observation_publications'], indexes: ['rh_automated_observation_canonical_day_idx'] },
+  { id: '20261013_026', file: '20261013_026_rh_frontdoor_return_state.up.sql', tables: ['rh4663_frontdoor_version', 'rh4663_frontdoor_change_events', 'rh4663_frontdoor_open_loops'], indexes: ['rh4663_frontdoor_change_events_version_idx', 'rh4663_frontdoor_change_events_occurred_idx'] }
 ] as const;
 
 export type RhChainMigrationStatus = { id: string; file: string; state: 'applied' | 'pending'; missing_tables: string[]; missing_indexes: string[]; missing_checks: string[] };

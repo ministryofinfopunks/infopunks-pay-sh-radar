@@ -19,7 +19,7 @@ const labels: Record<string, string> = {
   'WATCH_CASE:BONER_HIMS_FLOAT_STRESS': 'HIMS/BONER'
 };
 const knownSubject = (type: My4663SubjectType, id: string) => {
-  if ((type === 'STOCK_TOKEN' && ['PLTR', 'NVDA'].includes(id)) || (type === 'MISSION_TOKEN' && ['RMM', 'IPX_PLTR_SHADOW'].includes(id)) || (type === 'RMM_CASE' && id === 'RH_STOCK_MEME_MAP_20260903') || (type === 'WATCH_CASE' && ['AI_NVDA_CAPITAL_VS_FLOW', 'BONER_HIMS_FLOAT_STRESS'].includes(id)) || (type === 'RESEARCH_TOPIC' && id === 'AI') || (type === 'OPEN_LOOP' && /^loop:[A-Z0-9_:-]+$/.test(id))) return true;
+  if ((type === 'STOCK_TOKEN' && ['PLTR', 'NVDA'].includes(id)) || (type === 'MISSION_TOKEN' && ['RMM', 'IPX_PLTR_SHADOW'].includes(id)) || (type === 'RMM_CASE' && id === 'RH_STOCK_MEME_MAP_20260903') || (type === 'WATCH_CASE' && ['AI_NVDA_CAPITAL_VS_FLOW', 'BONER_HIMS_FLOAT_STRESS'].includes(id)) || (type === 'RESEARCH_TOPIC' && id === 'AI') || (type === 'OPEN_LOOP' && /^(?:LOOP|MARKET-COVERAGE):[A-Z0-9_:-]+$/.test(id))) return true;
   return false;
 };
 
@@ -51,6 +51,7 @@ function subjectKeysForEvent(event: FrontdoorChangeEvent) {
   }
   // Aggregate Watch and loop source events still carry their stable child IDs
   // in the semantic before/after fingerprint. Match only those explicit IDs.
+  if (typeof event.after.loop_id === 'string') add('OPEN_LOOP', event.after.loop_id.toUpperCase());
   const after = event.after as { cards?: Array<{ source?: unknown }>; loops?: Array<{ loop_id?: unknown }> };
   for (const card of Array.isArray(after.cards) ? after.cards : []) {
     const id = typeof card.source === 'string' ? card.source.toUpperCase() : '';
@@ -89,7 +90,7 @@ export function buildMy4663State(state: Rh4663FrontdoorState, rawFollows: unknow
   const followKeys = new Set(follows.map(followId));
   const lastVersion = typeof lastSeenEventId === 'string' ? Number(lastSeenEventId.match(/^frontdoor-change:(\d+):/)?.[1] ?? 0) : 0;
   // A first view establishes a cursor but must not present historical public events as new.
-  const hasCursor = Boolean(lastSeenEventId);
+  const hasCursor = typeof lastSeenEventId === 'string' && /^frontdoor-change:\d+:/.test(lastSeenEventId) && Number.isSafeInteger(lastVersion) && lastVersion > 0 && lastVersion <= state.frontdoor_version.version;
   const events = hasCursor ? state.change_events.filter((event) => eventVersion(event) > lastVersion) : [];
   const changed = follows.map((follow) => ({ follow, events: events.filter((event) => subjectKeysForEvent(event).has(followId(follow))) }))
     .filter((item) => item.events.length > 0)
@@ -98,6 +99,7 @@ export function buildMy4663State(state: Rh4663FrontdoorState, rawFollows: unknow
   return {
     object_type: 'MY_4663_STATE' as const, follows: follows.map((follow) => toFollow(follow, state)),
     changed_followed_subjects: changed.slice(0, 4),
+    change_history_may_be_incomplete: hasCursor && state.change_events.length > 0 && lastVersion < Math.min(...state.change_events.map(e => e.frontdoor_version)) - 1,
     followed_open_loops: state.open_loops.filter((loop) => [...subjectKeysForLoop(loop)].some((key) => followKeys.has(key))).slice(0, 4),
     followed_now_items: state.now_cards.filter((card) => [...subjectKeysForCard(card)].some((key) => followKeys.has(key))).slice(0, 4),
     personal_call_state: null, personal_proof: null, last_seen_my4663_event_id: latestEventId,

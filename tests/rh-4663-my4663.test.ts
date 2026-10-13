@@ -50,3 +50,12 @@ describe('MY 4663 relevance projection', () => {
     } finally { await app.close(); }
   });
 });
+
+it('matches exact market evidence loop transitions and ignores malformed or future private cursors', () => {
+  const id = 'market-coverage:0x1111111111111111111111111111111111111111';
+  const transition = { ...event('market_observation', 'observation', 3), after: { loop_id: id, state: 'RESOLVED' }, change_type: 'RESOLVED' as const };
+  const follows = [{ subject_type: 'OPEN_LOOP', subject_id: id, created_at: at }];
+  expect(buildMy4663State(state([transition]), follows, 'frontdoor-change:2:prior').changed_followed_subjects).toHaveLength(1);
+  expect(buildMy4663State(state([transition]), follows, 'garbage').changed_followed_subjects).toEqual([]);
+  expect(buildMy4663State(state([transition]), follows, 'frontdoor-change:999:future').changed_followed_subjects).toEqual([]);
+});

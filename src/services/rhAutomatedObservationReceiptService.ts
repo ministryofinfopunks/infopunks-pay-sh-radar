@@ -193,3 +193,22 @@ export class RhAutomatedObservationReceiptService {
   }
 }
 
+export type AutomatedObservationSummary = {
+  utc_day: string; edition_id: string; content_hash: string; window: AutomatedObservationReceipt['window'];
+  covered_contract_count: number; market_count: number; coverage_gaps: string[];
+  findings: Array<{ contract: string; pair: string; observed_start: string; observed_end: string; liquidity_delta: number | null; rolling_volume_delta: number | null; source_url: string; evidence_href: string }>;
+  evidence_href: string; supersedes: string | null;
+};
+/** Compact public projection; never places a full day of evidence on the frontdoor. */
+export function automatedObservationSummary(editions: Array<{ receipt: AutomatedObservationReceipt; publication: AutomatedPublication }>): AutomatedObservationSummary | null {
+  if (!editions.length) return null;
+  const superseded = new Set(editions.map(e => e.receipt.correction.supersedes).filter(Boolean));
+  const current = editions.filter(e => !superseded.has(e.receipt.edition_id));
+  // Divergent corrective branches are unresolved; do not choose one arbitrarily.
+  if (current.length !== 1) return null;
+  const r = current[0].receipt, href = `/v1/4663/daily-observations/${r.utc_day}`;
+  return { utc_day: r.utc_day, edition_id: r.edition_id, content_hash: r.content_hash, window: r.window, covered_contract_count: r.covered_contracts.length, market_count: r.markets.length,
+    coverage_gaps: [...new Set([...r.historical_coverage.missing, ...r.markets.flatMap(m => m.coverage.missing)])].sort(),
+    findings: r.markets.slice(0, 3).map(m => ({ contract: m.contract, pair: m.pair, observed_start: m.observed_start, observed_end: m.observed_end, liquidity_delta: m.metrics.liquidity_usd.delta, rolling_volume_delta: m.metrics.volume_h24.delta, source_url: m.evidence.at(-1)!.source_url, evidence_href: href })),
+    evidence_href: href, supersedes: r.correction.supersedes };
+}

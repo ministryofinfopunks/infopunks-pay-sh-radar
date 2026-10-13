@@ -8,6 +8,7 @@ import { useRh4663FrontdoorRead } from './marketIntelligence/rh4663FrontdoorRead
 import type { Rh4663FrontdoorState } from '../services/rh4663FrontdoorService';
 import type { Rh4663ShareObject } from '../services/rh4663ShareObjectService';
 import type { CampaignPresentationSnapshot, Rh4663Campaign } from '../services/rh4663CampaignService';
+import './styles.css';
 import './rh4663.css';
 
 const API_BASE_URL = getApiBaseUrl();

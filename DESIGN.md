@@ -60,3 +60,7 @@ Category surfaces consume `--fd-radius-md`. Focus follows the shared `.fd-shell`
 ## Do's and Don'ts
 
 Expose incomplete, empty, stale and unavailable evidence in text. Scores are scoped to their category and version. Never show missing corporate actions, reserve evidence or paid attention as zero. No category disclosure writes classifications, publishes receipts or authorizes execution. Reduced motion inherits the existing `.fd-shell` media rule.
+
+## Daily editions and return state
+
+The UTC-day observation card reuses the Front Door card, ResearchLink, EvidenceBadge and native details owners. It presents sample endpoints with explicit incomplete coverage, never an investment return. Market WATCH cards expose the same sources as NOW. Loop labels distinguish resolved input coverage from reviewed judgment. The accepted portrait is `public/artwork/signal-punk.webp`, reused unchanged from `codex/unified-radar` at `205e3c9`; this imports the artwork only, not that branch's application logic. The hero reserves image dimensions on both desktop and mobile. Front Door headings, status accents and scrollbars consume existing cyan tokens explicitly to prevent legacy global green styles from leaking.

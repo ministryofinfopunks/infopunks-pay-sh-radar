@@ -21,3 +21,9 @@ Five lanes remain visible: Stock Tokens, RWA/DeFi, Memes, Stables and market dis
 ## Accessibility and state coverage
 
 Native disclosure keyboard behavior, text status, visible focus, wrapping contracts and one-column mobile layout are required. English UI, explicit UTC timestamps, reduced-motion inheritance. No hover-only evidence. Test empty categories, failed providers/storage, stale snapshots and identity conflicts alongside populated views. CALL, canonical resolution, receipt authority and private proof remain unchanged.
+
+## Daily intelligence and recorded returns
+
+`AUTOMATED_OBSERVATION_RECEIPT` is an immutable fact record in its own store. It has a separate default-off activation gate and public projection. The compact Front Door card consumes published editions only; the evidence route carries their full commitments and additive correction references. Source outages cannot reset observation time. No card authorizes execution or changes CALL/RESOLUTION semantics.
+
+The global version and event journal commit atomically. Persisted questions retain their opening time; missing current evidence marks unresolved questions stale. Countdown text does not advance the version. Private follow cursors match exact question identities and stay outside shared responses. View telemetry requires visible viewport intersection. Revalidation cannot establish a new visit. Return copy describes recent changes since a recorded view; the bounded event history is not a guarantee of complete history for every old cursor. See `docs/rh4663-frontdoor-contract.md` for privacy and cache ownership and the current RH-PIPELINE-1C/1D task for publication authority.
