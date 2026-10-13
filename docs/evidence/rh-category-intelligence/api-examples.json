@@ -1,0 +1,1803 @@
+{
+  "synthetic_fixture_only": true,
+  "base_time": "2026-10-13T06:09:51.171Z",
+  "sample_count": 39,
+  "categories": {
+    "status": 200,
+    "headers": {
+      "vary": "Origin",
+      "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, Idempotency-Key, Server-Timing",
+      "cache-control": "no-store",
+      "content-type": "application/json; charset=utf-8",
+      "x-content-type-options": "nosniff",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "x-frame-options": "SAMEORIGIN",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "content-length": "21919",
+      "date": "Tue, 13 Oct 2026 06:09:51 GMT",
+      "connection": "keep-alive"
+    },
+    "body": {
+      "data": {
+        "object_type": "RH_CATEGORY_INTELLIGENCE",
+        "chain_id": 4663,
+        "methodology_version": "rh-category-evidence-v1",
+        "projection_id": "rh-categories:e0bc845f2d6432cd87a3b0e2d3d3c2736a2432a00bfb25d9477e1eb971ec6de4",
+        "market_projection_id": "rh-movers:8ebad88280cfb392c1486a8ff605316dc81a78b88db9cd11b828c0096a9f4b87",
+        "generated_at": "2026-10-13T06:09:51.689Z",
+        "observed_at": "2026-10-13T06:09:51.171Z",
+        "last_observed_at": "2026-10-13T06:09:51.171Z",
+        "state": "available",
+        "source_health": {
+          "market": "available",
+          "category_identity": "available",
+          "category_evidence": "available"
+        },
+        "categories": [
+          {
+            "category": "stock_tokens",
+            "label": "Stock Tokens",
+            "policy": {
+              "label": "Stock Tokens",
+              "score_version": "stock-reference-dislocation-v1",
+              "required": [
+                "exact_identity",
+                "issuer_registry",
+                "open_market_session",
+                "adjusted_reference",
+                "corporate_action_history",
+                "issuer_terms"
+              ],
+              "scoring": "Withheld until issuer terms, corporate-action history and aligned adjusted references are available."
+            },
+            "findings": [
+              {
+                "token_contract": "0x1111111111111111111111111111111111111111",
+                "pair_address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "ticker": "PLTR",
+                "category": "stock_tokens",
+                "identity_source": {
+                  "contract": "0x1111111111111111111111111111111111111111",
+                  "category": "stock_tokens",
+                  "source_id": "fixture-pltr",
+                  "href": "/v1/4663/stock-tokens/0x1111111111111111111111111111111111111111/evidence",
+                  "observed_at": "2026-10-13T06:09:51.171Z"
+                },
+                "observation": {
+                  "rank": 2,
+                  "chain_id": 4663,
+                  "token_contract": "0x1111111111111111111111111111111111111111",
+                  "pair_address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "ticker": "PLTR fixture",
+                  "name": "Fixture asset",
+                  "lane": "stock_token",
+                  "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12",
+                  "baseline_observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+                  "observation_ids": [
+                    "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+                    "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:1",
+                    "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:2",
+                    "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:3",
+                    "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:4",
+                    "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:5",
+                    "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:6",
+                    "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:7",
+                    "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:8",
+                    "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:9",
+                    "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:10",
+                    "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:11",
+                    "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12"
+                  ],
+                  "observed_at": "2026-10-13T06:09:51.171Z",
+                  "source": {
+                    "source_name": "Persisted DEX Screener exact-pair observation",
+                    "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "observed_at": "2026-10-13T06:09:51.171Z",
+                    "updated_at": "2026-10-13T06:09:51.171Z",
+                    "data_mode": "persisted",
+                    "confidence_level": "low",
+                    "note": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+                    "caveat": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+                    "source": "Persisted DEX Screener exact-pair observation",
+                    "url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                  },
+                  "freshness": {
+                    "state": "fresh",
+                    "observed_at": "2026-10-13T06:09:51.171Z",
+                    "fetched_at": "2026-10-13T06:09:51.171Z",
+                    "age_ms": 518,
+                    "time_basis": "provider_fetch"
+                  },
+                  "evidence_state": "QUALIFIED_OBSERVATION",
+                  "coverage": {
+                    "sample_count": 13,
+                    "elapsed_ms": 3600000,
+                    "maximum_gap_ms": 300000,
+                    "provider_timestamp_count": 0,
+                    "state": "complete"
+                  },
+                  "metrics": {
+                    "price_usd": 2.2,
+                    "liquidity_usd": 22000,
+                    "rolling_volume_1h_usd": 400,
+                    "rolling_volume_24h_usd": 32000,
+                    "rolling_transactions_24h": 44,
+                    "price_delta_pct": 10,
+                    "liquidity_delta_pct": 120,
+                    "volume_delta_pct": 300,
+                    "transactions_delta_pct": 120,
+                    "persistence_ratio": 0.58
+                  },
+                  "significance_score": 83.33,
+                  "score_components": {
+                    "volume": 25,
+                    "liquidity": 20,
+                    "transactions": 20,
+                    "price": 7.5,
+                    "persistence": 5.83,
+                    "evidence": 5
+                  },
+                  "score_version": "rh-market-significance-v1",
+                  "investigation_href": "/rh-chain-signal-desk/tokens/0x1111111111111111111111111111111111111111?observation_id=0x1111111111111111111111111111111111111111%3A0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%3A12",
+                  "history_href": "/v1/rh-chain/market/snapshots/0x1111111111111111111111111111111111111111",
+                  "judgment_state": "unreviewed_observation",
+                  "execution_authorized": false
+                },
+                "evidence": {
+                  "state": "INCOMPLETE",
+                  "inputs": {
+                    "exact_identity": true,
+                    "category_identity_unambiguous": true,
+                    "category_identity_available": true,
+                    "issuer_registry": true,
+                    "open_market_session": false,
+                    "adjusted_reference": false,
+                    "corporate_action_history": false,
+                    "issuer_terms": false
+                  },
+                  "missing_inputs": [
+                    "open_market_session",
+                    "adjusted_reference",
+                    "corporate_action_history",
+                    "issuer_terms"
+                  ]
+                },
+                "category_score": null,
+                "evidence_href": "/v1/4663/stock-tokens/0x1111111111111111111111111111111111111111/evidence",
+                "judgment_state": "unreviewed_observation",
+                "execution_authorized": false
+              }
+            ],
+            "observed_count": 1,
+            "scored_count": 0,
+            "coverage": "INCOMPLETE"
+          },
+          {
+            "category": "rwa_defi",
+            "label": "RWA/DeFi",
+            "policy": {
+              "label": "RWA/DeFi",
+              "score_version": "rwa-mechanism-coverage-v1",
+              "required": [
+                "exact_identity",
+                "reviewed_category",
+                "mechanism_evidence",
+                "asset_or_protocol_reference",
+                "redemption_or_protocol_constraints"
+              ],
+              "scoring": "Withheld until the specific asset or protocol mechanism and constraints are observed."
+            },
+            "findings": [],
+            "observed_count": 0,
+            "scored_count": 0,
+            "coverage": "EMPTY"
+          },
+          {
+            "category": "memes",
+            "label": "Memes",
+            "policy": {
+              "label": "Memes",
+              "score_version": "meme-market-activity-v1",
+              "required": [
+                "exact_identity",
+                "reviewed_category",
+                "paid_attention_window"
+              ],
+              "scoring": "Absolute liquidity change 30%, rolling volume change 30%, transaction change 25%, persistence 10%, paid-attention coverage 5%. Price and paid promotion size earn no points."
+            },
+            "findings": [
+              {
+                "token_contract": "0x020bfc650a365f8bb26819deaabf3e21291018b4",
+                "pair_address": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                "ticker": "Meme fixture",
+                "category": "memes",
+                "identity_source": {
+                  "contract": "0x020bfc650a365f8bb26819deaabf3e21291018b4",
+                  "category": "memes",
+                  "source_id": "curated:0x020bfc650a365f8bb26819deaabf3e21291018b4",
+                  "href": "/v1/rh-chain/market-structure",
+                  "observed_at": "2026-07-16T00:00:00.000Z"
+                },
+                "observation": {
+                  "rank": 1,
+                  "chain_id": 4663,
+                  "token_contract": "0x020bfc650a365f8bb26819deaabf3e21291018b4",
+                  "pair_address": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                  "ticker": "Meme fixture",
+                  "name": "Fixture asset",
+                  "lane": "market_discovery",
+                  "observation_id": "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:12",
+                  "baseline_observation_id": "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:0",
+                  "observation_ids": [
+                    "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:0",
+                    "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:1",
+                    "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:2",
+                    "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:3",
+                    "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:4",
+                    "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:5",
+                    "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:6",
+                    "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:7",
+                    "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:8",
+                    "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:9",
+                    "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:10",
+                    "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:11",
+                    "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:12"
+                  ],
+                  "observed_at": "2026-10-13T06:09:51.171Z",
+                  "source": {
+                    "source_name": "Persisted DEX Screener exact-pair observation",
+                    "source_url": "https://dexscreener.com/robinhood/0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                    "observed_at": "2026-10-13T06:09:51.171Z",
+                    "updated_at": "2026-10-13T06:09:51.171Z",
+                    "data_mode": "persisted",
+                    "confidence_level": "low",
+                    "note": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+                    "caveat": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+                    "source": "Persisted DEX Screener exact-pair observation",
+                    "url": "https://dexscreener.com/robinhood/0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                  },
+                  "freshness": {
+                    "state": "fresh",
+                    "observed_at": "2026-10-13T06:09:51.171Z",
+                    "fetched_at": "2026-10-13T06:09:51.171Z",
+                    "age_ms": 518,
+                    "time_basis": "provider_fetch"
+                  },
+                  "evidence_state": "QUALIFIED_OBSERVATION",
+                  "coverage": {
+                    "sample_count": 13,
+                    "elapsed_ms": 3600000,
+                    "maximum_gap_ms": 300000,
+                    "provider_timestamp_count": 0,
+                    "state": "complete"
+                  },
+                  "metrics": {
+                    "price_usd": 2.2,
+                    "liquidity_usd": 22000,
+                    "rolling_volume_1h_usd": 400,
+                    "rolling_volume_24h_usd": 32000,
+                    "rolling_transactions_24h": 44,
+                    "price_delta_pct": 10,
+                    "liquidity_delta_pct": 120,
+                    "volume_delta_pct": 300,
+                    "transactions_delta_pct": 120,
+                    "persistence_ratio": 0.58
+                  },
+                  "significance_score": 83.33,
+                  "score_components": {
+                    "volume": 25,
+                    "liquidity": 20,
+                    "transactions": 20,
+                    "price": 7.5,
+                    "persistence": 5.83,
+                    "evidence": 5
+                  },
+                  "score_version": "rh-market-significance-v1",
+                  "investigation_href": "/rh-chain-signal-desk/tokens/0x020bfc650a365f8bb26819deaabf3e21291018b4?observation_id=0x020bfc650a365f8bb26819deaabf3e21291018b4%3A0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb%3A12",
+                  "history_href": "/v1/rh-chain/market/snapshots/0x020bfc650a365f8bb26819deaabf3e21291018b4",
+                  "judgment_state": "unreviewed_observation",
+                  "execution_authorized": false
+                },
+                "evidence": {
+                  "state": "INCOMPLETE",
+                  "inputs": {
+                    "exact_identity": true,
+                    "category_identity_unambiguous": true,
+                    "category_identity_available": true,
+                    "reviewed_category": true,
+                    "paid_attention_window": false
+                  },
+                  "missing_inputs": [
+                    "paid_attention_window"
+                  ]
+                },
+                "category_score": null,
+                "evidence_href": "/v1/rh-chain/market/snapshots/0x020bfc650a365f8bb26819deaabf3e21291018b4",
+                "judgment_state": "unreviewed_observation",
+                "execution_authorized": false
+              }
+            ],
+            "observed_count": 1,
+            "scored_count": 0,
+            "coverage": "INCOMPLETE"
+          },
+          {
+            "category": "stables",
+            "label": "Stables",
+            "policy": {
+              "label": "Stables",
+              "score_version": "stable-reference-coverage-v1",
+              "required": [
+                "exact_identity",
+                "issuer_registry",
+                "peg_reference",
+                "reserve_evidence",
+                "redemption_constraints"
+              ],
+              "scoring": "Withheld until a verified issuer, observed peg reference, reserves and redemption constraints are available."
+            },
+            "findings": [],
+            "observed_count": 0,
+            "scored_count": 0,
+            "coverage": "EMPTY"
+          },
+          {
+            "category": "market_discovery",
+            "label": "Market discovery",
+            "policy": {
+              "label": "Market discovery",
+              "score_version": "rh-market-significance-v1",
+              "required": [
+                "exact_identity"
+              ],
+              "scoring": "Stored market activity only; no asset-class financial interpretation."
+            },
+            "findings": [
+              {
+                "token_contract": "0x3333333333333333333333333333333333333333",
+                "pair_address": "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                "ticker": "Discovery fixture",
+                "category": "market_discovery",
+                "identity_source": null,
+                "observation": {
+                  "rank": 3,
+                  "chain_id": 4663,
+                  "token_contract": "0x3333333333333333333333333333333333333333",
+                  "pair_address": "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                  "ticker": "Discovery fixture",
+                  "name": "Fixture asset",
+                  "lane": "market_discovery",
+                  "observation_id": "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:12",
+                  "baseline_observation_id": "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:0",
+                  "observation_ids": [
+                    "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:0",
+                    "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:1",
+                    "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:2",
+                    "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:3",
+                    "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:4",
+                    "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:5",
+                    "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:6",
+                    "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:7",
+                    "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:8",
+                    "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:9",
+                    "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:10",
+                    "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:11",
+                    "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:12"
+                  ],
+                  "observed_at": "2026-10-13T06:09:51.171Z",
+                  "source": {
+                    "source_name": "Persisted DEX Screener exact-pair observation",
+                    "source_url": "https://dexscreener.com/robinhood/0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "observed_at": "2026-10-13T06:09:51.171Z",
+                    "updated_at": "2026-10-13T06:09:51.171Z",
+                    "data_mode": "persisted",
+                    "confidence_level": "low",
+                    "note": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+                    "caveat": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+                    "source": "Persisted DEX Screener exact-pair observation",
+                    "url": "https://dexscreener.com/robinhood/0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+                  },
+                  "freshness": {
+                    "state": "fresh",
+                    "observed_at": "2026-10-13T06:09:51.171Z",
+                    "fetched_at": "2026-10-13T06:09:51.171Z",
+                    "age_ms": 518,
+                    "time_basis": "provider_fetch"
+                  },
+                  "evidence_state": "QUALIFIED_OBSERVATION",
+                  "coverage": {
+                    "sample_count": 13,
+                    "elapsed_ms": 3600000,
+                    "maximum_gap_ms": 300000,
+                    "provider_timestamp_count": 0,
+                    "state": "complete"
+                  },
+                  "metrics": {
+                    "price_usd": 2.2,
+                    "liquidity_usd": 22000,
+                    "rolling_volume_1h_usd": 400,
+                    "rolling_volume_24h_usd": 32000,
+                    "rolling_transactions_24h": 44,
+                    "price_delta_pct": 10,
+                    "liquidity_delta_pct": 120,
+                    "volume_delta_pct": 300,
+                    "transactions_delta_pct": 120,
+                    "persistence_ratio": 0.58
+                  },
+                  "significance_score": 83.33,
+                  "score_components": {
+                    "volume": 25,
+                    "liquidity": 20,
+                    "transactions": 20,
+                    "price": 7.5,
+                    "persistence": 5.83,
+                    "evidence": 5
+                  },
+                  "score_version": "rh-market-significance-v1",
+                  "investigation_href": "/rh-chain-signal-desk/tokens/0x3333333333333333333333333333333333333333?observation_id=0x3333333333333333333333333333333333333333%3A0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc%3A12",
+                  "history_href": "/v1/rh-chain/market/snapshots/0x3333333333333333333333333333333333333333",
+                  "judgment_state": "unreviewed_observation",
+                  "execution_authorized": false
+                },
+                "evidence": {
+                  "state": "INPUTS_PRESENT",
+                  "inputs": {
+                    "exact_identity": true,
+                    "category_identity_unambiguous": true,
+                    "category_identity_available": true
+                  },
+                  "missing_inputs": []
+                },
+                "category_score": {
+                  "value": 83.33,
+                  "version": "rh-market-significance-v1",
+                  "scope": "OBSERVED_ACTIVITY_ONLY",
+                  "components": {
+                    "volume": 25,
+                    "liquidity": 20,
+                    "transactions": 20,
+                    "price": 7.5,
+                    "persistence": 5.83,
+                    "evidence": 5
+                  }
+                },
+                "evidence_href": "/v1/rh-chain/market/snapshots/0x3333333333333333333333333333333333333333",
+                "judgment_state": "unreviewed_observation",
+                "execution_authorized": false
+              }
+            ],
+            "observed_count": 1,
+            "scored_count": 1,
+            "coverage": "INPUTS_PRESENT"
+          }
+        ],
+        "research": [],
+        "universe_truncated": false,
+        "canonical_market_href": "/v1/rh-chain/market/movers",
+        "disclaimer": "Category scores describe observations within their own methodology. They cannot be compared across asset classes and confer no reviewed judgment or execution authority.",
+        "execution_authorized": false
+      },
+      "meta": {
+        "source_policy": "Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.",
+        "record_count": null,
+        "provider_status": [
+          {
+            "provider_name": "DefiLlama",
+            "data_mode": "live_future",
+            "live_indexing_enabled": false
+          },
+          {
+            "provider_name": "DexScreener",
+            "data_mode": "live_future",
+            "live_indexing_enabled": false
+          },
+          {
+            "provider_name": "CoinGecko",
+            "data_mode": "live_future",
+            "live_indexing_enabled": false
+          },
+          {
+            "provider_name": "Blockscout",
+            "data_mode": "live_future",
+            "live_indexing_enabled": false
+          },
+          {
+            "provider_name": "Dune",
+            "data_mode": "live_future",
+            "live_indexing_enabled": false
+          },
+          {
+            "provider_name": "X/social signals",
+            "data_mode": "live_future",
+            "live_indexing_enabled": false
+          }
+        ],
+        "live_indexing_enabled": false
+      },
+      "sources": [
+        {
+          "source_name": "Persisted DEX Screener exact-pair observation",
+          "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "observed_at": "2026-10-13T06:09:51.171Z",
+          "updated_at": "2026-10-13T06:09:51.171Z",
+          "data_mode": "persisted",
+          "confidence_level": "low",
+          "note": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+          "caveat": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+          "source": "Persisted DEX Screener exact-pair observation",
+          "url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "source_name": "Persisted DEX Screener exact-pair observation",
+          "source_url": "https://dexscreener.com/robinhood/0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "observed_at": "2026-10-13T06:09:51.171Z",
+          "updated_at": "2026-10-13T06:09:51.171Z",
+          "data_mode": "persisted",
+          "confidence_level": "low",
+          "note": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+          "caveat": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+          "source": "Persisted DEX Screener exact-pair observation",
+          "url": "https://dexscreener.com/robinhood/0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        {
+          "source_name": "Persisted DEX Screener exact-pair observation",
+          "source_url": "https://dexscreener.com/robinhood/0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "observed_at": "2026-10-13T06:09:51.171Z",
+          "updated_at": "2026-10-13T06:09:51.171Z",
+          "data_mode": "persisted",
+          "confidence_level": "low",
+          "note": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+          "caveat": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+          "source": "Persisted DEX Screener exact-pair observation",
+          "url": "https://dexscreener.com/robinhood/0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        }
+      ],
+      "generated_at": "2026-10-13T06:09:51.689Z",
+      "data_mode": "persisted",
+      "disclaimer": "Category scores describe observations within their own methodology. They cannot be compared across asset classes and confer no reviewed judgment or execution authority."
+    }
+  },
+  "frontdoor": {
+    "status": 200,
+    "headers": {
+      "vary": "Accept-Encoding",
+      "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, Idempotency-Key, Server-Timing",
+      "etag": "\"frontdoor-1\"",
+      "cache-control": "public, max-age=15, s-maxage=15, stale-while-revalidate=45, stale-if-error=300",
+      "x-frontdoor-version": "1",
+      "content-type": "application/json; charset=utf-8",
+      "x-content-type-options": "nosniff",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "x-frame-options": "SAMEORIGIN",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "content-length": "41201",
+      "date": "Tue, 13 Oct 2026 06:09:51 GMT",
+      "connection": "keep-alive"
+    },
+    "body": {
+      "data": {
+        "object_type": "RH_4663_FRONTDOOR_STATE",
+        "generated_at": "2026-10-13T06:09:51.710Z",
+        "freshness": {
+          "state": "OBSERVED",
+          "source_observed_at": "2026-10-13T06:09:51.171Z"
+        },
+        "frontdoor_version": {
+          "object_type": "FRONTDOOR_VERSION",
+          "version": 1,
+          "changed": [
+            "RMM_CENSUS",
+            "WATCH_CASES",
+            "AI_NVDA_CASE",
+            "PLTR_PREFLIGHT",
+            "PLTR_SHADOW",
+            "SIGNALS",
+            "PULSE",
+            "CAMPAIGN",
+            "MARKET_OBSERVATIONS",
+            "SYSTEM"
+          ],
+          "generated_at": "2026-10-13T06:09:51.710Z"
+        },
+        "frontdoor_version_durability": "EPHEMERAL",
+        "now_cards": [
+          {
+            "id": "observation:0x1111111111111111111111111111111111111111",
+            "topic": "Stock Tokens",
+            "headline": "PLTR liquidity changed 120% over the observed hour.",
+            "summary": "Market movement observed. Category evidence remains incomplete.",
+            "primary_metric": "$22,000 indexed liquidity",
+            "delta": "13 observations",
+            "evidence_state": "OBSERVED",
+            "freshness": "2026-10-13T06:09:51.171Z",
+            "source_type": "market_observation",
+            "source_ref": {
+              "source_type": "market_observation",
+              "source_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12",
+              "href": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "observed_at": "2026-10-13T06:09:51.171Z"
+            },
+            "deep_link": "/rh-chain-signal-desk/tokens/0x1111111111111111111111111111111111111111?observation_id=0x1111111111111111111111111111111111111111%3A0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%3A12",
+            "priority_reason": "Fresh, persisted exact-contract/pair measurement; no reviewed financial interpretation."
+          },
+          {
+            "id": "observation:0x020bfc650a365f8bb26819deaabf3e21291018b4",
+            "topic": "Memes",
+            "headline": "Meme fixture liquidity changed 120% over the observed hour.",
+            "summary": "Market movement observed. Category evidence remains incomplete.",
+            "primary_metric": "$22,000 indexed liquidity",
+            "delta": "13 observations",
+            "evidence_state": "OBSERVED",
+            "freshness": "2026-10-13T06:09:51.171Z",
+            "source_type": "market_observation",
+            "source_ref": {
+              "source_type": "market_observation",
+              "source_id": "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:12",
+              "href": "https://dexscreener.com/robinhood/0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "observed_at": "2026-10-13T06:09:51.171Z"
+            },
+            "deep_link": "/rh-chain-signal-desk/tokens/0x020bfc650a365f8bb26819deaabf3e21291018b4?observation_id=0x020bfc650a365f8bb26819deaabf3e21291018b4%3A0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb%3A12",
+            "priority_reason": "Fresh, persisted exact-contract/pair measurement; no reviewed financial interpretation."
+          }
+        ],
+        "watch_cards": [
+          {
+            "id": "coverage:0x1111111111111111111111111111111111111111",
+            "topic": "Stock Tokens evidence",
+            "headline": "PLTR has 4 category evidence gaps.",
+            "summary": "open_market_session, adjusted_reference, corporate_action_history, issuer_terms",
+            "primary_metric": "Category score withheld",
+            "delta": null,
+            "evidence_state": "INSUFFICIENT_DATA",
+            "freshness": "2026-10-13T06:09:51.171Z",
+            "source_type": "market_observation",
+            "source_ref": {
+              "source_type": "market_observation",
+              "source_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12",
+              "href": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "observed_at": "2026-10-13T06:09:51.171Z"
+            },
+            "deep_link": "/v1/4663/stock-tokens/0x1111111111111111111111111111111111111111/evidence",
+            "priority_reason": "Missing category evidence is surfaced before interpretation."
+          },
+          {
+            "id": "coverage:0x020bfc650a365f8bb26819deaabf3e21291018b4",
+            "topic": "Memes evidence",
+            "headline": "Meme fixture has 1 category evidence gaps.",
+            "summary": "paid_attention_window",
+            "primary_metric": "Category score withheld",
+            "delta": null,
+            "evidence_state": "INSUFFICIENT_DATA",
+            "freshness": "2026-10-13T06:09:51.171Z",
+            "source_type": "market_observation",
+            "source_ref": {
+              "source_type": "market_observation",
+              "source_id": "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:12",
+              "href": "https://dexscreener.com/robinhood/0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "observed_at": "2026-10-13T06:09:51.171Z"
+            },
+            "deep_link": "/v1/rh-chain/market/snapshots/0x020bfc650a365f8bb26819deaabf3e21291018b4",
+            "priority_reason": "Missing category evidence is surfaced before interpretation."
+          },
+          {
+            "id": "watch:RH_STOCK_MEME_MAP_20260903",
+            "topic": "DEVELOPING",
+            "headline": "RH Stock / Meme Map Census",
+            "summary": "Watch reports approximately 216 Stock Tokens, 27 direct meme/stock pairs and 22 underlying tickers. Radar counts the active canonical denominator and verifies exact identity plus quote direction before any category conclusion.",
+            "primary_metric": "PARTIAL",
+            "delta": null,
+            "evidence_state": "MIXED",
+            "freshness": "2026-09-03T00:00:00.000Z",
+            "source_type": "reflexive_watch",
+            "source_ref": {
+              "source_type": "reflexive_watch",
+              "source_id": "RH_STOCK_MEME_MAP_20260903",
+              "href": "/v1/4663/reflexive/watch/cases/RH_STOCK_MEME_MAP_20260903",
+              "observed_at": "2026-09-03T00:00:00.000Z"
+            },
+            "deep_link": "/4663/reflexive/watch/RH_STOCK_MEME_MAP_20260903",
+            "priority_reason": "Developing Watch case with an explicit next proof requirement."
+          },
+          {
+            "id": "watch:AI_NVDA_CAPITAL_VS_FLOW",
+            "topic": "FALSIFICATION",
+            "headline": "AI / NVDA Capital vs Flow",
+            "summary": "Crypto-native AI market activity coincided with material canonical NVDA Stock Token usage, but capital, flow and attribution must remain separate.",
+            "primary_metric": "PARTIAL",
+            "delta": null,
+            "evidence_state": "MIXED",
+            "freshness": "2026-09-01T00:00:00.000Z",
+            "source_type": "reflexive_watch",
+            "source_ref": {
+              "source_type": "reflexive_watch",
+              "source_id": "AI_NVDA_CAPITAL_VS_FLOW",
+              "href": "/v1/4663/reflexive/watch/cases/AI_NVDA_CAPITAL_VS_FLOW",
+              "observed_at": "2026-09-01T00:00:00.000Z"
+            },
+            "deep_link": "/4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW",
+            "priority_reason": "Falsification evidence is surfaced before confirmation."
+          }
+        ],
+        "open_loops": [
+          {
+            "loop_id": "market-coverage:0x1111111111111111111111111111111111111111",
+            "question": "What evidence is still missing for PLTR?",
+            "short_context": "Stock Tokens observations are available; category interpretation remains blocked.",
+            "source_type": "market_observation",
+            "source_ref": {
+              "source_type": "market_observation",
+              "source_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12",
+              "href": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "observed_at": "2026-10-13T06:09:51.171Z"
+            },
+            "state": "BLOCKED_BY_DATA",
+            "opened_at": "2026-10-13T06:09:51.171Z",
+            "last_changed_at": "2026-10-13T06:09:51.171Z",
+            "expected_checkpoint_at": null,
+            "expected_resolution_at": null,
+            "progress": {
+              "type": "COUNT",
+              "numerator": 4,
+              "denominator": 8,
+              "label": "Category input coverage"
+            },
+            "current_evidence": "13 exact-pair observations.",
+            "next_evidence_needed": "open_market_session, adjusted_reference, corporate_action_history, issuer_terms",
+            "resolution_condition": "All category-required observations are present and fresh. This closes an input gap only.",
+            "falsification_condition": "Contract or pair identity disagrees with the source observations.",
+            "deep_link": "/v1/4663/stock-tokens/0x1111111111111111111111111111111111111111/evidence",
+            "priority_reason": "A derived coverage checkpoint; it cannot publish a reviewed conclusion or authorize execution."
+          },
+          {
+            "loop_id": "loop:AI_NVDA_CAPITAL_VS_FLOW",
+            "question": "Will NVDA remain AI's capital anchor through the D7 checkpoint?",
+            "short_context": "AI/NVDA capital persistence is tested against same-block inventory, supply, and quote topology.",
+            "source_type": "AI_NVDA_CAPITAL_VS_FLOW",
+            "source_ref": {
+              "source_type": "reflexive_watch",
+              "source_id": "AI_NVDA_CAPITAL_VS_FLOW",
+              "href": "/v1/4663/reflexive/watch/cases/AI_NVDA_CAPITAL_VS_FLOW",
+              "observed_at": "2026-09-01T00:00:00.000Z"
+            },
+            "state": "OBSERVING",
+            "opened_at": "2026-09-01T00:00:00.000Z",
+            "last_changed_at": "2026-09-01T00:00:00.000Z",
+            "expected_checkpoint_at": null,
+            "progress": {
+              "type": "STATE_SEQUENCE",
+              "current": "MIXED",
+              "sequence": [
+                "OBSERVING",
+                "VERIFYING",
+                "D7"
+              ],
+              "label": "AI/NVDA: MIXED"
+            },
+            "current_evidence": "OBSERVING",
+            "next_evidence_needed": "Re-run AI/NVDA at D7 with same-block launch-position inventory, totalSupply and quote topology.",
+            "resolution_condition": "D7 aligned evidence shows retained NVDA capital under the frozen audit policy.",
+            "falsification_condition": "Aligned D7 evidence crosses the precommitted capital-retention and stock-share falsification band.",
+            "deep_link": "/4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW",
+            "priority_reason": "High-importance cross-market persistence question with explicit falsification criteria.",
+            "expected_resolution_at": null
+          },
+          {
+            "loop_id": "loop:BONER_HIMS_FLOAT_STRESS",
+            "question": "Can the historical HIMS absorption claim be independently reproduced?",
+            "short_context": "The historical claim remains an audit target until exact pool and same-timestamp supply evidence exists.",
+            "source_type": "BONER_HIMS_FLOAT_STRESS",
+            "source_ref": {
+              "source_type": "reflexive_watch",
+              "source_id": "BONER_HIMS_FLOAT_STRESS",
+              "href": "/v1/4663/reflexive/watch/cases/BONER_HIMS_FLOAT_STRESS",
+              "observed_at": "2026-09-01T00:00:00.000Z"
+            },
+            "state": "BLOCKED_BY_DATA",
+            "opened_at": "2026-09-01T00:00:00.000Z",
+            "last_changed_at": "2026-09-01T00:00:00.000Z",
+            "expected_checkpoint_at": null,
+            "progress": {
+              "type": "NONE",
+              "label": "AWAITING EVIDENCE"
+            },
+            "current_evidence": "NOT_REPRODUCIBLE",
+            "next_evidence_needed": "Attempt archive-capability proof for exact HIMS pool and historical totalSupply block.",
+            "resolution_condition": "Exact historical pool state and same-timestamp HIMS totalSupply reproduce the claim.",
+            "falsification_condition": "The exact historical state or claim cannot be reproduced.",
+            "deep_link": "/4663/reflexive/watch/BONER_HIMS_FLOAT_STRESS",
+            "priority_reason": "High falsification value; historical evidence gaps are explicit.",
+            "expected_resolution_at": null
+          },
+          {
+            "loop_id": "loop:rh4663:2026-10-13",
+            "question": "What will dominate the next canonical 24h Robinhood Chain observation window?",
+            "short_context": "Pulse resolves against the published deterministic observation window.",
+            "source_type": "PULSE",
+            "source_ref": {
+              "source_type": "pulse_window",
+              "source_id": "rh4663:2026-10-13",
+              "href": "/v1/4663/pulse/windows/rh4663%3A2026-10-13",
+              "observed_at": "2026-10-13T00:00:00.000Z"
+            },
+            "state": "AWAITING_CHECKPOINT",
+            "opened_at": "2026-10-13T00:00:00.000Z",
+            "last_changed_at": "2026-10-13T00:00:00.000Z",
+            "expected_checkpoint_at": "2026-10-14T00:00:00.000Z",
+            "progress": {
+              "type": "TIME_TO_CHECKPOINT",
+              "checkpoint_at": "2026-10-14T00:00:00.000Z",
+              "seconds_remaining": 64208,
+              "label": "PULSE CHECKPOINT IN 17H"
+            },
+            "current_evidence": "open.",
+            "next_evidence_needed": "The canonical 24h observation window must close and resolve.",
+            "resolution_condition": "The canonical Pulse resolution is published for this window.",
+            "falsification_condition": null,
+            "deep_link": "/4663/pulse/windows/rh4663%3A2026-10-13",
+            "priority_reason": "Known checkpoint and deterministic resolution make this a concrete return point.",
+            "expected_resolution_at": null
+          }
+        ],
+        "change_events": [
+          {
+            "object_type": "FRONTDOOR_CHANGE_EVENT",
+            "event_id": "frontdoor-change:1:WATCH_CASES",
+            "frontdoor_version": 1,
+            "occurred_at": "2026-10-13T06:09:51.710Z",
+            "source_type": "REFLEXIVE_WATCH",
+            "source_ref": {
+              "source_type": "reflexive_watch",
+              "source_id": "watch:2026-09-03T00:00:00.000Z",
+              "href": "/v1/4663/reflexive/watch",
+              "observed_at": "2026-09-03T00:00:00.000Z"
+            },
+            "change_type": "NEW",
+            "headline": "Watch case state changed",
+            "before": null,
+            "after": [
+              {
+                "id": "watch:RH_STOCK_MEME_MAP_20260903",
+                "topic": "DEVELOPING",
+                "headline": "RH Stock / Meme Map Census",
+                "summary": "Watch reports approximately 216 Stock Tokens, 27 direct meme/stock pairs and 22 underlying tickers. Radar counts the active canonical denominator and verifies exact identity plus quote direction before any category conclusion.",
+                "primary_metric": "PARTIAL",
+                "delta": null,
+                "evidence_state": "MIXED",
+                "freshness": "2026-09-03T00:00:00.000Z",
+                "source": "RH_STOCK_MEME_MAP_20260903",
+                "deep_link": "/4663/reflexive/watch/RH_STOCK_MEME_MAP_20260903"
+              },
+              {
+                "id": "watch:AI_NVDA_CAPITAL_VS_FLOW",
+                "topic": "FALSIFICATION",
+                "headline": "AI / NVDA Capital vs Flow",
+                "summary": "Crypto-native AI market activity coincided with material canonical NVDA Stock Token usage, but capital, flow and attribution must remain separate.",
+                "primary_metric": "PARTIAL",
+                "delta": null,
+                "evidence_state": "MIXED",
+                "freshness": "2026-09-01T00:00:00.000Z",
+                "source": "AI_NVDA_CAPITAL_VS_FLOW",
+                "deep_link": "/4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW"
+              }
+            ],
+            "importance": 90,
+            "deep_link": "/4663/reflexive/watch",
+            "source_observed_at": "2026-09-03T00:00:00.000Z"
+          },
+          {
+            "object_type": "FRONTDOOR_CHANGE_EVENT",
+            "event_id": "frontdoor-change:1:SYSTEM",
+            "frontdoor_version": 1,
+            "occurred_at": "2026-10-13T06:09:51.710Z",
+            "source_type": "FRONTDOOR",
+            "source_ref": {
+              "source_type": "frontdoor",
+              "source_id": "system",
+              "href": "/4663",
+              "observed_at": null
+            },
+            "change_type": "NEW",
+            "headline": "Frontdoor coverage changed",
+            "before": null,
+            "after": {
+              "census": {
+                "status": "degraded",
+                "health_state": "DEGRADED",
+                "observed_at": null,
+                "failure_class": null
+              },
+              "watch": {
+                "status": "degraded",
+                "health_state": "STALE",
+                "observed_at": "2026-09-03T00:00:00.000Z",
+                "failure_class": null
+              },
+              "preflight": {
+                "status": "degraded",
+                "health_state": "DEGRADED",
+                "observed_at": null,
+                "failure_class": null
+              },
+              "pulse": {
+                "status": "degraded",
+                "health_state": "STALE",
+                "observed_at": "2026-10-13T00:00:00.000Z",
+                "failure_class": null
+              },
+              "signals": {
+                "status": "degraded",
+                "health_state": "DEGRADED",
+                "observed_at": null,
+                "failure_class": null
+              }
+            },
+            "importance": 40,
+            "deep_link": "/4663",
+            "source_observed_at": null
+          },
+          {
+            "object_type": "FRONTDOOR_CHANGE_EVENT",
+            "event_id": "frontdoor-change:1:SIGNALS",
+            "frontdoor_version": 1,
+            "occurred_at": "2026-10-13T06:09:51.710Z",
+            "source_type": "SIGNAL_CARD",
+            "source_ref": {
+              "source_type": "signal_card",
+              "source_id": "SIGNALS",
+              "href": "/4663/signals",
+              "observed_at": null
+            },
+            "change_type": "NEW",
+            "headline": "New signal evidence added",
+            "before": null,
+            "after": [],
+            "importance": 70,
+            "deep_link": "/4663/signals",
+            "source_observed_at": null
+          },
+          {
+            "object_type": "FRONTDOOR_CHANGE_EVENT",
+            "event_id": "frontdoor-change:1:RMM_CENSUS",
+            "frontdoor_version": 1,
+            "occurred_at": "2026-10-13T06:09:51.710Z",
+            "source_type": "RMM_CATEGORY_CENSUS",
+            "source_ref": {
+              "source_type": "rmm_census",
+              "source_id": "RMM_CENSUS",
+              "href": "/v1/4663/reflexive/census",
+              "observed_at": null
+            },
+            "change_type": "NEW",
+            "headline": "RMM Census updated",
+            "before": null,
+            "after": {
+              "cards": [],
+              "loops": []
+            },
+            "importance": 96,
+            "deep_link": "/4663/reflexive/census",
+            "source_observed_at": null
+          },
+          {
+            "object_type": "FRONTDOOR_CHANGE_EVENT",
+            "event_id": "frontdoor-change:1:PULSE",
+            "frontdoor_version": 1,
+            "occurred_at": "2026-10-13T06:09:51.710Z",
+            "source_type": "PULSE",
+            "source_ref": {
+              "source_type": "pulse_window",
+              "source_id": "rh4663:2026-10-13",
+              "href": "/v1/4663/pulse/windows/rh4663%3A2026-10-13",
+              "observed_at": "2026-10-13T00:00:00.000Z"
+            },
+            "change_type": "NEW",
+            "headline": "Pulse window changed",
+            "before": null,
+            "after": {
+              "window_id": "rh4663:2026-10-13",
+              "opens_at": "2026-10-13T00:00:00.000Z",
+              "closes_at": "2026-10-14T00:00:00.000Z",
+              "state": "open",
+              "resolution_state": null,
+              "resolved_category": null
+            },
+            "importance": 86,
+            "deep_link": "/4663/pulse",
+            "source_observed_at": "2026-10-13T00:00:00.000Z"
+          },
+          {
+            "object_type": "FRONTDOOR_CHANGE_EVENT",
+            "event_id": "frontdoor-change:1:PLTR_SHADOW",
+            "frontdoor_version": 1,
+            "occurred_at": "2026-10-13T06:09:51.710Z",
+            "source_type": "IPX_PLTR_SHADOW",
+            "source_ref": {
+              "source_type": "pltr_shadow",
+              "source_id": "shadow-status",
+              "href": "/v1/4663/reflexive/preflight/ipx-pltr/shadow/status",
+              "observed_at": null
+            },
+            "change_type": "NEW",
+            "headline": "PLTR Shadow Observation updated",
+            "before": null,
+            "after": [],
+            "importance": 92,
+            "deep_link": "/4663/reflexive/preflight/ipx-pltr/shadow/status",
+            "source_observed_at": null
+          },
+          {
+            "object_type": "FRONTDOOR_CHANGE_EVENT",
+            "event_id": "frontdoor-change:1:PLTR_PREFLIGHT",
+            "frontdoor_version": 1,
+            "occurred_at": "2026-10-13T06:09:51.710Z",
+            "source_type": "FRONTDOOR",
+            "source_ref": {
+              "source_type": "frontdoor",
+              "source_id": "system",
+              "href": "/4663",
+              "observed_at": null
+            },
+            "change_type": "NEW",
+            "headline": "Frontdoor coverage changed",
+            "before": null,
+            "after": {
+              "cards": [],
+              "loops": []
+            },
+            "importance": 40,
+            "deep_link": "/4663",
+            "source_observed_at": null
+          },
+          {
+            "object_type": "FRONTDOOR_CHANGE_EVENT",
+            "event_id": "frontdoor-change:1:MARKET_OBSERVATIONS",
+            "frontdoor_version": 1,
+            "occurred_at": "2026-10-13T06:09:51.710Z",
+            "source_type": "market_observation",
+            "source_ref": {
+              "source_type": "market_observation",
+              "source_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12",
+              "href": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "observed_at": "2026-10-13T06:09:51.171Z"
+            },
+            "change_type": "NEW",
+            "headline": "Stored market observations or category coverage changed",
+            "before": null,
+            "after": {
+              "projection_id": "rh-categories:e0bc845f2d6432cd87a3b0e2d3d3c2736a2432a00bfb25d9477e1eb971ec6de4",
+              "health": {
+                "status": "available",
+                "health_state": "HEALTHY",
+                "observed_at": "2026-10-13T06:09:51.171Z",
+                "failure_class": null
+              }
+            },
+            "importance": 88,
+            "deep_link": "/4663#market-categories",
+            "source_observed_at": "2026-10-13T06:09:51.171Z"
+          },
+          {
+            "object_type": "FRONTDOOR_CHANGE_EVENT",
+            "event_id": "frontdoor-change:1:CAMPAIGN",
+            "frontdoor_version": 1,
+            "occurred_at": "2026-10-13T06:09:51.710Z",
+            "source_type": "FRONTDOOR",
+            "source_ref": {
+              "source_type": "frontdoor",
+              "source_id": "system",
+              "href": "/4663",
+              "observed_at": null
+            },
+            "change_type": "NEW",
+            "headline": "Frontdoor coverage changed",
+            "before": null,
+            "after": {},
+            "importance": 40,
+            "deep_link": "/4663",
+            "source_observed_at": null
+          },
+          {
+            "object_type": "FRONTDOOR_CHANGE_EVENT",
+            "event_id": "frontdoor-change:1:AI_NVDA_CASE",
+            "frontdoor_version": 1,
+            "occurred_at": "2026-10-13T06:09:51.710Z",
+            "source_type": "AI_NVDA_CAPITAL_VS_FLOW",
+            "source_ref": {
+              "source_type": "reflexive_watch",
+              "source_id": "watch:2026-09-03T00:00:00.000Z",
+              "href": "/v1/4663/reflexive/watch",
+              "observed_at": "2026-09-03T00:00:00.000Z"
+            },
+            "change_type": "NEW",
+            "headline": "AI/NVDA state changed",
+            "before": null,
+            "after": {
+              "cards": [
+                {
+                  "id": "watch:AI_NVDA_CAPITAL_VS_FLOW",
+                  "topic": "FALSIFICATION",
+                  "headline": "AI / NVDA Capital vs Flow",
+                  "summary": "Crypto-native AI market activity coincided with material canonical NVDA Stock Token usage, but capital, flow and attribution must remain separate.",
+                  "primary_metric": "PARTIAL",
+                  "delta": null,
+                  "evidence_state": "MIXED",
+                  "freshness": "2026-09-01T00:00:00.000Z",
+                  "source": "AI_NVDA_CAPITAL_VS_FLOW",
+                  "deep_link": "/4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW"
+                }
+              ],
+              "loops": [
+                {
+                  "loop_id": "loop:AI_NVDA_CAPITAL_VS_FLOW",
+                  "question": "Will NVDA remain AI's capital anchor through the D7 checkpoint?",
+                  "source_type": "AI_NVDA_CAPITAL_VS_FLOW",
+                  "state": "OBSERVING",
+                  "progress": {
+                    "type": "STATE_SEQUENCE",
+                    "current": "MIXED",
+                    "sequence": [
+                      "OBSERVING",
+                      "VERIFYING",
+                      "D7"
+                    ],
+                    "label": "AI/NVDA: MIXED"
+                  },
+                  "opened_at": "2026-09-01T00:00:00.000Z",
+                  "expected_checkpoint_at": null,
+                  "current_evidence": "OBSERVING",
+                  "next_evidence_needed": "Re-run AI/NVDA at D7 with same-block launch-position inventory, totalSupply and quote topology.",
+                  "deep_link": "/4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW"
+                }
+              ]
+            },
+            "importance": 100,
+            "deep_link": "/4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW",
+            "source_observed_at": "2026-09-03T00:00:00.000Z"
+          }
+        ],
+        "current_call": {
+          "window_id": "rh4663:2026-10-13",
+          "state": "open",
+          "leading_rotation": null,
+          "total_calls": 0,
+          "opens_at": "2026-10-13T00:00:00.000Z",
+          "closes_at": "2026-10-14T00:00:00.000Z",
+          "resolution_state": null,
+          "resolved_category": null,
+          "deep_link": "/4663/pulse",
+          "source_ref": {
+            "source_type": "pulse_window",
+            "source_id": "rh4663:2026-10-13",
+            "href": "/v1/4663/pulse/windows/rh4663%3A2026-10-13",
+            "observed_at": "2026-10-13T00:00:00.000Z"
+          }
+        },
+        "proof_summary": {
+          "total_calls": 0,
+          "resolved_calls": null,
+          "note": "Personal proof is available after a signed CALL; this read model does not infer a wallet record.",
+          "deep_link": "/4663/receipts",
+          "source_ref": {
+            "source_type": "pulse_window",
+            "source_id": "rh4663:2026-10-13",
+            "href": "/v1/4663/pulse/windows/rh4663%3A2026-10-13",
+            "observed_at": "2026-10-13T00:00:00.000Z"
+          }
+        },
+        "system_status": {
+          "state": "partial",
+          "source_health": {
+            "census": {
+              "observed_at": null,
+              "current_observation_at": null,
+              "last_success_at": "2026-10-13T06:09:51.710Z",
+              "last_attempt_at": "2026-10-13T06:09:51.710Z",
+              "stale_after": "2026-10-12T06:09:51.710Z",
+              "source_latency_ms": 2,
+              "status": "degraded",
+              "health_state": "DEGRADED",
+              "failure_class": null,
+              "detail": "No persisted observation is available."
+            },
+            "watch": {
+              "observed_at": "2026-09-03T00:00:00.000Z",
+              "current_observation_at": "2026-09-03T00:00:00.000Z",
+              "last_success_at": "2026-10-13T06:09:51.710Z",
+              "last_attempt_at": "2026-10-13T06:09:51.710Z",
+              "stale_after": "2026-10-13T00:09:51.710Z",
+              "source_latency_ms": 2,
+              "status": "degraded",
+              "health_state": "STALE",
+              "failure_class": null,
+              "detail": "Latest persisted observation is stale."
+            },
+            "preflight": {
+              "observed_at": null,
+              "current_observation_at": null,
+              "last_success_at": "2026-10-13T06:09:51.710Z",
+              "last_attempt_at": "2026-10-13T06:09:51.710Z",
+              "stale_after": "2026-10-13T00:09:51.710Z",
+              "source_latency_ms": 2,
+              "status": "degraded",
+              "health_state": "DEGRADED",
+              "failure_class": null,
+              "detail": "No persisted observation is available."
+            },
+            "pulse": {
+              "observed_at": "2026-10-13T00:00:00.000Z",
+              "current_observation_at": "2026-10-13T00:00:00.000Z",
+              "last_success_at": "2026-10-13T06:09:51.710Z",
+              "last_attempt_at": "2026-10-13T06:09:51.710Z",
+              "stale_after": "2026-10-13T05:59:51.710Z",
+              "source_latency_ms": 2,
+              "status": "degraded",
+              "health_state": "STALE",
+              "failure_class": null,
+              "detail": "Latest persisted observation is stale."
+            },
+            "signals": {
+              "observed_at": null,
+              "current_observation_at": null,
+              "last_success_at": "2026-10-13T06:09:51.710Z",
+              "last_attempt_at": "2026-10-13T06:09:51.710Z",
+              "stale_after": "2026-10-12T06:09:51.710Z",
+              "source_latency_ms": 2,
+              "status": "degraded",
+              "health_state": "DEGRADED",
+              "failure_class": null,
+              "detail": "No persisted observation is available."
+            }
+          }
+        },
+        "source_refs": [
+          {
+            "source_type": "reflexive_watch",
+            "source_id": "watch:2026-09-03T00:00:00.000Z",
+            "href": "/v1/4663/reflexive/watch",
+            "observed_at": "2026-09-03T00:00:00.000Z"
+          },
+          {
+            "source_type": "pltr_shadow",
+            "source_id": "shadow-status",
+            "href": "/v1/4663/reflexive/preflight/ipx-pltr/shadow/status",
+            "observed_at": null
+          },
+          {
+            "source_type": "pulse_window",
+            "source_id": "rh4663:2026-10-13",
+            "href": "/v1/4663/pulse/windows/rh4663%3A2026-10-13",
+            "observed_at": "2026-10-13T00:00:00.000Z"
+          },
+          {
+            "source_type": "market_observation",
+            "source_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12",
+            "href": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T06:09:51.171Z"
+          },
+          {
+            "source_type": "market_observation",
+            "source_id": "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:12",
+            "href": "https://dexscreener.com/robinhood/0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "observed_at": "2026-10-13T06:09:51.171Z"
+          },
+          {
+            "source_type": "market_observation",
+            "source_id": "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:12",
+            "href": "https://dexscreener.com/robinhood/0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "observed_at": "2026-10-13T06:09:51.171Z"
+          }
+        ],
+        "market_categories": {
+          "object_type": "RH_CATEGORY_INTELLIGENCE",
+          "chain_id": 4663,
+          "methodology_version": "rh-category-evidence-v1",
+          "projection_id": "rh-categories:e0bc845f2d6432cd87a3b0e2d3d3c2736a2432a00bfb25d9477e1eb971ec6de4",
+          "market_projection_id": "rh-movers:8ebad88280cfb392c1486a8ff605316dc81a78b88db9cd11b828c0096a9f4b87",
+          "generated_at": "2026-10-13T06:09:51.710Z",
+          "observed_at": "2026-10-13T06:09:51.171Z",
+          "last_observed_at": "2026-10-13T06:09:51.171Z",
+          "state": "available",
+          "source_health": {
+            "market": "available",
+            "category_identity": "available",
+            "category_evidence": "available"
+          },
+          "categories": [
+            {
+              "category": "stock_tokens",
+              "label": "Stock Tokens",
+              "policy": {
+                "label": "Stock Tokens",
+                "score_version": "stock-reference-dislocation-v1",
+                "required": [
+                  "exact_identity",
+                  "issuer_registry",
+                  "open_market_session",
+                  "adjusted_reference",
+                  "corporate_action_history",
+                  "issuer_terms"
+                ],
+                "scoring": "Withheld until issuer terms, corporate-action history and aligned adjusted references are available."
+              },
+              "findings": [
+                {
+                  "token_contract": "0x1111111111111111111111111111111111111111",
+                  "pair_address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "ticker": "PLTR",
+                  "category": "stock_tokens",
+                  "identity_source": {
+                    "contract": "0x1111111111111111111111111111111111111111",
+                    "category": "stock_tokens",
+                    "source_id": "fixture-pltr",
+                    "href": "/v1/4663/stock-tokens/0x1111111111111111111111111111111111111111/evidence",
+                    "observed_at": "2026-10-13T06:09:51.171Z"
+                  },
+                  "observation": {
+                    "rank": 2,
+                    "chain_id": 4663,
+                    "token_contract": "0x1111111111111111111111111111111111111111",
+                    "pair_address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "ticker": "PLTR fixture",
+                    "name": "Fixture asset",
+                    "lane": "stock_token",
+                    "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12",
+                    "baseline_observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+                    "observation_ids": [
+                      "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+                      "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:1",
+                      "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:2",
+                      "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:3",
+                      "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:4",
+                      "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:5",
+                      "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:6",
+                      "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:7",
+                      "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:8",
+                      "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:9",
+                      "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:10",
+                      "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:11",
+                      "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12"
+                    ],
+                    "observed_at": "2026-10-13T06:09:51.171Z",
+                    "source": {
+                      "source_name": "Persisted DEX Screener exact-pair observation",
+                      "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "observed_at": "2026-10-13T06:09:51.171Z",
+                      "updated_at": "2026-10-13T06:09:51.171Z",
+                      "data_mode": "persisted",
+                      "confidence_level": "low",
+                      "note": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+                      "caveat": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+                      "source": "Persisted DEX Screener exact-pair observation",
+                      "url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                    },
+                    "freshness": {
+                      "state": "fresh",
+                      "observed_at": "2026-10-13T06:09:51.171Z",
+                      "fetched_at": "2026-10-13T06:09:51.171Z",
+                      "age_ms": 539,
+                      "time_basis": "provider_fetch"
+                    },
+                    "evidence_state": "QUALIFIED_OBSERVATION",
+                    "coverage": {
+                      "sample_count": 13,
+                      "elapsed_ms": 3600000,
+                      "maximum_gap_ms": 300000,
+                      "provider_timestamp_count": 0,
+                      "state": "complete"
+                    },
+                    "metrics": {
+                      "price_usd": 2.2,
+                      "liquidity_usd": 22000,
+                      "rolling_volume_1h_usd": 400,
+                      "rolling_volume_24h_usd": 32000,
+                      "rolling_transactions_24h": 44,
+                      "price_delta_pct": 10,
+                      "liquidity_delta_pct": 120,
+                      "volume_delta_pct": 300,
+                      "transactions_delta_pct": 120,
+                      "persistence_ratio": 0.58
+                    },
+                    "significance_score": 83.33,
+                    "score_components": {
+                      "volume": 25,
+                      "liquidity": 20,
+                      "transactions": 20,
+                      "price": 7.5,
+                      "persistence": 5.83,
+                      "evidence": 5
+                    },
+                    "score_version": "rh-market-significance-v1",
+                    "investigation_href": "/rh-chain-signal-desk/tokens/0x1111111111111111111111111111111111111111?observation_id=0x1111111111111111111111111111111111111111%3A0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%3A12",
+                    "history_href": "/v1/rh-chain/market/snapshots/0x1111111111111111111111111111111111111111",
+                    "judgment_state": "unreviewed_observation",
+                    "execution_authorized": false
+                  },
+                  "evidence": {
+                    "state": "INCOMPLETE",
+                    "inputs": {
+                      "exact_identity": true,
+                      "category_identity_unambiguous": true,
+                      "category_identity_available": true,
+                      "issuer_registry": true,
+                      "open_market_session": false,
+                      "adjusted_reference": false,
+                      "corporate_action_history": false,
+                      "issuer_terms": false
+                    },
+                    "missing_inputs": [
+                      "open_market_session",
+                      "adjusted_reference",
+                      "corporate_action_history",
+                      "issuer_terms"
+                    ]
+                  },
+                  "category_score": null,
+                  "evidence_href": "/v1/4663/stock-tokens/0x1111111111111111111111111111111111111111/evidence",
+                  "judgment_state": "unreviewed_observation",
+                  "execution_authorized": false
+                }
+              ],
+              "observed_count": 1,
+              "scored_count": 0,
+              "coverage": "INCOMPLETE"
+            },
+            {
+              "category": "rwa_defi",
+              "label": "RWA/DeFi",
+              "policy": {
+                "label": "RWA/DeFi",
+                "score_version": "rwa-mechanism-coverage-v1",
+                "required": [
+                  "exact_identity",
+                  "reviewed_category",
+                  "mechanism_evidence",
+                  "asset_or_protocol_reference",
+                  "redemption_or_protocol_constraints"
+                ],
+                "scoring": "Withheld until the specific asset or protocol mechanism and constraints are observed."
+              },
+              "findings": [],
+              "observed_count": 0,
+              "scored_count": 0,
+              "coverage": "EMPTY"
+            },
+            {
+              "category": "memes",
+              "label": "Memes",
+              "policy": {
+                "label": "Memes",
+                "score_version": "meme-market-activity-v1",
+                "required": [
+                  "exact_identity",
+                  "reviewed_category",
+                  "paid_attention_window"
+                ],
+                "scoring": "Absolute liquidity change 30%, rolling volume change 30%, transaction change 25%, persistence 10%, paid-attention coverage 5%. Price and paid promotion size earn no points."
+              },
+              "findings": [
+                {
+                  "token_contract": "0x020bfc650a365f8bb26819deaabf3e21291018b4",
+                  "pair_address": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                  "ticker": "Meme fixture",
+                  "category": "memes",
+                  "identity_source": {
+                    "contract": "0x020bfc650a365f8bb26819deaabf3e21291018b4",
+                    "category": "memes",
+                    "source_id": "curated:0x020bfc650a365f8bb26819deaabf3e21291018b4",
+                    "href": "/v1/rh-chain/market-structure",
+                    "observed_at": "2026-07-16T00:00:00.000Z"
+                  },
+                  "observation": {
+                    "rank": 1,
+                    "chain_id": 4663,
+                    "token_contract": "0x020bfc650a365f8bb26819deaabf3e21291018b4",
+                    "pair_address": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                    "ticker": "Meme fixture",
+                    "name": "Fixture asset",
+                    "lane": "market_discovery",
+                    "observation_id": "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:12",
+                    "baseline_observation_id": "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:0",
+                    "observation_ids": [
+                      "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:0",
+                      "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:1",
+                      "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:2",
+                      "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:3",
+                      "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:4",
+                      "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:5",
+                      "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:6",
+                      "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:7",
+                      "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:8",
+                      "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:9",
+                      "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:10",
+                      "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:11",
+                      "0x020bfc650a365f8bb26819deaabf3e21291018b4:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:12"
+                    ],
+                    "observed_at": "2026-10-13T06:09:51.171Z",
+                    "source": {
+                      "source_name": "Persisted DEX Screener exact-pair observation",
+                      "source_url": "https://dexscreener.com/robinhood/0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                      "observed_at": "2026-10-13T06:09:51.171Z",
+                      "updated_at": "2026-10-13T06:09:51.171Z",
+                      "data_mode": "persisted",
+                      "confidence_level": "low",
+                      "note": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+                      "caveat": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+                      "source": "Persisted DEX Screener exact-pair observation",
+                      "url": "https://dexscreener.com/robinhood/0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                    },
+                    "freshness": {
+                      "state": "fresh",
+                      "observed_at": "2026-10-13T06:09:51.171Z",
+                      "fetched_at": "2026-10-13T06:09:51.171Z",
+                      "age_ms": 539,
+                      "time_basis": "provider_fetch"
+                    },
+                    "evidence_state": "QUALIFIED_OBSERVATION",
+                    "coverage": {
+                      "sample_count": 13,
+                      "elapsed_ms": 3600000,
+                      "maximum_gap_ms": 300000,
+                      "provider_timestamp_count": 0,
+                      "state": "complete"
+                    },
+                    "metrics": {
+                      "price_usd": 2.2,
+                      "liquidity_usd": 22000,
+                      "rolling_volume_1h_usd": 400,
+                      "rolling_volume_24h_usd": 32000,
+                      "rolling_transactions_24h": 44,
+                      "price_delta_pct": 10,
+                      "liquidity_delta_pct": 120,
+                      "volume_delta_pct": 300,
+                      "transactions_delta_pct": 120,
+                      "persistence_ratio": 0.58
+                    },
+                    "significance_score": 83.33,
+                    "score_components": {
+                      "volume": 25,
+                      "liquidity": 20,
+                      "transactions": 20,
+                      "price": 7.5,
+                      "persistence": 5.83,
+                      "evidence": 5
+                    },
+                    "score_version": "rh-market-significance-v1",
+                    "investigation_href": "/rh-chain-signal-desk/tokens/0x020bfc650a365f8bb26819deaabf3e21291018b4?observation_id=0x020bfc650a365f8bb26819deaabf3e21291018b4%3A0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb%3A12",
+                    "history_href": "/v1/rh-chain/market/snapshots/0x020bfc650a365f8bb26819deaabf3e21291018b4",
+                    "judgment_state": "unreviewed_observation",
+                    "execution_authorized": false
+                  },
+                  "evidence": {
+                    "state": "INCOMPLETE",
+                    "inputs": {
+                      "exact_identity": true,
+                      "category_identity_unambiguous": true,
+                      "category_identity_available": true,
+                      "reviewed_category": true,
+                      "paid_attention_window": false
+                    },
+                    "missing_inputs": [
+                      "paid_attention_window"
+                    ]
+                  },
+                  "category_score": null,
+                  "evidence_href": "/v1/rh-chain/market/snapshots/0x020bfc650a365f8bb26819deaabf3e21291018b4",
+                  "judgment_state": "unreviewed_observation",
+                  "execution_authorized": false
+                }
+              ],
+              "observed_count": 1,
+              "scored_count": 0,
+              "coverage": "INCOMPLETE"
+            },
+            {
+              "category": "stables",
+              "label": "Stables",
+              "policy": {
+                "label": "Stables",
+                "score_version": "stable-reference-coverage-v1",
+                "required": [
+                  "exact_identity",
+                  "issuer_registry",
+                  "peg_reference",
+                  "reserve_evidence",
+                  "redemption_constraints"
+                ],
+                "scoring": "Withheld until a verified issuer, observed peg reference, reserves and redemption constraints are available."
+              },
+              "findings": [],
+              "observed_count": 0,
+              "scored_count": 0,
+              "coverage": "EMPTY"
+            },
+            {
+              "category": "market_discovery",
+              "label": "Market discovery",
+              "policy": {
+                "label": "Market discovery",
+                "score_version": "rh-market-significance-v1",
+                "required": [
+                  "exact_identity"
+                ],
+                "scoring": "Stored market activity only; no asset-class financial interpretation."
+              },
+              "findings": [
+                {
+                  "token_contract": "0x3333333333333333333333333333333333333333",
+                  "pair_address": "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                  "ticker": "Discovery fixture",
+                  "category": "market_discovery",
+                  "identity_source": null,
+                  "observation": {
+                    "rank": 3,
+                    "chain_id": 4663,
+                    "token_contract": "0x3333333333333333333333333333333333333333",
+                    "pair_address": "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "ticker": "Discovery fixture",
+                    "name": "Fixture asset",
+                    "lane": "market_discovery",
+                    "observation_id": "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:12",
+                    "baseline_observation_id": "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:0",
+                    "observation_ids": [
+                      "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:0",
+                      "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:1",
+                      "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:2",
+                      "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:3",
+                      "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:4",
+                      "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:5",
+                      "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:6",
+                      "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:7",
+                      "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:8",
+                      "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:9",
+                      "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:10",
+                      "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:11",
+                      "0x3333333333333333333333333333333333333333:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:12"
+                    ],
+                    "observed_at": "2026-10-13T06:09:51.171Z",
+                    "source": {
+                      "source_name": "Persisted DEX Screener exact-pair observation",
+                      "source_url": "https://dexscreener.com/robinhood/0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                      "observed_at": "2026-10-13T06:09:51.171Z",
+                      "updated_at": "2026-10-13T06:09:51.171Z",
+                      "data_mode": "persisted",
+                      "confidence_level": "low",
+                      "note": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+                      "caveat": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+                      "source": "Persisted DEX Screener exact-pair observation",
+                      "url": "https://dexscreener.com/robinhood/0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+                    },
+                    "freshness": {
+                      "state": "fresh",
+                      "observed_at": "2026-10-13T06:09:51.171Z",
+                      "fetched_at": "2026-10-13T06:09:51.171Z",
+                      "age_ms": 539,
+                      "time_basis": "provider_fetch"
+                    },
+                    "evidence_state": "QUALIFIED_OBSERVATION",
+                    "coverage": {
+                      "sample_count": 13,
+                      "elapsed_ms": 3600000,
+                      "maximum_gap_ms": 300000,
+                      "provider_timestamp_count": 0,
+                      "state": "complete"
+                    },
+                    "metrics": {
+                      "price_usd": 2.2,
+                      "liquidity_usd": 22000,
+                      "rolling_volume_1h_usd": 400,
+                      "rolling_volume_24h_usd": 32000,
+                      "rolling_transactions_24h": 44,
+                      "price_delta_pct": 10,
+                      "liquidity_delta_pct": 120,
+                      "volume_delta_pct": 300,
+                      "transactions_delta_pct": 120,
+                      "persistence_ratio": 0.58
+                    },
+                    "significance_score": 83.33,
+                    "score_components": {
+                      "volume": 25,
+                      "liquidity": 20,
+                      "transactions": 20,
+                      "price": 7.5,
+                      "persistence": 5.83,
+                      "evidence": 5
+                    },
+                    "score_version": "rh-market-significance-v1",
+                    "investigation_href": "/rh-chain-signal-desk/tokens/0x3333333333333333333333333333333333333333?observation_id=0x3333333333333333333333333333333333333333%3A0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc%3A12",
+                    "history_href": "/v1/rh-chain/market/snapshots/0x3333333333333333333333333333333333333333",
+                    "judgment_state": "unreviewed_observation",
+                    "execution_authorized": false
+                  },
+                  "evidence": {
+                    "state": "INPUTS_PRESENT",
+                    "inputs": {
+                      "exact_identity": true,
+                      "category_identity_unambiguous": true,
+                      "category_identity_available": true
+                    },
+                    "missing_inputs": []
+                  },
+                  "category_score": {
+                    "value": 83.33,
+                    "version": "rh-market-significance-v1",
+                    "scope": "OBSERVED_ACTIVITY_ONLY",
+                    "components": {
+                      "volume": 25,
+                      "liquidity": 20,
+                      "transactions": 20,
+                      "price": 7.5,
+                      "persistence": 5.83,
+                      "evidence": 5
+                    }
+                  },
+                  "evidence_href": "/v1/rh-chain/market/snapshots/0x3333333333333333333333333333333333333333",
+                  "judgment_state": "unreviewed_observation",
+                  "execution_authorized": false
+                }
+              ],
+              "observed_count": 1,
+              "scored_count": 1,
+              "coverage": "INPUTS_PRESENT"
+            }
+          ],
+          "research": [],
+          "universe_truncated": false,
+          "canonical_market_href": "/v1/rh-chain/market/movers",
+          "disclaimer": "Category scores describe observations within their own methodology. They cannot be compared across asset classes and confer no reviewed judgment or execution authority.",
+          "execution_authorized": false
+        },
+        "market_source_health": {
+          "status": "available",
+          "health_state": "HEALTHY",
+          "observed_at": "2026-10-13T06:09:51.171Z",
+          "failure_class": null
+        }
+      }
+    }
+  },
+  "cache_repeat_equal": true,
+  "category_read_ms": 34.71529099999998,
+  "warm_frontdoor_ms": 0.7923749999999927,
+  "raw_observation": {
+    "fdv": null,
+    "dex_id": "uniswap",
+    "ticker": "PLTR fixture",
+    "chain_id": "robinhood",
+    "provider": "dexscreener",
+    "data_mode": "live_cached",
+    "price_usd": 2.2,
+    "volume_h1": 400,
+    "volume_h6": 90,
+    "base_token": {
+      "name": "Fixture asset",
+      "symbol": "PLTR fixture",
+      "address": "0x1111111111111111111111111111111111111111",
+      "decimals": 18
+    },
+    "market_cap": null,
+    "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "volume_h24": 32000,
+    "captured_at": "2026-10-13T06:09:51.171Z",
+    "quote_token": {
+      "name": "Fixture quote",
+      "symbol": "USD",
+      "address": "0x9999999999999999999999999999999999999999",
+      "decimals": 6
+    },
+    "snapshot_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12",
+    "pair_address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "txns_h6_buys": null,
+    "active_boosts": null,
+    "liquidity_usd": 22000,
+    "token_address": "0x1111111111111111111111111111111111111111",
+    "txns_h24_buys": 22,
+    "txns_h6_sells": null,
+    "txns_h24_sells": 22,
+    "pair_created_at": null,
+    "paid_order_types": [],
+    "price_change_h24": 5,
+    "provider_timestamp": null,
+    "paid_order_statuses": [],
+    "paid_attention_available": false
+  }
+}

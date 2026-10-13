@@ -1,0 +1,1362 @@
+[
+  {
+    "file": "abundance-api.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "abundance-desk-page.test.tsx",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "agent-mode-command-palette.test.tsx",
+    "tests": 8,
+    "passed": 8
+  },
+  {
+    "file": "agent-readiness-page.test.tsx",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "api-base-url.test.ts",
+    "tests": 10,
+    "passed": 10
+  },
+  {
+    "file": "app-error-boundary.test.tsx",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "benchmark-artifact-registry.test.ts",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "benchmark-proof-page.test.tsx",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "boot-context.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "comparison-panel-copy.test.tsx",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "cors-preflight.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "cross-venue-audit.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "dashboard-interpretation-card.test.tsx",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "dex-screener-service.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "economic-accounting-api.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "economic-engine-api.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "economic-evidence-adapters.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "economic-judgment-engine.test.ts",
+    "tests": 39,
+    "passed": 39
+  },
+  {
+    "file": "env.test.ts",
+    "tests": 20,
+    "passed": 20
+  },
+  {
+    "file": "evaluation-request-api.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "evaluation-request-pages.test.tsx",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "evaluation-request-service.test.ts",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "evidence-metadata.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "frontdoor-4663.test.tsx",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "frontend-evidence.test.tsx",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "graph-page.test.tsx",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "health-readiness.test.ts",
+    "tests": 11,
+    "passed": 11
+  },
+  {
+    "file": "hermes-api.test.ts",
+    "tests": 48,
+    "passed": 48
+  },
+  {
+    "file": "hermes-bridge.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "hermes-claim-promotion.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "hermes-decision-feedback.test.ts",
+    "tests": 13,
+    "passed": 13
+  },
+  {
+    "file": "hermes-desk-page.test.tsx",
+    "tests": 11,
+    "passed": 11
+  },
+  {
+    "file": "hermes-memory-loop.test.ts",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "hermes-policy-receipt.test.ts",
+    "tests": 10,
+    "passed": 10
+  },
+  {
+    "file": "hermes-policy-reconciliation.test.ts",
+    "tests": 15,
+    "passed": 15
+  },
+  {
+    "file": "hermes-pre-spend-decision.test.ts",
+    "tests": 9,
+    "passed": 9
+  },
+  {
+    "file": "hermes-reputation-ledger.test.ts",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "hermes-spend-policy.test.ts",
+    "tests": 14,
+    "passed": 14
+  },
+  {
+    "file": "hermes-wallet-audit-trail.test.ts",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "hermes-wallet-risk-score.test.ts",
+    "tests": 9,
+    "passed": 9
+  },
+  {
+    "file": "hermes-wallet-safety-api.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "hermes-wallet-safety-bundle.test.ts",
+    "tests": 9,
+    "passed": 9
+  },
+  {
+    "file": "homepage-performance.test.tsx",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "ingestion.test.ts",
+    "tests": 16,
+    "passed": 16
+  },
+  {
+    "file": "interpretation-page.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "interpretation.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "ipx-economy-dashboard.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "ipx-identity-mapping.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "ipx-launch-api.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "ipx-launch-postgres.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "ipx-launch.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "ipx-pltr-preflight-api.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "ipx-pltr-preflight-page.test.tsx",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "ipx-pltr-preflight-simulator.test.ts",
+    "tests": 17,
+    "passed": 17
+  },
+  {
+    "file": "ipx-pltr-shadow-lab.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "ipx-pltr-shadow-observation.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "ipx-revenue-ledger.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "jsonb.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "judgment-issuer.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "legacy-write-lockdown.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "live-bootstrap-wiring.test.ts",
+    "tests": 8,
+    "passed": 8
+  },
+  {
+    "file": "live-catalog-zero-endpoints-routes.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "loop-api.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "loop-page.test.tsx",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "loop-repository.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "loop-service.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "machine-benchmark-methodology-page.test.tsx",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "machine-benchmark-readiness-page.test.tsx",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "machine-comparable-routes-page.test.tsx",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "machine-dossier-page.test.tsx",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "machine-economy-snapshot-page.test.tsx",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "machine-evidence.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "machine-execution-detail-page.test.tsx",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "machine-execution-proof-plan-page.test.tsx",
+    "tests": 9,
+    "passed": 9
+  },
+  {
+    "file": "machine-execution-shortlist-page.test.tsx",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "machine-execution.test.ts",
+    "tests": 57,
+    "passed": 57
+  },
+  {
+    "file": "machine-first-safe-routes-page.test.tsx",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "machine-market-claim-discipline.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "machine-market-control-plane-pages.test.tsx",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "machine-market-map-page.test.tsx",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "machine-market-page.test.tsx",
+    "tests": 11,
+    "passed": 11
+  },
+  {
+    "file": "machine-market-route.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "machine-policy.test.ts",
+    "tests": 10,
+    "passed": 10
+  },
+  {
+    "file": "machine-preflight-page.test.tsx",
+    "tests": 8,
+    "passed": 8
+  },
+  {
+    "file": "machine-preflight.test.ts",
+    "tests": 15,
+    "passed": 15
+  },
+  {
+    "file": "machine-proof-ladder-page.test.tsx",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "machine-rail-coverage-page.test.tsx",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "machine-readiness-matrix-page.test.tsx",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "machine-receipt-storage-readiness.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "machine-receipts-page.test.tsx",
+    "tests": 17,
+    "passed": 17
+  },
+  {
+    "file": "machine-route-risk-matrix-page.test.tsx",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "machine-service-dossier-page.test.tsx",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "machine-translation-evidence-page.test.tsx",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "methodology-drawer.test.tsx",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "monitor-signal-flow.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "monitor.test.ts",
+    "tests": 21,
+    "passed": 21
+  },
+  {
+    "file": "narrative-intel-api.test.ts",
+    "tests": 23,
+    "passed": 23
+  },
+  {
+    "file": "narrative-metadata.test.ts",
+    "tests": 15,
+    "passed": 15
+  },
+  {
+    "file": "narrative-pages.test.tsx",
+    "tests": 15,
+    "passed": 15
+  },
+  {
+    "file": "openapi.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "pltr-exchange-calendar.test.ts",
+    "tests": 14,
+    "passed": 14
+  },
+  {
+    "file": "postgres-resilience-failure-matrix.test.ts",
+    "tests": 16,
+    "passed": 16
+  },
+  {
+    "file": "postgres-resilience.test.ts",
+    "tests": 14,
+    "passed": 14
+  },
+  {
+    "file": "pre-spend-builder-api.test.ts",
+    "tests": 15,
+    "passed": 15
+  },
+  {
+    "file": "pre-spend-builder-pages.test.tsx",
+    "tests": 18,
+    "passed": 18
+  },
+  {
+    "file": "pre-spend-decision-engine.test.ts",
+    "tests": 11,
+    "passed": 11
+  },
+  {
+    "file": "pre-spend-intelligence-service.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "pre-spend-repository.test.ts",
+    "tests": 13,
+    "passed": 13
+  },
+  {
+    "file": "pre-spend-sdk.test.ts",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "preflight-cards-page.test.tsx",
+    "tests": 13,
+    "passed": 13
+  },
+  {
+    "file": "preflight-route.test.ts",
+    "tests": 56,
+    "passed": 56
+  },
+  {
+    "file": "production-degraded-features.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "proof-check-api.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "proof-check-page.test.tsx",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "proof-check-repository.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "proof-check-service.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "propagation-page.test.tsx",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "propagation-route.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "propagation.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "provider-intelligence.test.ts",
+    "tests": 8,
+    "passed": 8
+  },
+  {
+    "file": "provider-public-page.test.tsx",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "pulse-live-catalog-state.test.ts",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "pulse-timestamps.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "radar-agent-readiness.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "radar-bundles.test.ts",
+    "tests": 11,
+    "passed": 11
+  },
+  {
+    "file": "radar-comparison-provider-mapping.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "radar-delayed-malformed-range.test.tsx",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "radar-endpoint-intelligence.test.tsx",
+    "tests": 27,
+    "passed": 27
+  },
+  {
+    "file": "radar-evidence-ledger.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "radar-export.test.ts",
+    "tests": 10,
+    "passed": 10
+  },
+  {
+    "file": "radar-history.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "radar-mapping-targets-route.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "radar-mappings-route.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "radar-navigation-responsive.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "radar-network-navigation.test.tsx",
+    "tests": 14,
+    "passed": 14
+  },
+  {
+    "file": "radar-phase3-routes.test.ts",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "radar-phase7-intelligence.test.ts",
+    "tests": 11,
+    "passed": 11
+  },
+  {
+    "file": "radar-risk.test.ts",
+    "tests": 11,
+    "passed": 11
+  },
+  {
+    "file": "receipt-authority.test.ts",
+    "tests": 19,
+    "passed": 19
+  },
+  {
+    "file": "receipt-integrity.test.ts",
+    "tests": 10,
+    "passed": 10
+  },
+  {
+    "file": "receipt-page.test.tsx",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "receipt-spine.test.ts",
+    "tests": 9,
+    "passed": 9
+  },
+  {
+    "file": "receipts-route.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "reflexive-markets-watch-page.test.tsx",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "reflexive-markets-watch.test.ts",
+    "tests": 14,
+    "passed": 14
+  },
+  {
+    "file": "reflexive-radar-api.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "reflexive-radar.test.ts",
+    "tests": 36,
+    "passed": 36
+  },
+  {
+    "file": "render-spa-routing.test.ts",
+    "tests": 8,
+    "passed": 8
+  },
+  {
+    "file": "response-cache.test.ts",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "revenue-receipt-api.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "revenue-receipt-pages.test.tsx",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "revenue-receipt-service.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "rh-4663-api.test.ts",
+    "tests": 13,
+    "passed": 13
+  },
+  {
+    "file": "rh-4663-call-phase3.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "rh-4663-campaign.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "rh-4663-frontdoor.test.ts",
+    "tests": 8,
+    "passed": 8
+  },
+  {
+    "file": "rh-4663-mobile.test.tsx",
+    "tests": 10,
+    "passed": 10
+  },
+  {
+    "file": "rh-4663-my4663.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "rh-4663-phase2-resolution.test.ts",
+    "tests": 9,
+    "passed": 9
+  },
+  {
+    "file": "rh-4663-phase3-api.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "rh-4663-phase3-intelligence.test.ts",
+    "tests": 12,
+    "passed": 12
+  },
+  {
+    "file": "rh-4663-phase5.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "rh-4663-print-generator.test.ts",
+    "tests": 8,
+    "passed": 8
+  },
+  {
+    "file": "rh-4663-product-intelligence.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "rh-4663-production-hardening.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "rh-4663-proof-profile-ui.test.tsx",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "rh-4663-proof-profile.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "rh-4663-service.test.ts",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "rh-4663-share-objects.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "rh-4663-utc-day-observations.test.ts",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "rh-category-frontdoor.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "rh-category-intelligence.test.ts",
+    "tests": 11,
+    "passed": 11
+  },
+  {
+    "file": "rh-category-postgres.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "rh-category-ui.test.tsx",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "rh-chain-100-receipts-campaign.test.tsx",
+    "tests": 12,
+    "passed": 12
+  },
+  {
+    "file": "rh-chain-agentic-fixture-isolation.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "rh-chain-api.test.ts",
+    "tests": 19,
+    "passed": 19
+  },
+  {
+    "file": "rh-chain-attention-quality.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "rh-chain-automation.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "rh-chain-blockscout-provider.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "rh-chain-chain-pulse.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "rh-chain-clone-radar.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "rh-chain-contract-intelligence.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "rh-chain-cross-layer-api.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "rh-chain-cross-layer-integration.test.ts",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "rh-chain-cross-layer-page.test.tsx",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "rh-chain-daily-receipt-drafts.test.ts",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "rh-chain-daily-receipt-ops.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "rh-chain-dexscreener-provider.test.ts",
+    "tests": 10,
+    "passed": 10
+  },
+  {
+    "file": "rh-chain-discovery-queue.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "rh-chain-distribution-pack.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "rh-chain-durable-provider-pipeline.test.ts",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "rh-chain-launchpad-observatory.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "rh-chain-launchpad-snapshot.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "rh-chain-live-snapshot-deadline.test.ts",
+    "tests": 14,
+    "passed": 14
+  },
+  {
+    "file": "rh-chain-live-snapshot.test.ts",
+    "tests": 9,
+    "passed": 9
+  },
+  {
+    "file": "rh-chain-market-data.test.ts",
+    "tests": 8,
+    "passed": 8
+  },
+  {
+    "file": "rh-chain-market-pulse-page.test.tsx",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "rh-chain-market-pulse.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "rh-chain-market-snapshot.test.ts",
+    "tests": 15,
+    "passed": 15
+  },
+  {
+    "file": "rh-chain-market-structure.test.ts",
+    "tests": 8,
+    "passed": 8
+  },
+  {
+    "file": "rh-chain-meme-pulse-snapshot.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "rh-chain-meme-pulse.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "rh-chain-pages.test.tsx",
+    "tests": 28,
+    "passed": 28
+  },
+  {
+    "file": "rh-chain-portable-card.test.tsx",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "rh-chain-postgres-recovery.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "rh-chain-production-readiness.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "rh-chain-project-claims.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "rh-chain-review-console.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "rh-chain-review-cycle-receipt.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "rh-chain-review-pipeline.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "rh-chain-reviewed-classifications.test.ts",
+    "tests": 15,
+    "passed": 15
+  },
+  {
+    "file": "rh-chain-reviewer-workflow.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "rh-chain-risk-correlation-sweep.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "rh-chain-risk-correlation.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "rh-chain-scout.test.ts",
+    "tests": 39,
+    "passed": 39
+  },
+  {
+    "file": "rh-chain-scouts.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "rh-chain-sharing.test.ts",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "rh-chain-signal-desk-selectors.test.ts",
+    "tests": 7,
+    "passed": 7
+  },
+  {
+    "file": "rh-chain-token-dossier.test.ts",
+    "tests": 8,
+    "passed": 8
+  },
+  {
+    "file": "rh-chain-token-registry.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "rh-chain-truth-guards.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "rh-dynamic-market-postgres.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "rh-dynamic-today.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "rh-market-collection.test.ts",
+    "tests": 26,
+    "passed": 26
+  },
+  {
+    "file": "rh-market-history-postgres.test.ts",
+    "tests": 12,
+    "passed": 12
+  },
+  {
+    "file": "rh-market-movers.test.ts",
+    "tests": 29,
+    "passed": 29
+  },
+  {
+    "file": "rh-market-revalidation.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "rh-observed-market-ui.test.tsx",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "rh-stock-evidence.test.ts",
+    "tests": 20,
+    "passed": 20
+  },
+  {
+    "file": "rh-usdg-economics.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "rh4663-anchor-integrity.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "rmm-category-census.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "scoring.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "search-route.test.ts",
+    "tests": 13,
+    "passed": 13
+  },
+  {
+    "file": "severity.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "signal-graph-api.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "signal-graph-context-pages.test.tsx",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "signal-graph-service.test.ts",
+    "tests": 5,
+    "passed": 5
+  },
+  {
+    "file": "signal-hunt-api.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "signal-hunt-pages.test.tsx",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "smoke-production.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "static-discovery.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "timestamps.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "unicorn-radar-api.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "unicorn-radar-pages.test.tsx",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "unicorn-radar-service.test.ts",
+    "tests": 10,
+    "passed": 10
+  },
+  {
+    "file": "verify-production.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "wallet-safety-integration-registry.test.ts",
+    "tests": 12,
+    "passed": 12
+  },
+  {
+    "file": "web-accessibility.test.tsx",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "web-boot-loading.test.tsx",
+    "tests": 17,
+    "passed": 17
+  },
+  {
+    "file": "integration/derived-score-projection.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "integration/economic-engine-durability.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "integration/evaluate.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "integration/evaluation-judgment-feedback.test.ts",
+    "tests": 4,
+    "passed": 4
+  },
+  {
+    "file": "integration/execute-proof.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "integration/execution-proof-durability.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "integration/judgment-issuer-durability.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "integration/judgment-payment-durability.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "integration/migration-014.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "integration/pre-spend-judgment.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "integration/pre-spend-payment.test.ts",
+    "tests": 2,
+    "passed": 2
+  },
+  {
+    "file": "integration/rh-usdg-accounting-durability.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "unit/derived-score-service.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "unit/evaluation-score-policy.test.ts",
+    "tests": 3,
+    "passed": 3
+  },
+  {
+    "file": "unit/evaluation-service.test.ts",
+    "tests": 23,
+    "passed": 23
+  },
+  {
+    "file": "unit/execution-proof-service.test.ts",
+    "tests": 11,
+    "passed": 11
+  },
+  {
+    "file": "unit/judgment-performance.test.ts",
+    "tests": 1,
+    "passed": 1
+  },
+  {
+    "file": "unit/judgment-service.test.ts",
+    "tests": 27,
+    "passed": 27
+  },
+  {
+    "file": "unit/x402-judgment.test.ts",
+    "tests": 6,
+    "passed": 6
+  },
+  {
+    "file": "security/execution-proof-validation.test.ts",
+    "tests": 13,
+    "passed": 13
+  },
+  {
+    "file": "security/score-authority.test.ts",
+    "tests": 2,
+    "passed": 2
+  }
+]
