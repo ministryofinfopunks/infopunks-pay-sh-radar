@@ -17,3 +17,5 @@ fd2549360d8297743b0c293b358ed24226fd8327 test: freeze approved visual references
 ```
 
 Final evidence commit contains this inventory/report and does not change application source. Its full SHA is available from branch HEAD.
+
+Prior final qualification evidence commit: e0315314264fff395f8e84b37bb6f1984d6b39e7. This follow-up records the explicit completed-workflow approval and immutable references; application/test/migration/dependency source remains unchanged. Fresh pixel comparison retains two Solana full-page HOLD findings rather than approving them automatically.

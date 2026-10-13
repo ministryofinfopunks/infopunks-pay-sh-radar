@@ -1,11 +1,15 @@
 {
   "gate": "G1",
-  "status": "HOLD",
+  "status": "PASS",
   "homepage_status": "PASS",
-  "reason": "Earlier non-home snapshots captured lazy-loading frames. Completed workflows require explicit review; prior human approval and baseline files are preserved.",
   "review_url": "http://127.0.0.1:5187/ui-int2/review-loaded.html",
   "source_sha": "35f2e54a288311d1df0f8820dacb216c27175791",
-  "candidate_files": [
+  "approval_source": "Explicit human reply to corrected completed-workflow checkpoint question",
+  "answer": "Approve completed workflow checkpoint",
+  "date": "2026-10-13",
+  "timezone": "Asia/Colombo",
+  "scope": "Appearance of completed secure workflows, alongside previously approved homepage. No merge, staging or release authorization.",
+  "approved_files": [
     {
       "file": "loaded-desktop-home.png",
       "sha256": "b2265a021deef5cf3f3dc9a242ed4a27e1754375952cb6c00d24654df004b797"
@@ -45,6 +49,23 @@
     {
       "file": "loaded-mobile-spend-terminal.png",
       "sha256": "87b2f044c6976b8a9aa888fbe5aad94306d100fa55e170ae8665ddbb1e791580"
+    }
+  ],
+  "supplementary_approved_files": [
+    {
+      "file": "inspected-judgment-390.png",
+      "sha256": "baa6891946de6e6e54f40af38641d86963d45d078eba9e0e3ee4c80bbf81f7ba",
+      "scope": "Authenticated synthetic fixture shown in corrected review; stage truth independently tested. Credentialed captures are not in the anonymous pixel suite."
+    },
+    {
+      "file": "inspected-execution-390.png",
+      "sha256": "19eb15d8201c08a0ebcd89de98a800bb1026e39c5b558313a0b22e61f270960d",
+      "scope": "Authenticated synthetic fixture shown in corrected review; stage truth independently tested. Credentialed captures are not in the anonymous pixel suite."
+    },
+    {
+      "file": "inspected-evaluation-390.png",
+      "sha256": "b854a235ee4506af54081d38413a882baee2c5bebe57b7e277af3bf831d21772",
+      "scope": "Authenticated synthetic fixture shown in corrected review; stage truth independently tested. Credentialed captures are not in the anonymous pixel suite."
     }
   ]
 }

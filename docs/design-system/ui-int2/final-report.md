@@ -56,9 +56,9 @@ Legacy research collection unavailable/permission behavior is retained from R2 a
 
 ## Visual approval and comparison
 
-Explicit user answer **“Approve both visual checkpoints”** is preserved in [original approval](visual-approval.json). Homepage comparison is pixel-identical on desktop and mobile. A subsequent audit found several non-home approved snapshots were captured before lazy pages loaded. Original files remain immutable; they were not silently replaced or counted as complete workflow proof. [Original comparison](evidence/visual-comparison/results.json) documents mismatches/loading-state limitations.
+Explicit user answer **“Approve both visual checkpoints”** is preserved in [original approval](visual-approval.json). Homepage comparison is pixel-identical on desktop and mobile. A subsequent audit found several non-home approved snapshots were captured before lazy pages loaded. Original files remain immutable; they were not silently replaced or counted as complete workflow proof. [Original comparison](evidence/visual-comparison/loading-capture-comparison.json) documents mismatches/loading-state limitations.
 
-Completed screenshots are in evidence/loaded-*.png and authenticated source-inspection captures in evidence/journeys/. [Corrected review](review-loaded.html) shows completed Spend, Solana, Robinhood, receipt archive and canonical proof states alongside the unchanged homepage. [Completed approval](visual-approval-completed.json) remains HOLD unless a new explicit response approves these completed captures. The asynchronous review request is pending. test:ui:visuals waits for this approval, never updates a reference automatically, waits for actual page headings/fonts, and fails on unexpected dimensions or >0.5% pixel drift. Before screenshots came from initial target 4bcaf573; newest target differs only by the documented methodology contrast/source-review updates. Do not misrepresent the before captures as a different/newest UI build.
+Completed screenshots are in evidence/loaded-*.png and authenticated source-inspection captures in evidence/journeys/. [Corrected review](review-loaded.html) shows completed Spend, Solana, Robinhood, receipt archive and canonical proof states alongside the unchanged homepage. [Completed approval](visual-approval-completed.json) is **PASS** following the explicit 2026-10-13 response “Approve completed workflow checkpoint”. The exact reviewed files are frozen under references/ui-int2-approved-completed with SHA256 hashes; authenticated synthetic proof captures are recorded separately. This approves appearance only. Fresh pixel comparison results are in [visual regression evidence](evidence/visual-comparison/results.json): eight full pages match exactly. Solana first desktop/mobile viewports also match exactly, but the lower-page full heights differ (25,390→30,701px desktop; 62,733→62,758px mobile). Application source is unchanged. Full-page Solana regression remains **HOLD** pending stable asynchronous/data fixtures; no changed baseline was automatically approved. The human appearance gate remains PASS. test:ui:visuals waits for this approval, never updates a reference automatically, waits for actual page headings/fonts, and fails on unexpected dimensions or >0.5% pixel drift. Before screenshots came from initial target 4bcaf573; newest target differs only by the documented methodology contrast/source-review updates. Do not misrepresent the before captures as a different/newest UI build.
 
 ## Tests and migration qualification
 
@@ -95,7 +95,7 @@ Entry JS grows 29,617 raw / 7,202 gzip bytes; entry CSS grows 35,212 raw / 6,570
 | Gate | Verdict | Exact evidence / remaining condition |
 | --- | --- | --- |
 | G0 Baselines verified | PASS | Full SHAs/ancestors, remote target refresh, exact-head target CI, isolated candidate |
-| G1 Visual identity approved | HOLD | Homepage explicitly approved and pixel-matched; corrected completed-workflow review pending |
+| G1 Visual identity approved | PASS | Homepage and completed workflow checkpoint explicitly approved; frozen screenshots and hashes recorded |
 | G2 Secure forward integration | PASS, local scope | Protected292-file comparison, target secure controller retained, full regressions and authenticated denies |
 | G3 API compatibility | PASS, local scope | Current schemas, actual canonical submission/receipt-spine/verify APIs; no backend-contract changes |
 | G4 Database/migrations | PASS, local scope |22 immutable migrations, PG16 clean/repeat/concurrent/adoption/drift/restore/replay; independent/operational sign-off open |
@@ -103,9 +103,9 @@ Entry JS grows 29,617 raw / 7,202 gzip bytes; entry CSS grows 35,212 raw / 6,570
 | G6 Authenticated journeys | PASS, stated fixtures |Actual local API/PG, owner/cross-tenant/wrong-agent/expired boundaries; no live settlement assertion |
 | G7 Mobile/accessibility | HOLD |Automated matrix passes; human AA, real devices, AT/virtual keyboard/native zoom and legacy unavailable-state usability open |
 | G8 Performance | PASS, laboratory scope |LCP≤2.5s,CLS0,TBT0 in six samples; field INP/p75 and deep-route qualification remain HOLD |
-| G9 Staging readiness | HOLD |Independent security/migration review, human accessibility, candidate remote/container CI, isolated operator staging/rollback approval missing |
+| G9 Staging readiness | HOLD |Independent security/migration review, human accessibility, candidate remote/container CI, stable full-page Solana visual regression, isolated operator staging/rollback approval missing |
 
-**Recommendation: retain HOLD.** Keep the local candidate reviewable. Do not merge or deploy. Complete corrected workflow appearance review, independent security/migration reviews and human/device accessibility qualification, then run required CI on the final PR head before any staging decision. Target PR11 remains draft; it has no independent approvals and staging/public paid launch remain unqualified. Missing verification is not converted to PASS.
+**Recommendation: retain HOLD.** Keep the local candidate reviewable. Do not merge or deploy. Stabilize full-page Solana regression fixtures, complete independent security/migration reviews and human/device accessibility qualification, then run required CI on the final PR head before any staging decision. Target PR11 remains draft; it has no independent approvals and staging/public paid launch remain unqualified. Missing verification is not converted to PASS.
 
 ## Reproduction
 
