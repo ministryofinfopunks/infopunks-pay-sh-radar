@@ -55,7 +55,10 @@ export class PostgresAutomatedObservationStore implements AutomatedObservationSt
   async finalize(receipt: AutomatedObservationReceipt) {
     verifyReceipt(receipt); const c = await this.pool.connect();
     try {
-      await c.query('begin'); await c.query("select pg_advisory_xact_lock(hashtext(current_schema() || ':rh-observation:' || $1))", [receipt.utc_day]);
+      await c.query('begin');
+      const guards = await c.query("select count(*)::int as n from pg_trigger where tgrelid=to_regclass('rh_automated_observation_receipts') and tgname='rh_automated_observation_receipt_immutable' and tgenabled in ('O','A')");
+      if (guards.rows[0].n !== 1) throw new Error('observation_immutability_migration_required');
+      await c.query("select pg_advisory_xact_lock(hashtext(current_schema() || ':rh-observation:' || $1))", [receipt.utc_day]);
       const prior = await c.query<{ payload: AutomatedObservationReceipt }>(`select payload from rh_automated_observation_receipts where utc_day=$1 and (content_hash=$2 or (supersedes is null and $3::text is null)) order by edition_id limit 1`, [receipt.utc_day, receipt.content_hash, receipt.correction.supersedes]);
       if (prior.rows[0]) { await c.query('commit'); return prior.rows[0].payload; }
       if (receipt.correction.supersedes) {
@@ -66,7 +69,7 @@ export class PostgresAutomatedObservationStore implements AutomatedObservationSt
       await c.query('commit'); return receipt;
     } catch (error) { await c.query('rollback'); throw error; } finally { c.release(); }
   }
-  async history(day: string) { const r = await this.pool.query<{ payload: AutomatedObservationReceipt }>('select payload from rh_automated_observation_receipts where utc_day=$1 order by edition_id', [day]); return r.rows.map(r => r.payload); }
+  async history(day: string) { const r = await this.pool.query<{ payload: AutomatedObservationReceipt }>('select payload from rh_automated_observation_receipts where utc_day=$1 order by edition_id', [day]); return r.rows.map(r => { verifyReceipt(r.payload); return r.payload; }); }
   async publish(id: string, authorization: string) {
     if (!authorization.trim()) throw new Error('publication_authorization_required');
     await this.pool.query('insert into rh_automated_observation_publications(edition_id,authorization_ref) values($1,$2) on conflict(edition_id) do nothing', [id, authorization]);
@@ -75,7 +78,7 @@ export class PostgresAutomatedObservationStore implements AutomatedObservationSt
   }
   async published(day: string) {
     const r = await this.pool.query<{ payload: AutomatedObservationReceipt; authorization_ref: string; published_at: Date }>('select r.payload,p.authorization_ref,p.published_at from rh_automated_observation_receipts r join rh_automated_observation_publications p using(edition_id) where utc_day=$1 order by r.edition_id', [day]);
-    return r.rows.map(r => ({ receipt: r.payload, publication: { edition_id: r.payload.edition_id, publication_state: 'PUBLISHED' as const, authorization_ref: r.authorization_ref, published_at: r.published_at.toISOString() } }));
+    return r.rows.map(r => { verifyReceipt(r.payload); return ({ receipt: r.payload, publication: { edition_id: r.payload.edition_id, publication_state: 'PUBLISHED' as const, authorization_ref: r.authorization_ref, published_at: r.published_at.toISOString() } }); });
   }
 }
 function verifyReceipt(receipt: AutomatedObservationReceipt) {
@@ -107,12 +110,13 @@ function marketRows(observations: RhChainMarketSnapshot[], start: number, end: n
   const markets: AutomatedObservationReceipt['markets'] = [];
   for (const [key, group] of [...groups].sort(([a], [b]) => a.localeCompare(b))) {
     if (pairContracts.get(group[0].pair_address!.toLowerCase())!.size > 1) { group.forEach(s => excluded.add(s.snapshot_id)); continue; }
+    if (new Set(group.map(s => s.quote_token!.address.toLowerCase())).size !== 1) { group.forEach(s => excluded.add(s.snapshot_id)); continue; }
     const times = new Map<string, RhChainMarketSnapshot[]>();
     for (const s of group) { const at = new Date(s.provider_timestamp ?? s.captured_at).toISOString(); times.set(at, [...(times.get(at) ?? []), s]); }
     const missing = new Set<string>(); const samples: RhChainMarketSnapshot[] = [];
     for (const rows of times.values()) {
       // Duplicate source/time observations are equivalent only when all recorded metrics agree.
-      const sig = (s: RhChainMarketSnapshot) => canonicalObservationJson(RH_CHAIN_MARKET_METRICS.map(m => s[m] ?? null));
+      const sig = (s: RhChainMarketSnapshot) => canonicalObservationJson([s.quote_token?.address.toLowerCase(), RH_CHAIN_MARKET_METRICS.map(m => s[m] ?? null)]);
       if (new Set(rows.map(sig)).size > 1) { missing.add('CONTRADICTORY_DUPLICATE'); rows.forEach(s => excluded.add(s.snapshot_id)); continue; }
       samples.push(rows.sort((a, b) => a.snapshot_id.localeCompare(b.snapshot_id))[0]);
     }
@@ -154,7 +158,7 @@ export class RhAutomatedObservationReceiptService {
     const chainMetrics = ['transactions_utc_day', 'dex_volume_utc_day_usd'].map(metric => {
       const matches = dayObservations.filter(o => o.chain_id === 4663 && o.metric === metric && o.status === 'FINAL' && o.window_type === 'UTC_CALENDAR_DAY'
         && Date.parse(o.window_start) === start && Date.parse(o.window_end) === end && Number.isFinite(o.value) && o.value >= 0
-        && Number.isFinite(Date.parse(o.observed_at)) && Date.parse(o.fetched_at) <= now.getTime());
+        && Number.isFinite(Date.parse(o.observed_at)) && Date.parse(o.observed_at) <= now.getTime() && Date.parse(o.fetched_at) <= now.getTime() && typeof o.source_url === 'string' && o.source_url.startsWith('https://'));
       const observation = matches.length === 1 ? matches[0] : null;
       if (!observation) gaps.push('FINAL_METRIC_UNAVAILABLE:' + metric);
       return { metric, value: observation?.value ?? null, observation };
@@ -188,3 +192,4 @@ export class RhAutomatedObservationReceiptService {
     return receipts;
   }
 }
+

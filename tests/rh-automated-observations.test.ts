@@ -128,6 +128,9 @@ describe.skipIf(!url)('durable daily edition PostgreSQL', () => {
       await expect(store.finalize({ ...receipt, covered_contracts: ['tampered'] })).rejects.toThrow('commitment_mismatch');
       await expect(store.publish(receipt.edition_id, '')).rejects.toThrow('publication_authorization_required');
       expect(await store.history(day)).toEqual([]);
+      await db.pool.query('alter table rh_automated_observation_receipts disable trigger rh_automated_observation_receipt_immutable');
+      await expect(store.finalize(receipt)).rejects.toThrow('observation_immutability_migration_required');
+      await db.pool.query('alter table rh_automated_observation_receipts enable trigger rh_automated_observation_receipt_immutable');
     } finally { await db.close(); }
   });
 });
