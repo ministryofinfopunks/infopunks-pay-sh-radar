@@ -1,4 +1,3 @@
-import { PreSpendCheckRequestSchema } from '../schemas/entities';
 import { FieldFeedback, TenantKeyField } from './fieldFeedback';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { useEffect, useRef, useState } from 'react';
@@ -36,8 +35,9 @@ export function SpendTerminalPage() {
     const input = { ...form, budget: Number(form.budget), required_confidence: Number(form.required_confidence), subject_id: form.subject_id || undefined };
     const errors: Record<string, string> = {};
     if (!apiKey.trim()) errors['spend-tenant-key'] = 'Enter your operator-issued tenant access key before running a check.';
-    const parsed = PreSpendCheckRequestSchema.safeParse(input);
-    if (!parsed.success) for (const issue of parsed.error.issues) errors[String(issue.path[0])] = `Correct ${String(issue.path[0]).replaceAll('_', ' ')} using the indicated limits.`;
+    // Current native constraint metadata owns required/range/step feedback. The server remains the contract and authorization authority.
+    if (!Number.isFinite(input.budget)) errors.budget = 'Enter a finite budget of zero or more.';
+    if (!Number.isFinite(input.required_confidence)) errors.required_confidence = 'Enter finite confidence from 0 to 100.';
     if (!form.budget.trim()) errors.budget = 'Enter a budget of zero or more.';
     if (!form.required_confidence.trim()) errors.required_confidence = 'Enter required confidence from 0 to 100.';
     for (const field of Array.from((event.currentTarget as HTMLFormElement).elements)) {
