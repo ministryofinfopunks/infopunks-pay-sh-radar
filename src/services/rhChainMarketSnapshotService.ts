@@ -60,6 +60,8 @@ export interface RhChainMarketSnapshotStore {
   listMany?(contracts: string[], since?: string): Promise<Record<string, RhChainMarketSnapshot[]>>;
   latestMany?(contracts: string[]): Promise<Record<string, RhChainMarketSnapshot | null>>;
   listAggregates?(contract: string, resolution: RhChainMarketResolution, since?: string): Promise<RhChainMarketAggregate[]>;
+  editionInput?(date: string): Promise<{ observations: RhChainMarketSnapshot[]; aggregates: RhChainMarketAggregate[] }>;
+  completedDays?(): Promise<string[]>;
   pruneHistory?(now: Date): Promise<void>;
   close?(): Promise<void>;
 }
@@ -90,6 +92,12 @@ export class InMemoryRhChainMarketSnapshotStore implements RhChainMarketSnapshot
   async listAggregates(contract: string, resolution: RhChainMarketResolution, since?: string) {
     return structuredClone([...this.aggregates.values()].filter((item) => item.token_address === contract.toLowerCase() && item.resolution === resolution && (!since || item.bucket_end > since)).sort((a, b) => a.bucket_start.localeCompare(b.bucket_start) || (a.pair_address ?? '').localeCompare(b.pair_address ?? '')));
   }
+  async editionInput(date: string) {
+    const start = Date.parse(date + 'T00:00:00.000Z'), end = start + 86400000;
+    return structuredClone({ observations: [...this.snapshots.values()].flat().filter(s => { const at = Date.parse(s.provider_timestamp ?? s.captured_at); return at >= start && at < end; }),
+      aggregates: [...this.aggregates.values()].filter(a => a.resolution === 'day' && a.bucket_start.slice(0, 10) === date) });
+  }
+  async completedDays() { return [...new Set([...this.aggregates.values()].map(a => a.bucket_start.slice(0, 10)))].sort(); }
   async pruneHistory(now: Date) {
     const rawCutoff = now.getTime() - RH_CHAIN_MARKET_RAW_RETENTION_MS;
     for (const [contract, snapshots] of this.snapshots) this.snapshots.set(contract, snapshots.filter((snapshot) => Date.parse(snapshot.captured_at) >= rawCutoff));
@@ -146,6 +154,22 @@ export class PostgresRhChainMarketSnapshotStore implements RhChainMarketSnapshot
       and ($3::timestamptz is null or bucket_start + case when resolution='hour' then interval '1 hour' else interval '1 day' end > $3)
       order by bucket_start,pair_address limit 10000`, [contract.toLowerCase(), resolution, since ?? null]);
     return result.rows.map((row) => row.payload);
+  }
+  async editionInput(date: string) {
+    await this.requireHistorySchema();
+    // One statement gives observations and historical coverage the same MVCC snapshot.
+    const result = await this.pool.query<{ observations: RhChainMarketSnapshot[]; aggregates: RhChainMarketAggregate[] }>(`
+      select coalesce((select jsonb_agg(payload order by snapshot_id) from rh_chain_market_snapshots
+        where coalesce(provider_timestamp,captured_at) >= $1::date::timestamp at time zone 'UTC'
+          and coalesce(provider_timestamp,captured_at) < ($1::date+1)::timestamp at time zone 'UTC'), '[]'::jsonb) as observations,
+        coalesce((select jsonb_agg(payload order by token_address,pair_address) from rh_chain_market_aggregates
+        where resolution='day' and bucket_start=$1::date::timestamp at time zone 'UTC'), '[]'::jsonb) as aggregates`, [date]);
+    return result.rows[0];
+  }
+  async completedDays() {
+    await this.requireHistorySchema();
+    const result = await this.pool.query<{ date: string }>("select distinct to_char(bucket_start at time zone 'UTC','YYYY-MM-DD') as date from rh_chain_market_aggregates where resolution='day' order by date");
+    return result.rows.map(r => r.date);
   }
   async pruneHistory(now: Date) {
     await this.requireHistorySchema();

@@ -1,3 +1,4 @@
+import { InMemoryAutomatedObservationStore, PostgresAutomatedObservationStore, RhAutomatedObservationReceiptService, completedObservationDay, type AutomatedObservationStore } from '../services/rhAutomatedObservationReceiptService';
 import { startRhChainMarketScheduler } from '../services/rhChainMarketScheduler';
 import { registerIpxLaunchRoutes } from './ipxLaunchRoutes';
 import { MemoryEconomicAccountingStore, PostgresEconomicAccountingStore } from '../persistence/economicAccountingStore';
@@ -686,6 +687,7 @@ export type CreateAppOptions = {
   rhChainMarketStructureOptions?: Partial<Omit<RhChainMarketStructureOptions, 'marketData'>>;
   rhChainTokenRegistryOptions?: Partial<Omit<RhChainTokenRegistryOptions, 'provider' | 'enabled' | 'receipts' | 'marketStructure'>> & { provider?: BlockscoutProvider; enabled?: boolean };
   rhChainMarketSnapshotStore?: RhChainMarketSnapshotStore;
+  rhAutomatedObservationStore?: AutomatedObservationStore;
   rhChainMarketSnapshotOptions?: Partial<Omit<RhChainMarketSnapshotServiceOptions, 'store' | 'provider' | 'watchlist' | 'classificationFor' | 'enabled'>> & { enabled?: boolean };
   rhChainAttentionReceiptStore?: RhChainAttentionReceiptStore;
   rhChainPublicRateLimit?: Partial<{ enabled: boolean; windowMs: number; max: number }>;
@@ -1046,6 +1048,10 @@ export async function createApp(
     classificationFor: (contract) => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? []), ...(rhChainReviewPipeline?.marketStructureCandidates() ?? [])].find((classification) => classification.contract.toLowerCase() === contract.toLowerCase()) ?? null,
     ...options.rhChainMarketSnapshotOptions
   });
+  const rhAutomatedObservationStore = options.rhAutomatedObservationStore ?? (rhChainPostgresPool ? new PostgresAutomatedObservationStore(rhChainPostgresPool) : new InMemoryAutomatedObservationStore());
+  const rhAutomatedObservations = new RhAutomatedObservationReceiptService({ store: rhAutomatedObservationStore, market: rhChainMarketSnapshotStore, days: rh4663UtcDayObservationStore,
+    now: options.rhChainMarketSnapshotOptions?.now, requireDurable: config.isProduction,
+    publicationEnabled: config.rhObservationPublicationEnabled, productionAuthorization: config.rhObservationProductionAuthorization });
   const rhChainMarketMovers = new RhChainMarketMoversService(rhChainMarketSnapshotStore, { requireDurable: config.isProduction, now: options.rhChainMarketSnapshotOptions?.now, stockContracts: async () => qualifiedStockAssets((await reflexiveRadar.snapshot()).assets).map((asset) => asset.canonical_contract) });
   const rhChainStockEvidence = new RhChainStockEvidenceService({ snapshot: () => reflexiveRadar.snapshot(), markets: contracts => rhChainMarketSnapshots.getLatestSnapshotsForContracts(contracts), now: options.rhChainMarketSnapshotOptions?.now });
   const rhChainCategoryIntelligence = new RhChainCategoryIntelligenceService({
@@ -3183,6 +3189,27 @@ export async function createApp(
       semantics: { signal_card: 'Editorial intelligence representation.', evidence_receipt: 'Machine-verifiable observation object.', protocol_receipt: 'Canonical CALL / RESOLUTION / GENESIS FINALIZATION object.' }
     }) };
   });
+  app.get<{ Params: { date: string } }>('/v1/4663/daily-observations/:date', async (req, reply) => {
+    try { completedObservationDay(req.params.date, new Date()); } catch { return reply.header('Cache-Control', 'no-store').code(400).send({ error: 'invalid_or_incomplete_utc_day' }); }
+    const editions = await rhAutomatedObservationStore.published(req.params.date);
+    const etag = `"observation-${editions.map(e => e.receipt.content_hash).join('-')}"`;
+    reply.header('Cache-Control', 'public, max-age=15, s-maxage=15').header('ETag', etag);
+    if (req.headers['if-none-match'] === etag) return reply.code(304).send();
+    return { data: safeJsonExport({ utc_day: req.params.date, editions }) };
+  });
+  app.post<{ Params: { date: string }; Body: { supersedes?: string; reason?: string } }>('/internal/4663/daily-observations/:date/finalize', async (req, reply) => {
+    reply.header('Cache-Control', 'private, no-store');
+    const reviewer = rh4663OperationalGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
+    if (Boolean(req.body?.supersedes) !== Boolean(req.body?.reason)) return reply.code(400).send({ error: 'supersession_and_reason_required' });
+    try {
+      const correction = req.body?.supersedes ? { supersedes: req.body.supersedes, reason: req.body.reason! } : undefined;
+      const receipt = await rhAutomatedObservations.finalize(req.params.date, correction);
+      return { data: safeJsonExport({ receipt, requested_by: reviewer }) };
+    } catch (error) {
+      if (error instanceof Error && ['invalid_utc_date', 'utc_day_not_completed', 'correction_reason_required', 'same_day_supersession_required'].includes(error.message)) return reply.code(400).send({ error: error.message });
+      throw error;
+    }
+  });
   app.get('/v1/4663/prints', async () => ({ data: safeJsonExport({ prints: [...await rh4663PrintGenerator.list(), getLatestRh4663Print()].sort((a, b) => b.canonical_path.localeCompare(a.canonical_path)), storage: { adapter: rh4663PrintStore.adapter, durable: rh4663PrintStore.durable } }) }));
   app.get('/v1/4663/prints/latest', async () => ({ data: safeJsonExport(await rh4663LatestPrintRead()) }));
   app.get<{ Params: { printId: string } }>('/v1/4663/prints/:printId', async (req, reply) => {
@@ -4931,6 +4958,15 @@ export async function createApp(
       clearInterval(timer);
       console.log(JSON.stringify({ event: 'hook_exit', hook: 'onClose', source: 'monitor_timer' }));
     });
+  }
+
+  if (config.rhObservationSchedulerEnabled) {
+    let scheduler: ReturnType<typeof startRhChainMarketScheduler> | null = null;
+    app.addHook('onReady', async () => {
+      scheduler = startRhChainMarketScheduler(() => rhAutomatedObservations.runCompletedDays(), 5 * 60000,
+        () => app.log.warn({ event: 'rh_automated_observation_scheduler_failed' }));
+    });
+    app.addHook('onClose', async () => { await scheduler?.stop(); });
   }
 
   if (marketCollectionEnabled) {

@@ -14,7 +14,7 @@ describe.skipIf(!url)('integrated dynamic market PostgreSQL qualification', () =
     const db = await createCanonicalTestDatabase(url!, 'rh_dynamic_integrated', migrations);
     let restarted: pg.Pool | null = null;
     try {
-      expect(migrations).toHaveLength(18);
+      expect(migrations).toHaveLength(19);
       const memory = new InMemoryRhChainMarketSnapshotStore(), store = new PostgresRhChainMarketSnapshotStore(db.pool);
       const samples = moverSamples();
       for (const sample of samples) await memory.save(sample);

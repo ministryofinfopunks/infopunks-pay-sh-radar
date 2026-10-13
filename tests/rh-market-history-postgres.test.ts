@@ -42,7 +42,7 @@ describe.skipIf(!url)('RH-PIPELINE-1A real PostgreSQL', () => {
     const migrations = readdirSync('migrations').filter((name) => name.endsWith('.up.sql')).sort().map((name) => name.replace('.up.sql', ''));
     const database = await createCanonicalTestDatabase(url!, 'rh_market_all', migrations);
     try {
-      expect(migrations).toHaveLength(18);
+      expect(migrations).toHaveLength(19);
       expect((await inspectRhChainMigrationLedger(database.pool)).pending_migrations).toEqual([]);
       await database.pool.query(readFileSync('migrations/' + migration + '.down.sql', 'utf8'));
       expect((await inspectRhChainMigrationLedger(database.pool)).pending_migrations).toContain('20261012_024');

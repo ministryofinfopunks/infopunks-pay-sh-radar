@@ -69,6 +69,9 @@ export type RuntimeConfig = {
   rhChainMarketIngestionEnabled: boolean;
   rhChainMarketHistoryEnabled: boolean;
   rhChainMarketSchedulerEnabled: boolean;
+  rhObservationSchedulerEnabled: boolean;
+  rhObservationPublicationEnabled: boolean;
+  rhObservationProductionAuthorization: string | null;
   rhChainAutomationInstanceId: string;
   rhChainJobLockTtlMs: number;
   rhChainChainPulseIntervalMs: number;
@@ -230,6 +233,9 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     rhChainMarketIngestionEnabled: readBoolean('RH_CHAIN_MARKET_INGESTION_ENABLED', env.RH_CHAIN_MARKET_INGESTION_ENABLED, false),
     rhChainMarketHistoryEnabled: readBoolean('RH_CHAIN_MARKET_HISTORY_ENABLED', env.RH_CHAIN_MARKET_HISTORY_ENABLED, false),
     rhChainMarketSchedulerEnabled: readBoolean('RH_CHAIN_MARKET_SCHEDULER_ENABLED', env.RH_CHAIN_MARKET_SCHEDULER_ENABLED, false),
+    rhObservationSchedulerEnabled: readBoolean('RH_OBSERVATION_SCHEDULER_ENABLED', env.RH_OBSERVATION_SCHEDULER_ENABLED, false),
+    rhObservationPublicationEnabled: readBoolean('RH_OBSERVATION_PUBLICATION_ENABLED', env.RH_OBSERVATION_PUBLICATION_ENABLED, false),
+    rhObservationProductionAuthorization: optionalString(env.RH_OBSERVATION_PRODUCTION_AUTHORIZATION),
     rhChainAutomationInstanceId: optionalString(env.RH_CHAIN_AUTOMATION_INSTANCE_ID) ?? `local-${process.pid}`,
     rhChainJobLockTtlMs: readPositiveInteger('RH_CHAIN_JOB_LOCK_TTL_MS', env.RH_CHAIN_JOB_LOCK_TTL_MS, 5 * 60 * 1000),
     rhChainMarketSnapshotIntervalMs: Math.max(60_000, readBoundedPositiveInteger('RH_CHAIN_MARKET_SNAPSHOT_INTERVAL_MS', env.RH_CHAIN_MARKET_SNAPSHOT_INTERVAL_MS, 5 * 60 * 1000, 24 * 60 * 60 * 1000)),
@@ -335,6 +341,12 @@ function resolveOptionalProductionFeatures(config: RuntimeConfig) {
   }
   if (config.rhChainMarketHistoryEnabled && !config.databaseUrl) {
     disable('rh_chain_market_history', 'DATABASE_URL is missing', () => { config.rhChainMarketHistoryEnabled = false; });
+  }
+  if (config.rhObservationSchedulerEnabled && (!config.databaseUrl || !config.rhChainMarketHistoryEnabled)) {
+    disable('rh_observation_scheduler', 'durable market history is required', () => { config.rhObservationSchedulerEnabled = false; });
+  }
+  if (config.rhObservationPublicationEnabled && (!config.databaseUrl || !config.rhObservationProductionAuthorization)) {
+    disable('rh_observation_publication', 'separate production authorization and durable storage are required', () => { config.rhObservationPublicationEnabled = false; });
   }
   if (config.rhChainReviewedClassificationsEnabled && !config.databaseUrl) {
     disable('rh_chain_reviewed_classifications', 'DATABASE_URL is missing', () => { config.rhChainReviewedClassificationsEnabled = false; });
