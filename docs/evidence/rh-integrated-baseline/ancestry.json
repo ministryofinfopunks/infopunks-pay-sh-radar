@@ -1,0 +1,50 @@
+{
+  "baseline_sha": "f128d4fa70076cee513745efaad7b0fd120fa9c4",
+  "common_ancestor": "7effafb37f3f8aebd529ad13e90d87222189ba05",
+  "qualified_1b": "59aa25bd28a6e001fa52fbfa8f13eea2e3d04eac",
+  "qualified_category": "955dd214301f38dabf5b050ac9ae2d2b36559eea",
+  "ancestry": [
+    "f128d4fa70076cee513745efaad7b0fd120fa9c4 Record category intelligence qualification and evidence",
+    "955dd214301f38dabf5b050ac9ae2d2b36559eea Connect category-aware stored market evidence to the 4663 frontdoor",
+    "7effafb37f3f8aebd529ad13e90d87222189ba05 docs(rh-chain): record reconciled dynamic desk qualification and activation holds",
+    "59aa25bd28a6e001fa52fbfa8f13eea2e3d04eac fix(rh-chain): label persisted observations without implying review",
+    "30c1c214584717a747ff1e0bbe9d38dc8f3de7dd fix(rh-chain): keep market summary facts separate from reviewed risk memory",
+    "32c3583804b8e68b22285b9f53bc45a5af055b6a feat(rh-chain): derive dynamic movers and Today from durable observations",
+    "0aad6b22b1d3514cf57225501cb8dbed02622237 docs(rh-chain): qualify stock evidence foundation and prioritize RWA product lane",
+    "50277a1a879270f95f86b8b60b81cc26288c8260 fix(rh-chain): require verified route price provenance for stock basis",
+    "c3318277a9f196cc7fb989ad4051f457c75ee5b1 feat(rh-chain): add persisted stock token evidence coverage lane",
+    "270cccdb439ee6929d5dab4c778061c1e1b8581f docs(rh-chain): record pipeline 1A local qualification and release holds",
+    "ced2bdeb5ddf4a8bb0514c3ae9962f52cbd42977 feat(rh-chain): schedule durable market observation collection"
+  ],
+  "reports": {
+    "docs/rh-pipeline-1b-delivery.md": "4690c36f4eb170b7cc5d04bf83e8f3c426b067c98a4befae6f693d149ec97dc9",
+    "docs/rh-category-intelligence-delivery.md": "59630e4907f7183439cb37fb370ef6ac2252fd0140bffaced8f1d374f64043c3"
+  },
+  "reconciliation": "Fast-forward on new isolated branch; no original ref modified",
+  "category_increment": [
+    "DESIGN.md",
+    "UX-CONTRACT.md",
+    "docs/evidence/rh-category-intelligence/api-examples.json",
+    "docs/evidence/rh-category-intelligence/design-lint.json",
+    "docs/evidence/rh-category-intelligence/desktop.jpg",
+    "docs/evidence/rh-category-intelligence/mobile.jpg",
+    "docs/evidence/rh-category-intelligence/premium-audit.json",
+    "docs/evidence/rh-category-intelligence/qualification.json",
+    "docs/evidence/rh-category-intelligence/test-files.json",
+    "docs/rh-category-intelligence-delivery.md",
+    "premium-ui.json",
+    "src/api/app.ts",
+    "src/services/rh4663FrontdoorService.ts",
+    "src/services/rh4663ObservedMarketPresentation.ts",
+    "src/services/rhChainCategoryIntelligenceService.ts",
+    "src/web/frontdoor4663.tsx",
+    "src/web/marketIntelligence/rh4663FrontdoorRead.ts",
+    "src/web/marketIntelligence/rh4663MarketCategories.tsx",
+    "src/web/rh4663.css",
+    "src/web/rh4663Pages.tsx",
+    "tests/rh-category-frontdoor.test.ts",
+    "tests/rh-category-intelligence.test.ts",
+    "tests/rh-category-postgres.test.ts",
+    "tests/rh-category-ui.test.tsx"
+  ]
+}
