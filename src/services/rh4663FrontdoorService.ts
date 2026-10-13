@@ -3,13 +3,15 @@
  * canonical Radar, Watch, Census, Pulse, or receipt objects.
  */
 import pg from 'pg';
+import type { RhCategoryIntelligence } from './rhChainCategoryIntelligenceService';
+import { observedMarketPresentation } from './rh4663ObservedMarketPresentation';
 import { resolvePostgresPool, type PostgresPoolSource } from '../persistence/retryablePostgresSchema';
 import type { Rh4663CampaignProjection } from './rh4663CampaignService';
 
 export const RH_4663_FRONTDOOR_STATE = 'RH_4663_FRONTDOOR_STATE' as const;
 export type FrontdoorVersionDurability = 'PERSISTENT' | 'EPHEMERAL';
 
-export type FrontdoorEvidenceState = 'VERIFIED' | 'MIXED' | 'WATCH' | 'UNRESOLVED' | 'BLOCK' | 'DEGRADE' | 'INSUFFICIENT_DATA';
+export type FrontdoorEvidenceState = 'OBSERVED' | 'VERIFIED' | 'MIXED' | 'WATCH' | 'UNRESOLVED' | 'BLOCK' | 'DEGRADE' | 'INSUFFICIENT_DATA';
 export type FrontdoorHealthState = 'HEALTHY' | 'STALE' | 'DEGRADED' | 'UNAVAILABLE';
 export type FrontdoorSourceHealth = {
   /** Legacy-compatible transport state. Prefer health_state for consumer copy. */
@@ -54,6 +56,8 @@ export type Rh4663FrontdoorState = {
   proof_summary: { total_calls: number; resolved_calls: null; note: string; deep_link: string; source_ref: FrontdoorSourceRef };
   system_status: { state: 'available' | 'partial' | 'stale' | 'degraded'; source_health: Record<'census' | 'watch' | 'preflight' | 'pulse' | 'signals', FrontdoorSourceHealth> };
   source_refs: FrontdoorSourceRef[];
+  market_categories?: RhCategoryIntelligence | null;
+  market_source_health?: FrontdoorSourceHealth;
   /** Optional Phase 9 presentation lens. It is public, derived, and never personalised. */
   campaign?: Rh4663CampaignProjection;
 };
@@ -67,6 +71,8 @@ type Signal = { signal_id: string; headline: string; summary: string; category: 
 
 export type Rh4663FrontdoorDependencies = {
   census: () => Promise<Census | null>; watch: () => Promise<Watch>; preflight: () => Promise<Preflight | null>; pulse: () => Promise<Pulse>; signals: () => Promise<Signal[]>; now?: () => Date; ttl_ms?: number;
+  /** Stored observations only, with category-specific evidence gates. */
+  market_categories?: () => Promise<RhCategoryIntelligence>;
   version_store?: FrontdoorVersionStore;
   change_event_store?: FrontdoorChangeEventStore;
   shadow?: () => Promise<ShadowObservation | null>;
@@ -163,16 +169,17 @@ export class Rh4663FrontdoorService {
     if (this.cached && this.cached.expires_at > at.getTime()) { this.cacheHits += 1; return structuredClone(this.cached.state); }
     this.cacheMisses += 1;
     if (this.requireDurableVersion && this.versions.durability !== 'PERSISTENT') throw new Rh4663FrontdoorError('frontdoor_version_durability_required', 503);
-    const [census, watch, preflight, pulse, signals, shadow] = await Promise.all([
+    const [census, watch, preflight, pulse, signals, shadow, market] = await Promise.all([
       boundedSourceRead(this.deps.census, this.deps.source_timeout_ms ?? 250),
       boundedSourceRead(this.deps.watch, this.deps.source_timeout_ms ?? 250),
       boundedSourceRead(this.deps.preflight, this.deps.source_timeout_ms ?? 250),
       boundedSourceRead(this.deps.pulse, this.deps.source_timeout_ms ?? 250),
       boundedSourceRead(this.deps.signals, this.deps.source_timeout_ms ?? 250),
-      boundedSourceRead(this.deps.shadow ?? (() => Promise.resolve(null)), this.deps.source_timeout_ms ?? 250)
+      boundedSourceRead(this.deps.shadow ?? (() => Promise.resolve(null)), this.deps.source_timeout_ms ?? 250),
+      boundedSourceRead(this.deps.market_categories ?? (() => Promise.resolve(null)), this.deps.source_timeout_ms ?? 250)
     ]);
-    this.lastSourceReads = Object.fromEntries(Object.entries({ census, watch, preflight, pulse, signals, shadow }).map(([source, result]) => [source, { duration_ms: result.duration_ms, failure_class: result.failure_class }]));
-    this.sourceFailures += [census, watch, preflight, pulse, signals, shadow].filter((item) => item.result.status === 'rejected').length;
+    this.lastSourceReads = Object.fromEntries(Object.entries({ census, watch, preflight, pulse, signals, shadow, market }).map(([source, result]) => [source, { duration_ms: result.duration_ms, failure_class: result.failure_class }]));
+    this.sourceFailures += [census, watch, preflight, pulse, signals, shadow, market].filter((item) => item.result.status === 'rejected').length;
     const state = assembleFrontdoor({
       now: at,
       census: census.result.status === 'fulfilled' ? census.result.value : null,
@@ -184,6 +191,24 @@ export class Rh4663FrontdoorService {
       source_reads: { census, watch, preflight, pulse, signals },
       failures: { census: failure(census.result), watch: failure(watch.result), preflight: failure(preflight.result), pulse: failure(pulse.result), signals: failure(signals.result) }
     });
+    if (this.deps.market_categories) {
+      const projection = market.result.status === 'fulfilled' ? market.result.value : null;
+      state.market_categories = projection;
+      const available = projection && projection.source_health.market === 'available';
+      state.market_source_health = { status: available ? projection!.state === 'partial' ? 'degraded' : 'available' : 'unavailable',
+        health_state: available ? projection!.observed_at ? projection!.state === 'partial' ? 'DEGRADED' : 'HEALTHY' : 'STALE' : 'UNAVAILABLE',
+        observed_at: projection?.last_observed_at ?? (!available ? this.cached?.state.market_source_health?.observed_at ?? null : null), failure_class: market.failure_class };
+      if (projection) {
+        const observations = observedMarketPresentation(projection);
+        state.now_cards = [...observations.now, ...state.now_cards].slice(0, 5);
+        state.watch_cards = [...observations.watch, ...state.watch_cards].slice(0, 4);
+        state.open_loops = [...observations.loops, ...state.open_loops].slice(0, 4);
+        state.source_refs = [...state.source_refs, ...observations.refs];
+        if (projection.observed_at && Date.parse(projection.observed_at) > Date.parse(state.freshness.source_observed_at ?? '1970-01-01T00:00:00Z'))
+          state.freshness = { state: 'OBSERVED', source_observed_at: projection.observed_at };
+      }
+      if (!available || projection?.state === 'partial') state.system_status.state = 'partial';
+    }
     if (this.deps.campaign) {
       try { state.campaign = await this.deps.campaign(structuredClone(state)); }
       catch {
@@ -272,7 +297,7 @@ function semanticSources(state: Rh4663FrontdoorState, ignorePersonalPulseChanges
   const loops = state.open_loops.map(loopFingerprint);
   return {
     RMM_CENSUS: JSON.stringify({ cards: state.now_cards.filter((card) => card.source_type === 'rmm_census').map(cardFingerprint), loops: loops.filter((loop) => loop.deep_link === '/4663/reflexive/census') }),
-    WATCH_CASES: JSON.stringify(state.watch_cards.map(cardFingerprint)),
+    WATCH_CASES: JSON.stringify(state.watch_cards.filter(card => card.source_type !== 'market_observation').map(cardFingerprint)),
     AI_NVDA_CASE: JSON.stringify({ cards: state.watch_cards.filter((card) => card.id.includes('AI_NVDA')).map(cardFingerprint), loops: loops.filter((loop) => loop.loop_id.includes('AI_NVDA')) }),
     PLTR_PREFLIGHT: JSON.stringify({ cards: state.now_cards.filter((card) => card.id.includes('pltr')).map(cardFingerprint), loops: loops.filter((loop) => loop.deep_link === '/4663/reflexive/preflight/ipx-pltr') }),
     PLTR_SHADOW: JSON.stringify(loops.filter((loop) => loop.source_type === 'IPX_PLTR_SHADOW')),
@@ -281,7 +306,8 @@ function semanticSources(state: Rh4663FrontdoorState, ignorePersonalPulseChanges
       ? { window_id: state.current_call.window_id, opens_at: state.current_call.opens_at, closes_at: state.current_call.closes_at, state: state.current_call.state, resolution_state: state.current_call.resolution_state, resolved_category: state.current_call.resolved_category }
       : { current_call: state.current_call, proof_summary: state.proof_summary }),
     CAMPAIGN: JSON.stringify(state.campaign ?? null),
-    SYSTEM: JSON.stringify(state.system_status.source_health)
+    MARKET_OBSERVATIONS: JSON.stringify({ projection_id: state.market_categories?.projection_id ?? null, health: state.market_source_health ?? null }),
+    SYSTEM: JSON.stringify(Object.fromEntries(Object.entries(state.system_status.source_health).map(([key, h]) => [key, { status: h.status, health_state: h.health_state, observed_at: h.observed_at, failure_class: h.failure_class }])))
   };
 }
 function cardFingerprint(card: FrontdoorCard) { return { id: card.id, topic: card.topic, headline: card.headline, summary: card.summary, primary_metric: card.primary_metric, delta: card.delta, evidence_state: card.evidence_state, freshness: card.freshness, source: card.source_ref.source_id, deep_link: card.deep_link }; }
@@ -312,6 +338,7 @@ function parseObject(value: string | undefined): Record<string, unknown> | null 
 function changeTypeFor(key: string, before: Record<string, unknown>, after: Record<string, unknown>, state: Rh4663FrontdoorState): FrontdoorChangeType { if (key === 'PULSE' && (after.current_call as Record<string, unknown> | undefined)?.resolution_state && (after.current_call as Record<string, unknown> | undefined)?.resolution_state !== (before.current_call as Record<string, unknown> | undefined)?.resolution_state) return 'RESOLVED'; if (key === 'RMM_CENSUS' && Array.isArray(before.loops) && (!Array.isArray(after.loops) || after.loops.length === 0)) return 'RESOLVED'; const aiFalsified = state.open_loops.some((loop) => loop.source_type === 'AI_NVDA_CAPITAL_VS_FLOW' && loop.state === 'FALSIFIED') || state.watch_cards.some((card) => card.id.includes('AI_NVDA') && card.topic === 'FALSIFICATION'); if ((key === 'WATCH_CASES' && state.watch_cards.some((card) => card.topic === 'FALSIFICATION')) || (key === 'AI_NVDA_CASE' && aiFalsified)) return 'FALSIFIED'; if (key === 'AI_NVDA_CASE' && after.loops && before.loops && JSON.stringify(after.loops).includes('FALSIFIED') && !JSON.stringify(before.loops).includes('FALSIFIED')) return 'FALSIFIED'; if (key === 'RMM_CENSUS') return 'COVERAGE_CHANGED'; if (key === 'PLTR_SHADOW') return 'EVIDENCE_ADDED'; if (key === 'WATCH_CASES' || key === 'AI_NVDA_CASE') return 'STATE_TRANSITION'; return 'UPDATED'; }
 function changeDescriptor(key: string, state: Rh4663FrontdoorState): { source_type: string; source_ref: FrontdoorSourceRef; headline: string; importance: number; deep_link: string } {
   const find = (type: string, href: string) => state.source_refs.find((item) => item.source_type === type) ?? ref(type, key, href, null);
+  if (key === 'MARKET_OBSERVATIONS') return { source_type: 'market_observation', source_ref: find('market_observation', '/v1/4663/market/categories'), headline: 'Stored market observations or category coverage changed', importance: 88, deep_link: '/4663#market-categories' };
   if (key === 'RMM_CENSUS') return { source_type: 'RMM_CATEGORY_CENSUS', source_ref: find('rmm_census', '/v1/4663/reflexive/census'), headline: 'RMM Census updated', importance: 96, deep_link: '/4663/reflexive/census' };
   if (key === 'AI_NVDA_CASE') return { source_type: 'AI_NVDA_CAPITAL_VS_FLOW', source_ref: find('reflexive_watch', '/v1/4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW'), headline: 'AI/NVDA state changed', importance: 100, deep_link: '/4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW' };
   if (key === 'PLTR_SHADOW') return { source_type: 'IPX_PLTR_SHADOW', source_ref: find('pltr_shadow', '/v1/4663/reflexive/preflight/ipx-pltr/shadow/status'), headline: 'PLTR Shadow Observation updated', importance: 92, deep_link: '/4663/reflexive/preflight/ipx-pltr/shadow/status' };

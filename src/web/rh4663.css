@@ -343,3 +343,25 @@
 .fd-loop-progress { color: var(--fd-text-tertiary); font-size: .65rem; }
 .fd-call-changed small { color: var(--fd-text-tertiary); font-size: .66rem; line-height: 1.4; }
 @media (max-width: 720px) { .fd-return-summary { margin-bottom: var(--fd-space-4); }.fd-global-return h2 { font-size: 1.35rem; }.fd-loop { min-height: 0; }.fd-loop footer { align-items: flex-start; }.fd-change-list a span { align-items: flex-start; flex-direction: column; gap: .25rem; } }
+
+/* Category evidence reuses Front Door tokens and document scrolling. */
+.fd-market-categories { margin-block: var(--fd-space-5); }
+.fd-market-categories > h3 { margin: 0; font-size: 1.2rem; }
+.fd-market-categories p, .fd-category time { color: var(--fd-text-secondary); font-size: .8rem; line-height: 1.6; }
+.fd-category-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--fd-space-3); }
+.fd-category { min-width: 0; padding: var(--fd-space-4); border: 1px solid var(--fd-line); border-radius: var(--fd-radius-md); background: var(--fd-surface); }
+.fd-category summary { cursor: pointer; min-height: 2.75rem; }
+.fd-category summary:hover, .fd-category summary:active { color: var(--fd-accent); }
+.fd-category summary span { display: block; margin-top: var(--fd-space-1); color: var(--fd-text-secondary); font-size: .8rem; }
+.fd-category ul { padding: 0; list-style: none; }
+.fd-category li { border-top: 1px solid var(--fd-line); padding-block: var(--fd-space-3); overflow-wrap: anywhere; }
+.fd-category-contract { display: block; font: .7rem ui-monospace, monospace; color: var(--fd-text-secondary); margin-top: var(--fd-space-1); }
+.fd-category footer { display: flex; flex-wrap: wrap; gap: var(--fd-space-3); }
+.fd-category-policy { border-top: 1px solid var(--fd-line); padding-top: var(--fd-space-3); }
+.fd-research-link { cursor: pointer; }
+.fd-research-link:active { color: var(--fd-accent); }
+.fd-evidence-observed { color: var(--fd-accent); border-color: var(--fd-accent); }
+@media (max-width: 720px) { .fd-category-grid { grid-template-columns: minmax(0, 1fr); } }
+
+.fd-now-card h3 { overflow-wrap: anywhere; }
+.fd-card-summary { color: var(--fd-text-secondary); font-size: .8rem; line-height: 1.6; margin-top: var(--fd-space-2); }

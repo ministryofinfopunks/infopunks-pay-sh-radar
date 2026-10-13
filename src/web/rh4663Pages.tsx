@@ -4,6 +4,7 @@ import type { Rh4663CallReceipt, Rh4663RotationOption, Rh4663Signal, Rh4663Signa
 import type { Rh4663MerkleProof, Rh4663ProofProfile, Rh4663ResolutionReceipt } from '../services/rh4663ResolutionService';
 import type { Published4663Signal } from '../services/rh4663IntelligenceService';
 import { Frontdoor } from './frontdoor4663';
+import { useRh4663FrontdoorRead } from './marketIntelligence/rh4663FrontdoorRead';
 import type { Rh4663FrontdoorState } from '../services/rh4663FrontdoorService';
 import type { Rh4663ShareObject } from '../services/rh4663ShareObjectService';
 import type { CampaignPresentationSnapshot, Rh4663Campaign } from '../services/rh4663CampaignService';
@@ -89,7 +90,8 @@ function CampaignLanding({ campaignId }: { campaignId: string }) {
 }
 
 function Home() {
-  const { data, status, message } = useApi<Rh4663FrontdoorState>('/v1/4663/frontdoor');
+  useEffect(() => { document.title = 'Infopunks //4663 — Market intelligence'; }, []);
+  const { data, status, message } = useRh4663FrontdoorRead();
   return <Frontdoor data={data} status={status} message={message} />;
 }
 

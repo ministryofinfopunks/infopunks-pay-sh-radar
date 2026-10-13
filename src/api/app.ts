@@ -113,6 +113,7 @@ import { assembleRhChainLaunchpadObservatory } from '../services/rhChainLaunchpa
 import { assembleRhChainScouts } from '../services/rhChainScoutsService';
 import { assembleRhChainDistributionPack } from '../services/rhChainDistributionPackService';
 import { assembleRhChainReceiptRelay } from '../services/rhChainReceiptRelayService';
+import { RhChainCategoryIntelligenceService, type RhCategoryIdentity } from '../services/rhChainCategoryIntelligenceService';
 import { RhChainMarketMoversService } from '../services/rhChainMarketMoversService';
 import { RhChainStockEvidenceService, qualifiedStockAssets } from '../services/rhChainStockEvidenceService';
 import { registerRhChainStockEvidenceRoutes } from './rhChainStockEvidenceRoutes';
@@ -1046,6 +1047,35 @@ export async function createApp(
     ...options.rhChainMarketSnapshotOptions
   });
   const rhChainMarketMovers = new RhChainMarketMoversService(rhChainMarketSnapshotStore, { requireDurable: config.isProduction, now: options.rhChainMarketSnapshotOptions?.now, stockContracts: async () => qualifiedStockAssets((await reflexiveRadar.snapshot()).assets).map((asset) => asset.canonical_contract) });
+  const rhChainStockEvidence = new RhChainStockEvidenceService({ snapshot: () => reflexiveRadar.snapshot(), markets: contracts => rhChainMarketSnapshots.getLatestSnapshotsForContracts(contracts), now: options.rhChainMarketSnapshotOptions?.now });
+  const rhChainCategoryIntelligence = new RhChainCategoryIntelligenceService({
+    movers: () => rhChainMarketMovers.read(), now: options.rhChainMarketSnapshotOptions?.now,
+    snapshots: async (contracts, since) => { if (!rhChainMarketSnapshotStore.listMany) throw new Error('stored_history_capability_required'); return rhChainMarketSnapshotStore.listMany(contracts, since); },
+    stockEvidence: contract => rhChainStockEvidence.evidence(contract),
+    identities: async () => {
+      const stocks = qualifiedStockAssets((await reflexiveRadar.snapshot()).assets);
+      const identities: RhCategoryIdentity[] = stocks.map(asset => ({ contract: asset.canonical_contract.toLowerCase(), category: 'stock_tokens', source_id: asset.asset_id,
+        href: `/v1/4663/stock-tokens/${asset.canonical_contract.toLowerCase()}/evidence`, observed_at: asset.observed_at }));
+      const categoryFor = (layer: string): RhCategoryIdentity['category'] | null => layer === 'meme' ? 'memes' : ['rwa', 'defi'].includes(layer) ? 'rwa_defi' : null;
+      for (const item of rhChainReviewedLayerClassifications) {
+        const category = categoryFor(item.primary_layer);
+        if (category && item.classification_source === 'manual_review' && item.reviewed_at && ['reviewed', 'approved_signal', 'watch_only'].includes(item.evidence_state))
+          identities.push({ contract: item.contract.toLowerCase(), category, source_id: `curated:${item.contract.toLowerCase()}`, href: '/v1/rh-chain/market-structure', observed_at: item.reviewed_at });
+      }
+      if (config.rhChainReviewedClassificationsEnabled) {
+        for (let page = 1; page <= 4; page++) {
+          const approved = await rhChainReviewedClassifications.listApproved({ page, page_size: 100 });
+          for (const item of approved.classifications) {
+            const category = categoryFor(item.primary_layer);
+            if (category) identities.push({ contract: item.contract, category, source_id: `classification:${item.contract}:${item.classification_version}`, href: '/v1/rh-chain/classifications', observed_at: item.effective_at! });
+          }
+          if (!approved.has_more) break;
+          if (page === 4) throw new Error('category_identity_universe_truncated');
+        }
+      }
+      return identities;
+    }
+  });
   const rhChainAttentionReceiptStore: RhChainAttentionReceiptStore = options.rhChainAttentionReceiptStore
     ?? (rhChainPostgresPool ? new PostgresRhChainAttentionReceiptStore(rhChainPostgresPool) : new InMemoryRhChainAttentionReceiptStore());
   const rhChainAttentionQuality = new RhChainAttentionQualityService({
@@ -1178,6 +1208,7 @@ export async function createApp(
     }
   };
   const rh4663Frontdoor = new Rh4663FrontdoorService({
+    market_categories: () => rhChainCategoryIntelligence.read(),
     census: () => rmmCensus.latest(),
     watch: () => reflexiveWatch.snapshot(),
     preflight: () => reflexiveRadar.pltrPreflight(),
@@ -3385,7 +3416,7 @@ export async function createApp(
     return { data: safeJsonExport(await rh4663Intelligence.rotation(req.query.since ? new Date(req.query.since).toISOString() : undefined)) };
   });
   // RMM observations are public evidence objects, never receipt protocol objects.
-  await registerRhChainStockEvidenceRoutes(app, new RhChainStockEvidenceService({ snapshot: () => reflexiveRadar.snapshot(), markets: (contracts) => rhChainMarketSnapshots.getLatestSnapshotsForContracts(contracts) }));
+  await registerRhChainStockEvidenceRoutes(app, rhChainStockEvidence);
   app.get('/v1/4663/reflexive', async () => ({ data: safeJsonExport(await reflexiveRadar.snapshot()) }));
   app.get('/v1/4663/reflexive/watch', async () => ({ data: safeJsonExport({ ...await reflexiveWatch.snapshot(), rmm_category_census: await rmmCensus.latest() }) }));
   app.get('/v1/4663/reflexive/census', async (_req, reply) => { const census = await rmmCensus.latest(); return census ? { data: safeJsonExport(census) } : reply.code(409).send({ error: 'rmm_census_not_refreshed' }); });
@@ -3504,6 +3535,7 @@ export async function createApp(
   });
   app.get('/v1/rh-chain/4663-index', async (_req, reply) => { reply.header('Cache-Control', 'no-store'); return safeJsonExport(buildRhChainApiResponse(assembleRhChain4663Index(await rhChainMarketMovers.read()))); });
   app.get('/v1/rh-chain/4663-index/memory', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChain4663Index())));
+  app.get('/v1/4663/market/categories', async (_req, reply) => { reply.header('Cache-Control', 'no-store'); try { return safeJsonExport(buildRhChainApiResponse(await rhChainCategoryIntelligence.read())); } catch { return reply.code(503).send(buildRhChainApiErrorResponse('rh_category_intelligence_unavailable')); } });
   const moversRead = async (_req: unknown, reply: import('fastify').FastifyReply) => { reply.header('Cache-Control', 'no-store'); return safeJsonExport(buildRhChainApiResponse(await rhChainMarketMovers.read())); };
   app.get('/v1/rh-chain/market/movers', moversRead);
   app.get('/v1/4663/market/movers', moversRead);

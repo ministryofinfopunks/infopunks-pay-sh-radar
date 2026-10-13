@@ -1,0 +1,18 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["src/web/marketIntelligence"],
+  "locale": "en-US",
+  "canonicalMap": "UX-CONTRACT.md",
+  "requiredCapabilities": ["Scrollbar"],
+  "requiredCommands": ["typecheck", "unit", "build"],
+  "commands": {
+    "typecheck": "npm run typecheck",
+    "unit": "npm test",
+    "build": "npm run build"
+  },
+  "evidence": {
+    "failurePaths": "tests/rh-category-ui.test.tsx",
+    "publicBoundary": "tests/rh-category-frontdoor.test.ts"
+  },
+  "scope": "Static audit covers the new marketIntelligence shared UI owners. Existing Front Door wrappers and stylesheet are verified by tests and browser review; this is not a whole-application UX audit."
+}
