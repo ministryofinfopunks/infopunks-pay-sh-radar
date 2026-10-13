@@ -228,7 +228,10 @@ function RhChainHero({ desk, envelope, today, latestReceipt, signalIndex, review
   const topSignal = today.find((item) => item.id === 'top_signal');
   const topRisk = today.find((item) => item.id === 'risk_alert');
   const observedAt = today.map((item) => item.observedAt).filter((value): value is string => Boolean(value)).sort().at(-1) ?? desk.last_updated;
-  const sourceCount = envelope?.sources.length ?? today.reduce((count, item) => count + item.sourceCount, 0);
+  const observedMode = Boolean(signalIndex?.market_movers);
+  const currentFacts = today.filter((item) => item.classification === 'observed fact');
+  const marketState = observedMode ? currentFacts.length ? currentFacts.some((item) => item.evidenceState === 'fresh') ? 'fresh' : 'stale' : 'source required' : latestReceipt?.freshness_state ? formatLabel(latestReceipt.freshness_state) : 'source required';
+  const sourceCount = observedMode ? new Set(currentFacts.map((item) => item.sourceReference).filter(Boolean)).size : envelope?.sources.length ?? today.reduce((count, item) => count + item.sourceCount, 0);
   const unresolved = reviewQueue?.items.filter((item) => !['approved_signal', 'rejected_low_receipt_quality'].includes(item.review_state)).length;
   return <section className="rh-v2-hero" aria-labelledby="rh-v2-title">
     <div className="rh-v2-hero-main">
@@ -244,17 +247,17 @@ function RhChainHero({ desk, envelope, today, latestReceipt, signalIndex, review
     <aside className="rh-v2-intelligence-rail" aria-label="Today on 4663 summary">
       <div className="rh-v2-rail-heading"><span>Today on 4663</span><i aria-hidden="true" /></div>
       <dl>
-        <div><dt>Market state</dt><dd>{latestReceipt?.freshness_state ? formatLabel(latestReceipt.freshness_state) : 'source required'}</dd></div>
-        <div><dt>Top signal</dt><dd>{topSignal?.verdict ?? 'Unavailable'}</dd></div>
-        <div><dt>Biggest risk</dt><dd>{topRisk?.verdict ?? 'Unavailable'}</dd></div>
-        <div><dt>Latest receipt</dt><dd>{latestReceipt ? `Receipt ${dailyReceiptNumber(latestReceipt.receipt_id)}` : 'Unavailable'}</dd></div>
+        <div><dt>Market state</dt><dd>{marketState}</dd></div>
+        <div><dt>{observedMode ? topSignal?.title ?? 'Market observation' : 'Top signal'}</dt><dd>{topSignal?.verdict ?? 'Unavailable'}</dd></div>
+        <div><dt>{observedMode ? topRisk?.title ?? 'Liquidity change' : 'Biggest risk'}</dt><dd>{topRisk?.verdict ?? 'Unavailable'}</dd></div>
+        <div><dt>{observedMode ? 'Reviewed receipt memory' : 'Latest receipt'}</dt><dd>{latestReceipt ? `Receipt ${dailyReceiptNumber(latestReceipt.receipt_id)}` : 'Unavailable'}</dd></div>
         <div><dt>Open reviews</dt><dd>{unresolved ?? 'Unavailable'}</dd></div>
         <div><dt>Observed</dt><dd>{formatTimestamp(observedAt)}</dd></div>
-        <div><dt>Sources</dt><dd>{sourceCount || 'Source required'}</dd></div>
+        <div><dt>{observedMode ? 'Observation sources' : 'Sources'}</dt><dd>{sourceCount || 'Source required'}</dd></div>
       </dl>
       <details className="rh-v2-source-policy">
         <summary>View source policy</summary>
-        <p>{envelope?.meta.source_policy ?? desk.source_policy}</p>
+        <p>{signalIndex?.market_movers?.source_policy ?? envelope?.meta.source_policy ?? desk.source_policy}</p>
       </details>
       <p className="rh-v2-independent">Independent Infopunks intelligence. Not affiliated with or endorsed by Robinhood. No buy, sell, or listing recommendation.</p>
     </aside>
