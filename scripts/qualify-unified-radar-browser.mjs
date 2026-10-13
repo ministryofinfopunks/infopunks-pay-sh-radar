@@ -37,7 +37,7 @@ for (const [viewportName, viewport] of Object.entries({ desktop: { width: 1440, 
     await page.waitForSelector('h1, [role="alert"]', { timeout: 15000 }).catch(() => {});
     await page.waitForTimeout(1400);
     if (route === '/spend-terminal') {
-      if (process.env.RADAR_QA_TENANT_KEY) await page.getByLabel('Tenant access key').fill(process.env.RADAR_QA_TENANT_KEY);
+      if (process.env.RADAR_QA_TENANT_KEY) await page.getByLabel('Tenant access key', { exact: true }).fill(process.env.RADAR_QA_TENANT_KEY);
       await page.getByRole('button', { name: 'Run a Check' }).click();
       await page.getByRole('heading', { name: 'Insufficient evidence' }).waitFor({ timeout: 15000 });
     }

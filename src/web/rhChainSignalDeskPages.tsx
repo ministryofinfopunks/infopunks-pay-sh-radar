@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { RadarShellContext } from './radarShellContext';
+import React, { useContext, useEffect, useState } from 'react';
 import type {
   RhChain4663Asset,
   RhChain4663IndexPayload,
@@ -138,6 +139,8 @@ function requestFailure(error: unknown, endpoint: string, service: string): RhCh
 }
 
 export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = false, reviewQueueRoute = false, indexRoute = false, launchSurfacesRoute = false, scoutRoute = false, dailyReceiptsRoute = false, dailyReceiptId, receiptCardRoute = false, liveSnapshotRoute = false }: { narrativeRoute?: boolean; submitRoute?: boolean; reviewQueueRoute?: boolean; indexRoute?: boolean; launchSurfacesRoute?: boolean; scoutRoute?: boolean; dailyReceiptsRoute?: boolean; dailyReceiptId?: string; receiptCardRoute?: boolean; liveSnapshotRoute?: boolean }) {
+  const shellOwned = useContext(RadarShellContext);
+  const LocalHeader = shellOwned ? 'div' : 'header';
   const [desk, setDesk] = useState<RhChainPayload | null>(null);
   const [reviewQueue, setReviewQueue] = useState<RhChainReviewQueuePayload | null>(null);
   const [signalIndex, setSignalIndex] = useState<RhChain4663IndexPayload | null>(null);
@@ -220,6 +223,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
     else {
       const todayFallback = dailyReceipts && signalIndex ? assembleRhChainTodayOn4663({ dailyReceipts, index: signalIndex, memePulse: memePulse ?? undefined }) : null;
       routeContent = <RhChainSignalDeskV2
+        headingLevel={narrativeRoute ? 2 : 1}
         desk={desk}
         envelope={routeEnvelope}
         reviewQueue={reviewQueue}
@@ -237,11 +241,12 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
   const isDeskHome = !scoutRoute && !liveSnapshotRoute && !launchSurfacesRoute && !isDailyReceiptRoute && !indexRoute && !reviewQueueRoute && !submitRoute && !narrativeRoute;
 
   return <div className="shell narrative-shell rh-chain-shell">
-    <a className="skip-link" href="#rh-chain-content">Skip to content</a>
-    <header className="site-header">
+    {!shellOwned && <a className="skip-link" href="#rh-chain-content">Skip to content</a>}
+    <LocalHeader className="site-header">
       <RhChainSuiteNav current={currentPath === '/narratives/robinhood-chain' ? '/rh-chain-signal-desk' : currentPath} />
-    </header>
+    </LocalHeader>
     <main id="rh-chain-content" className="narrative-page rh-chain-page">
+      {!desk && <h1>Robinhood Chain intelligence</h1>}
       {deskFailure && <RhChainRouteState state="unavailable" title="Signal Desk temporarily unavailable" detail="The primary desk record could not be loaded. No fallback intelligence has been substituted." />}
       {!desk && !deskFailure && <RhChainRouteState state="loading" />}
       {desk && isDeskHome && routeContent}

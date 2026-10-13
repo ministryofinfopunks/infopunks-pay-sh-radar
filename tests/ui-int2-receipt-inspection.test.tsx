@@ -12,7 +12,7 @@ it('never presents a missing receipt as completed proof',()=>{
  expect(el.querySelector('[data-evidence-state="missing"]')).not.toBeNull();
  expect(el.querySelector('[data-evidence-state="verified"]')).toBeNull();
  expect(el.querySelector('input')?.type).toBe('password');
- expect(el.querySelector('button')?.disabled).toBe(true);
+ expect(el.querySelector<HTMLButtonElement>('button[type=submit]')?.disabled).toBe(true);
 });
 it('does not advance another stage from a verified Judgment or pending Execution',()=>{
  el=document.createElement('div');document.body.append(el);root=createRoot(el);

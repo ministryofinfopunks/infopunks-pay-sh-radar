@@ -1,3 +1,4 @@
+import { RadarAsyncState } from './radarDesignSystem';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
@@ -2121,11 +2122,14 @@ export function AttentionMarketWatchProfilePage({ slug }: { slug: string }) {
     syncNarrativeMetadata(`/attention-market-watch/${slug}`);
   }, [slug]);
 
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
+    let active = true; setError(null);
     api<AttentionMarketWatchDetail>(`/v1/attention-market-watch/${encodeURIComponent(slug)}`)
-      .then((response) => setDetail(response.data))
-      .catch((err) => setError(err instanceof Error ? err.message : 'attention_market_watch_profile_unavailable'));
-  }, [slug]);
+      .then((response) => { if (active) setDetail(response.data); })
+      .catch(() => { if (active) setError('Profile evidence is unavailable.'); });
+    return () => { active = false; };
+  }, [slug, attempt]);
 
   const signal = detail?.signal ?? null;
   const profileStateCopy = signal && signal.slug === 'ansem'
@@ -2140,7 +2144,7 @@ export function AttentionMarketWatchProfilePage({ slug }: { slug: string }) {
       <NarrativeIntelNav current={`/attention-market-watch/${slug}`} />
     </header>
     <main id="attention-watch-profile-content" className="narrative-page">
-      {error && !signal && <section className="panel"><p className="route-state error">{error}</p></section>}
+      {!signal && <h1>Attention Market Profile</h1>}{error && !signal && <RadarAsyncState kind="unavailable" title={error} onRetry={() => setAttempt(value => value + 1)}><a href="/attention-market-watch">Return to Attention Market Watch ↗</a></RadarAsyncState>}
       {signal && <>
         <section className="panel hero narrative-hero">
           <div>

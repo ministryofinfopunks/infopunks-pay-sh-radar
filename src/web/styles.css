@@ -17183,7 +17183,7 @@ select:focus {
   color: var(--rh-v2-text);
 }
 
-.rh-v2-hero h1 {
+.rh-v2-hero :is(h1,h2) {
   max-width: 760px;
   margin: 0;
   color: var(--rh-v2-text);
@@ -17194,7 +17194,7 @@ select:focus {
   line-height: .94;
 }
 
-.rh-v2-hero h1 span { color: var(--rh-v2-blue); }
+.rh-v2-hero :is(h1,h2) span { color: var(--rh-v2-blue); }
 
 .rh-v2-hero-copy {
   max-width: 620px;
@@ -17536,7 +17536,7 @@ select:focus {
 @media (max-width: 1160px) {
   .rh-v2-hero { grid-template-columns: minmax(0, 1.15fr) minmax(300px, .65fr); }
   .rh-v2-hero-main { padding: 46px; }
-  .rh-v2-hero h1 { font-size: clamp(3.125rem, 6vw, 4.5rem); }
+  .rh-v2-hero :is(h1,h2) { font-size: clamp(3.125rem, 6vw, 4.5rem); }
   .rh-v2-today-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .rh-v2-today-card:nth-child(2) { border-right: 0; }
   .rh-v2-today-card:nth-child(-n + 2) { border-bottom: 1px solid var(--rh-v2-line); }
@@ -17589,7 +17589,7 @@ select:focus {
   .rh-v2-mode-control { width: 100%; }
   .rh-v2-mode-control button,
   .rh-v2-filter-group button { min-height: 44px; }
-  .rh-v2-hero h1 { font-size: clamp(2.75rem, 13vw, 3.625rem); line-height: .98; }
+  .rh-v2-hero :is(h1,h2) { font-size: clamp(2.75rem, 13vw, 3.625rem); line-height: .98; }
   .rh-v2-hero-copy { margin-top: 22px; font-size: 1rem !important; }
   .rh-v2-contract-shell { margin-top: 30px; }
   .rh-v2-contract-checker > div { grid-template-columns: minmax(0, 1fr); }

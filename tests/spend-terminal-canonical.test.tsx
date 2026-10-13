@@ -11,11 +11,12 @@ const response = { judgment_id: 'test-assessment', decision: 'insufficient_evide
 let root: Root; let container: HTMLDivElement;
 beforeEach(() => { container = document.createElement('div'); document.body.append(container); });
 afterEach(() => { act(() => root?.unmount()); container.remove(); vi.restoreAllMocks(); });
+function enterKey() { const key = container.querySelector('input[aria-label="Tenant access key"]') as HTMLInputElement; act(() => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(key, 'synthetic-tenant-key'); key.dispatchEvent(new Event('input', { bubbles: true })); }); }
 function mount(node: React.ReactNode) { act(() => { root = createRoot(container); root.render(node); }); }
 describe('canonical spend presentation and honest proof states', () => {
   it('shows abstention even when the legacy diagnostic says ALLOW', async () => {
     const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify(response), { status: 200 }));
-    mount(<SpendTerminalPage />);
+    mount(<SpendTerminalPage />); enterKey();
     await act(async () => { container.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
     expect(container.textContent).toContain('Insufficient evidence');
     expect(container.textContent).toContain('Free assessment · no canonical receipt');
@@ -24,7 +25,7 @@ describe('canonical spend presentation and honest proof states', () => {
     const init = fetch.mock.calls[0][1]!;
     expect(init.headers).not.toHaveProperty('PAYMENT-SIGNATURE');
     expect(init.headers).toHaveProperty('Idempotency-Key');
-    expect(init.headers).not.toHaveProperty('Authorization');
+    expect(init.headers).toHaveProperty('Authorization', 'Bearer synthetic-tenant-key');
     expect(container.querySelector('input[aria-label="Tenant access key"]')?.getAttribute('type')).toBe('password');
     expect(container.textContent).toContain("stays in this tab's memory");
   });
@@ -41,7 +42,7 @@ describe('canonical spend presentation and honest proof states', () => {
   });
   it('displays an unpaid quote and never automatically retries with a payment', async () => {
     const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ ...response, decision: 'test_spend_first', cost: { amount: '0.01', asset: 'USDC' }, payment_required: true }), { status: 402 }));
-    mount(<SpendTerminalPage />);
+    mount(<SpendTerminalPage />); enterKey();
     await act(async () => { container.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
     expect(container.textContent).toContain('Quoted assessment · payment required for issuance');
     expect(container.textContent).toContain('No payment was submitted');

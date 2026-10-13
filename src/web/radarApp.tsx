@@ -1,4 +1,6 @@
-import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { RadarShellContext } from './radarShellContext';
+import { RadarAsyncState } from './radarDesignSystem';
+import React, { lazy, Suspense, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { EvidenceScope } from './productPrimitives';
 import { MethodologyDrawer } from './methodology';
 import { formatCatalogPrice } from './pricingDisplay';
@@ -8969,6 +8971,9 @@ function PublicReceiptPage({ eventId }: { eventId: string }) {
 }
 
 function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universal' | 'solana' }) {
+  const shellOwned = useContext(RadarShellContext);
+  const LocalHeader = shellOwned ? 'div' : 'header';
+  const LocalFooter = shellOwned ? 'div' : 'footer';
   const preferredProviderId = useMemo(() => new URLSearchParams(window.location.search).get('provider_id'), []);
   const [data, setData] = useState<AppData | null>(null);
   const [bootError, setBootError] = useState<string | null>(null);
@@ -8990,7 +8995,11 @@ function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universa
   const [directorySort, setDirectorySort] = useState('trust score');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [searchStatus, setSearchStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [searchStatus, setSearchStatus] = useState<'idle' | 'loading' | 'success' | 'unavailable' | 'error'>('idle');
+  const searchGeneration = useRef(0);
+  const searchComposing = useRef(false);
+  const [submittedQuery, setSubmittedQuery] = useState('');
+  useEffect(() => () => { searchGeneration.current += 1; }, []);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [routeTask, setRouteTask] = useState('Find a low-cost image generation route for an autonomous design agent');
   const [routeCategory, setRouteCategory] = useState('all');
@@ -9624,29 +9633,28 @@ function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universa
     runSearchForQuery(query);
   }
 
+  function clearSearch() {
+    searchGeneration.current += 1;
+    setSearchQuery(''); setSubmittedQuery(''); setSearchResults([]); setSearchError(null); setSearchStatus('idle');
+    document.getElementById('semantic-search-input')?.focus();
+  }
   function runSearchForQuery(query: string) {
-    if (!query) {
-      setSearchResults([]);
-      setSearchError(null);
-      setSearchStatus('idle');
-      return;
-    }
-    setSearchStatus('loading');
-    setSearchError(null);
+    if (searchComposing.current) return;
+    const generation = ++searchGeneration.current;
+    if (!query) { clearSearch(); return; }
+    setSubmittedQuery(query); setSearchResults([]); setSearchStatus('loading'); setSearchError(null);
     void api<SearchResponse>('/v1/search', { method: 'POST', body: JSON.stringify({ query, limit: 6 }) })
       .then((res) => {
+        if (generation !== searchGeneration.current) return;
         setSearchResults(Array.isArray(res.data) ? res.data : []);
-        if (res.degraded) {
-          setSearchStatus('error');
-          setSearchError(res.reason ?? 'search_timeout');
-          return;
-        }
-        setSearchStatus('idle');
+        if (res.degraded) { setSearchStatus('unavailable'); setSearchError('Search service unavailable. Retry this query or clear it.'); return; }
+        setSearchStatus('success');
       })
-      .catch(() => {
-        setSearchResults([]);
-        setSearchStatus('error');
-        setSearchError('search_unavailable');
+      .catch(error => {
+        if (generation !== searchGeneration.current) return;
+        const unavailable = error instanceof ApiRequestError && (error.diagnostic.status_code === 503 || ['timeout', 'network_error', 'cors_or_fetch_failed'].includes(error.diagnostic.error_type));
+        setSearchResults([]); setSearchStatus(unavailable ? 'unavailable' : 'error');
+        setSearchError(unavailable ? 'Search service unavailable. Retry this query or clear it.' : 'Search could not complete. Retry this query or clear it.');
       });
   }
 
@@ -9808,8 +9816,8 @@ function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universa
       ? { label: 'Last ingestion', value: formatAbsoluteUtc(data.pulse.data_source.last_ingested_at) }
       : { label: 'Catalog timing', value: 'Timestamp unavailable' };
   return <div className={`shell ${agentMode ? 'agent-mode-shell' : ''} density-${densityMode}`}>
-    <a className="skip-link" href="#terminal-content">Skip to content</a>
-    <header className="site-header">
+    {!shellOwned && <a className="skip-link" href="#terminal-content">Skip to content</a>}
+    <LocalHeader className="site-header">
       <RadarProductNavigation
         context={landingContext}
         onOpenCommandPalette={() => setCommandPaletteOpen(true)}
@@ -9820,7 +9828,7 @@ function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universa
           onToggleDensity: () => setDensityMode((value) => value === 'comfortable' ? 'dense' : 'comfortable')
         }}
       />
-    </header>
+    </LocalHeader>
     <CommandPalette open={commandPaletteOpen} commands={commandActions} onClose={() => setCommandPaletteOpen(false)} />
     <MethodologyDrawer open={methodologyOpen} onClose={() => setMethodologyOpen(false)} />
 
@@ -10048,8 +10056,9 @@ function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universa
             }}>
               <label className="command-input">
                 <span>ecosystem query</span>
-                <input id="semantic-search-input" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Ask: which providers are degrading?" aria-label="Search Pay.sh ecosystem intelligence" />
+                <input id="semantic-search-input" value={searchQuery} onCompositionStart={() => { searchComposing.current = true; }} onCompositionEnd={() => { searchComposing.current = false; }} onChange={(event) => { searchGeneration.current += 1; setSearchQuery(event.target.value); setSubmittedQuery(''); setSearchResults([]); setSearchError(null); setSearchStatus('idle'); }} placeholder="Ask: which providers are degrading?" aria-label="Search Pay.sh ecosystem intelligence" />
               </label>
+              {searchQuery && <button className="execute compact secondary" type="button" onClick={clearSearch}>Clear search</button>}
               <button className="execute compact secondary" type="submit" disabled={searchStatus === 'loading'}>
                 {searchStatus === 'loading' ? 'Searching...' : 'Search'}
               </button>
@@ -10058,9 +10067,10 @@ function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universa
             <div className="example-chips" aria-label="Semantic search examples">
               {['high trust finance APIs', 'degraded OCR providers', 'SOL price endpoints', 'low-cost data endpoints', 'providers with clear pricing', 'route eligible endpoints', 'machine media providers', 'metadata incomplete providers'].map((query) => <button key={query} type="button" onClick={() => applySemanticSearchExample(query)}>{query}</button>)}
             </div>
-            {searchError && <p className="route-state error">Semantic search unavailable: {searchError}</p>}
+            {searchStatus === 'loading' && <RadarAsyncState kind="loading" title="Searching providers…" />}
+            {searchError && <RadarAsyncState kind={searchStatus === 'unavailable' ? 'unavailable' : 'error'} title={searchError} onRetry={() => runSearchForQuery(submittedQuery)} />}
             <div className="results">{searchResults.filter((result) => isRecord(result) && isRecord(result.provider) && typeof result.provider.id === 'string').map((result) => <div className="result" key={result.provider.id}><strong>{result.provider.name ?? 'unknown provider'}</strong><span>relevance {result.relevance ?? 'unknown'} / trust {result.trustAssessment?.score ?? 'unknown'} / signal {result.signalAssessment?.score ?? 'unknown'}</span></div>)}</div>
-            {searchQuery.trim() && searchStatus === 'idle' && !searchResults.length && <EmptyState title="No matching providers." body="Try a category, provider name, endpoint type, or task intent." />}
+            {submittedQuery && searchStatus === 'success' && !searchResults.length && <EmptyState title="No matching providers." body="Try a category, provider name, endpoint type, or task intent." />}
           </section>}
           <PreflightConsole
             input={preflightJsonInput}
@@ -10479,7 +10489,7 @@ function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universa
       </aside>}
     </section>
     </main>
-    <footer className="site-footer">
+    <LocalFooter className="site-footer">
       <div>
         <p>INFOPUNKS PAY.SH RADAR</p>
         <small>Catalog-derived trust, signal, routing, and safe metadata monitoring. Unknowns stay visible.</small>
@@ -10489,7 +10499,7 @@ function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universa
         <span>{sourceLabel(data.pulse.data_source)}</span>
         <small>{formatDataSource(data.pulse.data_source, data.pulse.providerCount, data.pulse.endpointCount)}</small>
       </div>
-    </footer>
+    </LocalFooter>
   </div>;
 }
 
@@ -14387,7 +14397,7 @@ export function App() {
   if (/^\/solana\/?$/.test(window.location.pathname)) return <RadarApp landingContext="solana" />;
   if (/^\/4663\/reflexive\/preflight\/ipx-pltr\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyIpxPltrPreflightLabPage /></LazyRhChainFeature>;
   if (/^\/4663\/reflexive(?:\/(?:pair\/[^/]+|stock\/[^/]+|watch(?:\/[^/]+)?|census))?\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyReflexiveRadarPage /></LazyRhChainFeature>;
-  if (/^\/4663(?:\/(?:pulse|today|signals|receipts)|\/(?:print|call|resolution|consensus|signals|proof|campaign)\/[^/]+)?\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRh4663Page /></LazyRhChainFeature>;
+  if (/^\/4663(?:\/(?:pulse|today|signals|receipts)|\/(?:print|call|resolution|consensus|signals|proof|campaign|share)\/[^/]+)?\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRh4663Page /></LazyRhChainFeature>;
   if (isRadarCardIndexRoute(window.location.pathname)) return <PreflightCardIndexPage />;
   const radarCard = routeRadarCard(window.location.pathname);
   if (radarCard) return <RadarPreflightCardPage type={radarCard.type} id={radarCard.id} />;
@@ -14446,6 +14456,7 @@ export function App() {
   if (signalSlug === 'ansem') return <SignalSourcePage slug={signalSlug} />;
   if (signalSlug === 'black-bull') return <NarrativeSignalReportPage slug={signalSlug} />;
   if (signalSlug === 'troll') return <NarrativeSignalReportPage slug={signalSlug} />;
+  if (signalSlug) return <main className="shell"><h1>Signal unavailable</h1><RadarAsyncState kind="unavailable" title="No supported signal exists at this destination."><a href="/attention-market-watch">Return to Attention Market Watch ↗</a></RadarAsyncState></main>;
   if (isSpendTerminalRoute(window.location.pathname)) return <SpendTerminalPage />;
   const walletSafetyIntegrationId = routeWalletSafetyIntegrationId(window.location.pathname);
   if (walletSafetyIntegrationId) return <WalletSafetyIntegrationDetailPage integrationId={walletSafetyIntegrationId} />;
