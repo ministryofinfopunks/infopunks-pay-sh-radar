@@ -1,0 +1,3 @@
+# Exported Git patches contain single-space context markers on blank lines.
+# Preserve exact patch bytes; ordinary source/docs retain normal whitespace checks.
+*.diff -whitespace

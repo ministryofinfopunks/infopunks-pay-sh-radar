@@ -1,0 +1,562 @@
+[
+  {
+    "subject": "reference",
+    "width": 1440,
+    "pending_document_height": 25690,
+    "settled_document_height": 29946,
+    "proof_metrics": [
+      {
+        "state": "pending",
+        "box": {
+          "index": 11,
+          "tag": "DIV",
+          "id": "",
+          "class": "proof-metrics-strip unavailable",
+          "text": "Evidence Ledger unavailablecanonical proof metrics unavailable",
+          "rows": 0,
+          "x": 54,
+          "y": 2378.640625,
+          "width": 778.515625,
+          "height": 125,
+          "display": "grid",
+          "grid": "155.703px 155.703px 155.703px 155.703px 155.703px",
+          "flex": "row",
+          "font": "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "24.8px",
+          "overflow": "visible",
+          "position": "static"
+        }
+      },
+      {
+        "state": "settled",
+        "box": {
+          "index": 11,
+          "tag": "DIV",
+          "id": "",
+          "class": "proof-metrics-strip",
+          "text": "5 recorded benchmarks10 proven paid routes40 recorded route-runs6 artifacts0 winner claims",
+          "rows": 0,
+          "x": 54,
+          "y": 2378.640625,
+          "width": 778.515625,
+          "height": 76.890625,
+          "display": "grid",
+          "grid": "155.703px 155.703px 155.703px 155.703px 155.703px",
+          "flex": "row",
+          "font": "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "24.8px",
+          "overflow": "visible",
+          "position": "static"
+        }
+      }
+    ],
+    "section_deltas": [
+      {
+        "id": "global-pulse",
+        "pending_y": 3548.5625,
+        "settled_y": 7237.265625,
+        "pending_height": 0,
+        "settled_height": 0
+      },
+      {
+        "id": "events",
+        "pending_y": 5665.03125,
+        "settled_y": 9353.734375,
+        "pending_height": 958.453125,
+        "settled_height": 958.453125
+      },
+      {
+        "id": "leaderboards",
+        "pending_y": 6667.484375,
+        "settled_y": 10356.1875,
+        "pending_height": 559.296875,
+        "settled_height": 559.296875
+      },
+      {
+        "id": "preflight",
+        "pending_y": 8059.390625,
+        "settled_y": 11748.09375,
+        "pending_height": 609.03125,
+        "settled_height": 609.03125
+      },
+      {
+        "id": "compare",
+        "pending_y": 8686.421875,
+        "settled_y": 12375.125,
+        "pending_height": 374.125,
+        "settled_height": 374.125
+      },
+      {
+        "id": "cost-performance",
+        "pending_y": 9078.546875,
+        "settled_y": 12767.25,
+        "pending_height": 482.390625,
+        "settled_height": 482.390625
+      },
+      {
+        "id": "benchmark-readiness",
+        "pending_y": 9578.9375,
+        "settled_y": 13267.640625,
+        "pending_height": 776.359375,
+        "settled_height": 776.359375
+      },
+      {
+        "id": "route-mapping-registry",
+        "pending_y": 10373.296875,
+        "settled_y": 14062,
+        "pending_height": 86.59375,
+        "settled_height": 86.59375
+      },
+      {
+        "id": "mapping-targets",
+        "pending_y": 10477.890625,
+        "settled_y": 14166.59375,
+        "pending_height": 536.984375,
+        "settled_height": 1104.640625
+      },
+      {
+        "id": "agent-benchmark-api",
+        "pending_y": 11032.875,
+        "settled_y": 15289.234375,
+        "pending_height": 3215.375,
+        "settled_height": 3215.375
+      },
+      {
+        "id": "dossier",
+        "pending_y": 14691.125,
+        "settled_y": 18947.484375,
+        "pending_height": 10612.640625,
+        "settled_height": 10612.640625
+      },
+      {
+        "id": "anomaly-watch",
+        "pending_y": 4930.03125,
+        "settled_y": 8618.734375,
+        "pending_height": 431.65625,
+        "settled_height": 431.65625
+      }
+    ]
+  },
+  {
+    "subject": "candidate",
+    "width": 1440,
+    "pending_document_height": 25690,
+    "settled_document_height": 29946,
+    "proof_metrics": [
+      {
+        "state": "pending",
+        "box": {
+          "index": 11,
+          "tag": "DIV",
+          "id": "",
+          "class": "proof-metrics-strip unavailable",
+          "text": "Evidence Ledger unavailablecanonical proof metrics unavailable",
+          "rows": 0,
+          "x": 54,
+          "y": 2378.640625,
+          "width": 778.515625,
+          "height": 125,
+          "display": "grid",
+          "grid": "155.703px 155.703px 155.703px 155.703px 155.703px",
+          "flex": "row",
+          "font": "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "24.8px",
+          "overflow": "visible",
+          "position": "static"
+        }
+      },
+      {
+        "state": "settled",
+        "box": {
+          "index": 11,
+          "tag": "DIV",
+          "id": "",
+          "class": "proof-metrics-strip",
+          "text": "5 recorded benchmarks10 proven paid routes40 recorded route-runs6 artifacts0 winner claims",
+          "rows": 0,
+          "x": 54,
+          "y": 2378.640625,
+          "width": 778.515625,
+          "height": 76.890625,
+          "display": "grid",
+          "grid": "155.703px 155.703px 155.703px 155.703px 155.703px",
+          "flex": "row",
+          "font": "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "24.8px",
+          "overflow": "visible",
+          "position": "static"
+        }
+      }
+    ],
+    "section_deltas": [
+      {
+        "id": "global-pulse",
+        "pending_y": 3548.5625,
+        "settled_y": 7237.265625,
+        "pending_height": 0,
+        "settled_height": 0
+      },
+      {
+        "id": "events",
+        "pending_y": 5665.03125,
+        "settled_y": 9353.734375,
+        "pending_height": 958.453125,
+        "settled_height": 958.453125
+      },
+      {
+        "id": "leaderboards",
+        "pending_y": 6667.484375,
+        "settled_y": 10356.1875,
+        "pending_height": 559.296875,
+        "settled_height": 559.296875
+      },
+      {
+        "id": "preflight",
+        "pending_y": 8059.390625,
+        "settled_y": 11748.09375,
+        "pending_height": 609.03125,
+        "settled_height": 609.03125
+      },
+      {
+        "id": "compare",
+        "pending_y": 8686.421875,
+        "settled_y": 12375.125,
+        "pending_height": 374.125,
+        "settled_height": 374.125
+      },
+      {
+        "id": "cost-performance",
+        "pending_y": 9078.546875,
+        "settled_y": 12767.25,
+        "pending_height": 482.390625,
+        "settled_height": 482.390625
+      },
+      {
+        "id": "benchmark-readiness",
+        "pending_y": 9578.9375,
+        "settled_y": 13267.640625,
+        "pending_height": 776.359375,
+        "settled_height": 776.359375
+      },
+      {
+        "id": "route-mapping-registry",
+        "pending_y": 10373.296875,
+        "settled_y": 14062,
+        "pending_height": 86.59375,
+        "settled_height": 86.59375
+      },
+      {
+        "id": "mapping-targets",
+        "pending_y": 10477.890625,
+        "settled_y": 14166.59375,
+        "pending_height": 536.984375,
+        "settled_height": 1104.640625
+      },
+      {
+        "id": "agent-benchmark-api",
+        "pending_y": 11032.875,
+        "settled_y": 15289.234375,
+        "pending_height": 3215.375,
+        "settled_height": 3215.375
+      },
+      {
+        "id": "dossier",
+        "pending_y": 14691.125,
+        "settled_y": 18947.484375,
+        "pending_height": 10612.640625,
+        "settled_height": 10612.640625
+      },
+      {
+        "id": "anomaly-watch",
+        "pending_y": 4930.03125,
+        "settled_y": 8618.734375,
+        "pending_height": 431.65625,
+        "settled_height": 431.65625
+      }
+    ]
+  },
+  {
+    "subject": "reference",
+    "width": 390,
+    "pending_document_height": 48469,
+    "settled_document_height": 62733,
+    "proof_metrics": [
+      {
+        "state": "pending",
+        "box": {
+          "index": 11,
+          "tag": "DIV",
+          "id": "",
+          "class": "proof-metrics-strip unavailable",
+          "text": "Evidence Ledger unavailablecanonical proof metrics unavailable",
+          "rows": 0,
+          "x": 28,
+          "y": 4330.765625,
+          "width": 335,
+          "height": 59,
+          "display": "grid",
+          "grid": "335px",
+          "flex": "row",
+          "font": "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "24.8px",
+          "overflow": "visible",
+          "position": "static"
+        }
+      },
+      {
+        "state": "settled",
+        "box": {
+          "index": 11,
+          "tag": "DIV",
+          "id": "",
+          "class": "proof-metrics-strip",
+          "text": "5 recorded benchmarks10 proven paid routes40 recorded route-runs6 artifacts0 winner claims",
+          "rows": 0,
+          "x": 28,
+          "y": 4330.765625,
+          "width": 335,
+          "height": 305.453125,
+          "display": "grid",
+          "grid": "335px",
+          "flex": "row",
+          "font": "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "24.8px",
+          "overflow": "visible",
+          "position": "static"
+        }
+      }
+    ],
+    "section_deltas": [
+      {
+        "id": "global-pulse",
+        "pending_y": 6576.234375,
+        "settled_y": 19186.046875,
+        "pending_height": 0,
+        "settled_height": 0
+      },
+      {
+        "id": "events",
+        "pending_y": 10849.90625,
+        "settled_y": 23459.71875,
+        "pending_height": 12960.890625,
+        "settled_height": 12960.890625
+      },
+      {
+        "id": "leaderboards",
+        "pending_y": 23854.796875,
+        "settled_y": 36464.609375,
+        "pending_height": 1207.3125,
+        "settled_height": 1207.3125
+      },
+      {
+        "id": "preflight",
+        "pending_y": 26474.46875,
+        "settled_y": 39084.28125,
+        "pending_height": 1129.65625,
+        "settled_height": 1129.65625
+      },
+      {
+        "id": "compare",
+        "pending_y": 27638.125,
+        "settled_y": 40247.9375,
+        "pending_height": 571.21875,
+        "settled_height": 571.21875
+      },
+      {
+        "id": "cost-performance",
+        "pending_y": 28227.34375,
+        "settled_y": 40837.15625,
+        "pending_height": 411.078125,
+        "settled_height": 411.078125
+      },
+      {
+        "id": "benchmark-readiness",
+        "pending_y": 28656.421875,
+        "settled_y": 41266.234375,
+        "pending_height": 1153.5625,
+        "settled_height": 1153.5625
+      },
+      {
+        "id": "route-mapping-registry",
+        "pending_y": 29827.984375,
+        "settled_y": 42437.796875,
+        "pending_height": 70.59375,
+        "settled_height": 70.59375
+      },
+      {
+        "id": "mapping-targets",
+        "pending_y": 29916.578125,
+        "settled_y": 42526.390625,
+        "pending_height": 713.171875,
+        "settled_height": 2368.015625
+      },
+      {
+        "id": "agent-benchmark-api",
+        "pending_y": 30647.75,
+        "settled_y": 44912.40625,
+        "pending_height": 6484.046875,
+        "settled_height": 6484.046875
+      },
+      {
+        "id": "dossier",
+        "pending_y": 37604.53125,
+        "settled_y": 51869.1875,
+        "pending_height": 5852.15625,
+        "settled_height": 5852.15625
+      },
+      {
+        "id": "anomaly-watch",
+        "pending_y": 44632.3125,
+        "settled_y": 58896.96875,
+        "pending_height": 461.359375,
+        "settled_height": 461.359375
+      }
+    ]
+  },
+  {
+    "subject": "candidate",
+    "width": 390,
+    "pending_document_height": 48469,
+    "settled_document_height": 62733,
+    "proof_metrics": [
+      {
+        "state": "pending",
+        "box": {
+          "index": 11,
+          "tag": "DIV",
+          "id": "",
+          "class": "proof-metrics-strip unavailable",
+          "text": "Evidence Ledger unavailablecanonical proof metrics unavailable",
+          "rows": 0,
+          "x": 28,
+          "y": 4330.765625,
+          "width": 335,
+          "height": 59,
+          "display": "grid",
+          "grid": "335px",
+          "flex": "row",
+          "font": "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "24.8px",
+          "overflow": "visible",
+          "position": "static"
+        }
+      },
+      {
+        "state": "settled",
+        "box": {
+          "index": 11,
+          "tag": "DIV",
+          "id": "",
+          "class": "proof-metrics-strip",
+          "text": "5 recorded benchmarks10 proven paid routes40 recorded route-runs6 artifacts0 winner claims",
+          "rows": 0,
+          "x": 28,
+          "y": 4330.765625,
+          "width": 335,
+          "height": 305.453125,
+          "display": "grid",
+          "grid": "335px",
+          "flex": "row",
+          "font": "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "fontSize": "16px",
+          "lineHeight": "24.8px",
+          "overflow": "visible",
+          "position": "static"
+        }
+      }
+    ],
+    "section_deltas": [
+      {
+        "id": "global-pulse",
+        "pending_y": 6576.234375,
+        "settled_y": 19186.046875,
+        "pending_height": 0,
+        "settled_height": 0
+      },
+      {
+        "id": "events",
+        "pending_y": 10849.90625,
+        "settled_y": 23459.71875,
+        "pending_height": 12960.890625,
+        "settled_height": 12960.890625
+      },
+      {
+        "id": "leaderboards",
+        "pending_y": 23854.796875,
+        "settled_y": 36464.609375,
+        "pending_height": 1207.3125,
+        "settled_height": 1207.3125
+      },
+      {
+        "id": "preflight",
+        "pending_y": 26474.46875,
+        "settled_y": 39084.28125,
+        "pending_height": 1129.65625,
+        "settled_height": 1129.65625
+      },
+      {
+        "id": "compare",
+        "pending_y": 27638.125,
+        "settled_y": 40247.9375,
+        "pending_height": 571.21875,
+        "settled_height": 571.21875
+      },
+      {
+        "id": "cost-performance",
+        "pending_y": 28227.34375,
+        "settled_y": 40837.15625,
+        "pending_height": 411.078125,
+        "settled_height": 411.078125
+      },
+      {
+        "id": "benchmark-readiness",
+        "pending_y": 28656.421875,
+        "settled_y": 41266.234375,
+        "pending_height": 1153.5625,
+        "settled_height": 1153.5625
+      },
+      {
+        "id": "route-mapping-registry",
+        "pending_y": 29827.984375,
+        "settled_y": 42437.796875,
+        "pending_height": 70.59375,
+        "settled_height": 70.59375
+      },
+      {
+        "id": "mapping-targets",
+        "pending_y": 29916.578125,
+        "settled_y": 42526.390625,
+        "pending_height": 713.171875,
+        "settled_height": 2368.015625
+      },
+      {
+        "id": "agent-benchmark-api",
+        "pending_y": 30647.75,
+        "settled_y": 44912.40625,
+        "pending_height": 6484.046875,
+        "settled_height": 6484.046875
+      },
+      {
+        "id": "dossier",
+        "pending_y": 37604.53125,
+        "settled_y": 51869.1875,
+        "pending_height": 5852.15625,
+        "settled_height": 5852.15625
+      },
+      {
+        "id": "anomaly-watch",
+        "pending_y": 44632.3125,
+        "settled_y": 58896.96875,
+        "pending_height": 461.359375,
+        "settled_height": 461.359375
+      }
+    ]
+  }
+]

@@ -1,0 +1,152 @@
+{
+  "schema": "infopunks.ui-int3.gates.v1",
+  "date": "2026-10-13",
+  "timezone": "Asia/Colombo",
+  "decision": "HOLD",
+  "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+  "visual_approval_evidence_sha": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "qa_commit": "b7f477cff624404a230c2a9ea921f09c2ca2dcd5",
+  "application_changed": false,
+  "baseline_updated": false,
+  "merge_authorized": false,
+  "staging_authorized": false,
+  "production_authorized": false,
+  "gates": [
+    {
+      "gate": "G0",
+      "requirement": "Candidate SHA and evidence verified",
+      "status": "PASS",
+      "scope": "Exact local Git ancestry and runtime/evidence freeze",
+      "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+      "evidence": [
+        "evidence/freeze.json",
+        "evidence/runtime-inventory.json",
+        "evidence/qualification-code.json"
+      ],
+      "remaining_condition": "None in stated local subject scope"
+    },
+    {
+      "gate": "G1",
+      "requirement": "Previously approved canonical visual identity",
+      "status": "PASS",
+      "scope": "Existing explicit human acceptance preserved; no application/design changes",
+      "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+      "evidence": [
+        "../ui-int2/visual-approval-completed.json",
+        "evidence/freeze.json"
+      ],
+      "remaining_condition": "No identity reapproval requested"
+    },
+    {
+      "gate": "G2",
+      "requirement": "Solana full-page visual qualification",
+      "status": "HOLD",
+      "scope": "Corrected paired captures pass existing pixel tolerance with identical DOM; old tall PNGs raster-corrupt and desktop data incomplete",
+      "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+      "evidence": [
+        "evidence/visual/results.json",
+        "evidence/visual/capture-integrity.json",
+        "evidence/visual/layout-state-deltas.json",
+        "solana-baseline-proposal.json",
+        "review-solana.html"
+      ],
+      "remaining_condition": "Explicit approval of corrected desktop/mobile Solana baselines; originals unchanged"
+    },
+    {
+      "gate": "G3",
+      "requirement": "Independent security review",
+      "status": "HOLD",
+      "scope": "Automated security evidence and threat-boundary package prepared",
+      "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+      "evidence": [
+        "security-review.md",
+        "evidence/security-test-evidence.json",
+        "evidence/security-boundary.diff",
+        "review-dispositions.json"
+      ],
+      "remaining_condition": "Authorized independent reviewer approval of exact candidate; advisory/proxy/operational dispositions"
+    },
+    {
+      "gate": "G4",
+      "requirement": "Independent migration review",
+      "status": "HOLD",
+      "scope": "Local full migration/restore/replay checks pass, all44 SQL files unchanged",
+      "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+      "evidence": [
+        "migration-review.md",
+        "evidence/migration-checksums.json",
+        "evidence/system/migration-first.json",
+        "evidence/system/recovery-after.json",
+        "review-dispositions.json"
+      ],
+      "remaining_condition": "Independent exact-candidate approval and actual staging-role/ledger/restore review"
+    },
+    {
+      "gate": "G5",
+      "requirement": "Human accessibility",
+      "status": "HOLD",
+      "scope": "Automated checks supplemental; native Chrome pilot does not constitute a human pass",
+      "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+      "evidence": [
+        "manual-qualification.md",
+        "manual-results.json",
+        "evidence/routes/summary.json"
+      ],
+      "remaining_condition": "Authorized keyboard/native zoom/VoiceOver/NVDA/contrast/focus testing and acceptance"
+    },
+    {
+      "gate": "G6",
+      "requirement": "Real-device testing",
+      "status": "HOLD",
+      "scope": "No connected iOS/Android/Windows device sessions; reproducible60-case record package provided",
+      "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+      "evidence": [
+        "manual-qualification.md",
+        "manual-results.json"
+      ],
+      "remaining_condition": "Physical iOS Safari and Android Chrome; touch/virtual keyboard/text/orientation/reduced motion acceptance"
+    },
+    {
+      "gate": "G7",
+      "requirement": "Full regression testing",
+      "status": "PASS",
+      "scope": "Local Node24.21/macOS/PG16 full suite; no skips; source/test bytes identical to exact application candidate",
+      "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+      "evidence": [
+        "evidence/system/check-results.json",
+        "evidence/system/full-test-summary.json",
+        "evidence/runtime-inventory.json",
+        "evidence/routes/summary.json"
+      ],
+      "remaining_condition": "Remote Linux/container qualification remains a separate mandatory staging prerequisite; not claimed here"
+    },
+    {
+      "gate": "G8",
+      "requirement": "Staging readiness",
+      "status": "HOLD",
+      "scope": "Readiness/config/test/rollback package prepared; environment not provisioned",
+      "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+      "evidence": [
+        "staging-readiness.md",
+        "staging-config.env.example",
+        "evidence/remote-candidate-commit.json",
+        "evidence/remote-candidate-check-runs.json",
+        "evidence/remote-candidate-runs.json",
+        "review-dispositions.json"
+      ],
+      "remaining_condition": "G2\u2013G6 plus exact-candidate Linux/container CI, isolated service/DB/account/config/backup operational review"
+    },
+    {
+      "gate": "G9",
+      "requirement": "Authorization for isolated staging",
+      "status": "HOLD",
+      "scope": "No staging authorization exists or is requested before prerequisites close",
+      "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+      "evidence": [
+        "staging-readiness.md",
+        "review-dispositions.json"
+      ],
+      "remaining_condition": "Explicit operator approval naming SHA/image/service/DB/scope/window/rollback after G8 passes"
+    }
+  ]
+}

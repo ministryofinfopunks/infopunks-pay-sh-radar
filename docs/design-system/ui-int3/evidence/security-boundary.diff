@@ -1,0 +1,441 @@
+diff --git a/src/web/canonicalReceiptPage.tsx b/src/web/canonicalReceiptPage.tsx
+new file mode 100644
+index 0000000..f04513c
+--- /dev/null
++++ b/src/web/canonicalReceiptPage.tsx
+@@ -0,0 +1,60 @@
++import { useEffect, useRef, useState } from 'react';
++import { ObservationReceiptSchema, JudgmentReceiptSchema, ExecutionReceiptSchema, EvaluationReceiptSchema } from '../schemas/receipts';
++import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
++import { RadarAsyncState, RadarReceiptLifecycle, RadarStatus, type RadarEvidenceState } from './radarDesignSystem';
++const schemas = { observation: ObservationReceiptSchema, judgment: JudgmentReceiptSchema, execution: ExecutionReceiptSchema, evaluation: EvaluationReceiptSchema };
++type Kind = keyof typeof schemas;
++export default function CanonicalReceiptPage({ kind, id }: { kind: Kind; id: string }) {
++  const [key, setKey] = useState('');
++  const [record, setRecord] = useState<Record<string, unknown> | null>(null);
++  const [verification, setVerification] = useState<Record<string, unknown> | null>(null);
++  const [error, setError] = useState<string | null>(null);
++  const [busy, setBusy] = useState(false);
++  const controller = useRef<AbortController | null>(null);
++  useEffect(() => () => controller.current?.abort(), []);
++  function clear() { setRecord(null); setVerification(null); setError(null); }
++  async function inspect(event: React.FormEvent) {
++    event.preventDefault(); if (busy) return;
++    const abort = new AbortController(); controller.current = abort;
++    clear(); setBusy(true);
++    const timeout = setTimeout(() => abort.abort(), 12_000);
++    try {
++      const headers = { Accept: 'application/json', Authorization: `Bearer ${key.trim()}` };
++      const endpoint = `/v1/receipt-spine/${kind}/${encodeURIComponent(id)}`;
++      const response = await fetch(toApiUrl(getApiBaseUrl(), endpoint), { headers, cache: 'no-store', redirect: 'error', signal: abort.signal });
++      if (!response.ok) throw new Error(response.status === 401 ? 'A valid tenant identity is required.' : response.status === 404 || response.status === 403 ? 'Receipt unavailable for this authenticated identity.' : 'Receipt service unavailable. Retry safely.');
++      const body = await response.json(); const parsed = schemas[kind].safeParse(body.data);
++      if (!parsed.success) throw new Error('Receipt contract validation failed. No proof is established.');
++      let proof: Record<string, unknown> | null = null;
++      if (kind === 'judgment') {
++        const checked = await fetch(toApiUrl(getApiBaseUrl(), endpoint + '/verify'), { headers, cache: 'no-store', redirect: 'error', signal: abort.signal });
++        if (checked.ok) proof = (await checked.json()).data;
++      }
++      setRecord(parsed.data as unknown as Record<string, unknown>); setVerification(proof);
++    } catch (err) { setError(abort.signal.aborted ? 'Inspection timed out. No new action was authorized.' : err instanceof Error ? err.message : 'Receipt service unavailable.'); }
++    finally { clearTimeout(timeout); controller.current = null; setBusy(false); }
++  }
++  const verified = verification?.issuer_signature_valid === true && verification?.ancestry_valid === true;
++  const state: RadarEvidenceState = !record ? 'missing' : kind === 'judgment' ? verified ? 'verified' : 'recorded' : kind === 'execution' && record.status === 'pending' ? 'pending' : 'recorded';
++  const detail = record ? String(record.status ?? record.outcome ?? record.decision ?? 'Source-bound record') : 'No authenticated record loaded.';
++  return <main className="shell canonical-receipt-page">
++    <h1>Inspect {kind} evidence.</h1>
++    <p>Private provenance. Authenticated ownership. Each stage is inspected independently.</p>
++    <form className="panel" onSubmit={inspect} aria-busy={busy} aria-label="Authenticated receipt inspection">
++      <p><strong>{id}</strong></p>
++      <label>Tenant access key<input aria-label="Tenant access key" type="password" autoComplete="off" value={key} disabled={busy} onChange={event => { setKey(event.target.value); clear(); }} /></label>
++      <p className="panel-caption">Your operator-issued key stays in this page's memory. Inspection cannot pay, sign, execute, or change reputation.</p>
++      <button className="execute" type="submit" disabled={busy || !key.trim()}>{busy ? 'Inspecting receipt…' : error ? 'Retry inspection' : 'Inspect receipt'}</button>
++    </form>
++    {error && <RadarAsyncState kind="error" title={error} />}
++    {busy && <RadarAsyncState kind="loading" title="Reading authenticated provenance…" />}
++    {!busy && <section className="panel" aria-label="Receipt evidence" aria-live="polite">
++      <RadarStatus state={state} detail={detail} />
++      {record && <>
++        {kind === 'judgment' && <p>{verified ? 'Issuer signature and ancestry verified.' : 'Issuer verification unavailable or not established.'} Execution authorization remains separate. {verification?.within_validity_window === false ? 'This Judgment is outside its validity window.' : ''}</p>}
++        <RadarReceiptLifecycle records={{ [kind]: { state, detail, recordId: id } }} />
++        <details><summary>Inspect source receipt</summary><pre>{JSON.stringify({ receipt: record, verification }, null, 2)}</pre></details>
++      </>}
++    </section>}
++  </main>;
++}
+diff --git a/src/web/main.tsx b/src/web/main.tsx
+index 27f8a1a..b6ba5df 100644
+--- a/src/web/main.tsx
++++ b/src/web/main.tsx
+@@ -3,15 +3,21 @@ import { createRoot } from 'react-dom/client';
+ import { UniversalHomepage } from './homepage';
+ import { AppErrorBoundary } from './appErrorBoundary';
+ import { installDevelopmentPerformanceSummary, markHtmlShellReady } from './performanceSummary';
++import './radarTokens.css';
++import './radarDesignSystem.css';
+ import './homepage.css';
++import { RadarAppShell } from './radarAppShell';
+ 
+ const LazySpendTerminal = lazy(() => import('./spendTerminalPage').then(module => ({ default: module.SpendTerminalPage })));
++const LazyCanonicalReceipt = lazy(() => import('./canonicalReceiptPage'));
+ const LazyRadarApp = lazy(() => import('./radarApp'));
+ 
+ export function App() {
+-  if (typeof window !== 'undefined' && /^\/$/.test(window.location.pathname)) return <UniversalHomepage />;
+-  if (typeof window !== 'undefined' && /^\/spend-terminal\/?$/.test(window.location.pathname)) return <Suspense fallback={<main role="status">Opening Spend Check…</main>}><LazySpendTerminal /></Suspense>;
+-  return <Suspense fallback={<main className="radar-route-loading" role="status" aria-live="polite">Opening Radar surface…</main>}><LazyRadarApp /></Suspense>;
++  const receipt = typeof window !== 'undefined' ? /^\/proof\/(observation|judgment|execution|evaluation)\/([^/]+)\/?$/.exec(window.location.pathname) : null;
++  if (receipt) return <RadarAppShell><Suspense fallback={<main role="status">Opening authenticated receipt…</main>}><LazyCanonicalReceipt kind={receipt[1] as 'observation' | 'judgment' | 'execution' | 'evaluation'} id={decodeURIComponent(receipt[2])} /></Suspense></RadarAppShell>;
++  if (typeof window !== 'undefined' && /^\/$/.test(window.location.pathname)) return <RadarAppShell><UniversalHomepage /></RadarAppShell>;
++  if (typeof window !== 'undefined' && /^\/spend-terminal\/?$/.test(window.location.pathname)) return <RadarAppShell><Suspense fallback={<main role="status">Opening Spend Check…</main>}><LazySpendTerminal /></Suspense></RadarAppShell>;
++  return <RadarAppShell><Suspense fallback={<main className="radar-route-loading" role="status" aria-live="polite">Opening Radar surface…</main>}><LazyRadarApp /></Suspense></RadarAppShell>;
+ }
+ 
+ markHtmlShellReady();
+diff --git a/src/web/productPrimitives.tsx b/src/web/productPrimitives.tsx
+index e1c8481..9c84701 100644
+--- a/src/web/productPrimitives.tsx
++++ b/src/web/productPrimitives.tsx
+@@ -1,12 +1,36 @@
+-import { PRODUCT_LINKS } from './productCatalog';
++import { PRODUCT_LINKS } from './radarNavigationCatalog';
++import { useContext, useId, useRef, useState } from 'react';
++import { RadarShellContext } from './radarShellContext';
++import { TerminalIcon } from './terminalIcon';
++import { radarNetworkForPath } from './bootContext';
+ 
+-export function ProductWayfinding({ current = '/' }: { current?: string }) {
+-  return <nav className="product-wayfinding" aria-label="Infopunks product navigation">
+-    {PRODUCT_LINKS.map(link => <a key={link.href} href={link.href} aria-current={current === link.href ? 'page' : undefined}>{link.label}</a>)}
++export function ProductWayfinding({ current = '/', id, shellOwner = false }: { current?: string; id?: string; shellOwner?: boolean }) {
++  const inheritedShell = useContext(RadarShellContext);
++  if (inheritedShell && !shellOwner) return null;
++  return <nav id={id} className="product-wayfinding" aria-label="Infopunks product navigation">
++    {PRODUCT_LINKS.map(link => <a key={link.href} href={link.href} aria-current={(link.href === '/' ? current === '/' : link.href === '/rh-chain-signal-desk' ? /^(\/4663|\/rh-chain|\/internal\/rh-chain|\/narratives\/robinhood-chain)/.test(current) : link.href === '/receipts' ? /^(\/receipts|\/proof|\/revenue-receipts)/.test(current) : link.href === '/solana' ? radarNetworkForPath(current) === 'solana' && !/^(\/receipts|\/proof|\/revenue-receipts|\/developers)/.test(current) : current.startsWith(link.href)) ? 'page' : undefined}>{link.label}</a>)}
+   </nav>;
+ }
++export function ProductHeader({ current = '/', embedded = false }: { current?: string; embedded?: boolean }) {
++  const [open, setOpen] = useState(false);
++  const id = useId();
++  const toggle = useRef<HTMLButtonElement>(null);
++  const Header = embedded ? 'div' : 'header';
++  return <Header className={`product-header${open ? ' is-open' : ''}`} onKeyDown={event => {
++    if (event.key === 'Escape' && open) { setOpen(false); toggle.current?.focus(); }
++  }}>
++    <a className="product-brand" href="/" aria-label="Infopunks Radar home"><TerminalIcon name="skull" /><span>INFOPUNKS<small>RADAR / INTELLIGENCE TERMINAL</small></span></a>
++    <button className="product-menu-toggle" ref={toggle} type="button" aria-label={open ? 'Close navigation' : 'Open navigation'} aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}><TerminalIcon name={open ? 'close' : 'menu'} /></button>
++    <ProductWayfinding current={current} id={id} shellOwner />
++    <span className="product-header-note">ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.</span>
++  </Header>;
++}
+ export function EvidenceScope({ kind }: { kind: 'service' | 'market' }) {
+   return <p className="product-evidence-scope" role="note">{kind === 'service'
+     ? 'Advisory assessment. Execution requires separate authorization. Subject network and fee settlement are independent.'
+     : 'Read-only market inspection. Verified existence does not establish trade suitability. Trading authorization is unavailable.'}</p>;
+ }
++
++export function ProductFooter() {
++  return <footer className="radar-home-footer"><a href="/">INFOPUNKS RADAR <span>// THE INTELLIGENCE TERMINAL</span></a><span>ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.</span><a href="/openapi.json">API CONTRACT <TerminalIcon name="arrow" /></a></footer>;
++}
+diff --git a/src/web/radarApp.tsx b/src/web/radarApp.tsx
+index 1fb92ec..4140a13 100644
+--- a/src/web/radarApp.tsx
++++ b/src/web/radarApp.tsx
+@@ -5183,7 +5183,7 @@ function MachineRouteRiskMatrixPage() {
+             </div>
+             <small>Rows are derived from current registry metadata only. Missing route metadata is not fabricated into concrete callable paths.</small>
+           </div>
+-          <div className="machine-service-table" role="table" aria-label="Machine route risk matrix table">
++          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine route risk matrix table">
+             <div className="machine-service-row machine-route-risk-row head" role="row">
+               {['service', 'route', 'method / path', 'risk', 'first-safe candidate', 'avoid-first', 'credential requirement', 'expected output', 'proof condition', 'execution status', 'CTA'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+             </div>
+@@ -5341,7 +5341,7 @@ function MachineRailCoveragePage() {
+             </div>
+             <small>Catalog presence is separated from callable rail readiness. No service is execution-ready on this page without a service-specific receipt.</small>
+           </div>
+-          <div className="machine-service-table" role="table" aria-label="Machine rail coverage table">
++          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine rail coverage table">
+             <div className="machine-service-row machine-rail-row head" role="row">
+               {['service', 'category', 'access rail', 'route surface status', 'endpoints', 'pricing model', 'credential requirement', 'rail status', 'first safe route', 'execution status', 'source attribution'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+             </div>
+@@ -5490,7 +5490,7 @@ function MachineFirstSafeRoutesPage() {
+             </div>
+             <small>Rank means suggested planning order for future proof attempts. It is not a winner claim.</small>
+           </div>
+-          <div className="machine-service-table" role="table" aria-label="Machine first safe route queue table">
++          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine first safe route queue table">
+             <div className="machine-service-row machine-first-safe-route-row head" role="row">
+               {['rank', 'service', 'first safe route', 'why safe first', 'blocked by', 'required evidence', 'execution status', 'proof plan'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+             </div>
+@@ -5671,7 +5671,7 @@ function MachineExecutionBlockersPage() {
+             <div><p className="section-kicker">Blockers</p><h2>{rows.length} blockers recorded</h2></div>
+             <small>Rows are derived from current registry and receipt metadata. Missing data is kept visible.</small>
+           </div>
+-          <div className="machine-service-table" role="table" aria-label="Machine execution blocker table">
++          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine execution blocker table">
+             <div className="machine-service-row machine-blocker-row head" role="row">
+               {['service', 'blocker class', 'blocker', 'evidence needed', 'next safe action', 'source attribution', 'CTA'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+             </div>
+@@ -5785,7 +5785,7 @@ function MachineBenchmarkReadinessPage() {
+         </section>
+         <section className="panel machine-service-table-panel" aria-label="Benchmark readiness lanes">
+           <div className="panel-head"><div><p className="section-kicker">Candidate lanes</p><h2>{report.lanes.length} benchmark readiness lanes</h2></div></div>
+-          <div className="machine-service-table" role="table" aria-label="Machine benchmark readiness lane table">
++          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine benchmark readiness lane table">
+             <div className="machine-service-row machine-blocker-row head" role="row">
+               {['lane_id', 'task class', 'candidate routes', 'comparable route count', 'repeatability state', 'missing requirements', 'readiness status', 'next action', 'caveats'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+             </div>
+@@ -5873,7 +5873,7 @@ function MachineComparableRoutesPage() {
+         </section>
+         <section className="panel machine-service-table-panel" aria-label="Machine comparable route lanes">
+           <div className="panel-head"><div><p className="section-kicker">Methodology contracts</p><h2>{report.lanes.length} comparable-route lanes</h2></div></div>
+-          <div className="machine-service-table" role="table" aria-label="Machine comparable route table">
++          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine comparable route table">
+             <div className="machine-service-row machine-blocker-row head" role="row">
+               {['lane', 'current candidate route(s)', 'comparable second route exists', 'what is missing', 'methodology contract needed', 'next action'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+             </div>
+@@ -5974,7 +5974,7 @@ function MachineTranslationEvidencePage() {
+         </section>
+         <section className="panel machine-service-table-panel" aria-label="Machine translation evidence route table">
+           <div className="panel-head"><div><p className="section-kicker">Candidate routes</p><h2>{plan.routes.length} route evidence tracks</h2></div></div>
+-          <div className="machine-service-table" role="table" aria-label="Machine translation evidence routes">
++          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine translation evidence routes">
+             <div className="machine-service-row machine-blocker-row head" role="row">
+               {['service', 'service identity', 'route surface', 'proof profile match', 'receipt', 'repeatability', 'comparable-route eligible', 'evidence state', 'missing evidence', 'next action'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+             </div>
+@@ -6134,7 +6134,7 @@ function MachineProofLadderPage() {
+       {gate && <MachineBenchmarkGatePanel gate={gate} />}
+       <section className="panel machine-service-table-panel" aria-label="Machine proof ladder stages">
+         <div className="panel-head"><div><p className="section-kicker">Evidence progression</p><h2>8 ladder stages</h2></div></div>
+-        <div className="machine-service-table" role="table" aria-label="Machine proof ladder stage table">
++        <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine proof ladder stage table">
+           <div className="machine-service-row machine-blocker-row head" role="row">
+             {['stage', 'what it means', 'current machine market state', 'what it proves', 'what it does not prove', 'surface'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+           </div>
+@@ -6235,7 +6235,7 @@ function MachineBenchmarkMethodologyPage() {
+         </section>
+         <section className="panel machine-service-table-panel" aria-label="Lane methodology scaffolds">
+           <div className="panel-head"><div><p className="section-kicker">Lane methodology scaffolds</p><h2>{report.methodology_artifacts.length} lane artifacts</h2></div></div>
+-          <div className="machine-service-table" role="table" aria-label="Machine benchmark methodology artifact table">
++          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine benchmark methodology artifact table">
+             <div className="machine-service-row machine-blocker-row head" role="row">
+               {['lane', 'task class', 'routes compared', 'comparable routes', 'methodology status', 'artifact status', 'missing requirements', 'benchmark allowed', 'claims', 'caveats'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+             </div>
+@@ -6342,7 +6342,7 @@ function MachineMarketChangelogPage() {
+             <div><p className="section-kicker">Changelog</p><h2>{rows.length} market-memory entries</h2></div>
+             <small>Changelog entries are product intelligence memory, not new live market data.</small>
+           </div>
+-          <div className="machine-service-table" role="table" aria-label="Machine market changelog table">
++          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine market changelog table">
+             <div className="machine-service-row machine-changelog-row head" role="row">
+               {['date', 'change', 'scope', 'source', 'source type', 'claim boundary'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+             </div>
+@@ -6519,7 +6519,7 @@ function MachineReadinessMatrixPage() {
+             <div><p className="section-kicker">Readiness Matrix</p><h2>{rows.length} robotic.sh-visible services</h2></div>
+             <small>Execution and repeatability stay missing for services without a service-specific receipt.</small>
+           </div>
+-          <div className="machine-service-table machine-readiness-table" role="table" aria-label="Machine readiness matrix">
++          <div className="machine-service-table machine-readiness-table" tabIndex={0} role="table" aria-label="Machine readiness matrix">
+             <div className="machine-service-row machine-readiness-row head" role="row">
+               {['service', 'provider', 'policy', ...columns].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+             </div>
+@@ -7128,7 +7128,7 @@ function MachineServiceTable({ services, selectedId, onSelect }: { services: Mac
+       <small>Agentic.Market/Base rows are source metadata from robotic.sh, not the Phase 2 build priority.</small>
+     </div>
+     {!services.length && <EmptyState title="No services match these filters." body="Adjust filters to view the robotic.sh service mirror." />}
+-    {!!services.length && <div className="machine-service-table" role="table" aria-label="Machine Market service table">
++    {!!services.length && <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine Market service table">
+       <div className="machine-service-row head" role="row">
+         {['service', 'category', 'market', 'chain', 'status', 'evidence', 'risk', 'price', 'dossier'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+       </div>
+@@ -7301,7 +7301,7 @@ function MachineExecutionShortlistPage() {
+             <small>Sorted by deterministic candidate score, then service_id.</small>
+           </div>
+           {!candidates.length && <EmptyState title="No services found." body="The machine-market registry returned no visible robotic.sh services." />}
+-          {!!candidates.length && <div className="machine-service-table machine-shortlist-table" role="table" aria-label="Robotic.sh execution candidate table">
++          {!!candidates.length && <div className="machine-service-table machine-shortlist-table" tabIndex={0} role="table" aria-label="Robotic.sh execution candidate table">
+             <div className="machine-service-row machine-shortlist-row head" role="row">
+               {['service', 'provider', 'category', 'market', 'chain', 'latest policy', 'evidence', 'execution', 'tier', 'score', 'recommendation', 'reasons', 'dossier'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+             </div>
+@@ -14221,7 +14221,7 @@ function SignalGraphPage() {
+             ? <p className="route-state">Loading graph memory...</p>
+             : visibleNodes.length === 0
+               ? <p className="route-state warn">No nodes match this cluster filter.</p>
+-              : <svg className="signal-graph-svg" viewBox={`0 0 ${layout.width} ${layout.height}`} role="img" aria-label="Signal Graph cluster and node map">
++              : <svg className="signal-graph-svg" viewBox={`0 0 ${layout.width} ${layout.height}`} role="group" aria-label="Signal Graph cluster and node map">
+                 <rect x="1" y="1" width={layout.width - 2} height={layout.height - 2} rx="26" className="signal-graph-svg-frame" />
+                 {layout.clusterIds.map((clusterId) => {
+                   const center = layout.clusterCenters.get(clusterId);
+diff --git a/src/web/radarAppShell.tsx b/src/web/radarAppShell.tsx
+new file mode 100644
+index 0000000..fcad988
+--- /dev/null
++++ b/src/web/radarAppShell.tsx
+@@ -0,0 +1,27 @@
++import React, { useEffect } from 'react';
++import { RadarProductNavigation } from './radarNetworks';
++import { RadarShellContext } from './radarShellContext';
++import { radarNetworkForPath } from './bootContext';
++import { radarPageIdentity, radarPageLabel } from './radarPageIdentity';
++import { RadarSectionHeader, RadarReceiptLifecycle } from './radarDesignSystem';
++import { ProductHeader, ProductFooter } from './productPrimitives';
++import { AppErrorBoundary } from './appErrorBoundary';
++
++export function RadarAppShell({ children, path = typeof window === 'undefined' ? '/' : window.location.pathname }: { children: React.ReactNode; path?: string }) {
++  const identity = radarPageIdentity(path);
++  const context = path.startsWith('/4663') ? 'robinhood-chain' : radarNetworkForPath(path);
++  const home = path === '/';
++  useEffect(() => { document.title = `${identity.title} / ${radarPageLabel(path)} · Infopunks Radar`; }, [identity.title, path]);
++  return <RadarShellContext.Provider value={true}><div className="radar-app-shell" data-radar-family={identity.index} data-radar-home={home ? '' : undefined}>
++    <a className="radar-app-skip" href="#radar-page-content">Skip to content</a>
++    <div className="radar-app-header"><ProductHeader current={path} /></div>
++    {!home && <details className="radar-specialized-nav"><summary>{context === 'robinhood-chain' ? 'Robinhood Chain' : context === 'solana' ? 'Solana' : 'Radar'} / destinations and network context</summary><div className="radar-app-header"><RadarProductNavigation context={context} current={path} shellOwner /></div></details>}
++    {!home && <div className="radar-page-heading">
++      <nav className="radar-breadcrumbs" aria-label="Breadcrumb"><a href="/">Radar</a><span aria-hidden="true">/</span><a href={context === 'robinhood-chain' ? '/rh-chain-signal-desk' : '/solana'}>{context === 'robinhood-chain' ? 'Robinhood Chain' : 'Solana'}</a><span aria-hidden="true">/</span><span aria-current="page">{radarPageLabel(path)}</span></nav>
++      <RadarSectionHeader {...identity} level="label" />
++    </div>}
++    <div className="radar-route-content" id="radar-page-content" tabIndex={-1}><AppErrorBoundary>{children}</AppErrorBoundary></div>
++    {!home && <details className="radar-protocol-reference"><summary>Observation → Judgment → Execution → Evaluation</summary><RadarReceiptLifecycle reference /></details>}
++    <ProductFooter />
++  </div></RadarShellContext.Provider>;
++}
+diff --git a/src/web/radarDesignSystem.tsx b/src/web/radarDesignSystem.tsx
+new file mode 100644
+index 0000000..72bc064
+--- /dev/null
++++ b/src/web/radarDesignSystem.tsx
+@@ -0,0 +1,48 @@
++import React, { useId } from 'react';
++import { TerminalIcon, type TerminalIconName } from './terminalIcon';
++
++export type RadarEvidenceState = 'verified' | 'judgment' | 'pending' | 'missing' | 'recorded' | 'unavailable' | 'failed' | 'demonstration' | 'unverified';
++const STATUS_LABELS: Record<RadarEvidenceState, string> = {
++  unverified: 'Verification not established', verified: 'Verified evidence', judgment: 'Judgment', pending: 'Pending outcome',
++  missing: 'Missing evidence', recorded: 'Record exists', unavailable: 'Unavailable',
++  failed: 'Validation failed', demonstration: 'Demonstration'
++};
++export function RadarStatus({ state, detail }: { state: RadarEvidenceState; detail?: string }) {
++  return <span className={`radar-status radar-status-${state}`} data-evidence-state={state}>
++    <span aria-hidden="true">{state === 'verified' ? '✓' : state === 'failed' ? '×' : state === 'judgment' ? '◇' : '○'}</span>
++    {STATUS_LABELS[state]}{detail && <span> / {detail}</span>}
++  </span>;
++}
++export function RadarSectionHeader({ index, title, subtitle, id, level = 2 }: { index: string; title: string; subtitle: string; id?: string; level?: 1 | 2 | 3 | 'label' }) {
++  const Tag = level === 'label' ? 'p' : `h${level}` as 'h1' | 'h2' | 'h3';
++  return <Tag id={id} className="radar-section-header"><span>[ {index} ]</span> {title} <span aria-hidden="true">/</span> {subtitle}</Tag>;
++}
++export type RadarReceiptStage = 'observation' | 'judgment' | 'execution' | 'evaluation';
++export type RadarStageRecord = { state: RadarEvidenceState; detail: string; href?: string; recordId?: string };
++const stageIcons: TerminalIconName[] = ['eye', 'judgment', 'execution', 'evaluation'];
++const STAGES: readonly RadarReceiptStage[] = ['observation', 'judgment', 'execution', 'evaluation'];
++export function RadarReceiptLifecycle({ records, reference = false }: { records?: Partial<Record<RadarReceiptStage, RadarStageRecord>>; reference?: boolean }) {
++  return <section className="radar-lifecycle" aria-label="Four-receipt lifecycle">
++    <p className="radar-lifecycle-caption">{reference ? 'Architecture reference · no stage records claimed' : 'Receipt lifecycle · inspect each stage independently'}</p>
++    <ol>{STAGES.map((stage, index) => {
++      const record = records?.[stage];
++      return <li key={stage}><TerminalIcon name={stageIcons[index]} /><div><strong><span aria-hidden="true">{String(index + 1).padStart(2, '0')} / </span>{stage.toUpperCase()}</strong>
++        {!reference && <RadarStatus state={record?.state ?? 'missing'} />}
++        <p>{reference ? ['Collect evidence. Preserve provenance and gaps.', 'Apply frozen policy. Make an evidence-bound decision.', 'Separate authorization. Independently verify what happened.', 'Attest outcomes. Eligible evaluations inform future checks.'][index] : record?.detail ?? 'No stage record supplied.'}</p>
++        {record?.href && <a href={record.href}>Inspect {record.recordId ?? `${stage} record`} ↗</a>}
++      </div></li>;
++    })}</ol>
++  </section>;
++}
++export function RadarEvidenceRow({ title, state, provenance, children }: { title: string; state: RadarEvidenceState; provenance: string; children: React.ReactNode }) {
++  return <details className="radar-evidence-row"><summary><span>{title}</span><RadarStatus state={state} /></summary><p className="radar-provenance">Source / {provenance}</p><div>{children}</div></details>;
++}
++export function RadarAsyncState({ kind, title, children, onRetry }: { kind: 'loading' | 'empty' | 'error' | 'unavailable' | 'permission-denied'; title: string; children?: React.ReactNode; onRetry?: () => void }) {
++  return <section className={`radar-async-state panel state-${kind}`} role={kind === 'error' ? 'alert' : 'status'} aria-live={kind === 'error' ? 'assertive' : 'polite'} aria-busy={kind === 'loading'}>
++    <strong>{title}</strong>{children && <p>{children}</p>}{onRetry && <button className="execute secondary" type="button" onClick={onRetry}>Retry</button>}
++  </section>;
++}
++export function RadarDataTable({ caption, children }: { caption: string; children: React.ReactNode }) {
++  const id = useId();
++  return <div><p id={id} className="radar-table-hint">{caption} · scroll horizontally for all columns</p><div className="radar-table-scroll" role="region" aria-labelledby={id} tabIndex={0}><table><caption className="sr-only">{caption}</caption>{children}</table></div></div>;
++}
+diff --git a/src/web/spendTerminalPage.tsx b/src/web/spendTerminalPage.tsx
+index afae869..0b40d23 100644
+--- a/src/web/spendTerminalPage.tsx
++++ b/src/web/spendTerminalPage.tsx
+@@ -1,6 +1,7 @@
+ import { useEffect, useRef, useState } from 'react';
+ import type { CanonicalJudgmentResponse } from '../schemas/preSpend';
+-import { ProductWayfinding, EvidenceScope } from './productPrimitives';
++import { EvidenceScope } from './productPrimitives';
++import { RadarReceiptLifecycle } from './radarDesignSystem';
+ import { requestJudgment } from './judgmentCheckClient';
+ import './spendTerminal.css';
+ 
+@@ -32,8 +33,6 @@ export function SpendTerminalPage() {
+   }
+   const judgment = result?.judgment;
+   return <div className="spend-check">
+-    <a className="radar-home-skip" href="#spend-content">Skip to check</a>
+-    <header className="spend-header"><a href="/" className="spend-brand">Infopunks <strong>Radar</strong></a><ProductWayfinding current="/solana" /></header>
+     <main id="spend-content" tabIndex={-1}>
+       <section className="spend-intro"><p className="spend-kicker">Solana Radar · Pre-Spend Intelligence</p><h1>Should this agent spend?</h1><p>Describe the intent. Inspect the evidence-bound decision before committing funds.</p><EvidenceScope kind="service" /></section>
+       <div className="spend-grid">
+@@ -63,12 +62,18 @@ export function SpendTerminalPage() {
+             <ul className="spend-reasons">{judgment.reasons.map((reason, i) => <li key={i}>{reason.replaceAll('_', ' ')}</li>)}</ul>
+             <dl><div><dt>Confidence</dt><dd>{judgment.confidence}/100</dd></div><div><dt>Judgment fee</dt><dd>{judgment.cost.amount} {judgment.cost.asset}</dd></div><div><dt>Evidence accepted</dt><dd>{judgment.cited_observations.length}</dd></div><div><dt>Receipt</dt><dd>{judgment.receipt?.judgment_id ?? 'Not issued'}</dd></div><div><dt>Expiry</dt><dd>{judgment.decision === 'insufficient_evidence' ? 'No actionable validity window' : judgment.valid_until}</dd></div></dl>
+             {result.quoted && <p className="spend-form-note">No payment was submitted. An authorized integration must complete the payment boundary before a canonical receipt exists.</p>}
++            <RadarReceiptLifecycle records={{
++              observation: { state: judgment.cited_observations.length ? 'recorded' : 'missing', detail: `${judgment.cited_observations.length} cited observations; inspect provenance separately.` },
++              judgment: { state: judgment.receipt ? 'judgment' : 'missing', detail: judgment.receipt ? judgment.decision : result.quoted ? 'Quote only; no canonical receipt issued.' : 'Free assessment; no canonical receipt issued.' },
++              execution: { state: 'missing', detail: 'No separately authorized execution record supplied.' },
++              evaluation: { state: 'missing', detail: 'No independently verified outcome supplied.' }
++            }} />
+             <details><summary>Inspect the canonical response</summary><pre>{JSON.stringify(judgment, null, 2)}</pre></details>
++            {judgment.receipt && <a className="spend-next" href={`/proof/judgment/${encodeURIComponent(judgment.judgment_id)}`}>Inspect authenticated Judgment ↗</a>}
+             <a className="spend-next" href="/routes">Inspect route evidence ↗</a>
+           </>}
+         </section>
+       </div>
+-      <footer><a href="/receipts">Receipt evidence</a><a href="/developers">Developer contract</a><span>No receipt, no trust.</span></footer>
+     </main>
+   </div>;
+ }
+diff --git a/tests/ui-int2-receipt-inspection.test.tsx b/tests/ui-int2-receipt-inspection.test.tsx
+new file mode 100644
+index 0000000..79aa170
+--- /dev/null
++++ b/tests/ui-int2-receipt-inspection.test.tsx
+@@ -0,0 +1,23 @@
++// @vitest-environment jsdom
++import React, { act } from 'react';
++import { createRoot } from 'react-dom/client';
++import { afterEach, expect, it, vi } from 'vitest';
++import CanonicalReceiptPage from '../src/web/canonicalReceiptPage';
++import { RadarReceiptLifecycle } from '../src/web/radarDesignSystem';
++let root: ReturnType<typeof createRoot>;let el: HTMLDivElement;
++afterEach(()=>{act(()=>root?.unmount());el?.remove();vi.restoreAllMocks()});
++it('never presents a missing receipt as completed proof',()=>{
++ el=document.createElement('div');document.body.append(el);root=createRoot(el);
++ act(()=>root.render(<CanonicalReceiptPage kind="judgment" id="missing"/>));
++ expect(el.querySelector('[data-evidence-state="missing"]')).not.toBeNull();
++ expect(el.querySelector('[data-evidence-state="verified"]')).toBeNull();
++ expect(el.querySelector('input')?.type).toBe('password');
++ expect(el.querySelector('button')?.disabled).toBe(true);
++});
++it('does not advance another stage from a verified Judgment or pending Execution',()=>{
++ el=document.createElement('div');document.body.append(el);root=createRoot(el);
++ act(()=>root.render(<RadarReceiptLifecycle records={{judgment:{state:'verified',detail:'Signature and ancestry verified'},execution:{state:'pending',detail:'pending'}}}/>));
++ const stages=el.querySelectorAll('li');expect(stages).toHaveLength(4);
++ expect(stages[2].querySelector('[data-evidence-state="pending"]')).not.toBeNull();
++ expect(stages[3].querySelector('[data-evidence-state="missing"]')).not.toBeNull();
++});
+diff --git a/tests/web-accessibility.test.tsx b/tests/web-accessibility.test.tsx
+index 5ff85d8..737d27b 100644
+--- a/tests/web-accessibility.test.tsx
++++ b/tests/web-accessibility.test.tsx
+@@ -283,7 +283,7 @@ describe('web accessibility landmarks', () => {
+     expect(container.querySelector('section[aria-labelledby="ecosystem-zone-title"]')).not.toBeNull();
+     expect(container.querySelector('section[aria-labelledby="provider-zone-title"]')).not.toBeNull();
+ 
+-    expect(container.querySelector('a[href="/#proof"]')?.textContent).toContain('Proof');
++    expect(container.querySelector('a[href="/receipts"]')?.textContent).toContain('Proof');
+     expect(container.querySelector('input[aria-label="Filter providers by name tag FQN or category"]')).not.toBeNull();
+     expect(container.querySelector('select[aria-label="Sort providers"]')).not.toBeNull();
+     expect(container.querySelector('[role="group"][aria-label="Filter providers by category"]')).not.toBeNull();

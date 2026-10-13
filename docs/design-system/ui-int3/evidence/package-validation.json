@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "scope": "package syntax, evidence paths, full runtime/golden hashes, proposed PNG hashes, unchanged integration ref, no invented human approvals",
+  "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+  "gates_verified": 10,
+  "runtime_files_verified": 680,
+  "golden_files_verified": 24
+}

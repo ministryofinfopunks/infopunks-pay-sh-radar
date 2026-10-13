@@ -1,0 +1,1422 @@
+{
+  "numTotalTests": 2047,
+  "numPassedTests": 2047,
+  "numFailedTests": 0,
+  "numPendingTests": 0,
+  "numTotalTestSuites": 567,
+  "numPassedTestSuites": 567,
+  "numFailedTestSuites": 0,
+  "success": true,
+  "files": [
+    {
+      "name": "tests/abundance-api.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/abundance-desk-page.test.tsx",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/acceptance-history.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/agent-mode-command-palette.test.tsx",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "name": "tests/agent-readiness-page.test.tsx",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/api-base-url.test.ts",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "name": "tests/app-error-boundary.test.tsx",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/benchmark-artifact-registry.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/benchmark-proof-page.test.tsx",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/boot-context.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/causal-tape-witness.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/comparison-panel-copy.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/cors-preflight.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/cross-venue-audit.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/dashboard-interpretation-card.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/decision-context.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/dex-screener-service.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/economic-accounting-api.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/economic-engine-api.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/economic-evidence-adapters.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/economic-judgment-engine.test.ts",
+      "status": "passed",
+      "tests": 39
+    },
+    {
+      "name": "tests/env.test.ts",
+      "status": "passed",
+      "tests": 20
+    },
+    {
+      "name": "tests/evaluation-classification.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/evaluation-request-api.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/evaluation-request-pages.test.tsx",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/evaluation-request-service.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/evidence-metadata.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/execution-score-eligibility.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/frontdoor-4663.test.tsx",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/frontend-evidence.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/graph-page.test.tsx",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/health-readiness.test.ts",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "name": "tests/hermes-api.test.ts",
+      "status": "passed",
+      "tests": 48
+    },
+    {
+      "name": "tests/hermes-bridge.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/hermes-claim-promotion.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/hermes-decision-feedback.test.ts",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "name": "tests/hermes-desk-page.test.tsx",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "name": "tests/hermes-memory-loop.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/hermes-policy-receipt.test.ts",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "name": "tests/hermes-policy-reconciliation.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "name": "tests/hermes-pre-spend-decision.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "name": "tests/hermes-reputation-ledger.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/hermes-spend-policy.test.ts",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "name": "tests/hermes-wallet-audit-trail.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/hermes-wallet-risk-score.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "name": "tests/hermes-wallet-safety-api.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/hermes-wallet-safety-bundle.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "name": "tests/homepage-performance.test.tsx",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/ingestion.test.ts",
+      "status": "passed",
+      "tests": 16
+    },
+    {
+      "name": "tests/interpretation-page.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/interpretation.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/ipx-economy-dashboard.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/ipx-identity-mapping.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/ipx-launch-api.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/ipx-launch-postgres.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/ipx-launch.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/ipx-pltr-preflight-api.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/ipx-pltr-preflight-page.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/ipx-pltr-preflight-simulator.test.ts",
+      "status": "passed",
+      "tests": 17
+    },
+    {
+      "name": "tests/ipx-pltr-shadow-lab.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/ipx-pltr-shadow-observation.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/ipx-revenue-ledger.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/jsonb.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/judgment-domain.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "name": "tests/judgment-dx-sdk.test.ts",
+      "status": "passed",
+      "tests": 24
+    },
+    {
+      "name": "tests/judgment-issuer.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/judgment-private-access.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "name": "tests/judgment-reconciliation.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "name": "tests/legacy-write-lockdown.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/live-bootstrap-wiring.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "name": "tests/live-catalog-zero-endpoints-routes.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/loop-api.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/loop-page.test.tsx",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/loop-repository.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/loop-service.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/machine-benchmark-methodology-page.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/machine-benchmark-readiness-page.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/machine-comparable-routes-page.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/machine-dossier-page.test.tsx",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/machine-economy-snapshot-page.test.tsx",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/machine-evidence.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/machine-execution-detail-page.test.tsx",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/machine-execution-proof-plan-page.test.tsx",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "name": "tests/machine-execution-shortlist-page.test.tsx",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/machine-execution.test.ts",
+      "status": "passed",
+      "tests": 57
+    },
+    {
+      "name": "tests/machine-first-safe-routes-page.test.tsx",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/machine-market-claim-discipline.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/machine-market-control-plane-pages.test.tsx",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/machine-market-map-page.test.tsx",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/machine-market-page.test.tsx",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "name": "tests/machine-market-route.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/machine-policy.test.ts",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "name": "tests/machine-preflight-page.test.tsx",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "name": "tests/machine-preflight.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "name": "tests/machine-proof-ladder-page.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/machine-rail-coverage-page.test.tsx",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/machine-readiness-matrix-page.test.tsx",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/machine-receipt-storage-readiness.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/machine-receipts-page.test.tsx",
+      "status": "passed",
+      "tests": 17
+    },
+    {
+      "name": "tests/machine-route-risk-matrix-page.test.tsx",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/machine-service-dossier-page.test.tsx",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/machine-translation-evidence-page.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/methodology-drawer.test.tsx",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/migration-inventory.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/monitor-signal-flow.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/monitor.test.ts",
+      "status": "passed",
+      "tests": 21
+    },
+    {
+      "name": "tests/narrative-intel-api.test.ts",
+      "status": "passed",
+      "tests": 23
+    },
+    {
+      "name": "tests/narrative-metadata.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "name": "tests/narrative-pages.test.tsx",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "name": "tests/openapi.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/pltr-exchange-calendar.test.ts",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "name": "tests/postgres-resilience-failure-matrix.test.ts",
+      "status": "passed",
+      "tests": 16
+    },
+    {
+      "name": "tests/postgres-resilience.test.ts",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "name": "tests/pre-spend-builder-api.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "name": "tests/pre-spend-builder-pages.test.tsx",
+      "status": "passed",
+      "tests": 18
+    },
+    {
+      "name": "tests/pre-spend-decision-engine.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "name": "tests/pre-spend-intelligence-service.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/pre-spend-repository.test.ts",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "name": "tests/pre-spend-sdk.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/preflight-cards-page.test.tsx",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "name": "tests/preflight-route.test.ts",
+      "status": "passed",
+      "tests": 56
+    },
+    {
+      "name": "tests/pricing-display.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/production-degraded-features.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/proof-check-api.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/proof-check-page.test.tsx",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/proof-check-repository.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/proof-check-service.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/propagation-page.test.tsx",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/propagation-route.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/propagation.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/provider-intelligence.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "name": "tests/provider-public-page.test.tsx",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/pulse-live-catalog-state.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/pulse-timestamps.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/radar-agent-readiness.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/radar-bundles.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "name": "tests/radar-comparison-provider-mapping.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/radar-delayed-malformed-range.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/radar-endpoint-intelligence.test.tsx",
+      "status": "passed",
+      "tests": 27
+    },
+    {
+      "name": "tests/radar-evidence-ledger.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/radar-export.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "name": "tests/radar-history.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/radar-mapping-targets-route.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/radar-mappings-route.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/radar-navigation-responsive.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/radar-network-navigation.test.tsx",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "name": "tests/radar-phase3-routes.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/radar-phase7-intelligence.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "name": "tests/radar-risk.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "name": "tests/receipt-authority.test.ts",
+      "status": "passed",
+      "tests": 19
+    },
+    {
+      "name": "tests/receipt-integrity.test.ts",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "name": "tests/receipt-page.test.tsx",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/receipt-spine.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "name": "tests/receipts-route.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/reflexive-markets-watch-page.test.tsx",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/reflexive-markets-watch.test.ts",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "name": "tests/reflexive-radar-api.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/reflexive-radar-page.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/reflexive-radar.test.ts",
+      "status": "passed",
+      "tests": 36
+    },
+    {
+      "name": "tests/render-spa-routing.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "name": "tests/response-cache.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/revenue-receipt-api.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/revenue-receipt-pages.test.tsx",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/revenue-receipt-service.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/rh-4663-api.test.ts",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "name": "tests/rh-4663-call-phase3.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/rh-4663-campaign.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/rh-4663-frontdoor.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "name": "tests/rh-4663-mobile.test.tsx",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "name": "tests/rh-4663-my4663.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/rh-4663-phase2-resolution.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "name": "tests/rh-4663-phase3-api.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/rh-4663-phase3-intelligence.test.ts",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "name": "tests/rh-4663-phase5.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/rh-4663-print-generator.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "name": "tests/rh-4663-product-intelligence.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/rh-4663-production-hardening.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/rh-4663-proof-profile-ui.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/rh-4663-proof-profile.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/rh-4663-service.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/rh-4663-share-objects.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/rh-4663-utc-day-observations.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/rh-chain-100-receipts-campaign.test.tsx",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "name": "tests/rh-chain-agentic-fixture-isolation.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/rh-chain-api.test.ts",
+      "status": "passed",
+      "tests": 19
+    },
+    {
+      "name": "tests/rh-chain-attention-quality.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/rh-chain-automation.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/rh-chain-blockscout-provider.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/rh-chain-chain-pulse.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/rh-chain-clone-radar.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/rh-chain-contract-intelligence.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/rh-chain-cross-layer-api.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/rh-chain-cross-layer-integration.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/rh-chain-cross-layer-page.test.tsx",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/rh-chain-daily-receipt-drafts.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/rh-chain-daily-receipt-ops.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/rh-chain-dexscreener-provider.test.ts",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "name": "tests/rh-chain-discovery-queue.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/rh-chain-distribution-pack.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/rh-chain-durable-provider-pipeline.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/rh-chain-launchpad-observatory.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/rh-chain-launchpad-snapshot.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/rh-chain-live-snapshot-deadline.test.ts",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "name": "tests/rh-chain-live-snapshot.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "name": "tests/rh-chain-market-data.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "name": "tests/rh-chain-market-pulse-page.test.tsx",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/rh-chain-market-pulse.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/rh-chain-market-snapshot.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "name": "tests/rh-chain-market-structure.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "name": "tests/rh-chain-meme-pulse-snapshot.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/rh-chain-meme-pulse.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/rh-chain-pages.test.tsx",
+      "status": "passed",
+      "tests": 28
+    },
+    {
+      "name": "tests/rh-chain-portable-card.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/rh-chain-postgres-recovery.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/rh-chain-production-readiness.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/rh-chain-project-claims.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/rh-chain-review-console.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/rh-chain-review-cycle-receipt.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/rh-chain-review-pipeline.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/rh-chain-reviewed-classifications.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "name": "tests/rh-chain-reviewer-workflow.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/rh-chain-risk-correlation-sweep.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/rh-chain-risk-correlation.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/rh-chain-scout.test.ts",
+      "status": "passed",
+      "tests": 39
+    },
+    {
+      "name": "tests/rh-chain-scouts.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/rh-chain-sharing.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/rh-chain-signal-desk-selectors.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/rh-chain-token-dossier.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "name": "tests/rh-chain-token-registry.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/rh-chain-truth-guards.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/rh-usdg-economics.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/rh4663-anchor-integrity.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/rmm-category-census.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/scoring.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/search-route.test.ts",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "name": "tests/severity.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/signal-graph-api.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/signal-graph-context-pages.test.tsx",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/signal-graph-service.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "name": "tests/signal-hunt-api.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/signal-hunt-pages.test.tsx",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/smoke-production.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/spend-terminal-canonical.test.tsx",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "name": "tests/static-discovery.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/timestamps.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/ui-int2-receipt-inspection.test.tsx",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/unicorn-radar-api.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/unicorn-radar-pages.test.tsx",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "name": "tests/unicorn-radar-service.test.ts",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "name": "tests/verify-production.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/wallet-safety-integration-registry.test.ts",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "name": "tests/web-accessibility.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/web-boot-loading.test.tsx",
+      "status": "passed",
+      "tests": 17
+    },
+    {
+      "name": "tests/integration/acceptance-history-durability.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/integration/causal-context-durability.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/integration/derived-score-projection.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/integration/economic-engine-durability.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/integration/evaluate.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/integration/evaluation-judgment-feedback.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/integration/execute-proof.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/integration/execution-proof-durability.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/integration/free-assessment-attempts-durability.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/integration/judgment-dx-postgres.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/integration/judgment-issuer-durability.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/integration/judgment-payment-durability.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/integration/legacy-receipt-upgrade.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/integration/migration-014.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/integration/postgres-migration-runner.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "name": "tests/integration/pre-spend-judgment.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "name": "tests/integration/pre-spend-payment.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/integration/rh-usdg-accounting-durability.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/security/controlled-staging.test.ts",
+      "status": "passed",
+      "tests": 43
+    },
+    {
+      "name": "tests/security/execution-proof-validation.test.ts",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "name": "tests/security/private-proof-reads.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/security/score-authority.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "name": "tests/unit/derived-score-service.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/unit/evaluation-score-policy.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "name": "tests/unit/evaluation-service.test.ts",
+      "status": "passed",
+      "tests": 23
+    },
+    {
+      "name": "tests/unit/execution-proof-service.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "name": "tests/unit/judgment-performance.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "name": "tests/unit/judgment-service.test.ts",
+      "status": "passed",
+      "tests": 37
+    },
+    {
+      "name": "tests/unit/x402-judgment.test.ts",
+      "status": "passed",
+      "tests": 15
+    }
+  ]
+}

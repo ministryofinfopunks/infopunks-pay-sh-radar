@@ -1,0 +1,62 @@
+{
+  "security": {
+    "status": "HOLD",
+    "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+    "reviewer_identity": null,
+    "reviewer_authority": null,
+    "independent_of_implementation": null,
+    "decision": null,
+    "timestamp": null,
+    "evidence_manifest_sha256": null,
+    "findings": [],
+    "approval": null
+  },
+  "migration": {
+    "status": "HOLD",
+    "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+    "reviewer_identity": null,
+    "reviewer_authority": null,
+    "independent_of_implementation": null,
+    "decision": null,
+    "timestamp": null,
+    "evidence_manifest_sha256": null,
+    "findings": [],
+    "approval": null
+  },
+  "human_accessibility": {
+    "status": "HOLD",
+    "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+    "reviewer_identity": null,
+    "reviewer_authority": null,
+    "independent_of_implementation": null,
+    "decision": null,
+    "timestamp": null,
+    "evidence_manifest_sha256": null,
+    "findings": [],
+    "approval": null
+  },
+  "real_device": {
+    "status": "HOLD",
+    "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+    "reviewer_identity": null,
+    "reviewer_authority": null,
+    "independent_of_implementation": null,
+    "decision": null,
+    "timestamp": null,
+    "evidence_manifest_sha256": null,
+    "findings": [],
+    "approval": null
+  },
+  "isolated_staging_authorization": {
+    "status": "HOLD",
+    "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+    "reviewer_identity": null,
+    "reviewer_authority": null,
+    "independent_of_implementation": null,
+    "decision": null,
+    "timestamp": null,
+    "evidence_manifest_sha256": null,
+    "findings": [],
+    "approval": null
+  }
+}

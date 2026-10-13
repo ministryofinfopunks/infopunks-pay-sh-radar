@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-13T10:25:48.946413+05:30",
+  "timezone": "Asia/Colombo",
+  "os": "macOS14.4.1 arm64",
+  "node": "24.21.0",
+  "playwright": "1.64.0",
+  "chrome": "155.0.8059.40",
+  "postgres": "16.15",
+  "qa_runtime": {
+    "path": "/tmp/radar-ui-int2-qa",
+    "lock_sha256": "f77e314def07c1a0f39874cefdf48e72861c4e8c07deb446609926517f86ce3f",
+    "packages": {
+      "dependencies": {
+        "lighthouse": "^13.5.0",
+        "pngjs": "^7.0.0",
+        "randexp": "^0.5.3"
+      }
+    }
+  },
+  "docker": "daemon unavailable; no Linux/container qualification claimed",
+  "services_created": [
+    {
+      "url": "http://127.0.0.1:5190",
+      "subject": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+      "type": "local static preview, not staging"
+    },
+    {
+      "url": "http://127.0.0.1:5191",
+      "subject": "35f2e54a288311d1df0f8820dacb216c27175791",
+      "type": "local static reference preview, not staging"
+    },
+    {
+      "url": "http://127.0.0.1:5192/ui-int3/review-solana.html",
+      "subject": "UI-INT3 review documents; frozen application e031531",
+      "type": "loopback-only evidence server, not staging"
+    }
+  ],
+  "existing_services_used": [
+    {
+      "url": "http://127.0.0.1:5183",
+      "subject": "UI-INT2 compiled approved source; runtime same as e031531"
+    },
+    {
+      "url": "http://127.0.0.1:8812",
+      "subject": "UI-INT2 protected synthetic API; no real payment/execution"
+    }
+  ]
+}

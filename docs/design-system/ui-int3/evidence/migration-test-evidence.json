@@ -1,0 +1,471 @@
+{
+  "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+  "execution_head": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "source": "system/full-test-summary.json; raw output/ui-int3/system/full-tests.json",
+  "files": [
+    {
+      "file": "tests/ipx-launch-postgres.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "title": "IPX launch PostgreSQL provenance assigns unique ordinals concurrently, survives store restart, rejects rewrites and destructive rollback",
+          "status": "passed"
+        },
+        {
+          "title": "IPX launch PostgreSQL provenance backfills finalized Solana history without skipping pages and stops for missing transactions",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests/migration-inventory.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "title": "ordered migration inventory enumerates all 22 reversible migration files and records checksums",
+          "status": "passed"
+        },
+        {
+          "title": "ordered migration inventory rejects missing and unapplied migration sequence entries",
+          "status": "passed"
+        },
+        {
+          "title": "ordered migration inventory rejects duplicate migration identifiers",
+          "status": "passed"
+        },
+        {
+          "title": "ordered migration inventory rejects reordered migrations and missing down migrations",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests/postgres-resilience-failure-matrix.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "title": "PostgreSQL resilience failure matrix covers startup modes: no DATABASE_URL, invalid URL, unreachable host, and healthy DB",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL resilience failure matrix reproduces the historical idle pool termination without process death",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL resilience failure matrix contains a checked-out client error event, discards that client, and recovers without a restart",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL resilience failure matrix does not double-count an async client error racing a rejected query, and transaction cleanup remains safe",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL resilience failure matrix rejects active work and discards the connection when an async client error arrives during or after a query",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL resilience failure matrix cleans listeners across healthy and broken checkout cycles without recycling broken clients",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL resilience failure matrix contains checked-out termination, reset, connection timeout, and query timeout failures",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL resilience failure matrix opens the circuit, fails fast while open, limits probes under concurrency, recovers, then degrades again",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL resilience failure matrix soaks fail/recover/fail/recover without duplicate pools, probes, listeners, or leaked clients",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL resilience failure matrix returns controlled failure for durability-required writes when persistence is unavailable",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL resilience failure matrix shuts down cleanly while the database circuit is degraded",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL failures in background schedulers isolates ingestion and monitor persistence failures without unhandled rejection",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL failures in background schedulers isolates RH Chain automation and Phase 3 scheduler persistence failures",
+          "status": "passed"
+        },
+        {
+          "title": "process fatal boundary proves an actual pg.Client error is fatal when unguarded but safe after shared-pool checkout guarding",
+          "status": "passed"
+        },
+        {
+          "title": "process fatal boundary keeps unrelated uncaught exceptions fatal in the real server entrypoint",
+          "status": "passed"
+        },
+        {
+          "title": "optional real PostgreSQL checked-out-client termination contains a real node-postgres backend termination only when a safe test URL is explicitly supplied",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests/postgres-resilience.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "title": "postgres resilience boots in memory mode with live liveness and degraded readiness",
+          "status": "passed"
+        },
+        {
+          "title": "postgres resilience initializes one shared pool and honors DATABASE_POOL_MAX",
+          "status": "passed"
+        },
+        {
+          "title": "postgres resilience preserves repository method binding when reading health diagnostics",
+          "status": "passed"
+        },
+        {
+          "title": "postgres resilience handles pool error events without throwing",
+          "status": "passed"
+        },
+        {
+          "title": "postgres resilience contains idle-client pool failures without invoking the process fatal path",
+          "status": "passed"
+        },
+        {
+          "title": "postgres resilience does not crash startup and keeps /health and /v1/pulse available when db is unavailable",
+          "status": "passed"
+        },
+        {
+          "title": "postgres resilience starts with DATABASE_URL configured when Postgres is unreachable and reports degraded readiness",
+          "status": "passed"
+        },
+        {
+          "title": "postgres resilience releases checked-out clients and rolls back when the owning operation fails",
+          "status": "passed"
+        },
+        {
+          "title": "postgres resilience opens the circuit after repeated database failures and fails fast without hammering Postgres",
+          "status": "passed"
+        },
+        {
+          "title": "postgres resilience returns a controlled 503 body for persistence-required operations while unavailable",
+          "status": "passed"
+        },
+        {
+          "title": "postgres resilience recovers through a bounded SELECT 1 probe",
+          "status": "passed"
+        },
+        {
+          "title": "postgres resilience keeps ingestion scheduler alive when repository writes fail",
+          "status": "passed"
+        },
+        {
+          "title": "postgres resilience closes the shared pool exactly once during shutdown",
+          "status": "passed"
+        },
+        {
+          "title": "postgres resilience keeps /health 200 with safe db fallbacks when diagnostics are undefined and benchmark routes still respond",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests/receipt-authority.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "title": "canonical receipt authority derives scores exclusively from evaluations",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority does not expose evaluation creation or score policy from receipt authority",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority observation strictly rejects score fields",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority judgment strictly rejects score fields",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority execution strictly rejects score fields",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority rejects arbitrary evaluation deltas even with a valid hash",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority requires real parents at every level",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority blocks proceed when observation is invalid: {\"subject_id\":\"other\"}",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority blocks proceed when observation is invalid: {\"intent_hash\":\"sha256:a90b98b46e4dd97ac572d01c537afb32424b11ce9a98abd2aa5d3cf6d39ed3d7\"}",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority blocks proceed when observation is invalid: {\"evidence_state\":\"disputed\"}",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority blocks proceed when observation is invalid: {\"evidence_state\":\"stale\"}",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority blocks proceed when observation is invalid: {\"evidence_refs\":[]}",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority blocks proceed when observation is invalid: {\"freshness_expires_at\":\"2026-10-07T00:00:01Z\"}",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority blocks proceed when observation is invalid: {\"freshness_expires_at\":null}",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority blocks proceed when observation is invalid: {\"ingested_at\":\"2026-10-07T00:00:10Z\"}",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority enforces configured confidence threshold and commits it for historical replay",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority keeps insufficient evidence distinct and free and blocks its execution",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority supports multiple observations, idempotency, and rejects conflicting IDs or repeated evaluations",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt authority exposes only append/read repository interfaces and returns isolated copies",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests/receipt-integrity.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "title": "canonical receipt integrity recursively canonicalizes object keys while preserving array order",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt integrity rejects non-JSON values: undefined",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt integrity rejects non-JSON values: NaN",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt integrity rejects non-JSON values: Infinity",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt integrity rejects non-JSON values: Tue Oct 13 2026 10:09:32 GMT+0530 (India Standard Time)",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt integrity rejects non-JSON values: undefined",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt integrity rejects cycles",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt integrity commits payload, schema, policy, and all parent hashes",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt integrity rejects parent-hash tampering even if the child is resealed",
+          "status": "passed"
+        },
+        {
+          "title": "canonical receipt integrity replays every level of a stored chain",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests/receipt-spine.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "title": "receipt spine API integration binds internal evaluation writes to EvaluationService, not ReceiptAuthorityService",
+          "status": "passed"
+        },
+        {
+          "title": "receipt spine API integration authenticates canonical authority, appends the four levels, and retains legacy read APIs",
+          "status": "passed"
+        },
+        {
+          "title": "receipt spine API integration rejects client-authored deltas and missing ancestry without writing",
+          "status": "passed"
+        },
+        {
+          "title": "receipt spine PostgreSQL durability persists multiple observation parents and replays after repository reconstruction",
+          "status": "passed"
+        },
+        {
+          "title": "receipt spine PostgreSQL durability recognizes the migrated schema and enabled immutability guards in readiness",
+          "status": "passed"
+        },
+        {
+          "title": "receipt spine PostgreSQL durability rejects duplicate evaluation authority and mismatched parent hashes",
+          "status": "passed"
+        },
+        {
+          "title": "receipt spine PostgreSQL durability blocks UPDATE, DELETE, and TRUNCATE at database level for all five tables",
+          "status": "passed"
+        },
+        {
+          "title": "receipt spine PostgreSQL durability enforces execution/evaluation foreign keys even against direct SQL inserts",
+          "status": "passed"
+        },
+        {
+          "title": "receipt spine PostgreSQL durability rejects a judgment with nonexistent observation membership on transaction commit",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests/rh-chain-postgres-recovery.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "title": "RH Chain Postgres recovery retries a rejected schema initialization instead of caching the failure",
+          "status": "passed"
+        },
+        {
+          "title": "RH Chain Postgres recovery allows a Postgres store to recover in the same process after its first schema query fails",
+          "status": "passed"
+        },
+        {
+          "title": "RH Chain Postgres recovery isolates a metrics-store failure from review, scout, receipt, and distribution routes",
+          "status": "passed"
+        },
+        {
+          "title": "RH Chain Postgres recovery does not expose database URLs, credentials, or connection details in RH 500 responses",
+          "status": "passed"
+        },
+        {
+          "title": "RH Chain Postgres recovery keeps successful public route contracts unchanged with durable dependencies available",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests/integration/judgment-dx-postgres.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "title": "DX-1 SDK and reconciliation on disposable PostgreSQL runs real HTTP/SDK, verifies a pinned issuer, and recovers after server/client restart with one settlement",
+          "status": "passed"
+        },
+        {
+          "title": "DX-1 SDK and reconciliation on disposable PostgreSQL persists finalized reconciliation with a compare-and-set across concurrent fresh repositories",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests/integration/legacy-receipt-upgrade.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "title": "upgrade from supported migration 017 history preserves a signed v1 judgment and legacy CALL payload through migrations 018\u2013022",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests/integration/migration-014.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "title": "migration 014 clean schema validation applies all fourteen migrations, preserves indexes through empty rollback/reapply and refuses history loss",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests/integration/postgres-migration-runner.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "title": "PostgreSQL migration runner applies a clean install once and repeat boot is idempotent",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL migration runner serializes concurrent runners and records each migration exactly once",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL migration runner refuses implicit adoption and performs a pinned, verified 017 historical upgrade",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL migration runner supports the verified 020 baseline and applies migrations 021\u2013022",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL migration runner records failure, leaves failed DDL unapplied, and retries from the failed migration",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL migration runner rejects checksum drift and modified historical baselines",
+          "status": "passed"
+        },
+        {
+          "title": "PostgreSQL migration runner fails closed on unknown or reordered applied ledger identities",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests/security/score-authority.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "title": "Phase 4 score authority keeps all legacy intake outside canonical score history, including mutable provider state",
+          "status": "passed"
+        },
+        {
+          "title": "Phase 4 score authority has only one production invocation of score calculation and no policy in routes or authority",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/evaluation-score-policy.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "title": "versioned deterministic evaluation policy confirmed is deterministic and explainable",
+          "status": "passed"
+        },
+        {
+          "title": "versioned deterministic evaluation policy weakened is deterministic and explainable",
+          "status": "passed"
+        },
+        {
+          "title": "versioned deterministic evaluation policy contradicted is deterministic and explainable",
+          "status": "passed"
+        }
+      ]
+    }
+  ]
+}

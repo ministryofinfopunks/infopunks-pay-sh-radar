@@ -1,0 +1,96 @@
+{
+  "source_sha": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "approval_date": "2026-10-13",
+  "comparisons": [
+    {
+      "file": "loaded-desktop-home.png",
+      "route": "/",
+      "width": 1440,
+      "dimensions_match": true,
+      "changed_fraction": 0,
+      "status": "PASS",
+      "policy": "More than 0.5% pixels differing by >24 levels requires review; no baseline is updated"
+    },
+    {
+      "file": "loaded-desktop-receipts.png",
+      "route": "/receipts",
+      "width": 1440,
+      "dimensions_match": true,
+      "changed_fraction": 0,
+      "status": "PASS",
+      "policy": "More than 0.5% pixels differing by >24 levels requires review; no baseline is updated"
+    },
+    {
+      "file": "loaded-desktop-rh-chain-signal-desk.png",
+      "route": "/rh-chain-signal-desk",
+      "width": 1440,
+      "dimensions_match": true,
+      "changed_fraction": 0,
+      "status": "PASS",
+      "policy": "More than 0.5% pixels differing by >24 levels requires review; no baseline is updated"
+    },
+    {
+      "file": "loaded-desktop-solana.png",
+      "route": "/solana",
+      "width": 1440,
+      "dimensions_match": false,
+      "changed_fraction": 1,
+      "status": "REVIEW_REQUIRED",
+      "policy": "More than 0.5% pixels differing by >24 levels requires review; no baseline is updated"
+    },
+    {
+      "file": "loaded-desktop-spend-terminal.png",
+      "route": "/spend-terminal",
+      "width": 1440,
+      "dimensions_match": true,
+      "changed_fraction": 0,
+      "status": "PASS",
+      "policy": "More than 0.5% pixels differing by >24 levels requires review; no baseline is updated"
+    },
+    {
+      "file": "loaded-mobile-home.png",
+      "route": "/",
+      "width": 390,
+      "dimensions_match": true,
+      "changed_fraction": 0,
+      "status": "PASS",
+      "policy": "More than 0.5% pixels differing by >24 levels requires review; no baseline is updated"
+    },
+    {
+      "file": "loaded-mobile-receipts.png",
+      "route": "/receipts",
+      "width": 390,
+      "dimensions_match": true,
+      "changed_fraction": 0,
+      "status": "PASS",
+      "policy": "More than 0.5% pixels differing by >24 levels requires review; no baseline is updated"
+    },
+    {
+      "file": "loaded-mobile-rh-chain-signal-desk.png",
+      "route": "/rh-chain-signal-desk",
+      "width": 390,
+      "dimensions_match": true,
+      "changed_fraction": 0,
+      "status": "PASS",
+      "policy": "More than 0.5% pixels differing by >24 levels requires review; no baseline is updated"
+    },
+    {
+      "file": "loaded-mobile-solana.png",
+      "route": "/solana",
+      "width": 390,
+      "dimensions_match": true,
+      "changed_fraction": 0.00007684173912474806,
+      "status": "PASS",
+      "policy": "More than 0.5% pixels differing by >24 levels requires review; no baseline is updated"
+    },
+    {
+      "file": "loaded-mobile-spend-terminal.png",
+      "route": "/spend-terminal",
+      "width": 390,
+      "dimensions_match": true,
+      "changed_fraction": 0,
+      "status": "PASS",
+      "policy": "More than 0.5% pixels differing by >24 levels requires review; no baseline is updated"
+    }
+  ]
+}

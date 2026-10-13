@@ -1,0 +1,32 @@
+{
+  "status": "HOLD",
+  "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+  "approved_source_sha": "35f2e54a288311d1df0f8820dacb216c27175791",
+  "G1": "PASS_UNCHANGED",
+  "scope": "Only corrected complete Solana full-page desktop/mobile captures; no app/theme/homepage change or deployment approval",
+  "reason": "Async data capture plus16384px raster repetition; fixed response replay and bounded tiles",
+  "fixture_sha256": "2ffc4fc34c0e2c901ea06b3b5fc3d021cc0eca95577b6a03b0c7fad13a9f47c1",
+  "proposed_files": [
+    {
+      "view": "desktop",
+      "candidate_file": "evidence/visual/candidate-solana-1440-run1.png",
+      "candidate_sha256": "330445fc1049570133635c95e7bf535c9f83f15d91ffd9252815619c4e1a6dc8",
+      "width": 1440,
+      "height": 29946,
+      "replaces_reference": "../references/ui-int2-approved-completed/loaded-desktop-solana.png",
+      "existing_reference_sha256": "28e8d30107db6716917eeb571aa05fcc671e38ef4efc228246123a6acf787bbb"
+    },
+    {
+      "view": "mobile",
+      "candidate_file": "evidence/visual/candidate-solana-390-run1.png",
+      "candidate_sha256": "7022aa894a0bac5651a543b5cbd2489e0759142f9ba996d2c8a5703b0eb52388",
+      "width": 390,
+      "height": 62733,
+      "replaces_reference": "../references/ui-int2-approved-completed/loaded-mobile-solana.png",
+      "existing_reference_sha256": "f178f8b96c6678acef5443e0bccb17f08ac83b6e703def629ddc4e3b61a26d57"
+    }
+  ],
+  "approval": null,
+  "reviewer_identity": null,
+  "baseline_updated": false
+}

@@ -1,0 +1,49 @@
+{
+  "note": "Empirical raster defect on this host. Do not infer page duplication from corrupted PNG; DOM contains one route. Corrected bounded tiles inspected to final footer.",
+  "items": [
+    {
+      "subject": "approved",
+      "view": "desktop",
+      "file": "docs/design-system/references/ui-int2-approved-completed/loaded-desktop-solana.png",
+      "width": 1440,
+      "height": 25390,
+      "repetition_offset": 16384,
+      "sampled_rows": 250,
+      "exactly_repeated_rows": 250,
+      "diagnostic": "INVALID_LOWER_PAGE_RASTER"
+    },
+    {
+      "subject": "corrected",
+      "view": "desktop",
+      "file": "docs/design-system/ui-int3/evidence/visual/candidate-solana-1440-run1.png",
+      "width": 1440,
+      "height": 29946,
+      "repetition_offset": 16384,
+      "sampled_rows": 250,
+      "exactly_repeated_rows": 0,
+      "diagnostic": "NO_EXACT_PERIODIC_ROW_REPETITION"
+    },
+    {
+      "subject": "approved",
+      "view": "mobile",
+      "file": "docs/design-system/references/ui-int2-approved-completed/loaded-mobile-solana.png",
+      "width": 390,
+      "height": 62733,
+      "repetition_offset": 16384,
+      "sampled_rows": 250,
+      "exactly_repeated_rows": 250,
+      "diagnostic": "INVALID_LOWER_PAGE_RASTER"
+    },
+    {
+      "subject": "corrected",
+      "view": "mobile",
+      "file": "docs/design-system/ui-int3/evidence/visual/candidate-solana-390-run1.png",
+      "width": 390,
+      "height": 62733,
+      "repetition_offset": 16384,
+      "sampled_rows": 250,
+      "exactly_repeated_rows": 0,
+      "diagnostic": "NO_EXACT_PERIODIC_ROW_REPETITION"
+    }
+  ]
+}

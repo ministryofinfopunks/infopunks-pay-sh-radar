@@ -1,0 +1,21 @@
+{
+  "application_sha": "e0315314264fff395f8e84b37bb6f1984d6b39e7",
+  "qa_commit": "b7f477cff624404a230c2a9ea921f09c2ca2dcd5",
+  "qa_parent": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "application_runtime_unchanged": true,
+  "changes": [
+    "M\tscripts/compare-ui-int2-visuals.cjs",
+    "A\tscripts/qualify-ui-int3-solana.cjs"
+  ],
+  "harness_files": [
+    {
+      "file": "scripts/compare-ui-int2-visuals.cjs",
+      "sha256": "3dd54c893b0949b4f77b5a0a6ec285e7b919b498f431a4f1da89b237c36b93d8"
+    },
+    {
+      "file": "scripts/qualify-ui-int3-solana.cjs",
+      "sha256": "f79f4120f9edaaec10244562ffb78d1ae2b0930e27256a3bb737baafe7799dbf"
+    }
+  ],
+  "note": "Capture scripts were executed with these exact bytes before they were committed as QA-only b7f477c; full system run used unchanged d3d0a44 QA predecessor. No new application candidate."
+}

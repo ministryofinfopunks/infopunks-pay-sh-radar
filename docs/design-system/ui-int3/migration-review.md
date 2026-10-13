@@ -1,0 +1,27 @@
+# UI-INT3 independent PostgreSQL review — HOLD
+
+Exact subject `e0315314264fff395f8e84b37bb6f1984d6b39e7`; secure baseline `2c2fe64db173c63048e70353ae926aa199792d1b`. Independent reviewer/approval unset. All 22 up and 22 down migrations are unchanged: [file checksums](evidence/migration-checksums.json), [protected inventory](evidence/protected-inventory.json). No migration was renumbered or modified.
+
+## Applied history and invariants
+
+[Fresh applied ledger and per-migration checksum/order](evidence/system/migration-first.json), [validation](evidence/system/migration-check.json), [repeat](evidence/system/migration-repeat.json) show sequences 001–022, 22 applied, none pending or failed on disposable local PostgreSQL16.15 ([version](evidence/postgres-version.txt)). The ledger is local qualification evidence, not an inspection of any existing staging/production database. [Migration-test assertion evidence](evidence/migration-test-evidence.json) includes concurrency, failure/retry, historical adoption, durability, receipt authority and replay.
+
+| Area | Source/evidence | Reviewer check |
+| --- | --- | --- |
+| Ordering/checksum | src/services/migrationInventory.ts; src/services/postgresMigrationRunner.ts; tests/integration/postgres-migration-runner.test.ts | Date+sequence order; immutable applied/history ledger; reject drift, unknown entries and reordered/missing history; compare both up/down hashes to pinned history. |
+| Existing upgrade | runner SUPPORTED_BASELINES 017/020; tests/integration/postgres-migration-runner.test.ts | Unledgered existing DB is refused by default. Explicit 017/020 adoption requires pinned manifests and schema verification. Never adopt a baseline inferred from a table name or run arbitrary DDL to force acceptance. |
+| Concurrency | runner pg_advisory_lock('infopunks.track-a.schema-migrations.v1'); same integration test | Simultaneous runners apply each migration once; session-scoped lock released in finally; validate deployment connection pool/session behavior and permissions. |
+| Failure/retry | transactional migration execution and append-only run history | Failure does not mark failed DDL applied; retry from failing migration; validate disk exhaustion, connection loss, timeout and operator recovery. No broad implicit retry of payment side effects. |
+| Tenant ownership | migrations/20261007_012_judgment_requests.up.sql; src/repositories/judgmentRequestRepository.ts; src/api/judgmentPrivateAccess.ts | Ownership is retained in journal record, not a new UI-INT3 tenant-column migration. Private ancestry resolves through credential-bound request owner; historical missing owner stays private. Confirm post-restore owner/wrong-agent denial. |
+| Receipt authority | 011 spine; 013 proof uniqueness; 018 context; 019 score eligibility; 020 acceptance | Immutable parent/hash ancestry, append-only update/delete/truncate triggers, unique settlement/proof identities; quarantined legacy data cannot become canonical by visual inspection. |
+| Evaluation-only score | 014 derived projections; 019 eligibility; src/services/evaluationService.ts; tests/security/score-authority.test.ts | Evaluation authority computes deltas; raw receipt writes and legacy intake cannot alter score. Validate evaluation confidence/reviewer rules and deterministic projection replay. |
+| Assessment/public boundary | 021 free attempts; 022 publication boundaries | Free attempts not canonical paid Judgment; new tables do not weaken canonical read or publication ownership. |
+| Backup/restore/replay | system/check-results.json; system/recovery-before.json; system/recovery-after.json | Fresh backup restored into separate new disposable DB. Exact replay match, valid issuer signature + ancestry, identical receipt/projection/tape hashes, 22 ledger rows. No production key/data used. |
+
+Backup and cryptographic replay were rerun as part of the full qualification. Four purpose-named temporary databases were created and cleaned by the harness. Full command/exit evidence is [check-results.json](evidence/system/check-results.json); raw logs and local dump remain ignored under output/ui-int3/system. A dump is a test artifact, not a reusable staging credential or operational backup.
+
+## Operational review still required
+
+The local role is a qualification role. Actual staging migration-role DDL/advisory-lock permissions, runtime least privilege, retention/encryption, restore ownership, PostgreSQL deployment configuration, maintenance window, recovery-point/recovery-time objectives and an existing database's ledger have not been supplied or tested. All remain HOLD. Use [staging-readiness.md](staging-readiness.md) for the operator procedure. App rollback must not blindly execute down migrations against canonical evidence. Prefer a compatible prior app artifact; if schema reversal is necessary, quiesce and restore into a new isolated DB, validate/replay, then explicitly authorize traffic cutover. Keep the original backup until restoration is verified.
+
+Independent reviewer must reproduce [reproduction.md](reproduction.md), compare all file hashes to applied history, exercise clean/017/020 upgrades plus concurrent/failure/drift tests, inspect tenant and immutable triggers, review actual least-privilege roles, and witness backup→restore→cryptographic replay. Record exact SHA, evidence digest, findings, identity/authority and explicit written approval in [review-dispositions.json](review-dispositions.json). Automated checks do not close G4.
