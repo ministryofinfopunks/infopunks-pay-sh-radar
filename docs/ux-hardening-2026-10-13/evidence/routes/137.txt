@@ -1,0 +1,168 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Unicorn Radar
+- paragraph:
+  - generic: "[ 09 ]"
+  - text: SIGNALS / MARKET INTELLIGENCE
+- main "Infopunks Unicorn Radar":
+  - paragraph: COMMERCIAL SIGNAL DESK
+  - heading "Infopunks Unicorn Radar" [level=1]
+  - heading "Finding serious low-cap Solana projects before consensus does." [level=2]
+  - paragraph: Retail doesn’t need less risk. Retail needs better signal before taking risk.
+  - paragraph: Projects can buy evaluation, not conviction.
+  - link "Submit Candidate":
+    - /url: "#submit-candidate"
+  - link "Request Paid Evaluation":
+    - /url: /evaluation-request
+  - complementary "Radar Snapshot Panel":
+    - paragraph: Radar Snapshot
+    - generic: "Drop #001"
+    - paragraph:
+      - generic: Candidates
+      - strong: "0"
+    - paragraph:
+      - generic: High-Signal
+      - strong: "0"
+    - paragraph:
+      - generic: Watchlist
+      - strong: "0"
+    - paragraph:
+      - generic: Do Not Touch
+      - strong: "0"
+    - paragraph:
+      - generic: Consensus
+      - strong: "0"
+    - paragraph:
+      - generic: Last Updated
+      - strong: n/a
+    - paragraph:
+      - generic: "Drop #001 Summary"
+      - strong: KINS, Jotchua, and CUPSEY lead signal, MANIFEST stays blocked, TROLL shows consensus.
+  - region "Featured Radar Calls":
+    - paragraph: Featured Radar Calls
+    - heading "Featured Radar Calls" [level=2]
+    - paragraph: Four live examples of how Radar classifies signal, uncertainty, and risk.
+  - 'region "Drop #001 summary"':
+    - paragraph: "Drop #001"
+    - 'heading "Drop #001 remains receipt-framed." [level=2]'
+    - paragraph: A concise public frame for the current batch without pushing full analysis into the list page.
+    - paragraph:
+      - generic: High-Signal
+      - strong: KINS, Jotchua, CUPSEY
+    - paragraph:
+      - generic: Do Not Touch Yet
+      - strong: MANIFEST
+    - paragraph:
+      - generic: Consensus
+      - strong: TROLL
+    - paragraph:
+      - generic: Recently added
+      - strong: "CUPSEY: High-Signal Lowcap, real-world meme product, brand execution monitored."
+  - region "Candidate filters":
+    - generic "Status filters":
+      - button "All" [pressed]
+      - button "Unseen Signal"
+      - button "Watchlist"
+      - button "High-Signal Lowcap"
+      - button "Consensus Forming"
+      - button "Do Not Touch Yet"
+      - button "Infopunks Missed It"
+      - button "Paid Evaluation"
+    - generic: Sector
+    - combobox "Sector":
+      - option "All" [selected]
+    - generic: Verdict
+    - combobox "Verdict":
+      - option "All" [selected]
+      - option "High Signal Early"
+      - option "Interesting Needs Receipts"
+      - option "Real Product Weak Attention"
+      - option "Strong Attention Weak Proof"
+      - option "Do Not Touch Yet"
+      - option "Consensus Already Forming"
+      - option "Missed By Infopunks"
+    - generic: Search
+    - textbox "Search":
+      - /placeholder: Project, ticker, tag
+    - checkbox "Share Mode"
+    - generic: Share Mode
+    - paragraph: 0 shown
+  - region "High-Signal Lowcaps":
+    - paragraph: High-Signal Lowcaps
+    - heading "High-Signal Lowcaps" [level=2]
+    - strong: "0"
+    - text: candidates
+    - paragraph: Serious early candidates where shipping, timing, and asymmetry are already legible.
+    - generic: Share-ready section
+    - paragraph: No verified candidates yet. Submit a candidate with receipts.
+  - region "Watchlist":
+    - paragraph: Watchlist
+    - heading "Watchlist" [level=2]
+    - strong: "0"
+    - text: candidates
+    - paragraph: Interesting candidates that need more receipts before conviction can rise.
+    - generic: Share-ready section
+    - paragraph: No verified candidates yet. Submit a candidate with receipts.
+  - region "Do Not Touch Yet":
+    - paragraph: Do Not Touch Yet
+    - heading "Do Not Touch Yet" [level=2]
+    - strong: "0"
+    - text: candidates
+    - paragraph: Risk is too high, proof is too thin, or token survivability is not legible.
+    - generic: Share-ready section
+    - paragraph: No verified candidates yet. Submit a candidate with receipts.
+  - region "Consensus Forming":
+    - paragraph: Consensus Forming
+    - heading "Consensus Forming" [level=2]
+    - strong: "0"
+    - text: candidates
+    - paragraph: The early edge may already be closing, including explicit missed-it records.
+    - generic: Share-ready section
+    - paragraph: No verified candidates yet. Submit a candidate with receipts.
+  - region "Commercial radar actions":
+    - article:
+      - paragraph: Revenue Receipts
+      - heading "Revenue Receipts" [level=2]
+      - paragraph: Public ledger for open slots, templates, internal build receipts, and future paid evaluations. No receipt, no trust.
+      - link "Open Revenue Receipts":
+        - /url: /revenue-receipts
+    - article:
+      - paragraph: Request Paid Evaluation
+      - heading "Evaluation Request" [level=2]
+      - paragraph:
+        - text: Use
+        - code: POST /v1/evaluation-request
+        - text: . If automated intake is not configured, the API returns a manual delivery packet instead of pretending it stored your request.
+      - link "Open Evaluation Request":
+        - /url: /evaluation-request
+    - article:
+      - paragraph: Submit Candidate
+      - heading "Low-cap Solana signal intake" [level=2]
+      - paragraph:
+        - text: Use
+        - code: POST /v1/unicorn-radar/submit
+        - text: with thesis, sector, shipping proof, and evidence links.
+      - link "Open Developer Surface":
+        - /url: /developers
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

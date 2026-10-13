@@ -1,0 +1,200 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: Market Structure
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to market structure":
+  - /url: "#market-structure-content"
+- main:
+  - paragraph: RH Chain Signal Desk
+  - heading "4663 Market Structure" [level=1]
+  - paragraph: DEX Screener shows what Robinhood Chain is trading. Infopunks shows what Robinhood Chain is becoming.
+  - paragraph: Exact contract. Canonical pair. Reviewed judgment.
+  - link "Read composition":
+    - /url: "#market-composition"
+  - link "Open attention watch":
+    - /url: /rh-chain-signal-desk/market-structure/attention-quality
+  - complementary:
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Unavailable
+      - generic: Status
+      - strong: Unavailable
+      - generic: Observed
+      - strong: Jul 9, 2026, 3:45 AM UTC
+      - generic: Relative age
+      - strong: Updated 96 days ago
+      - generic: Sources
+      - strong: Source required
+      - generic: Source policy
+      - paragraph: Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.
+      - generic: Doctrine
+      - paragraph: Provider data is context only. Infopunks classifications are review-gated.
+    - paragraph: No trading, launch, or endorsement flow. Provider observations never alter reviewed classifications.
+  - paragraph: Market composition
+  - heading "Observed coverage, not a complete market claim" [level=2]
+  - article:
+    - paragraph: Chain volume (24h)
+    - strong: Source required
+  - article:
+    - paragraph: Observed transactions
+    - strong: Source required
+  - article:
+    - paragraph: Tracked canonical pairs
+    - strong: "0"
+  - article:
+    - paragraph: Classified coverage
+    - strong: Source required
+  - paragraph: DEX Screener rank, boosts, and paid orders are attention context. They do not establish organic demand, identity, classification, a receipt, an approved signal, or 4663 Index inclusion.
+  - paragraph: Layer leaders
+  - heading "Canonical pair context" [level=2]
+  - link "JSON":
+    - /url: /v1/rh-chain/market-structure
+  - article:
+    - paragraph: meme
+    - heading "4 observed assets" [level=3]
+    - paragraph:
+      - strong: CASHCAT
+      - text: ·
+      - code: "0x020bfC650A365f8BB26819deAAbF3E21291018b4"
+      - text: · Reviewed pair link · Source required 24h volume ·
+      - link "DexScreener pair":
+        - /url: https://dexscreener.com/robinhood/0xa70fc67c9f69da90b63a0e4c05d229954574e313
+      - text: ·
+      - generic: reviewed intake · approved_signal · high
+    - paragraph:
+      - strong: TENDIES
+      - text: ·
+      - code: "0x45242320DBB855EeA8Fd36804C6487E10E97FCF9"
+      - text: · Reviewed pair link · Source required 24h volume ·
+      - link "DexScreener pair":
+        - /url: https://dexscreener.com/robinhood/0x237609918f330add285b8bc5f8f2922283d1c4c5
+      - text: ·
+      - generic: reviewed intake · watch_only · medium
+    - paragraph:
+      - strong: HOODRAT
+      - text: ·
+      - code: "0x8e62F281f282686fCa6dCB39288069a93fC23F1c"
+      - text: · Reviewed pair link · Source required 24h volume ·
+      - link "DexScreener pair":
+        - /url: https://dexscreener.com/robinhood/0x451c0da3b774045a822a129eedcc5c667dcbfdd8
+      - text: ·
+      - generic: reviewed intake · watch_only · medium
+    - paragraph:
+      - strong: GROKIUS
+      - text: ·
+      - code: "0x0F2c5B7A7625C7b097759DD7165177d63fBB8b03"
+      - text: · Reviewed pair link · Source required 24h volume ·
+      - link "DexScreener pair":
+        - /url: https://dexscreener.com/robinhood/0x7ccef8a69c831c4ffde3eee77cb91f513f6ebf6e
+      - text: ·
+      - generic: reviewed intake · source_required_for_claims · low
+      - text: · AI narrative does not prove agent activity.
+  - article:
+    - paragraph: rwa
+    - heading "2 observed assets" [level=3]
+    - paragraph:
+      - strong: The Index
+      - text: ·
+      - code: "0x56910D4409F3a0C78C64DD8D0545FF0705389870"
+      - text: · Reviewed pair link · Source required 24h volume ·
+      - link "DexScreener pair":
+        - /url: https://dexscreener.com/robinhood/0x00dd2df2f17d431cf3a0938f06c9cf9abc5e9643b6cc466ca3f71f3af246edf3
+      - text: ·
+      - generic: reviewed intake · under_receipt_check · medium
+      - text: · Contract/pair visibility does not verify dividend mechanics, RWA backing, safety, or endorsement.
+    - paragraph:
+      - strong: eBESS
+      - text: ·
+      - code: "0xcA0Da673A451C84917d7dd0362109eFFf0f8825A"
+      - text: · Reviewed pair link · Source required 24h volume ·
+      - link "DexScreener pair":
+        - /url: https://dexscreener.com/robinhood/0x94ec3574c384447519992cf1400e2183b85acede
+      - text: ·
+      - generic: reviewed intake · source_required_for_claims · low
+      - text: · Energy or RWA narrative does not prove real-world asset backing.
+  - article:
+    - paragraph: agent
+    - heading "No reviewed coverage" [level=3]
+  - article:
+    - paragraph: infrastructure
+    - heading "2 observed assets" [level=3]
+    - paragraph:
+      - strong: PONS
+      - text: ·
+      - code: "0x39dBED3a2bd333467115dE45665cC57F813C4571"
+      - text: · Reviewed pair link · Source required 24h volume ·
+      - link "DexScreener pair":
+        - /url: https://dexscreener.com/robinhood/0x10cc6bd38112cac182db90b6a71d8bb5939526ba
+      - text: ·
+      - generic: reviewed intake · under_receipt_check · medium
+    - paragraph:
+      - strong: Oracle
+      - text: ·
+      - code: "0x4B518240a5E520fC08916f0335460E0dD4057417"
+      - text: · Reviewed pair link · Source required 24h volume ·
+      - link "DexScreener pair":
+        - /url: https://dexscreener.com/robinhood/0xd078f97ad4bcbb3411254f3bb9f5092d73606ec8
+      - text: ·
+      - generic: reviewed intake · source_required_for_claims · low
+      - text: · The name Oracle does not verify oracle infrastructure.
+  - article:
+    - paragraph: defi
+    - heading "1 observed assets" [level=3]
+    - paragraph:
+      - strong: ARROW
+      - text: ·
+      - code: "0xf2915d1e3C1B0c769d0c756Ec43F1c1f6c99cD03"
+      - text: · Reviewed pair link · Source required 24h volume ·
+      - link "DexScreener pair":
+        - /url: https://dexscreener.com/robinhood/0xe40d98d88038e0b844f844dce6ae3c79ec01ec53
+      - text: ·
+      - generic: reviewed intake · source_required · low
+  - article:
+    - paragraph: unclassified
+    - heading "No reviewed coverage" [level=3]
+  - paragraph: Cross-layer assets
+  - heading "More than one structural layer" [level=2]
+  - paragraph:
+    - link "Open exact-contract cross-layer record":
+      - /url: /rh-chain-signal-desk/market-structure/cross-layer
+  - paragraph: Paid Attention Watch
+  - heading "Visibility is context, not conviction" [level=2]
+  - paragraph:
+    - link "Inspect documented boost and order observations":
+      - /url: /rh-chain-signal-desk/market-structure/attention-quality
+  - paragraph: Methodology and coverage
+  - heading "Source policy" [level=2]
+  - paragraph: "Tracked DEXes: Source required · observed 2026-10-13T04:51:17.893Z · freshness: source_required."
+  - paragraph: Chain-wide volume is taken from existing trusted chain context when available; pair context is DEX Screener official API data.
+  - paragraph: Layer percentages are classifier estimates, not complete chain accounting.
+  - paragraph: Only the trusted-liquidity canonical pair is counted for each exact contract.
+  - paragraph: Latest related receipts
+  - heading "Memory before momentum" [level=2]
+  - article:
+    - heading "rh_daily_006" [level=3]
+    - paragraph: Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers
+    - text: 2026-07-19T00:00:00.000Z
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

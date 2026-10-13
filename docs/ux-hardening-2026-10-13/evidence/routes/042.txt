@@ -1,0 +1,440 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Spend Policy
+- paragraph:
+  - generic: "[ 15 ]"
+  - text: HERMES / WALLET MEMORY
+- link "Skip to content":
+  - /url: "#hermes-spend-policy-content"
+- main:
+  - paragraph: Wallet Safety Gate
+  - heading "Agent Spend Policy Layer" [level=1]
+  - paragraph: Decision tells an agent what to do. Policy tells an agent what it is allowed to do.
+  - paragraph: Before an agent spends, it checks the ledger. Before a wallet signs, it checks policy.
+  - link "Open Example JSON":
+    - /url: /v1/hermes/spend-policy/example
+  - link "Open Policy JSON":
+    - /url: /v1/hermes/spend-policy
+  - link "Back to Hermes Desk":
+    - /url: /hermes
+  - paragraph: Narrative
+  - paragraph: Decision tells an agent what to do.
+  - paragraph: Policy tells an agent what it is allowed to do.
+  - paragraph: Before an agent spends, it checks the ledger. Before a wallet signs, it checks policy.
+  - region "Policy Summary":
+    - paragraph: Policy Summary
+    - heading "Infopunks Default Agent Spend Policy" [level=2]
+    - paragraph: A conservative policy for autonomous wallets using pre-spend intelligence.
+    - paragraph:
+      - generic: max_amount_usd
+      - generic: "250.00"
+    - paragraph:
+      - generic: allowed_chains
+      - generic: base, solana
+    - paragraph:
+      - generic: allowed_payment_rails
+      - generic: x402, pay.sh, agentic.market
+    - paragraph:
+      - generic: blocked_providers
+      - generic: none
+    - paragraph:
+      - generic: require_test_spend_for_watchlist
+      - generic: "true"
+    - paragraph:
+      - generic: manual_review_threshold_usd
+      - generic: "1000.00"
+    - paragraph:
+      - generic: do_not_spend_on_disputed
+      - generic: "true"
+  - region "Example Spend Intent":
+    - paragraph: Example Spend Intent
+    - heading "Deterministic seeded spend intent." [level=2]
+    - paragraph:
+      - generic: route_id
+      - generic: route_pay_sh_market_research_01
+    - paragraph:
+      - generic: provider_id
+      - generic: provider_pay_sh_lattice
+    - paragraph:
+      - generic: service_id
+      - generic: service_market_research
+    - paragraph:
+      - generic: amount_usd
+      - generic: "25.00"
+    - paragraph:
+      - generic: payment_rail
+      - generic: x402
+    - paragraph:
+      - generic: chain
+      - generic: base
+  - region "Policy Check Result":
+    - paragraph: Policy Check Result
+    - heading "Deterministic wallet gate output." [level=2]
+    - article "Spend policy result hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective":
+      - paragraph: Agent Spend Policy Layer
+      - generic: Block
+      - generic: Not allowed
+      - generic: Do Not Spend
+      - heading "Infopunks Default Agent Spend Policy" [level=3]
+      - paragraph: "Pre-spend decision returned do_not_spend: Provider reputation is degraded in the ledger."
+      - paragraph:
+        - generic: policy_id
+        - generic: policy_infopunks_default_agent_spend
+      - paragraph:
+        - generic: amount_usd
+        - generic: "25.00"
+      - paragraph:
+        - generic: chain
+        - generic: base
+      - paragraph:
+        - generic: payment_rail
+        - generic: x402
+      - paragraph:
+        - generic: decision
+        - generic: block
+      - paragraph:
+        - generic: allowed
+        - generic: "false"
+      - paragraph:
+        - generic: required_action
+        - generic: do_not_spend
+      - paragraph:
+        - generic: pre_spend_decision
+        - generic: do_not_spend
+      - generic: Pre-spend engine blocked the spend (Critical)
+      - generic: Watchlist requires test spend (Medium)
+      - paragraph:
+        - generic: max_amount_usd
+        - generic: "250.00"
+      - paragraph:
+        - generic: allowed_chains
+        - generic: base, solana
+      - paragraph:
+        - generic: allowed_payment_rails
+        - generic: x402, pay.sh, agentic.market
+      - paragraph:
+        - generic: blocked_providers
+        - generic: none
+      - paragraph:
+        - generic: require_test_spend_for_watchlist
+        - generic: "true"
+      - paragraph:
+        - generic: manual_review_threshold_usd
+        - generic: "1000.00"
+      - paragraph:
+        - generic: do_not_spend_on_disputed
+        - generic: "true"
+  - region "Policy Decision Receipts":
+    - paragraph: Policy Decision Receipts
+    - heading "Policy checks become audit-ready receipts." [level=2]
+    - link "GET receipt preview":
+      - /url: /v1/hermes/spend-policy/check/hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective/receipt-preview
+    - paragraph: A policy decision should not disappear after the wallet acts.
+    - paragraph: It should become an audit receipt.
+    - region "Policy receipt flow":
+      - generic: Spend Intent
+      - generic: "->"
+      - generic: Pre-Spend Decision
+      - generic: "->"
+      - generic: Policy Check
+      - generic: "->"
+      - generic: Policy Receipt
+      - generic: "->"
+      - generic: Audit Trail
+      - generic: "->"
+      - generic: Future Feedback
+    - article:
+      - paragraph: converted
+      - heading "receipt_hermes_policy_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective" [level=3]
+      - paragraph:
+        - generic: source_check_id
+        - generic: hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective
+      - paragraph:
+        - generic: policy_id
+        - generic: policy_infopunks_default_agent_spend
+      - paragraph:
+        - generic: policy_decision
+        - generic: Block
+      - paragraph:
+        - generic: allowed
+        - generic: "false"
+      - paragraph:
+        - generic: required_action
+        - generic: do_not_spend
+      - paragraph:
+        - generic: risk_level
+        - generic: Critical
+      - paragraph:
+        - generic: violation_count
+        - generic: "1"
+      - paragraph:
+        - generic: warning_count
+        - generic: "1"
+      - paragraph:
+        - generic: audit_trail_event_count
+        - generic: "6"
+      - paragraph:
+        - generic: references_count
+        - generic: "14"
+  - region "Audit Trail":
+    - paragraph: Audit Trail
+    - heading "Deterministic policy decision evidence." [level=2]
+    - paragraph:
+      - generic: policy loaded
+      - generic: Loaded policy policy_infopunks_default_agent_spend for deterministic evaluation.
+    - paragraph:
+      - generic: spend intent received
+      - generic: Received spend intent for route route_pay_sh_market_research_01 and provider provider_pay_sh_lattice.
+    - paragraph:
+      - generic: pre-spend decision checked
+      - generic: Consumed pre-spend decision hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective before policy gating.
+    - paragraph:
+      - generic: rules evaluated
+      - generic: Evaluated policy rules against 1 violation(s) and 1 warning(s).
+    - paragraph:
+      - generic: policy decision made
+      - generic: Policy decision block requires action do_not_spend.
+    - paragraph:
+      - generic: receipt created
+      - generic: Converted the stateless policy check into an audit receipt-shaped object.
+  - region "Policy Outcome Reconciliation":
+    - paragraph: Policy Outcome Reconciliation
+    - heading "A policy receipt proves what was allowed." [level=2]
+    - link "GET reconciliation preview":
+      - /url: /v1/hermes/spend-policy/check/hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective/reconciliation-preview
+    - paragraph: A reconciliation proves what actually happened.
+    - region "Policy outcome reconciliation flow":
+      - generic: Policy Check
+      - generic: "->"
+      - generic: Policy Receipt
+      - generic: "->"
+      - generic: Wallet Outcome
+      - generic: "->"
+      - generic: Reconciliation
+      - generic: "->"
+      - generic: Feedback
+    - article "Policy reconciliation hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective":
+      - paragraph: Policy Outcome Reconciliation
+      - generic: Blocked As Required
+      - generic: Compliant
+      - generic: none
+      - heading "receipt_hermes_policy_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective" [level=3]
+      - paragraph: "Policy block reconciled with wallet outcome blocked_as_required: compliant. Next action=none."
+      - paragraph:
+        - generic: check_id
+        - generic: hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective
+      - paragraph:
+        - generic: policy_receipt_id
+        - generic: receipt_hermes_policy_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective
+      - paragraph:
+        - generic: policy_decision
+        - generic: block
+      - paragraph:
+        - generic: outcome_state
+        - generic: blocked_as_required
+      - paragraph:
+        - generic: compliance_state
+        - generic: compliant
+      - paragraph:
+        - generic: spend_happened
+        - generic: "false"
+      - paragraph:
+        - generic: amount_usd
+        - generic: "25.00"
+      - paragraph:
+        - generic: impact_direction
+        - generic: watch
+      - paragraph:
+        - generic: impact_magnitude
+        - generic: "0.4"
+      - paragraph:
+        - generic: next_policy_action
+        - generic: none
+      - generic: Compliant block
+      - region "Policy reconciliation flow":
+        - generic: Policy Check
+        - generic: "->"
+        - generic: Policy Receipt
+        - generic: "->"
+        - generic: Wallet Outcome
+        - generic: "->"
+        - generic: Reconciliation
+        - generic: "->"
+        - generic: Feedback
+      - paragraph:
+        - generic: Compliant block
+        - generic: Observed wallet respected the block decision.
+  - region "Wallet audit trail note":
+    - paragraph: Wallet audit trail
+    - heading "Policy checks, policy receipts, and reconciliations now roll up into one autonomous wallet audit trail." [level=2]
+    - link "Open Wallet Audit Trail":
+      - /url: /hermes/wallet-audit-trail
+  - region "Wallet risk score note":
+    - paragraph: Wallet risk score
+    - heading "Policy checks and reconciliation feed the wallet risk score." [level=2]
+    - link "Open Wallet Risk Score":
+      - /url: /hermes/wallet-risk-score
+    - paragraph: Policy checks and reconciliation feed the wallet risk score, which tells the wallet whether to continue, test, review, tighten policy, or pause.
+  - region "Wallet Safety API note":
+    - paragraph: Wallet Safety API
+    - heading "The Spend Policy Layer is available directly, but agents can call the Wallet Safety API for the complete bundled answer before spend." [level=2]
+    - link "Open Wallet Safety API":
+      - /url: /hermes/wallet-safety
+  - region "Violations and Warnings":
+    - paragraph: Violations and Warnings
+    - heading "Why the policy responded this way." [level=2]
+    - paragraph:
+      - generic: Pre-spend engine blocked the spend · Blocked
+      - generic: Pre-spend decision returned do_not_spend with required_action=do_not_use_provider.
+    - paragraph:
+      - generic: Watchlist requires test spend · Test Spend Required
+      - generic: Matched provider, route, or service memory is on watchlist or the decision engine already recommends a test spend first.
+  - region "Pre-Spend Decision Used":
+    - paragraph: Pre-Spend Decision Used
+    - heading "Policy consumes the existing decision engine." [level=2]
+    - article "Pre-spend decision hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective":
+      - paragraph: Pre-Spend Decision
+      - generic: Do Not Spend
+      - generic: Do Not Use Provider
+      - heading "route_pay_sh_market_research_01" [level=3]
+      - paragraph: Provider reputation is degraded in the ledger.
+      - generic "0.21 confidence":
+        - generic: confidence
+        - strong: "0.21"
+      - paragraph:
+        - generic: route_id
+        - generic: route_pay_sh_market_research_01
+      - paragraph:
+        - generic: provider_id
+        - generic: provider_pay_sh_lattice
+      - paragraph:
+        - generic: service_id
+        - generic: service_market_research
+      - paragraph:
+        - generic: amount_usd
+        - generic: "25.00"
+      - paragraph:
+        - generic: decision
+        - generic: do_not_spend
+      - paragraph:
+        - generic: required_action
+        - generic: do_not_use_provider
+      - paragraph:
+        - generic: ledger_state
+        - generic: provider=degraded route=watchlist service=watchlist
+      - paragraph:
+        - generic: ledger_score
+        - generic: provider=0 route=0 service=0
+      - generic: provider degraded (High)
+      - generic: route on watchlist (Medium)
+      - generic: service on watchlist (Medium)
+  - region "References Used":
+    - paragraph: References Used
+    - heading "References Used" [level=2]
+    - paragraph:
+      - generic: policy:policy_infopunks_default_agent_spend
+      - generic: "Infopunks Default Agent Spend Policy: A conservative policy for autonomous wallets using pre-spend intelligence."
+    - paragraph:
+      - generic: pre_spend_decision:hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective
+      - generic: do_not_spend with required_action=do_not_use_provider. Provider reputation is degraded in the ledger.
+    - paragraph:
+      - generic: reputation_entry:provider:provider_pay_sh_lattice
+      - generic: Lattice Research Relay is degraded with trust score 0.
+    - paragraph:
+      - generic: reputation_entry:route:route_pay_sh_market_research_01
+      - generic: POST /market/research (provider_pay_sh_lattice) is watchlist with trust score 0.
+    - paragraph:
+      - generic: reputation_entry:service:service_market_research
+      - generic: Market Research is watchlist with trust score 0.
+    - paragraph:
+      - generic: receipt:receipt_hermes_hermes_agentic_market_provider_risk_review
+      - generic: Receipt receipt_hermes_hermes_agentic_market_provider_risk_review contributes evidence for provider:provider_pay_sh_lattice.
+    - paragraph:
+      - generic: receipt:receipt_hermes_hermes_pay_sh_route_pre_spend_check
+      - generic: Receipt receipt_hermes_hermes_pay_sh_route_pre_spend_check contributes evidence for route:route_pay_sh_market_research_01.
+    - paragraph:
+      - generic: receipt:receipt_hermes_hermes_signal_hunt_narrative_scan
+      - generic: Receipt receipt_hermes_hermes_signal_hunt_narrative_scan contributes evidence for service:service_market_research.
+    - paragraph:
+      - generic: claim:claim_hermes_promoted_hermes_agentic_market_provider_risk_review
+      - generic: Reviewed claim claim_hermes_promoted_hermes_agentic_market_provider_risk_review contributes reputation judgment for provider:provider_pay_sh_lattice.
+    - paragraph:
+      - generic: claim:claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check
+      - generic: Reviewed claim claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check contributes reputation judgment for route:route_pay_sh_market_research_01.
+    - paragraph:
+      - generic: claim:claim_hermes_promoted_hermes_signal_hunt_narrative_scan
+      - generic: Reviewed claim claim_hermes_promoted_hermes_signal_hunt_narrative_scan contributes reputation judgment for service:service_market_research.
+    - paragraph:
+      - generic: run:hermes_agentic_market_provider_risk_review
+      - generic: Hermes run hermes_agentic_market_provider_risk_review contributed source evidence for provider:provider_pay_sh_lattice.
+    - paragraph:
+      - generic: run:hermes_pay_sh_route_pre_spend_check
+      - generic: Hermes run hermes_pay_sh_route_pre_spend_check contributed source evidence for route:route_pay_sh_market_research_01.
+    - paragraph:
+      - generic: run:hermes_signal_hunt_narrative_scan
+      - generic: Hermes run hermes_signal_hunt_narrative_scan contributed source evidence for service:service_market_research.
+  - region "Rule Map":
+    - paragraph: Rule Map
+    - heading "Deterministic policy rules." [level=2]
+    - article:
+      - heading "Maximum autonomous spend" [level=3]
+      - paragraph: Escalate or block spends that exceed the wallet policy amount cap.
+      - paragraph: policy_rule_max_amount · High
+    - article:
+      - heading "Manual review threshold" [level=3]
+      - paragraph: Escalate larger spends to manual review before the wallet can sign.
+      - paragraph: policy_rule_manual_review_threshold · High
+    - article:
+      - heading "Allowed chains only" [level=3]
+      - paragraph: Block spends on chains that are outside the approved wallet boundary.
+      - paragraph: policy_rule_allowed_chain · Critical
+    - article:
+      - heading "Allowed payment rails only" [level=3]
+      - paragraph: Block spends on unsupported payment rails.
+      - paragraph: policy_rule_allowed_payment_rail · Critical
+    - article:
+      - heading "Blocked providers" [level=3]
+      - paragraph: Block providers that the policy explicitly disallows.
+      - paragraph: policy_rule_blocked_provider · Critical
+    - article:
+      - heading "Respect pre-spend stop decisions" [level=3]
+      - paragraph: If the decision engine says do not spend, policy must block.
+      - paragraph: policy_rule_pre_spend_block · Critical
+    - article:
+      - heading "Escalate insufficient evidence" [level=3]
+      - paragraph: If the decision engine lacks enough evidence, policy requires manual review.
+      - paragraph: policy_rule_insufficient_evidence · High
+    - article:
+      - heading "Block disputed memory" [level=3]
+      - paragraph: Disputed provider, route, or service memory cannot be spent against automatically.
+      - paragraph: policy_rule_disputed_memory · Critical
+    - article:
+      - heading "Watchlist requires test spend" [level=3]
+      - paragraph: Watchlist targets can be used only with a small test spend first.
+      - paragraph: policy_rule_watchlist_test_spend · Medium
+    - article:
+      - heading "Cautious decision handling" [level=3]
+      - paragraph: Mixed evidence can require either a test spend or manual review based on amount sensitivity.
+      - paragraph: policy_rule_cautious_decision · Medium
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

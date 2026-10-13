@@ -1,0 +1,307 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Route Risk
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-route-risk-content"
+- banner:
+  - navigation "Machine Route Risk Matrix navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Route-Level Risk Matrix":
+  - paragraph: Route-Level Risk Matrix
+  - heading "Route-Level Risk Matrix" [level=1]
+  - paragraph: Agents do not execute services in the abstract. They hit routes. Radar separates services from rails, rails from routes, routes from receipts.
+  - generic "Machine route risk hero chips":
+    - generic: route surfaces mapped
+    - generic: first-safe routes identified
+    - generic: avoid-first routes flagged
+    - generic: 0 robotic.sh market-wide execution claims
+    - generic: 0 service-specific execution receipts recorded
+    - generic: receipt-driven
+  - region "Machine route risk summary":
+    - article:
+      - text: Route rows tracked
+      - strong: "6"
+      - text: route rows, not execution receipts
+    - article:
+      - text: First-safe candidates
+      - strong: "5"
+      - text: yes or possible candidates only
+    - article:
+      - text: Avoid-first routes
+      - strong: "1"
+      - text: flagged for later, not blocked forever
+    - article:
+      - text: High-risk routes
+      - strong: "1"
+      - text: physical-world or higher-sensitivity planning paths
+    - article:
+      - text: Service-specific executed routes
+      - strong: "0"
+      - text: service-specific execution only
+    - article:
+      - text: Payment-confirmed routes
+      - strong: "0"
+      - text: 0 unless payment evidence exists
+  - region "Machine route interpretation strip":
+    - paragraph: Route Interpretation
+    - heading "Separate planning from proof" [level=2]
+    - generic: receipt-driven
+    - generic "Machine route interpretation statements":
+      - generic: listed ≠ callable
+      - generic: callable ≠ executed
+      - generic: credentials ≠ payment proof
+      - generic: route surface ≠ receipt
+  - region "Machine route risk caveats":
+    - paragraph: "Market-wide execution claims: 0. Payment success claims: 0. Benchmark claims: 0. Winner claims: 0."
+    - paragraph: Route-level risk is planning metadata. It does not imply execution, payment success, benchmark superiority, or provider quality.
+    - paragraph: Route metadata does not imply execution. Credential requirement does not imply payment proof.
+    - paragraph: Payment is not confirmed unless payment evidence exists.
+    - paragraph: Execution status is receipt-driven. Catalog route presence does not imply route execution.
+    - group "Route-risk attribution":
+      - generic "Route-risk attribution Route-risk attribution Risk rows are attributed planning metadata, not execution proof.":
+        - generic: Route-risk attribution
+        - strong: Route-risk attribution
+        - generic: Risk rows are attributed planning metadata, not execution proof.
+    - paragraph:
+      - link "Back to rail coverage":
+        - /url: /machine-rail-coverage
+      - link "View public snapshot":
+        - /url: /machine-economy-snapshot
+      - link "View first safe route queue":
+        - /url: /machine-first-safe-routes
+  - region "Machine route guidance":
+    - article:
+      - paragraph: Guidance
+      - heading "Why route-level policy matters" [level=2]
+      - paragraph:
+        - generic: NAVER Maps
+        - generic: Geocode lookup is first-safe candidate / review. Driving directions is avoid-first / high risk because of physical-world routing risk. Execution status remains not_attempted.
+      - paragraph:
+        - generic: Machine Translation
+        - generic: Service-specific execution evidence exists for one machine-translation route only. Payment not confirmed unless payment evidence exists. Benchmark and winner claims remain false without artifacts.
+      - paragraph:
+        - generic: BigQuery
+        - generic: BigQuery should begin with bounded public/synthetic queries.
+      - paragraph:
+        - generic: Stableupload
+        - generic: Stableupload should begin with tiny non-sensitive fixtures.
+      - paragraph:
+        - generic: Execution
+        - generic: Execution remains receipt-driven.
+    - group "Machine route risk methodology":
+      - generic "Route Methodology Compact route-risk definitions Route-level planning metadata remains separate from route execution receipts.":
+        - generic: Route Methodology
+        - strong: Compact route-risk definitions
+        - generic: Route-level planning metadata remains separate from route execution receipts.
+  - region "Machine route risk matrix table panel":
+    - paragraph: Route Matrix
+    - heading "6 route rows mapped" [level=2]
+    - generic: Rows are derived from current registry metadata only. Missing route metadata is not fabricated into concrete callable paths.
+    - table "Machine route risk matrix table":
+      - text: Scroll horizontally for all columns →
+      - row "BigQuery Google 1 route rows Bounded query result lookup web Pay.sh / Solana not recorded route surface not recorded medium catalog route surface only; Radar has not executed routes yes no not flagged not recorded tabular query result / schema / bounded rows query limited; synthetic/public dataset; parseable result; durable receipt required not attempted No service-specific route execution receipt recorded. View rail-aware proof plan":
+        - cell "BigQuery Google 1 route rows":
+          - strong: BigQuery
+          - generic: Google
+          - generic: 1 route rows
+        - cell "Bounded query result lookup web Pay.sh / Solana":
+          - strong: Bounded query result lookup
+          - generic: web
+          - generic: Pay.sh / Solana
+        - cell "not recorded route surface not recorded":
+          - strong: not recorded
+          - generic: route surface not recorded
+        - cell "medium catalog route surface only; Radar has not executed routes":
+          - generic: medium
+          - generic: catalog route surface only; Radar has not executed routes
+        - cell "yes":
+          - generic: "yes"
+        - cell "no not flagged":
+          - strong: "no"
+          - generic: not flagged
+        - cell "not recorded"
+        - cell "tabular query result / schema / bounded rows"
+        - cell "query limited; synthetic/public dataset; parseable result; durable receipt required"
+        - cell "not attempted No service-specific route execution receipt recorded.":
+          - generic: not attempted
+          - generic: No service-specific route execution receipt recorded.
+        - cell "View rail-aware proof plan":
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/bigquery
+      - row "Stableupload Stableupload 1 route rows Tiny non-sensitive fixture upload storage Pay.sh / Solana not recorded route surface not recorded medium catalog route surface only; storage policy review remains required before execution claims yes no not flagged not recorded upload receipt / storage reference / file metadata harmless fixture; bounded file size; no sensitive data; durable receipt required not attempted No service-specific route execution receipt recorded. View rail-aware proof plan":
+        - cell "Stableupload Stableupload 1 route rows":
+          - strong: Stableupload
+          - generic: Stableupload
+          - generic: 1 route rows
+        - cell "Tiny non-sensitive fixture upload storage Pay.sh / Solana":
+          - strong: Tiny non-sensitive fixture upload
+          - generic: storage
+          - generic: Pay.sh / Solana
+        - cell "not recorded route surface not recorded":
+          - strong: not recorded
+          - generic: route surface not recorded
+        - cell "medium catalog route surface only; storage policy review remains required before execution claims":
+          - generic: medium
+          - generic: catalog route surface only; storage policy review remains required before execution claims
+        - cell "yes":
+          - generic: "yes"
+        - cell "no not flagged":
+          - strong: "no"
+          - generic: not flagged
+        - cell "not recorded"
+        - cell "upload receipt / storage reference / file metadata"
+        - cell "harmless fixture; bounded file size; no sensitive data; durable receipt required"
+        - cell "not attempted No service-specific route execution receipt recorded.":
+          - generic: not attempted
+          - generic: No service-specific route execution receipt recorded.
+        - cell "View rail-aware proof plan":
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/stableupload
+      - row "NAVER Maps NAVER 4 route rows Geocode navigation peaqOS / provider account GET /map-geocode/v2/geocode low to medium catalog route surface only; Radar has not executed routes yes no not flagged Naver Cloud provider credentials required geocode result / coordinates / address match bounded public landmark or generic address lookup, non-operational, no robot command not attempted No service-specific route execution receipt recorded. View rail-aware proof plan":
+        - cell "NAVER Maps NAVER 4 route rows":
+          - strong: NAVER Maps
+          - generic: NAVER
+          - generic: 4 route rows
+        - cell "Geocode navigation peaqOS / provider account":
+          - strong: Geocode
+          - generic: navigation
+          - generic: peaqOS / provider account
+        - cell "GET /map-geocode/v2/geocode":
+          - strong: GET
+          - generic: /map-geocode/v2/geocode
+        - cell "low to medium catalog route surface only; Radar has not executed routes":
+          - generic: low to medium
+          - generic: catalog route surface only; Radar has not executed routes
+        - cell "yes":
+          - generic: "yes"
+        - cell "no not flagged":
+          - strong: "no"
+          - generic: not flagged
+        - cell "Naver Cloud provider credentials required"
+        - cell "geocode result / coordinates / address match"
+        - cell "bounded public landmark or generic address lookup, non-operational, no robot command"
+        - cell "not attempted No service-specific route execution receipt recorded.":
+          - generic: not attempted
+          - generic: No service-specific route execution receipt recorded.
+        - cell "View rail-aware proof plan":
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/naver-maps
+      - row "NAVER Maps NAVER same service group Reverse geocode navigation peaqOS / provider account GET /map-reversegeocode/v2/gc low to medium catalog route surface only; Radar has not executed routes possible no not flagged Naver Cloud provider credentials required reverse geocode result / address from coordinate bounded generic coordinate lookup, non-operational, no robot command not attempted No service-specific route execution receipt recorded. View rail-aware proof plan":
+        - cell "NAVER Maps NAVER same service group":
+          - strong: NAVER Maps
+          - generic: NAVER
+          - generic: same service group
+        - cell "Reverse geocode navigation peaqOS / provider account":
+          - strong: Reverse geocode
+          - generic: navigation
+          - generic: peaqOS / provider account
+        - cell "GET /map-reversegeocode/v2/gc":
+          - strong: GET
+          - generic: /map-reversegeocode/v2/gc
+        - cell "low to medium catalog route surface only; Radar has not executed routes":
+          - generic: low to medium
+          - generic: catalog route surface only; Radar has not executed routes
+        - cell "possible":
+          - generic: possible
+        - cell "no not flagged":
+          - strong: "no"
+          - generic: not flagged
+        - cell "Naver Cloud provider credentials required"
+        - cell "reverse geocode result / address from coordinate"
+        - cell "bounded generic coordinate lookup, non-operational, no robot command"
+        - cell "not attempted No service-specific route execution receipt recorded.":
+          - generic: not attempted
+          - generic: No service-specific route execution receipt recorded.
+        - cell "View rail-aware proof plan":
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/naver-maps
+      - row "NAVER Maps NAVER same service group Driving directions navigation peaqOS / provider account GET /map-direction/v1/driving high catalog route surface only; Radar has not executed routes no yes physical-world routing risk Naver Cloud provider credentials required route guidance / driving directions only after geocode/static-map checks; non-operational route lookup; no robot command; no dispatch; no physical movement not attempted No service-specific route execution receipt recorded. View rail-aware proof plan":
+        - cell "NAVER Maps NAVER same service group":
+          - strong: NAVER Maps
+          - generic: NAVER
+          - generic: same service group
+        - cell "Driving directions navigation peaqOS / provider account":
+          - strong: Driving directions
+          - generic: navigation
+          - generic: peaqOS / provider account
+        - cell "GET /map-direction/v1/driving":
+          - strong: GET
+          - generic: /map-direction/v1/driving
+        - cell "high catalog route surface only; Radar has not executed routes":
+          - generic: high
+          - generic: catalog route surface only; Radar has not executed routes
+        - cell "no":
+          - generic: "no"
+        - cell "yes physical-world routing risk":
+          - strong: "yes"
+          - generic: physical-world routing risk
+        - cell "Naver Cloud provider credentials required"
+        - cell "route guidance / driving directions"
+        - cell "only after geocode/static-map checks; non-operational route lookup; no robot command; no dispatch; no physical movement"
+        - cell "not attempted No service-specific route execution receipt recorded.":
+          - generic: not attempted
+          - generic: No service-specific route execution receipt recorded.
+        - cell "View rail-aware proof plan":
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/naver-maps
+      - row "NAVER Maps NAVER same service group Static map navigation peaqOS / provider account GET /map-static/v2/raster low to medium catalog route surface only; Radar has not executed routes possible no not flagged Naver Cloud provider credentials required static map response / raster map metadata bounded public landmark/static map lookup, no navigation instruction not attempted No service-specific route execution receipt recorded. View rail-aware proof plan":
+        - cell "NAVER Maps NAVER same service group":
+          - strong: NAVER Maps
+          - generic: NAVER
+          - generic: same service group
+        - cell "Static map navigation peaqOS / provider account":
+          - strong: Static map
+          - generic: navigation
+          - generic: peaqOS / provider account
+        - cell "GET /map-static/v2/raster":
+          - strong: GET
+          - generic: /map-static/v2/raster
+        - cell "low to medium catalog route surface only; Radar has not executed routes":
+          - generic: low to medium
+          - generic: catalog route surface only; Radar has not executed routes
+        - cell "possible":
+          - generic: possible
+        - cell "no not flagged":
+          - strong: "no"
+          - generic: not flagged
+        - cell "Naver Cloud provider credentials required"
+        - cell "static map response / raster map metadata"
+        - cell "bounded public landmark/static map lookup, no navigation instruction"
+        - cell "not attempted No service-specific route execution receipt recorded.":
+          - generic: not attempted
+          - generic: No service-specific route execution receipt recorded.
+        - cell "View rail-aware proof plan":
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/naver-maps
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

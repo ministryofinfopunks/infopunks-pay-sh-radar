@@ -1,0 +1,144 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Changelog
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-market-changelog-content"
+- banner:
+  - navigation "Machine Market Changelog navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Market Changelog":
+  - paragraph: Machine Market Changelog
+  - heading "Machine Market Changelog" [level=1]
+  - paragraph: Radar remembers when the machine market changes.
+  - paragraph: "Memory is evidence-scoped: services mapped, route surface shifts, execution-state changes, payment-state changes, and benchmark-state changes."
+  - generic "Machine market changelog hero chips":
+    - generic: public context separated
+    - generic: Radar evidence separated
+    - generic: policy memory
+    - generic: Proof before trust
+  - region "Machine No-Claim Ledger":
+    - paragraph: No-Claim Ledger
+    - heading "Radar records restraint" [level=2]
+    - generic: Proof before trust
+    - generic "Machine no-claim doctrine":
+      - generic: Listed ≠ callable
+      - generic: Callable ≠ executed
+      - generic: Credentials ≠ payment proof
+      - generic: Route surface ≠ receipt
+      - generic: Service receipt ≠ market proof
+      - generic: Repeatability ≠ winner
+    - list:
+      - generic: "Market-wide execution claim: 0"
+      - generic: "source_type: derived_radar_state · Service receipt ≠ market proof."
+      - generic: "NAVER Maps execution claim: 0"
+      - generic: "source_type: public_context · NAVER Maps is navigation / review / not_attempted."
+      - generic: "Payment success claim: 0"
+      - generic: "source_type: radar_execution_receipt · Payment remains unconfirmed unless payment evidence exists."
+      - generic: "Benchmark claim: 0"
+      - generic: "source_type: benchmark_artifact · No benchmark artifact recorded unless explicitly linked."
+      - generic: "Winner claim: 0"
+      - generic: "source_type: derived_radar_state · No winner claim unless explicit criteria and artifact exist."
+      - generic: "Public demo counted as Radar proof: 0"
+      - generic: "source_type: public_context · Public context only. Not Radar execution evidence."
+      - generic: "Service-specific execution receipt: 0"
+      - generic: "source_type: radar_execution_receipt · Service-specific execution receipt. Not market-wide proof, not payment proof, not benchmark proof."
+      - generic: "Repeatability receipt: 0"
+      - generic: "source_type: radar_repeatability_receipt · Repeatability is route-specific. Not benchmark superiority."
+  - region "Machine market changelog table panel":
+    - paragraph: Changelog
+    - heading "6 market-memory entries" [level=2]
+    - generic: Changelog entries are product intelligence memory, not new live market data.
+    - table "Machine market changelog table":
+      - text: Scroll horizontally for all columns →
+      - row "2026-05-22 Execution receipt ingest surface is available for service-specific machine execution evidence. service execution receipt Radar machine receipt ingest manual_scaffold Ingestion capability does not imply execution.":
+        - cell "2026-05-22":
+          - strong: 2026-05-22
+        - cell "Execution receipt ingest surface is available for service-specific machine execution evidence."
+        - cell "service execution receipt":
+          - generic: service execution receipt
+        - cell "Radar machine receipt ingest"
+        - cell "manual_scaffold":
+          - generic: manual_scaffold
+        - cell "Ingestion capability does not imply execution."
+      - row "2026-05-22 13 robotic.sh-visible services mapped into Radar machine-market metadata. service-level visibility Radar static Phase 2 mirror catalog_metadata Listed does not mean callable or executed.":
+        - cell "2026-05-22":
+          - strong: 2026-05-22
+        - cell "13 robotic.sh-visible services mapped into Radar machine-market metadata."
+        - cell "service-level visibility":
+          - generic: service-level visibility
+        - cell "Radar static Phase 2 mirror"
+        - cell "catalog_metadata":
+          - generic: catalog_metadata
+        - cell "Listed does not mean callable or executed."
+      - row "2026-05-22 Machine function categories normalized for policy, route-risk, and market-map views. classification Radar registry classification derived_radar_state Category fit is intelligence metadata, not provider quality.":
+        - cell "2026-05-22":
+          - strong: 2026-05-22
+        - cell "Machine function categories normalized for policy, route-risk, and market-map views."
+        - cell "classification":
+          - generic: classification
+        - cell "Radar registry classification"
+        - cell "derived_radar_state":
+          - generic: derived_radar_state
+        - cell "Category fit is intelligence metadata, not provider quality."
+      - row "2026-05-22 Cloud Translation selected for controlled proof planning. planning Radar execution shortlist derived_radar_state Selected proof plan is not an execution claim.":
+        - cell "2026-05-22":
+          - strong: 2026-05-22
+        - cell "Cloud Translation selected for controlled proof planning."
+        - cell "planning":
+          - generic: planning
+        - cell "Radar execution shortlist"
+        - cell "derived_radar_state":
+          - generic: derived_radar_state
+        - cell "Selected proof plan is not an execution claim."
+      - row "2026-05-22 NAVER Maps added as navigation / review / not_attempted with geocode as the first-safe route. route-level risk Radar service metadata plus public demo context caveat public_context Public demo context is not Radar evidence; NAVER Maps has not been executed by Radar.":
+        - cell "2026-05-22":
+          - strong: 2026-05-22
+        - cell "NAVER Maps added as navigation / review / not_attempted with geocode as the first-safe route."
+        - cell "route-level risk":
+          - generic: route-level risk
+        - cell "Radar service metadata plus public demo context caveat"
+        - cell "public_context":
+          - generic: public_context
+        - cell "Public demo context is not Radar evidence; NAVER Maps has not been executed by Radar."
+      - row "2026-05-22 Rail coverage, route-risk matrix, first-safe queue, blockers, changelog, and no-claim ledger exposed as market-control-plane views. intelligence surface Radar UI scaffold manual_scaffold New pages add interpretation and policy memory, not new live Pay.sh, robotic.sh, or peaqOS data.":
+        - cell "2026-05-22":
+          - strong: 2026-05-22
+        - cell "Rail coverage, route-risk matrix, first-safe queue, blockers, changelog, and no-claim ledger exposed as market-control-plane views."
+        - cell "intelligence surface":
+          - generic: intelligence surface
+        - cell "Radar UI scaffold"
+        - cell "manual_scaffold":
+          - generic: manual_scaffold
+        - cell "New pages add interpretation and policy memory, not new live Pay.sh, robotic.sh, or peaqOS data."
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

@@ -1,0 +1,239 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: Review Queue
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#rh-chain-content"
+- main:
+  - paragraph: Public Review Pipeline
+  - heading "RH Chain Review Queue" [level=1]
+  - paragraph: Signals enter the desk. Receipts decide what survives.
+  - paragraph: Public memory, not endorsement.
+  - link "Open Queue Board":
+    - /url: "#queue-board"
+  - link "Submit source evidence":
+    - /url: /rh-chain-signal-desk/submit
+  - complementary "Desk policy":
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Manual snapshot
+      - generic: Status
+      - strong: Stale
+      - generic: Observed
+      - strong: Jul 9, 2026, 3:45 AM UTC
+      - generic: Relative age
+      - strong: Updated 96 days ago
+      - generic: Sources
+      - strong: "2"
+      - generic: Source policy
+      - paragraph: Public review queue separates seeded/manual research from persisted community submissions. Submission is not endorsement; review is not financial advice; inclusion is not safety.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - note "Independent intelligence disclaimer":
+      - strong: Independent Infopunks intelligence surface.
+      - generic: Not affiliated with or endorsed by Robinhood.
+      - generic: No buy, sell, or listing recommendation.
+  - region "Review Status Overview":
+    - paragraph: Status Overview
+    - heading "Status Overview" [level=2]
+    - paragraph: Seeded/manual research and persisted community submissions are separated. Public visibility is not endorsement.
+    - generic: 2026-07-09 03:45 UTC
+    - article:
+      - generic: Queued
+      - strong: "1"
+    - article:
+      - generic: Under receipt check
+      - strong: "1"
+    - article:
+      - generic: Approved signals
+      - strong: "1"
+    - article:
+      - generic: Do not touch yet
+      - strong: "1"
+    - article:
+      - generic: Rejected / low receipt quality
+      - strong: "1"
+  - region "Queue Board":
+    - paragraph: Queue Board
+    - heading "Queue Board" [level=2]
+    - paragraph: Grouped by review state. Empty states stay visible so the pipeline remains auditable.
+    - link "Queue JSON":
+      - /url: /v1/rh-chain/review-queue
+    - region "queued for manual review":
+      - heading "Queued" [level=3]
+      - generic: "1"
+      - article:
+        - paragraph: seeded
+        - heading "HOOD" [level=3]
+        - paragraph: unverifi...quired
+        - generic: Queued
+        - generic: source required
+        - paragraph: Seeded watch slot created from ticker-attention risk. No contract, pool, or explorer receipt is attached.
+        - generic: Missing evidence
+        - generic: verified contract
+        - generic: explorer link
+        - generic: liquidity pool receipt
+        - generic: non-affiliation context
+        - generic: Infopunks verdict
+        - strong: Queued for manual review. Ticker familiarity is not evidence.
+        - paragraph: Keep visible as an intake object only; do not imply Robinhood affiliation or market readiness.
+        - paragraph: No public links attached.
+        - generic: Robinhood Chain
+        - generic: updated 2026-07-09 04:10 UTC
+    - region "under receipt check":
+      - heading "Receipt check" [level=3]
+      - generic: "1"
+      - article:
+        - paragraph: manual_research
+        - heading "RAILS" [level=3]
+        - paragraph: unverifi...quired
+        - generic: Receipt check
+        - generic: medium watch
+        - paragraph: Manual research notes show strong rail-language compression, but the desk has no canonical pool or contract receipt.
+        - generic: Missing evidence
+        - generic: pool reserves
+        - generic: contract provenance
+        - generic: deployer wallet
+        - generic: holder distribution
+        - generic: Infopunks verdict
+        - strong: Under receipt check. Narrative shape is legible; proof layer is incomplete.
+        - paragraph: Receipt check should separate actual liquidity depth from screenshots and route chatter.
+        - paragraph: No public links attached.
+        - generic: Robinhood Chain
+        - generic: updated 2026-07-09 04:18 UTC
+    - region "needs more evidence":
+      - heading "Needs evidence" [level=3]
+      - generic: "1"
+      - article:
+        - paragraph: seeded
+        - heading "IPO" [level=3]
+        - paragraph: unverifi...quired
+        - generic: Needs evidence
+        - generic: source required
+        - paragraph: Seeded stock-token spillover candidate. Useful as a narrative marker, not a verified token signal.
+        - generic: Missing evidence
+        - generic: contract receipt
+        - generic: website provenance
+        - generic: liquidity receipt
+        - generic: official non-affiliation note
+        - generic: Infopunks verdict
+        - strong: Needs more evidence before the desk can remember it as anything beyond a theme.
+        - paragraph: IPO language can create early-entry pressure. Keep the proof threshold high.
+        - paragraph: No public links attached.
+        - generic: Robinhood Chain
+        - generic: updated 2026-07-09 04:20 UTC
+    - region "watch only":
+      - heading "Watch only" [level=3]
+      - generic: "1"
+      - article:
+        - paragraph: seeded
+        - heading "TICKR" [level=3]
+        - paragraph: unverifi...quired
+        - generic: Watch only
+        - generic: medium watch
+        - paragraph: Seeded abstraction for ticker-memory behavior. No live market claim is made.
+        - generic: Missing evidence
+        - generic: market surface
+        - generic: contract
+        - generic: pool
+        - generic: independent holder receipts
+        - generic: Infopunks verdict
+        - strong: Watch only. The object is useful for attention mapping, not conviction.
+        - paragraph: Keep as a memory primitive for how symbols propagate across finance memes.
+        - paragraph: No public links attached.
+        - generic: Robinhood Chain
+        - generic: updated 2026-07-09 04:22 UTC
+    - region "approved signal":
+      - heading "Approved signal" [level=3]
+      - generic: "1"
+      - article:
+        - paragraph: manual_research
+        - heading "ROUTE" [level=3]
+        - paragraph: 0xmanual...000000
+        - generic: Approved signal
+        - generic: low watch
+        - paragraph: Manual research packet has internally linked seed receipts for route-language monitoring, but no external market verification.
+        - generic: Missing evidence
+        - generic: external explorer receipt
+        - generic: independent liquidity source
+        - generic: holder concentration review
+        - generic: Infopunks verdict
+        - strong: Approved signal for desk indexing only. This does not mean safe to buy.
+        - paragraph: Approved means the signal can be remembered and watched; it is not a listing or recommendation.
+        - generic "Review item links":
+          - link "Liquidity":
+            - /url: https://radar.infopunks.fun/rh-chain-signal-desk
+          - link "Explorer":
+            - /url: https://radar.infopunks.fun/rh-chain-signal-desk
+        - generic: Robinhood Chain
+        - generic: updated 2026-07-09 04:30 UTC
+    - region "do not touch yet":
+      - heading "Do not touch" [level=3]
+      - generic: "1"
+      - article:
+        - paragraph: manual_research
+        - heading "SHERW" [level=3]
+        - paragraph: unverifi...quired
+        - generic: Do not touch
+        - generic: high risk
+        - paragraph: Manual research flagged brand-adjacent myth risk and likely copycat gravity. No deployer receipts attached.
+        - generic: Missing evidence
+        - generic: deployer history
+        - generic: funding path
+        - generic: ownership controls
+        - generic: contract similarity review
+        - generic: Infopunks verdict
+        - strong: Do not touch yet. Risk evidence is stronger than signal evidence.
+        - paragraph: Public visibility here is a caution marker, not promotion.
+        - paragraph: No public links attached.
+        - generic: Robinhood Chain
+        - generic: updated 2026-07-09 04:26 UTC
+    - region "rejected low receipt quality":
+      - heading "Rejected" [level=3]
+      - generic: "1"
+      - article:
+        - paragraph: seeded
+        - heading "DIVY" [level=3]
+        - paragraph: unverifi...quired
+        - generic: Rejected
+        - generic: do not touch yet
+        - paragraph: Seeded dividend/yield risk marker. Claim language is high-risk and no payout mechanism receipt exists.
+        - generic: Missing evidence
+        - generic: contract
+        - generic: legal framing
+        - generic: payout mechanism receipt
+        - generic: liquidity source
+        - generic: Infopunks verdict
+        - strong: Rejected for low receipt quality until evidence materially changes.
+        - paragraph: Yield language without receipts should stay blocked from promotion.
+        - paragraph: No public links attached.
+        - generic: Robinhood Chain
+        - generic: updated 2026-07-09 04:34 UTC
+  - region "Review Queue Disclaimer":
+    - paragraph: The review queue is public intelligence infrastructure. It is not an endorsement, listing, partnership, or financial recommendation.
+    - paragraph: Approved signal means eligible for desk indexing and continued monitoring. It does not mean safe to buy.
+    - paragraph: Public review queue separates seeded/manual research from persisted community submissions. Submission is not endorsement; review is not financial advice; inclusion is not safety.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

@@ -1,0 +1,203 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: Surface Watch
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#rh-chain-content"
+- main:
+  - paragraph: Launch Source Intelligence
+  - heading "Launch Surface Watch" [level=1]
+  - paragraph: Wall Street rails. Meme liquidity. Infopunks intelligence.
+  - paragraph: Intelligence desk, not casino.
+  - link "Open Meme Pulse":
+    - /url: "#meme-pulse"
+  - link "Submit source evidence":
+    - /url: /rh-chain-signal-desk/submit
+  - complementary "Desk policy":
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Manual snapshot
+      - generic: Status
+      - strong: Stale
+      - generic: Observed
+      - strong: Jul 15, 2026, 12:00 AM UTC
+      - generic: Relative age
+      - strong: Updated 90 days ago
+      - generic: Sources
+      - strong: "1"
+      - generic: Source policy
+      - paragraph: Launch and access context are evidence-led and source-dependent. Submitter claims remain unverified until human review. Access does not equal legitimacy.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - note "Independent intelligence disclaimer":
+      - strong: Independent Infopunks intelligence surface.
+      - generic: Not affiliated with or endorsed by Robinhood.
+      - generic: No buy, sell, or listing recommendation.
+  - region "Launch Surface Watch":
+    - paragraph: Launch Surface Watch
+    - heading "Launch Surface Watch" [level=2]
+    - paragraph: Infopunks does not launch the token. Infopunks remembers the launch.
+    - paragraph: No launch source is a safety signal or an approval shortcut.
+  - region "Known Launch Surfaces":
+    - paragraph: Known Launch Surfaces
+    - heading "Evidence routes, not endorsements" [level=2]
+    - article:
+      - paragraph: launchpad · degraded
+      - heading "NOXA Fun" [level=3]
+      - paragraph: Reported launchpad disruption is tracked as manual, source-dependent context; verify contract, creator, route, and current availability independently.
+      - paragraph: "Launch surface status: degraded"
+      - paragraph: "Surface risk: front end dependency"
+      - paragraph: "Risk note: Front-end dependency and launchpad labels can create fragile or spoofable access assumptions. No misconduct claim is made."
+    - article:
+      - paragraph: launchpad · source_required
+      - heading "flap.sh" [level=3]
+      - paragraph: Rival launch-surface claim tracked as context only until a primary source and exact launch evidence are attached.
+      - paragraph: "Launch surface status: source_required"
+      - paragraph: "Surface risk: rival surface rotation"
+      - paragraph: "Risk note: Potential rival-surface rotation is not market-share proof."
+    - article:
+      - paragraph: launchpad · source_required
+      - heading "trensh.today" [level=3]
+      - paragraph: Rival launch-surface claim tracked as context only until a primary source and exact launch evidence are attached.
+      - paragraph: "Launch surface status: source_required"
+      - paragraph: "Surface risk: rival surface rotation"
+      - paragraph: "Risk note: Potential rival-surface rotation is not market-share proof."
+    - article:
+      - paragraph: launchpad · source_required
+      - heading "bankr" [level=3]
+      - paragraph: Rival launch-surface claim tracked as context only until a primary source and exact launch evidence are attached.
+      - paragraph: "Launch surface status: source_required"
+      - paragraph: "Surface risk: creator fee claim uncertainty"
+      - paragraph: "Risk note: Creator-fee and launch-quality claims require independent receipts."
+    - article:
+      - paragraph: launchpad · source_required
+      - heading "tokeny.fun" [level=3]
+      - paragraph: Rival launch-surface claim tracked as context only until a primary source and exact launch evidence are attached.
+      - paragraph: "Launch surface status: source_required"
+      - paragraph: "Surface risk: rival surface rotation"
+      - paragraph: "Risk note: Potential rival-surface rotation is not market-share proof."
+    - article:
+      - paragraph: launchpad · source_required
+      - heading "vlad.fun" [level=3]
+      - paragraph: Rival launch-surface claim tracked as context only until a primary source and exact launch evidence are attached.
+      - paragraph: "Launch surface status: source_required"
+      - paragraph: "Surface risk: clone flood"
+      - paragraph: "Risk note: Clone and copycat launch patterns require contract-level review."
+    - article:
+      - paragraph: launchpad · source_required
+      - heading "robindotmarket" [level=3]
+      - paragraph: Rival launch-surface claim tracked as context only until a primary source and exact launch evidence are attached.
+      - paragraph: "Launch surface status: source_required"
+      - paragraph: "Surface risk: rival surface rotation"
+      - paragraph: "Risk note: Potential rival-surface rotation is not market-share proof."
+    - article:
+      - paragraph: token_generator · source_required
+      - heading "20lab-generated ERC-20" [level=3]
+      - paragraph: Generator-origin claim; inspect bytecode, ownership, and deployer history.
+      - paragraph: "Launch surface status: source_required"
+      - paragraph: "Surface risk: launch quality filtering"
+      - paragraph: "Risk note: Template similarity is not proof of intent or safety."
+    - article:
+      - paragraph: routed_launchpad · source_required
+      - heading "Pump.fun-routed RH Chain token" [level=3]
+      - paragraph: Routed-launch claim; verify the actual route and destination pair.
+      - paragraph: "Launch surface status: source_required"
+      - paragraph: "Surface risk: rival surface rotation"
+      - paragraph: "Risk note: Cross-surface branding and route screenshots can be misleading."
+    - article:
+      - paragraph: direct_dex_pool · active
+      - heading "Uniswap direct pool launch" [level=3]
+      - paragraph: Direct pool claim; verify pair, reserves, and LP state.
+      - paragraph: "Launch surface status: active"
+      - paragraph: "Surface risk: launch quality filtering"
+      - paragraph: "Risk note: A pool does not establish trustworthy liquidity or exit depth."
+    - article:
+      - paragraph: custom_deployment · source_required
+      - heading "Hardhat/Foundry custom deployment" [level=3]
+      - paragraph: Custom-deployment claim; verify deployer, bytecode, and ownership controls.
+      - paragraph: "Launch surface status: source_required"
+      - paragraph: "Surface risk: unknown"
+      - paragraph: "Risk note: Custom code increases the need for independent review."
+    - article:
+      - paragraph: unknown_manual · source_required
+      - heading "Unknown/manual deployment" [level=3]
+      - paragraph: No reliable launch surface is attached yet.
+      - paragraph: "Launch surface status: source_required"
+      - paragraph: "Surface risk: unknown"
+      - paragraph: "Risk note: Unknown origin is a review state, not a neutral safety signal."
+  - region "Access Surface Watch":
+    - paragraph: Access Surface Watch
+    - heading "How users arrive" [level=2]
+    - paragraph: Launch surfaces show where tokens start. Access surfaces show how users arrive.
+    - article:
+      - paragraph: wallet · verified_source
+      - heading "Robinhood Wallet" [level=3]
+      - paragraph: Wallet surface tracked as a distribution-layer observation.
+      - paragraph: "Risk note: Official wallet surface is access context only; wallet availability does not verify any token, route, or integration."
+      - paragraph: Observed 2026-07-15T00:00:00.000Z · manual · medium confidence
+    - article:
+      - paragraph: swap_router · verified_source
+      - heading "LI.FI-powered swaps/bridges" [level=3]
+      - paragraph: Swap and bridge access is tracked as an access-layer signal, not a trading flow.
+      - paragraph: "Risk note: Router and bridge availability are not a safety, route-quality, or asset-legitimacy determination."
+      - paragraph: Observed 2026-07-15T00:00:00.000Z · manual · medium confidence
+    - article:
+      - paragraph: dex_app · verified_source
+      - heading "Uniswap app" [level=3]
+      - paragraph: App availability is context only; exact pair evidence is required for a dossier link.
+      - paragraph: "Risk note: A DEX app surface does not verify a token, pool, liquidity depth, or exit reliability."
+      - paragraph: Observed 2026-07-15T00:00:00.000Z · manual · medium confidence
+    - article:
+      - paragraph: launch_app · community_claim
+      - heading "Pump.fun routed RH Chain trading" [level=3]
+      - paragraph: Tracked as a community-described launch/access surface; no routing flow is offered here.
+      - paragraph: "Risk note: Routed-trading claims require exact route, destination pair, and timestamp verification."
+      - paragraph: Observed 2026-07-15T00:00:00.000Z · manual · low confidence
+    - article:
+      - paragraph: wallet · source_required
+      - heading "Backpack Wallet" [level=3]
+      - paragraph: Unverified wallet-access claim retained as context only.
+      - paragraph: "Risk note: Native RH Chain support claim is source_required until a primary Backpack source is attached."
+      - paragraph: Observed 2026-07-15T00:00:00.000Z · manual · low confidence
+    - article:
+      - paragraph: unknown · unavailable
+      - heading "Unknown/manual access claim" [level=3]
+      - paragraph: Manual review state for claims without a primary source.
+      - paragraph: "Risk note: Unknown access claims are not neutral. Do not infer support, legitimacy, or safety."
+      - paragraph: Observed 2026-07-15T00:00:00.000Z · manual · low confidence
+    - paragraph: Access does not equal legitimacy. This page does not provide trading or bridging flows.
+  - region "Launch Context Fields":
+    - paragraph: Launch Context Fields
+    - heading "What Infopunks tracks" [level=2]
+    - paragraph: Source, route, pair, LP claim, deployer, contract-verification status, evidence links, confidence, and observed timestamps—always reviewable, never assumed.
+  - region "Launch Surface Risk Notes":
+    - paragraph: Risk Notes
+    - heading "Claims are not receipts" [level=2]
+    - paragraph: Clones, fake launch claims, unlocked LP, and unverifiable deployers stay risk inputs until human-reviewed evidence changes the record.
+  - region "Launch Surface Doctrine":
+    - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - paragraph: Launch Surface Watch and Access Surface Watch are public intelligence, not endorsement, safety verification, financial advice, or an official Robinhood partnership.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

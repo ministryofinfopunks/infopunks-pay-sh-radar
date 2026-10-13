@@ -1,0 +1,34 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: projects
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to project intelligence":
+  - /url: "#project-claims"
+- main:
+  - paragraph: unavailable
+  - heading "Context unavailable" [level=2]
+  - paragraph: not_found
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

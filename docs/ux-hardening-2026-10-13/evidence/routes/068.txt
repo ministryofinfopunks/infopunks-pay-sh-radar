@@ -1,0 +1,319 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Machine Receipts
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-receipts-content"
+- banner:
+  - navigation "Machine Receipts navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - link "Receipts":
+        - /url: /machine-receipts
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Receipts":
+  - paragraph: Proof Memory
+  - heading "Machine Receipts" [level=1]
+  - paragraph: Machines with wallets need witnesses.
+  - paragraph: Receipts record the boundary between permission and action. Denied attempts matter. They prove autonomy is bounded.
+  - generic "Machine Receipts principles":
+    - generic: Preflight and execution receipts
+    - generic: Not payment receipts
+    - generic: Preflight before action
+  - paragraph:
+    - 'link "Methodology: Machine Economy evidence ladder"':
+      - /url: /solana#methodology
+    - text: Repeatability-recorded means the same route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark and does not compare providers. Benchmark-ready criteria define the minimum evidence required before a benchmark can be recorded. Criteria definition is not a benchmark.
+  - region "Machine receipt source caveats":
+    - paragraph: Receipt source, not robotic.sh catalog source of truth.
+    - paragraph: Preflight receipt ≠ execution. Execution receipt ≠ payment proof.
+    - paragraph:
+      - link "View benchmark readiness":
+        - /url: /machine-benchmark-readiness
+  - paragraph: "Storage: Durable POSTGRES. Demo mode active. Preflight and execution receipts, not payment receipts."
+  - region "Machine receipt summary":
+    - article:
+      - text: Total receipts
+      - strong: "5"
+      - text: preflight plus service execution receipts
+    - article:
+      - text: Allowed
+      - strong: "2"
+      - text: permission before action
+    - article:
+      - text: Denied
+      - strong: "0"
+      - text: bounded autonomy proof
+    - article:
+      - text: Review
+      - strong: "3"
+      - text: human checkpoint
+    - article:
+      - text: Preflight decision receipts
+      - strong: "5"
+      - text: policy decisions, not service execution
+    - article:
+      - text: Service-specific execution receipts
+      - strong: "0"
+      - text: execution proof for one service only
+    - article:
+      - text: BigQuery live receipts
+      - strong: "0"
+      - text: counted only when live Harness execution succeeded
+    - article:
+      - text: Payment success claims
+      - strong: "0"
+      - text: requires explicit payment evidence
+    - article:
+      - text: Demo receipts
+      - strong: "5"
+      - text: local demo mode only
+    - article:
+      - text: Unique machines
+      - strong: "5"
+      - text: machine identities
+    - article:
+      - text: Top source market
+      - strong: pay.sh
+      - text: preflight metadata
+    - article:
+      - text: Latest receipt
+      - strong: May 22, 2026, 5:34 AM
+      - text: newest first
+  - region "Receipt filters":
+    - generic: decision
+    - combobox "decision":
+      - option "all" [selected]
+      - option "allow"
+      - option "deny"
+      - option "review"
+    - generic: machine_id
+    - textbox "machine_id filter"
+    - generic: service_id
+    - textbox "service_id filter"
+    - generic: source_market
+    - combobox "source_market":
+      - option "all" [selected]
+      - option "pay.sh"
+      - option "robotic.sh"
+      - option "agentic.market"
+    - generic: chain
+    - combobox "chain":
+      - option "all" [selected]
+      - option "solana"
+      - option "base"
+      - option "peaq"
+      - option "omnichain"
+      - option "unknown"
+  - region "Receipts timeline":
+    - paragraph: Receipt Timeline
+    - heading "5 machine receipts" [level=2]
+    - generic: Preflight decision receipts and service execution receipts share one timeline. Denied and review receipts remain successful governance records.
+    - table "Machine receipt timeline table":
+      - text: Scroll horizontally for all columns →
+      - row "May 22, 2026, 5:34 AM review did:peaq:depin-sensor-09 run verifiable compute job Demo preflight receipt. No service execution occurred. QVAC robotic.sh peaq policy-mapped repeatability_not_applicable mrx_demo_did_peaq_depin_sensor_09 View details Execution detail":
+        - cell "May 22, 2026, 5:34 AM"
+        - cell "review"
+        - cell "did:peaq:depin-sensor-09":
+          - link "did:peaq:depin-sensor-09":
+            - /url: /machine-dossier/did%3Apeaq%3Adepin-sensor-09
+        - cell "run verifiable compute job Demo preflight receipt. No service execution occurred.":
+          - text: run verifiable compute job
+          - generic: Demo preflight receipt. No service execution occurred.
+        - cell "QVAC"
+        - cell "robotic.sh"
+        - cell "peaq"
+        - cell "policy-mapped repeatability_not_applicable":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: repeatability_not_applicable
+        - cell "mrx_demo_did_peaq_depin_sensor_09"
+        - cell "View details Execution detail":
+          - button "View details"
+          - link "Execution detail":
+            - /url: /machine-execution/mrx_demo_did_peaq_depin_sensor_09
+      - row "May 22, 2026, 5:33 AM review did:peaq:research-agent-02 solve captcha challenge Demo preflight receipt. No service execution occurred. 2Captcha agentic.market base policy-mapped repeatability_not_applicable mrx_demo_did_peaq_research_agent_02 View details Execution detail":
+        - cell "May 22, 2026, 5:33 AM"
+        - cell "review"
+        - cell "did:peaq:research-agent-02":
+          - link "did:peaq:research-agent-02":
+            - /url: /machine-dossier/did%3Apeaq%3Aresearch-agent-02
+        - cell "solve captcha challenge Demo preflight receipt. No service execution occurred.":
+          - text: solve captcha challenge
+          - generic: Demo preflight receipt. No service execution occurred.
+        - cell "2Captcha"
+        - cell "agentic.market"
+        - cell "base"
+        - cell "policy-mapped repeatability_not_applicable":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: repeatability_not_applicable
+        - cell "mrx_demo_did_peaq_research_agent_02"
+        - cell "View details Execution detail":
+          - button "View details"
+          - link "Execution detail":
+            - /url: /machine-execution/mrx_demo_did_peaq_research_agent_02
+      - row "May 22, 2026, 5:32 AM review did:peaq:warehouse-camera-03 upload inspection image Demo preflight receipt. No service execution occurred. Stableupload pay.sh solana policy-mapped repeatability_not_applicable mrx_demo_did_peaq_warehouse_camera_03 View details Execution detail":
+        - cell "May 22, 2026, 5:32 AM"
+        - cell "review"
+        - cell "did:peaq:warehouse-camera-03":
+          - link "did:peaq:warehouse-camera-03":
+            - /url: /machine-dossier/did%3Apeaq%3Awarehouse-camera-03
+        - cell "upload inspection image Demo preflight receipt. No service execution occurred.":
+          - text: upload inspection image
+          - generic: Demo preflight receipt. No service execution occurred.
+        - cell "Stableupload"
+        - cell "pay.sh"
+        - cell "solana"
+        - cell "policy-mapped repeatability_not_applicable":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: repeatability_not_applicable
+        - cell "mrx_demo_did_peaq_warehouse_camera_03"
+        - cell "View details Execution detail":
+          - button "View details"
+          - link "Execution detail":
+            - /url: /machine-execution/mrx_demo_did_peaq_warehouse_camera_03
+      - row "May 22, 2026, 5:31 AM allow did:peaq:field-bot-07 translate customer delivery note Demo preflight receipt. No service execution occurred. Cloud Translation pay.sh solana policy-mapped repeatability_not_applicable mrx_demo_did_peaq_field_bot_07 View details Execution detail":
+        - cell "May 22, 2026, 5:31 AM"
+        - cell "allow"
+        - cell "did:peaq:field-bot-07":
+          - link "did:peaq:field-bot-07":
+            - /url: /machine-dossier/did%3Apeaq%3Afield-bot-07
+        - cell "translate customer delivery note Demo preflight receipt. No service execution occurred.":
+          - text: translate customer delivery note
+          - generic: Demo preflight receipt. No service execution occurred.
+        - cell "Cloud Translation"
+        - cell "pay.sh"
+        - cell "solana"
+        - cell "policy-mapped repeatability_not_applicable":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: repeatability_not_applicable
+        - cell "mrx_demo_did_peaq_field_bot_07"
+        - cell "View details Execution detail":
+          - button "View details"
+          - link "Execution detail":
+            - /url: /machine-execution/mrx_demo_did_peaq_field_bot_07
+      - row "May 22, 2026, 5:30 AM allow did:peaq:delivery-bot-01 parse invoice image into structured fields Demo preflight receipt. No service execution occurred. Document AI pay.sh solana policy-mapped repeatability_not_applicable mrx_demo_did_peaq_delivery_bot_01 View details Execution detail":
+        - cell "May 22, 2026, 5:30 AM"
+        - cell "allow"
+        - cell "did:peaq:delivery-bot-01":
+          - link "did:peaq:delivery-bot-01":
+            - /url: /machine-dossier/did%3Apeaq%3Adelivery-bot-01
+        - cell "parse invoice image into structured fields Demo preflight receipt. No service execution occurred.":
+          - text: parse invoice image into structured fields
+          - generic: Demo preflight receipt. No service execution occurred.
+        - cell "Document AI"
+        - cell "pay.sh"
+        - cell "solana"
+        - cell "policy-mapped repeatability_not_applicable":
+          - generic "Service has a machine use case, policy risk, and caveats.": policy-mapped
+          - generic: repeatability_not_applicable
+        - cell "mrx_demo_did_peaq_delivery_bot_01"
+        - cell "View details Execution detail":
+          - button "View details"
+          - link "Execution detail":
+            - /url: /machine-execution/mrx_demo_did_peaq_delivery_bot_01
+  - complementary "Receipt detail drawer":
+    - paragraph: Receipt Detail
+    - heading "review mrx_demo_did_peaq_depin_sensor_09" [level=2]:
+      - generic: review
+      - text: mrx_demo_did_peaq_depin_sensor_09
+    - paragraph: setup-stage service requires review before execution
+    - paragraph: Demo preflight receipt. No service execution occurred.
+    - generic: decision
+    - strong: review
+    - generic: selected service
+    - strong: QVAC
+    - generic: source market / chain
+    - strong: robotic.sh / peaq
+    - generic: execution_occurred
+    - strong: "false"
+    - generic: payment_status
+    - strong: not_confirmed
+    - generic: evidence stage / health
+    - strong: policy-mapped / scaffold
+    - paragraph:
+      - generic: machine_id
+      - generic: did:peaq:depin-sensor-09
+    - paragraph:
+      - generic: selected_service
+      - generic: QVAC
+    - paragraph:
+      - generic: source_market
+      - generic: robotic.sh
+    - paragraph:
+      - generic: chain
+      - generic: peaq
+    - paragraph:
+      - generic: evidence
+      - generic: policy-mapped / scaffold
+    - paragraph:
+      - generic: evidence_scope
+      - generic: preflight_decision
+    - paragraph:
+      - generic: receipt_type
+      - generic: coverage_decision_receipt
+    - paragraph:
+      - generic: claim_status
+      - generic: planning_only
+    - paragraph:
+      - generic: payment_status
+      - generic: not_confirmed
+    - paragraph:
+      - generic: demo_mode
+      - generic: "true"
+    - paragraph:
+      - generic: phase_scope
+      - generic: phase_2_pay_sh_robotic_sh
+    - generic: "policy-mapped · execution-tested claim: not yet · receipt-recorded claim: not yet · benchmark-recorded claim: not yet"
+    - paragraph: A preflight decision receipt records allow, review, or deny. It does not prove service execution.
+    - paragraph: Receipt source, not robotic.sh catalog source of truth. Preflight receipt ≠ execution. Execution receipt ≠ payment proof.
+    - region "Policy check summary":
+      - generic: "0"
+      - text: checks passed
+      - generic: "0"
+      - text: violations
+      - generic: "1"
+      - text: review reasons
+      - generic: "6"
+      - text: caveats
+    - generic "Show policy checks"
+    - heading "Review reasons" [level=4]
+    - list:
+      - listitem: demo_review_required
+    - heading "Caveats" [level=4]
+    - list:
+      - listitem: Demo preflight receipt. No service execution occurred.
+      - listitem: No Pay.sh call was made and no payment occurred.
+      - listitem: This is demo-mode data for local explainability only.
+      - listitem: Setup status only; execution readiness is not proven.
+      - listitem: Static robotic.sh service mirror for Phase 2 only.
+      - listitem: No paid execution, receipt, or benchmark evidence is recorded in this registry.
+    - button "Show raw JSON"
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

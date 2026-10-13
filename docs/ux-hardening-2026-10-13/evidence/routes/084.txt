@@ -1,0 +1,130 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Preflight Cards
+- paragraph:
+  - generic: "[ 07 ]"
+  - text: JUDGMENT / PRE-SPEND INTELLIGENCE
+- main "Preflight Card Index":
+  - paragraph: INFOPUNKS PREFLIGHT CARDS
+  - heading "Preflight Card Index" [level=1]
+  - paragraph: Browse public spend-safety labels for agent routes, benchmarks, providers, and machine services.
+  - generic: Discover → Check → Pay → Prove
+  - paragraph: No receipt, no trust.
+  - paragraph: My agent checked Infopunks before it spent.
+  - paragraph: Shareable agent spend safety labels for the agentic and machine economy.
+  - region "Agent Spend Cards":
+    - paragraph: PUBLIC GALLERY
+    - heading "Agent Spend Cards" [level=2]
+    - paragraph: Routes and providers agents can inspect before spending.
+    - article:
+      - generic: NO WINNER
+      - generic: Agent spend safety label
+      - heading "paysponge coingecko" [level=3]
+      - paragraph: Get SOL Price · paysponge-coingecko
+      - generic "paysponge coingecko quick stats":
+        - generic: Type
+        - text: route
+        - generic: Evidence
+        - text: "5"
+        - generic: Caveats
+        - text: "0"
+      - paragraph: Comparable route evidence exists, but no winner is claimed.
+      - paragraph: Radar refuses to declare a winner without enough comparable evidence.
+      - paragraph: Radar refuses to declare a winner without enough comparable evidence.
+      - link "Open Card":
+        - /url: /radar/cards/route/sol-price
+      - button "Copy Tweet"
+      - button "Copy JSON"
+  - region "No-Winner Benchmark Cards":
+    - paragraph: PUBLIC GALLERY
+    - heading "No-Winner Benchmark Cards" [level=2]
+    - paragraph: Benchmarks where Radar refuses to declare a winner without enough comparable evidence.
+    - article:
+      - generic: NO WINNER
+      - generic: Agent spend safety label
+      - heading "Search The Web For The Same Query And Return Normalized Search Results" [level=3]
+      - paragraph: web-search
+      - generic "Search The Web For The Same Query And Return Normalized Search Results quick stats":
+        - generic: Type
+        - text: benchmark
+        - generic: Evidence
+        - text: "10"
+        - generic: Caveats
+        - text: "1"
+      - paragraph: Benchmark evidence exists, but no route winner is claimed.
+      - paragraph: Radar refuses to declare a winner without enough comparable evidence.
+      - paragraph: Radar refuses to declare a winner without enough comparable evidence.
+      - link "Open Card":
+        - /url: /radar/cards/benchmark/web-search
+      - button "Copy Tweet"
+      - button "Copy JSON"
+    - article:
+      - generic: NO WINNER
+      - generic: Agent spend safety label
+      - heading "Get SOL Price" [level=3]
+      - paragraph: finance/data
+      - generic "Get SOL Price quick stats":
+        - generic: Type
+        - text: benchmark
+        - generic: Evidence
+        - text: "5"
+        - generic: Caveats
+        - text: "1"
+      - paragraph: Benchmark evidence exists, but no route winner is claimed.
+      - paragraph: Radar refuses to declare a winner without enough comparable evidence.
+      - paragraph: Radar refuses to declare a winner without enough comparable evidence.
+      - link "Open Card":
+        - /url: /radar/cards/benchmark/finance-data-sol-price
+      - button "Copy Tweet"
+      - button "Copy JSON"
+  - region "Machine Proof-Plan Cards":
+    - paragraph: PUBLIC GALLERY
+    - heading "Machine Proof-Plan Cards" [level=2]
+    - paragraph: Machine-service routes that are policy-mapped or proof-plan-ready without pretending execution has happened.
+    - article:
+      - generic: PROOF PLAN READY
+      - generic: Agent spend safety label
+      - heading "Cloud Translation" [level=3]
+      - paragraph: Google · translation
+      - generic "Cloud Translation quick stats":
+        - generic: Type
+        - text: machine service
+        - generic: Evidence
+        - text: "1"
+        - generic: Caveats
+        - text: "5"
+      - paragraph: Proof plan is ready. Planning only · no execution claim.
+      - paragraph: Planning only · no execution claim.
+      - paragraph: Planning only · no execution claim.
+      - link "Open Card":
+        - /url: /machine-market/cards/cloud-translation
+      - button "Copy Tweet"
+      - button "Copy JSON"
+  - region "Needs Evidence Cards":
+    - paragraph: PUBLIC GALLERY
+    - heading "Needs Evidence Cards" [level=2]
+    - paragraph: Routes and services that should not be treated as proven yet.
+    - paragraph: No public cards yet
+    - paragraph: No public needs-evidence cards exposed yet.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

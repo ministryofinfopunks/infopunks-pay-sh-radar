@@ -1,0 +1,262 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: integrations
+- paragraph:
+  - generic: "[ 14 ]"
+  - text: DEVELOPERS / INTEGRATION REFERENCE
+- main "Wallet Safety Integration Registry":
+  - paragraph: Developer Registry
+  - heading "Wallet Safety Integration Registry" [level=1]
+  - paragraph: A safety API is useful. A registry makes adoption visible.
+  - paragraph: Compatible agents, wallets, routers, and payment apps can show whether they check before spend, write integration receipts, and fail closed when safety is unavailable.
+  - link "Open registry JSON":
+    - /url: /v1/hermes/wallet-safety/integrations
+  - link "Open developer quickstart":
+    - /url: /developers/wallet-safety
+  - link "Open Wallet Safety API":
+    - /url: /hermes/wallet-safety
+  - generic "Wallet safety registry states":
+    - generic: ready
+    - generic: testing
+    - generic: needs_receipts
+    - generic: watch
+    - generic: not_ready
+  - region "Registry Summary":
+    - paragraph: Registry Summary
+    - heading "Deterministic seeded visibility for Wallet Safety adoption." [level=2]
+    - article:
+      - paragraph: Total integrations
+      - heading "4" [level=2]
+    - article:
+      - paragraph: Ready
+      - heading "2" [level=2]
+    - article:
+      - paragraph: Testing
+      - heading "0" [level=2]
+    - article:
+      - paragraph: Needs receipts
+      - heading "1" [level=2]
+    - article:
+      - paragraph: Watch
+      - heading "1" [level=2]
+    - article:
+      - paragraph: Not ready
+      - heading "0" [level=2]
+    - region "Generated metadata":
+      - paragraph: Seed state
+      - heading "Mock-safe and stateless." [level=2]
+      - paragraph: "generated_at: 2026-07-03T00:00:00.000Z"
+      - paragraph: No persistence.
+      - paragraph: No live Hermes required.
+      - paragraph: Registry data is deterministic and seeded.
+  - region "Integration Profiles":
+    - paragraph: Integration Profiles
+    - heading "Seeded compatible surfaces." [level=2]
+    - article:
+      - paragraph: agent_wallet_demo
+      - heading "Agent Wallet Demo" [level=2]
+      - paragraph: Reference autonomous wallet integration that checks before spend, writes receipts, and fails closed when safety is unavailable.
+      - article:
+        - generic: agent_type
+        - strong: agent_wallet
+      - article:
+        - generic: supported_chains
+        - strong: base, solana
+      - article:
+        - generic: supported_payment_rails
+        - strong: x402, pay.sh
+      - article:
+        - generic: uses_wallet_safety_check
+        - strong: "yes"
+      - article:
+        - generic: writes_integration_receipts
+        - strong: "yes"
+      - article:
+        - generic: fail_closed_behavior
+        - strong: "yes"
+      - article:
+        - generic: last_verified_at
+        - strong: 2026-07-03T00:00:00.000Z
+      - article:
+        - generic: readiness_state
+        - strong: Ready
+      - paragraph: Calls POST /v1/hermes/wallet-safety/check before autonomous spend.
+      - paragraph: Stores policy, risk score, and audit trail identifiers in integration receipts.
+      - paragraph: Pauses the wallet when the safety API is unavailable.
+      - link "View readiness detail":
+        - /url: /developers/wallet-safety/integrations/agent_wallet_demo
+    - article:
+      - paragraph: pay_sh_route_guard
+      - heading "Pay.sh Route Guard" [level=2]
+      - paragraph: Route guard for Pay.sh flows that blocks spend unless the Wallet Safety bundle and receipt trail are both present.
+      - article:
+        - generic: agent_type
+        - strong: route_guard
+      - article:
+        - generic: supported_chains
+        - strong: base, solana
+      - article:
+        - generic: supported_payment_rails
+        - strong: pay.sh
+      - article:
+        - generic: uses_wallet_safety_check
+        - strong: "yes"
+      - article:
+        - generic: writes_integration_receipts
+        - strong: "yes"
+      - article:
+        - generic: fail_closed_behavior
+        - strong: "yes"
+      - article:
+        - generic: last_verified_at
+        - strong: 2026-07-03T00:00:00.000Z
+      - article:
+        - generic: readiness_state
+        - strong: Ready
+      - paragraph: Runs safety checks before route selection and payment execution.
+      - paragraph: Writes integration receipts for route-level policy enforcement.
+      - paragraph: Treats missing safety evidence as a stop condition.
+      - link "View readiness detail":
+        - /url: /developers/wallet-safety/integrations/pay_sh_route_guard
+    - article:
+      - paragraph: x402_service_router
+      - heading "x402 Service Router" [level=2]
+      - paragraph: Service router for x402 payments that checks wallet safety but still needs durable integration receipt writing.
+      - article:
+        - generic: agent_type
+        - strong: service_router
+      - article:
+        - generic: supported_chains
+        - strong: base
+      - article:
+        - generic: supported_payment_rails
+        - strong: x402
+      - article:
+        - generic: uses_wallet_safety_check
+        - strong: "yes"
+      - article:
+        - generic: writes_integration_receipts
+        - strong: "no"
+      - article:
+        - generic: fail_closed_behavior
+        - strong: "yes"
+      - article:
+        - generic: last_verified_at
+        - strong: 2026-07-03T00:00:00.000Z
+      - article:
+        - generic: readiness_state
+        - strong: Needs Receipts
+      - paragraph: Safety check is wired before spend routing.
+      - paragraph: Router blocks on unavailable safety checks.
+      - paragraph: Integration receipt persistence is still missing.
+      - link "View readiness detail":
+        - /url: /developers/wallet-safety/integrations/x402_service_router
+    - article:
+      - paragraph: autonomous_research_agent
+      - heading "Autonomous Research Agent" [level=2]
+      - paragraph: Research agent integration that checks before spend and writes receipts, but still needs stricter fail-closed behavior for unattended operation.
+      - article:
+        - generic: agent_type
+        - strong: research_agent
+      - article:
+        - generic: supported_chains
+        - strong: base
+      - article:
+        - generic: supported_payment_rails
+        - strong: x402, agentic.market
+      - article:
+        - generic: uses_wallet_safety_check
+        - strong: "yes"
+      - article:
+        - generic: writes_integration_receipts
+        - strong: "yes"
+      - article:
+        - generic: fail_closed_behavior
+        - strong: "no"
+      - article:
+        - generic: last_verified_at
+        - strong: 2026-07-03T00:00:00.000Z
+      - article:
+        - generic: readiness_state
+        - strong: Watch
+      - paragraph: Writes integration receipts after safety checks.
+      - paragraph: Still allows manual operator override when the safety API is unavailable.
+      - paragraph: Needs evidence that autonomous paths stop instead of failing open.
+      - link "View readiness detail":
+        - /url: /developers/wallet-safety/integrations/autonomous_research_agent
+  - region "Readiness States":
+    - paragraph: Readiness States
+    - heading "Bounded status language." [level=2]
+    - article:
+      - generic: ready
+      - strong: Safety check is used, receipts are written, and fail-closed behavior is present.
+    - article:
+      - generic: testing
+      - strong: Integration is actively testing Wallet Safety flows but not yet ready for listing as compatible.
+    - article:
+      - generic: needs_receipts
+      - strong: Safety checks are wired, but receipt writing still needs to be implemented.
+    - article:
+      - generic: watch
+      - strong: Integration is close, but evidence still shows gaps in autonomous safety posture.
+    - article:
+      - generic: not_ready
+      - strong: Listing exists for visibility, but core Wallet Safety requirements are still missing.
+  - region "What Wallet Safety-ready means":
+    - paragraph: What “Wallet Safety-ready” means
+    - heading "Checklist for compatible integrations." [level=2]
+    - paragraph: call POST /v1/hermes/wallet-safety/check before spend
+    - paragraph: respect final_recommendation
+    - paragraph: never treat API failure as approval
+    - paragraph: write an integration receipt
+    - paragraph: store policy_receipt_id, risk_score_id, and audit_trail_id
+    - paragraph: expose agent_action_taken
+    - paragraph: support fail-closed behavior
+  - region "How to get listed":
+    - paragraph: How to get listed
+    - heading "Evidence before visibility." [level=2]
+    - paragraph: To become Wallet Safety-ready, builders should integrate the Wallet Safety API, store integration receipts, and provide evidence that their agent or wallet fails closed when safety checks are unavailable.
+    - paragraph: This registry is currently seeded and deterministic. Future versions can accept submitted integration receipts, verification runs, and third-party attestations.
+  - region "Integration receipt requirements":
+    - paragraph: Integration receipt requirements
+    - heading "Store the evidence fields that prove readiness." [level=2]
+    - article:
+      - generic: wallet_safety_check_id
+      - strong: expected
+    - article:
+      - generic: policy_receipt_id
+      - strong: expected
+    - article:
+      - generic: risk_score_id
+      - strong: expected
+    - article:
+      - generic: audit_trail_id
+      - strong: expected
+    - article:
+      - generic: agent_action_taken
+      - strong: expected
+    - article:
+      - generic: timestamp
+      - strong: expected
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

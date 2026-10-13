@@ -1,0 +1,301 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: Review Pipeline
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to review pipeline":
+  - /url: "#review-pipeline"
+- main:
+  - paragraph: RH Chain / Signal Desk
+  - heading "Review Pipeline" [level=1]
+  - paragraph: Turn exact-contract discovery into human-reviewed candidates, draft context, and outcome checks.
+  - link "Open review board":
+    - /url: "#review-board"
+  - link "Market structure":
+    - /url: /rh-chain-signal-desk/market-structure
+  - complementary:
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Manual snapshot
+      - generic: Status
+      - strong: Fresh
+      - generic: Observed
+      - strong: Oct 13, 2026, 4:51 AM UTC
+      - generic: Relative age
+      - strong: Updated just now
+      - generic: Sources
+      - strong: Source required
+      - generic: Source policy
+      - paragraph: Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - paragraph: No automatic approval. Provider observations are context; Signal Desk review creates memory.
+  - paragraph: Daily review
+  - heading "Current UTC day" [level=2]
+  - paragraph: Daily Receipt context remains unpublished until a separate human publication decision.
+  - button "Start daily review"
+  - paragraph: New discoveries
+  - heading "0" [level=2]
+  - paragraph: No exact-contract records in this stage.
+  - paragraph: Needs review
+  - heading "9" [level=2]
+  - article:
+    - paragraph: needs review
+    - heading "CASHCAT / CASHCAT" [level=3]
+    - paragraph:
+      - code: "0x020bfc650a365f8bb26819deaabf3e21291018b4"
+    - paragraph: Pair source required · liquidity source required · 24h volume source required
+    - paragraph: Boost context 0 · paid-order context 0 · 0 secondary pairs
+    - paragraph: Blockscout unavailable · attention source required · 0 snapshots
+    - paragraph: "Suggested layer: meme"
+    - generic "Review context"
+    - option "meme" [selected]
+    - option "rwa"
+    - option "agent"
+    - option "infrastructure"
+    - option "defi"
+    - option "unknown"
+    - button "Watch"
+    - button "Mark source required"
+    - button "Promote to Market Structure"
+    - button "Promote to 100 Receipts candidate"
+    - button "Add to Daily Receipt draft"
+    - button "Schedule outcome check"
+    - button "Ignore duplicate"
+    - generic: Exact-contract discovery only; ticker similarity never establishes identity.
+    - generic: DEX Screener detects market motion and paid-attention context only.
+  - article:
+    - paragraph: needs review
+    - heading "PONS / PONS" [level=3]
+    - paragraph:
+      - code: "0x39dbed3a2bd333467115de45665cc57f813c4571"
+    - paragraph: Pair source required · liquidity source required · 24h volume source required
+    - paragraph: Boost context 0 · paid-order context 0 · 0 secondary pairs
+    - paragraph: Blockscout unavailable · attention source required · 0 snapshots
+    - paragraph: "Suggested layer: infrastructure"
+    - generic "Review context"
+    - option "meme"
+    - option "rwa"
+    - option "agent"
+    - option "infrastructure" [selected]
+    - option "defi"
+    - option "unknown"
+    - button "Watch"
+    - button "Mark source required"
+    - button "Promote to Market Structure"
+    - button "Promote to 100 Receipts candidate"
+    - button "Add to Daily Receipt draft"
+    - button "Schedule outcome check"
+    - button "Ignore duplicate"
+    - generic: Exact-contract discovery only; ticker similarity never establishes identity.
+    - generic: DEX Screener detects market motion and paid-attention context only.
+  - article:
+    - paragraph: needs review
+    - heading "HOODRAT / HOODRAT" [level=3]
+    - paragraph:
+      - code: "0x8e62f281f282686fca6dcb39288069a93fc23f1c"
+    - paragraph: Pair source required · liquidity source required · 24h volume source required
+    - paragraph: Boost context 0 · paid-order context 0 · 0 secondary pairs
+    - paragraph: Blockscout unavailable · attention source required · 0 snapshots
+    - paragraph: "Suggested layer: meme"
+    - generic "Review context"
+    - option "meme" [selected]
+    - option "rwa"
+    - option "agent"
+    - option "infrastructure"
+    - option "defi"
+    - option "unknown"
+    - button "Watch"
+    - button "Mark source required"
+    - button "Promote to Market Structure"
+    - button "Promote to 100 Receipts candidate"
+    - button "Add to Daily Receipt draft"
+    - button "Schedule outcome check"
+    - button "Ignore duplicate"
+    - generic: Exact-contract discovery only; ticker similarity never establishes identity.
+    - generic: DEX Screener detects market motion and paid-attention context only.
+  - article:
+    - paragraph: needs review
+    - heading "ARROW / ARROW" [level=3]
+    - paragraph:
+      - code: "0xf2915d1e3c1b0c769d0c756ec43f1c1f6c99cd03"
+    - paragraph: Pair source required · liquidity source required · 24h volume source required
+    - paragraph: Boost context 0 · paid-order context 0 · 0 secondary pairs
+    - paragraph: Blockscout unavailable · attention source required · 0 snapshots
+    - paragraph: "Suggested layer: defi"
+    - generic "Review context"
+    - option "meme"
+    - option "rwa"
+    - option "agent"
+    - option "infrastructure"
+    - option "defi" [selected]
+    - option "unknown"
+    - button "Watch"
+    - button "Mark source required"
+    - button "Promote to Market Structure"
+    - button "Promote to 100 Receipts candidate"
+    - button "Add to Daily Receipt draft"
+    - button "Schedule outcome check"
+    - button "Ignore duplicate"
+    - generic: Exact-contract discovery only; ticker similarity never establishes identity.
+    - generic: DEX Screener detects market motion and paid-attention context only.
+  - article:
+    - paragraph: needs review
+    - heading "The Index / INDEX" [level=3]
+    - paragraph:
+      - code: "0x56910d4409f3a0c78c64dd8d0545ff0705389870"
+    - paragraph: Pair source required · liquidity source required · 24h volume source required
+    - paragraph: Boost context 0 · paid-order context 0 · 0 secondary pairs
+    - paragraph: Blockscout unavailable · attention source required · 0 snapshots
+    - paragraph: "Suggested layer: rwa"
+    - generic "Review context"
+    - option "meme"
+    - option "rwa" [selected]
+    - option "agent"
+    - option "infrastructure"
+    - option "defi"
+    - option "unknown"
+    - button "Watch"
+    - button "Mark source required"
+    - button "Promote to Market Structure"
+    - button "Promote to 100 Receipts candidate"
+    - button "Add to Daily Receipt draft"
+    - button "Schedule outcome check"
+    - button "Ignore duplicate"
+    - generic: Exact-contract discovery only; ticker similarity never establishes identity.
+    - generic: DEX Screener detects market motion and paid-attention context only.
+  - article:
+    - paragraph: needs review
+    - heading "Oracle / ORACLE" [level=3]
+    - paragraph:
+      - code: "0x4b518240a5e520fc08916f0335460e0dd4057417"
+    - paragraph: Pair source required · liquidity source required · 24h volume source required
+    - paragraph: Boost context 0 · paid-order context 0 · 0 secondary pairs
+    - paragraph: Blockscout unavailable · attention source required · 0 snapshots
+    - paragraph: "Suggested layer: infrastructure"
+    - generic "Review context"
+    - option "meme"
+    - option "rwa"
+    - option "agent"
+    - option "infrastructure" [selected]
+    - option "defi"
+    - option "unknown"
+    - button "Watch"
+    - button "Mark source required"
+    - button "Promote to Market Structure"
+    - button "Promote to 100 Receipts candidate"
+    - button "Add to Daily Receipt draft"
+    - button "Schedule outcome check"
+    - button "Ignore duplicate"
+    - generic: Exact-contract discovery only; ticker similarity never establishes identity.
+    - generic: DEX Screener detects market motion and paid-attention context only.
+  - article:
+    - paragraph: needs review
+    - heading "GROKIUS / GROKIUS" [level=3]
+    - paragraph:
+      - code: "0x0f2c5b7a7625c7b097759dd7165177d63fbb8b03"
+    - paragraph: Pair source required · liquidity source required · 24h volume source required
+    - paragraph: Boost context 0 · paid-order context 0 · 0 secondary pairs
+    - paragraph: Blockscout unavailable · attention source required · 0 snapshots
+    - paragraph: "Suggested layer: meme"
+    - generic "Review context"
+    - option "meme" [selected]
+    - option "rwa"
+    - option "agent"
+    - option "infrastructure"
+    - option "defi"
+    - option "unknown"
+    - button "Watch"
+    - button "Mark source required"
+    - button "Promote to Market Structure"
+    - button "Promote to 100 Receipts candidate"
+    - button "Add to Daily Receipt draft"
+    - button "Schedule outcome check"
+    - button "Ignore duplicate"
+    - generic: Exact-contract discovery only; ticker similarity never establishes identity.
+    - generic: DEX Screener detects market motion and paid-attention context only.
+  - article:
+    - paragraph: needs review
+    - heading "eBESS / eBESS" [level=3]
+    - paragraph:
+      - code: "0xca0da673a451c84917d7dd0362109efff0f8825a"
+    - paragraph: Pair source required · liquidity source required · 24h volume source required
+    - paragraph: Boost context 0 · paid-order context 0 · 0 secondary pairs
+    - paragraph: Blockscout unavailable · attention source required · 0 snapshots
+    - paragraph: "Suggested layer: rwa"
+    - generic "Review context"
+    - option "meme"
+    - option "rwa" [selected]
+    - option "agent"
+    - option "infrastructure"
+    - option "defi"
+    - option "unknown"
+    - button "Watch"
+    - button "Mark source required"
+    - button "Promote to Market Structure"
+    - button "Promote to 100 Receipts candidate"
+    - button "Add to Daily Receipt draft"
+    - button "Schedule outcome check"
+    - button "Ignore duplicate"
+    - generic: Exact-contract discovery only; ticker similarity never establishes identity.
+    - generic: DEX Screener detects market motion and paid-attention context only.
+  - article:
+    - paragraph: needs review
+    - heading "TENDIES / TENDIES" [level=3]
+    - paragraph:
+      - code: "0x45242320dbb855eea8fd36804c6487e10e97fcf9"
+    - paragraph: Pair source required · liquidity source required · 24h volume source required
+    - paragraph: Boost context 0 · paid-order context 0 · 0 secondary pairs
+    - paragraph: Blockscout unavailable · attention source required · 0 snapshots
+    - paragraph: "Suggested layer: meme"
+    - generic "Review context"
+    - option "meme" [selected]
+    - option "rwa"
+    - option "agent"
+    - option "infrastructure"
+    - option "defi"
+    - option "unknown"
+    - button "Watch"
+    - button "Mark source required"
+    - button "Promote to Market Structure"
+    - button "Promote to 100 Receipts candidate"
+    - button "Add to Daily Receipt draft"
+    - button "Schedule outcome check"
+    - button "Ignore duplicate"
+    - generic: Exact-contract discovery only; ticker similarity never establishes identity.
+    - generic: DEX Screener detects market motion and paid-attention context only.
+  - paragraph: Source required
+  - heading "0" [level=2]
+  - paragraph: No exact-contract records in this stage.
+  - paragraph: Watch only
+  - heading "0" [level=2]
+  - paragraph: No exact-contract records in this stage.
+  - paragraph: Promoted
+  - heading "0" [level=2]
+  - paragraph: No exact-contract records in this stage.
+  - paragraph: Daily receipt draft
+  - heading "0" [level=2]
+  - paragraph: No exact-contract records in this stage.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

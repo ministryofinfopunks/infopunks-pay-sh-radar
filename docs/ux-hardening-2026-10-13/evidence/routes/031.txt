@@ -1,0 +1,357 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: wallet safety
+- paragraph:
+  - generic: "[ 14 ]"
+  - text: DEVELOPERS / INTEGRATION REFERENCE
+- main "Wallet Safety Developer Quickstart":
+  - paragraph: Developer Quickstart
+  - heading "Wallet Safety Developer Quickstart" [level=1]
+  - paragraph: The machinery is built. Now make it easy to plug into.
+  - paragraph: Agents should not stitch safety together. They should ask once before spend.
+  - paragraph: POST /v1/hermes/wallet-safety/check gives agent builders, wallet developers, autonomous payment apps, and service routers one safety answer before signing or paying.
+  - link "Open example response":
+    - /url: /v1/hermes/wallet-safety/example
+  - link "Open OpenAPI schema":
+    - /url: /openapi.json
+  - link "View SDK snippets":
+    - /url: "#sdk-snippets"
+  - link "Integration Receipt Pattern":
+    - /url: "#integration-receipt-pattern"
+  - link "Open Integration Registry":
+    - /url: /developers/wallet-safety/integrations
+  - link "Back to Developers":
+    - /url: /developers
+  - generic "Wallet safety decision states":
+    - generic: safe_to_spend
+    - generic: test_spend_required
+    - generic: manual_review_required
+    - generic: block_spend
+    - generic: insufficient_evidence
+  - region "What this endpoint does":
+    - paragraph: What this endpoint does
+    - heading "Ask Infopunks whether a spend should proceed before signing or paying." [level=2]
+    - paragraph: The Wallet Safety API lets an agent or autonomous wallet ask Infopunks whether a spend should proceed before signing or paying.
+    - article:
+      - paragraph: bundled
+      - heading "pre-spend judgment" [level=2]
+    - article:
+      - paragraph: bundled
+      - heading "policy enforcement" [level=2]
+    - article:
+      - paragraph: bundled
+      - heading "audit receipt" [level=2]
+    - article:
+      - paragraph: bundled
+      - heading "reconciliation preview" [level=2]
+    - article:
+      - paragraph: bundled
+      - heading "wallet audit trail" [level=2]
+    - article:
+      - paragraph: bundled
+      - heading "risk score" [level=2]
+    - article:
+      - paragraph: bundled
+      - heading "final recommendation" [level=2]
+  - region "Spend intent input":
+    - paragraph: Request JSON
+    - heading "Spend intent input" [level=2]
+    - region "Integration code example":
+      - code: "{ \"route_id\": \"route_pay_sh_market_research_01\", \"provider_id\": \"provider_pay_sh_lattice\", \"service_id\": \"service_market_research\", \"amount_usd\": 25, \"payment_rail\": \"x402\", \"chain\": \"base\", \"agent_type\": \"research_agent\", \"objective\": \"Buy market research before routing an autonomous payment\" }"
+  - region "Bundled safety answer":
+    - paragraph: Response shape
+    - heading "Bundled safety answer" [level=2]
+    - region "Integration code example":
+      - code: "{ \"id\": \"wallet_safety_check_...\", \"pre_spend_decision\": {}, \"spend_policy_check\": {}, \"policy_receipt\": {}, \"reconciliation_preview\": {}, \"wallet_audit_trail\": {}, \"wallet_risk_score\": {}, \"final_recommendation\": { \"decision\": \"test_spend_required\", \"allowed\": true, \"confidence\": 0.72, \"required_action\": \"run_test_spend\", \"safety_rating\": \"watch\", \"risk_score\": 68, \"reason\": \"Provider is on watchlist, so policy requires a small test spend before full execution.\" } }"
+  - region "Returned primitives":
+    - paragraph: Endpoint
+    - heading "POST /v1/hermes/wallet-safety/check" [level=2]
+    - article:
+      - generic: pre_spend_decision
+      - strong: included
+    - article:
+      - generic: spend_policy_check
+      - strong: included
+    - article:
+      - generic: policy_receipt
+      - strong: included
+    - article:
+      - generic: reconciliation_preview
+      - strong: included
+    - article:
+      - generic: wallet_audit_trail
+      - strong: included
+    - article:
+      - generic: wallet_risk_score
+      - strong: included
+    - article:
+      - generic: final_recommendation
+      - strong: included
+  - region "SDK Snippets":
+    - paragraph: SDK Snippets
+    - heading "SDK Snippets" [level=2]
+    - paragraph: Copy-paste patterns for checking wallet safety before spend.
+    - paragraph:
+      - text: Integration detail pages show proof for each Wallet Safety-ready integration.
+      - link "Open the Agent Wallet Demo detail page":
+        - /url: /developers/wallet-safety/integrations/agent_wallet_demo
+      - text: .
+    - region "Wallet safety response fields":
+      - paragraph: Most agents only need
+      - heading "Read the final recommendation first." [level=2]
+      - paragraph: final_recommendation.decision
+      - paragraph: final_recommendation.allowed
+      - paragraph: final_recommendation.required_action
+      - paragraph: final_recommendation.risk_score
+      - paragraph: final_recommendation.safety_rating
+      - paragraph: final_recommendation.reason
+    - region "Wallet safety failure warning":
+      - paragraph: Warning
+      - heading "Do not treat API failure as approval." [level=2]
+      - paragraph: Do not treat API failure as approval.
+      - paragraph: If the safety check fails, pause, request more evidence, or send the spend to manual review.
+    - paragraph: After acting on the final recommendation, write an integration receipt so future agents can verify the safety check happened.
+  - region "Strict helper for builder apps and browser-side control planes.":
+    - paragraph: TypeScript fetch helper
+    - heading "Strict helper for builder apps and browser-side control planes." [level=2]
+    - region "Integration code example":
+      - code: "type WalletSafetyIntent = { route_id: string; provider_id: string; service_id: string; amount_usd: number; payment_rail: string; chain: string; agent_type?: string; objective?: string; }; type WalletSafetyResponse = { final_recommendation: { decision: \"safe_to_spend\" | \"test_spend_required\" | \"manual_review_required\" | \"block_spend\" | \"insufficient_evidence\"; allowed: boolean; required_action: string; risk_score: number; safety_rating: string; reason: string; }; [key: string]: unknown; }; export async function checkWalletSafety(intent: WalletSafetyIntent): Promise<WalletSafetyResponse> { const response = await fetch(\"https://radar.infopunks.fun/v1/hermes/wallet-safety/check\", { method: \"POST\", headers: { \"Content-Type\": \"application/json\" }, body: JSON.stringify(intent) }); if (!response.ok) { const detail = await response.text().catch(() => \"\"); throw new Error(`Wallet Safety API failed (${response.status} ${response.statusText}): ${detail || \"No error body returned.\"}`); } return await response.json() as WalletSafetyResponse; }"
+  - region "TypeScript fetch helper explanation":
+    - paragraph: When to use it
+    - heading "TypeScript fetch helper" [level=2]
+    - paragraph: "Use this when your agent runtime already speaks TypeScript and you want a single typed function around the public endpoint. It keeps the contract narrow: send JSON, fail loudly, and return the parsed bundle."
+  - region "Drop-in helper for Node 18+ workers, bots, and spend routers.":
+    - paragraph: Node.js helper
+    - heading "Drop-in helper for Node 18+ workers, bots, and spend routers." [level=2]
+    - region "Integration code example":
+      - code: "async function checkWalletSafety(intent) { const response = await fetch(\"https://radar.infopunks.fun/v1/hermes/wallet-safety/check\", { method: \"POST\", headers: { \"Content-Type\": \"application/json\" }, body: JSON.stringify(intent) }); if (!response.ok) { const detail = await response.text().catch(() => \"\"); throw new Error(`Wallet Safety API failed (${response.status} ${response.statusText}): ${detail || \"No error body returned.\"}`); } return response.json(); } module.exports = { checkWalletSafety };"
+  - region "Node.js helper explanation":
+    - paragraph: When to use it
+    - heading "Node.js helper" [level=2]
+    - paragraph: Use this when you want the smallest CommonJS integration surface and native fetch is already available. It is intentionally plain so it can live inside queue workers, cron jobs, or wallet middleware without extra packaging.
+  - region "Turn the API decision into a real spend guard.":
+    - paragraph: Agent policy wrapper
+    - heading "Turn the API decision into a real spend guard." [level=2]
+    - region "Integration code example":
+      - code: "async function guardSpend(intent, wallet) { const safety = await checkWalletSafety(intent); switch (safety.final_recommendation.decision) { case \"safe_to_spend\": return wallet.spend(intent); case \"test_spend_required\": return wallet.spend({ ...intent, amount_usd: Math.min(intent.amount_usd, 5) }); case \"manual_review_required\": return queueManualReview({ intent, safety }); case \"block_spend\": return blockSpend({ intent, safety }); default: return requestMoreEvidence({ intent, safety }); } }"
+  - region "Agent policy wrapper explanation":
+    - paragraph: When to use it
+    - heading "Agent policy wrapper" [level=2]
+    - paragraph: Use this when the caller already has a wallet object and needs deterministic policy behavior. The wrapper maps the recommendation into concrete wallet actions instead of leaving branch logic scattered across the agent.
+  - region "Fail closed when the safety check is unavailable.":
+    - paragraph: Error handling pattern
+    - heading "Fail closed when the safety check is unavailable." [level=2]
+    - region "Integration code example":
+      - code: "async function safeCheckBeforeSpend(intent) { try { return await checkWalletSafety(intent); } catch (error) { return { final_recommendation: { decision: \"manual_review_required\", allowed: false, required_action: \"request_more_evidence\", risk_score: 100, safety_rating: \"unknown\", reason: \"Wallet Safety API unreachable. Do not treat missing safety evidence as approval.\" }, error: error instanceof Error ? error.message : \"wallet_safety_api_unreachable\" }; } }"
+  - region "Error handling pattern explanation":
+    - paragraph: When to use it
+    - heading "Error handling pattern" [level=2]
+    - paragraph: Use this in autonomous payment paths where network trouble must never become silent approval. If the safety bundle cannot be fetched, downgrade to manual review or more evidence instead of spending blind.
+  - region "Keep the decision vocabulary explicit and exhaustive.":
+    - paragraph: Final recommendation switch statement
+    - heading "Keep the decision vocabulary explicit and exhaustive." [level=2]
+    - region "Integration code example":
+      - code: "switch (safety.final_recommendation.decision) { case \"safe_to_spend\": return wallet.spend(intent); case \"test_spend_required\": return runCappedTestSpend(intent, safety); case \"manual_review_required\": return queueManualReview({ intent, safety }); case \"block_spend\": return blockSpend({ intent, safety }); case \"insufficient_evidence\": return requestMoreEvidence({ intent, safety }); default: return requestMoreEvidence({ intent, safety }); }"
+  - region "Final recommendation switch statement explanation":
+    - paragraph: When to use it
+    - heading "Final recommendation switch statement" [level=2]
+    - paragraph: Use this when you only need the final action and not the full helper stack. A clean switch keeps the five supported decisions visible in one place and makes future policy review much easier.
+  - region "Integration Receipt Pattern":
+    - paragraph: Integration Receipt Pattern
+    - heading "Integration Receipt Pattern" [level=2]
+    - paragraph: A safety check protects the spend. An integration receipt proves the check happened.
+    - paragraph: When an agent or wallet calls the Wallet Safety API, builders should persist a lightweight integration receipt in their own app, database, wallet memory, or audit log. This proves the spend was checked before action and gives future agents a trail to inspect.
+  - region "Required integration receipt fields":
+    - paragraph: Required receipt fields
+    - heading "Store the proof, not just the action." [level=2]
+    - article:
+      - generic: wallet_safety_check_id
+      - strong: The ID returned by /v1/hermes/wallet-safety/check.
+    - article:
+      - generic: final_recommendation
+      - strong: "The final decision returned by Infopunks: safe_to_spend, test_spend_required, manual_review_required, block_spend, or insufficient_evidence."
+    - article:
+      - generic: policy_receipt_id
+      - strong: The receipt proving which policy decision was made.
+    - article:
+      - generic: risk_score_id
+      - strong: The safety score used when the agent decided what to do next.
+    - article:
+      - generic: audit_trail_id
+      - strong: The full wallet safety trail behind the recommendation.
+    - article:
+      - generic: agent_action_taken
+      - strong: "What the agent actually did after receiving the recommendation: spent, test_spend, queued_review, blocked, requested_evidence, or paused."
+    - article:
+      - generic: timestamp
+      - strong: When the integration receipt was written.
+  - region "Persist a lightweight audit record.":
+    - paragraph: JSON example
+    - heading "Persist a lightweight audit record." [level=2]
+    - region "Integration code example":
+      - code: "{ \"wallet_safety_check_id\": \"wallet_safety_check_...\", \"final_recommendation\": { \"decision\": \"test_spend_required\", \"allowed\": true, \"required_action\": \"run_test_spend\", \"safety_rating\": \"watch\", \"risk_score\": 68 }, \"policy_receipt_id\": \"receipt_hermes_policy_...\", \"risk_score_id\": \"wallet_risk_score_...\", \"audit_trail_id\": \"wallet_audit_trail_...\", \"agent_action_taken\": \"test_spend\", \"timestamp\": \"2026-07-04T00:00:00.000Z\" }"
+  - region "Build the receipt right after the safety decision.":
+    - paragraph: TypeScript helper
+    - heading "Build the receipt right after the safety decision." [level=2]
+    - region "Integration code example":
+      - code: "type AgentActionTaken = | \"spent\" | \"test_spend\" | \"queued_review\" | \"blocked\" | \"requested_evidence\" | \"paused\"; function buildWalletSafetyIntegrationReceipt(safety, agentActionTaken: AgentActionTaken) { return { wallet_safety_check_id: safety.id, final_recommendation: { decision: safety.final_recommendation.decision, allowed: safety.final_recommendation.allowed, required_action: safety.final_recommendation.required_action, safety_rating: safety.final_recommendation.safety_rating, risk_score: safety.final_recommendation.risk_score }, policy_receipt_id: safety.policy_receipt?.receipt?.id, risk_score_id: safety.wallet_risk_score?.id, audit_trail_id: safety.wallet_audit_trail?.id, agent_action_taken: agentActionTaken, timestamp: new Date().toISOString() }; }"
+  - region "Store the proof next to the wallet action.":
+    - paragraph: Usage example
+    - heading "Store the proof next to the wallet action." [level=2]
+    - region "Integration code example":
+      - code: const safety = await checkWalletSafety(intent); const action = chooseAgentAction(safety.final_recommendation); const integrationReceipt = buildWalletSafetyIntegrationReceipt(safety, action); await db.walletSafetyReceipts.insert(integrationReceipt);
+  - region "Integration receipt action mapping":
+    - paragraph: Action mapping
+    - heading "Map Infopunks recommendations to wallet actions." [level=2]
+    - article:
+      - generic: safe_to_spend
+      - strong: spent
+    - article:
+      - generic: test_spend_required
+      - strong: test_spend
+    - article:
+      - generic: manual_review_required
+      - strong: queued_review
+    - article:
+      - generic: block_spend
+      - strong: blocked
+    - article:
+      - generic: insufficient_evidence
+      - strong: requested_evidence
+  - region "Failure-safe integration receipts":
+    - paragraph: Failure-safe default
+    - heading "Do not fail open when the safety check is missing." [level=2]
+    - paragraph: If the Wallet Safety API fails, do not fail open.
+    - paragraph: Store agent_action_taken as paused or requested_evidence.
+    - paragraph: The receipt should show that the spend was stopped because proof was missing, not because proof said yes.
+  - region "Final recommendation states":
+    - paragraph: Final recommendation states
+    - heading "One bounded decision vocabulary." [level=2]
+    - generic "Wallet safety recommendation badges":
+      - generic: safe_to_spend
+      - generic: test_spend_required
+      - generic: manual_review_required
+      - generic: block_spend
+      - generic: insufficient_evidence
+    - article:
+      - generic: safe_to_spend
+      - strong: Spend can proceed without extra gating.
+    - article:
+      - generic: test_spend_required
+      - strong: Run a small bounded spend before full execution.
+    - article:
+      - generic: manual_review_required
+      - strong: Stop autonomous execution and queue human review.
+    - article:
+      - generic: block_spend
+      - strong: Do not sign or pay for this intent.
+    - article:
+      - generic: insufficient_evidence
+      - strong: Gather more evidence before spend.
+  - region "Required actions":
+    - paragraph: Required actions
+    - heading "What the wallet should do next." [level=2]
+    - article:
+      - generic: none
+      - strong: No extra action required before spend.
+    - article:
+      - generic: run_test_spend
+      - strong: Use a small test spend first.
+    - article:
+      - generic: manual_review_required
+      - strong: Queue human review before signing.
+    - article:
+      - generic: block_spend
+      - strong: Block this spend attempt.
+    - article:
+      - generic: request_more_evidence
+      - strong: Ask for stronger route, provider, receipt, or reputation evidence.
+    - article:
+      - generic: pause_wallet
+      - strong: Pause wallet activity until safety posture improves.
+  - region "Call the public endpoint":
+    - paragraph: Example curl
+    - heading "Call the public endpoint" [level=2]
+    - region "Integration code example":
+      - code: "curl -X POST \"https://radar.infopunks.fun/v1/hermes/wallet-safety/check\" \\ -H \"Content-Type: application/json\" \\ -d '{ \"route_id\": \"route_pay_sh_market_research_01\", \"provider_id\": \"provider_pay_sh_lattice\", \"service_id\": \"service_market_research\", \"amount_usd\": 25, \"payment_rail\": \"x402\", \"chain\": \"base\" }'"
+  - region "Check before spend":
+    - paragraph: Example agent integration pseudocode
+    - heading "Check before spend" [level=2]
+    - region "Integration code example":
+      - code: "async function checkBeforeSpend(intent) { const response = await fetch(\"https://radar.infopunks.fun/v1/hermes/wallet-safety/check\", { method: \"POST\", headers: { \"Content-Type\": \"application/json\" }, body: JSON.stringify(intent) }); const safety = await response.json(); const recommendation = safety.final_recommendation; if (recommendation.decision === \"safe_to_spend\") { return wallet.spend(intent); } if (recommendation.decision === \"test_spend_required\") { return wallet.spend({ ...intent, amount_usd: Math.min(intent.amount_usd, 25) }); } if (recommendation.decision === \"manual_review_required\") { return queueManualReview(intent, safety); } if (recommendation.decision === \"block_spend\") { return blockSpend(intent, safety); } return requestMoreEvidence(intent, safety); }"
+  - region "How the pieces fit together":
+    - paragraph: How the pieces fit together
+    - heading "Spend Intent to Final Recommendation." [level=2]
+    - paragraph: Spend Intent → Pre-Spend Decision → Policy Check → Policy Receipt → Reconciliation Preview → Wallet Audit Trail → Wallet Risk Score → Final Recommendation
+    - generic "Wallet safety flow":
+      - generic: Spend Intent
+      - generic: →
+      - generic: Pre-Spend Decision
+      - generic: →
+      - generic: Policy Check
+      - generic: →
+      - generic: Policy Receipt
+      - generic: →
+      - generic: Reconciliation Preview
+      - generic: →
+      - generic: Wallet Audit Trail
+      - generic: →
+      - generic: Wallet Risk Score
+      - generic: →
+      - generic: Final Recommendation
+    - article:
+      - generic: Pre-Spend Decision
+      - strong: Judges the route/provider/service.
+    - article:
+      - generic: Spend Policy Check
+      - strong: Applies the wallet rules.
+    - article:
+      - generic: Policy Receipt
+      - strong: Makes the policy decision auditable.
+    - article:
+      - generic: Reconciliation Preview
+      - strong: Prepares outcome comparison.
+    - article:
+      - generic: Wallet Audit Trail
+      - strong: Shows the reasoning chain.
+    - article:
+      - generic: Wallet Risk Score
+      - strong: Compresses the trail into a safety signal.
+    - article:
+      - generic: Final Recommendation
+      - strong: Gives the agent one action.
+  - region "Builder mental model":
+    - paragraph: Builder mental model
+    - heading "Simple contract." [level=2]
+    - paragraph: "Agent asks: Can I spend?"
+    - paragraph: "Infopunks answers: yes, test first, review, block, or gather more evidence."
+  - region "OpenAPI reference":
+    - paragraph: OpenAPI reference
+    - heading "The Wallet Safety API is included in the Radar OpenAPI schema." [level=2]
+    - paragraph: Use GET /v1/hermes/wallet-safety/example to inspect a deterministic seeded safety response before wiring a live agent.
+    - link "Open /openapi.json":
+      - /url: /openapi.json
+    - link "GET /v1/hermes/wallet-safety/example":
+      - /url: /v1/hermes/wallet-safety/example
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

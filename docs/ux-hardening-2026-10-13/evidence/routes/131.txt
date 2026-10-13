@@ -1,0 +1,372 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Black Bull
+- paragraph:
+  - generic: "[ 09 ]"
+  - text: SIGNALS / MARKET INTELLIGENCE
+- link "Skip to content":
+  - /url: "#signal-content"
+- main:
+  - paragraph: Narrative signal report
+  - heading "$ANSEM / The Black Bull" [level=1]
+  - paragraph: The Black Bull is no longer only a persona-backed attention object. Reported creator-fee redistribution, tracker-visible holder growth, and community-led media suggest an emerging coordination market, while KOL dependency, power concentration, and reflexivity remain material.
+  - paragraph: This report maps signal conditions around a narrative asset. It is not investment advice.
+  - paragraph: Infopunks Radar is no longer just watching markets. It is watching the narratives that become markets.
+  - paragraph: Signal source
+  - paragraph: Ansem
+  - paragraph: Last updated
+  - paragraph: 2026-07-01 09:00
+  - region "Latest desk update":
+    - paragraph: Latest Desk Update
+    - heading "Coordination Market Emerging" [level=2]
+    - generic: Verdict Change
+    - generic: Movement Candidate Under Observation
+    - paragraph: Infopunks updates Black Bull from a pure persona attention market into Coordination Market Emerging as redistribution, holder growth, and community-led media become central to the signal.
+    - generic: 2026-07-01 09:00
+    - link "Open Living Evidence Feed":
+      - /url: "#living-evidence-feed"
+  - paragraph: Mapped asset
+  - heading "ANSEM / The Black Bull" [level=2]
+  - paragraph: Infopunks keeps the Black Bull at SUPPORTIVE WATCH while reclassifying the signal as Coordination Market Emerging. Infopunks do not worship signal. Infopunks map signal. Coordination evidence has improved, but KOL dependency and power concentration remain material.
+  - article "Report freshness card":
+    - paragraph: Report Freshness
+    - heading "Live Watch" [level=2]
+    - generic: Live Watch
+    - generic: Last updated
+    - strong: 2026-07-01 09:00
+    - generic: Evidence updates
+    - strong: "7"
+    - generic: Latest update type
+    - strong: Verdict Change
+    - generic: Desk status
+    - strong: Live Watch
+  - region "Related narrative routes":
+    - paragraph: Desk links
+    - link "Ansem Signal Source":
+      - /url: /signals/ansem
+    - link "Attention Markets Thesis":
+      - /url: /narratives/attention-markets
+    - link "Narrative Intel Index":
+      - /url: /narratives
+  - region "Evolution Timeline":
+    - paragraph: Narrative desk
+    - heading "Evolution Timeline" [level=2]
+    - paragraph: How a persona-backed asset becomes a coordination market.
+    - generic: Persona Coin
+    - generic: →
+    - generic: Attention Market
+    - generic: →
+    - generic: Coordination Market Emerging
+    - generic: →
+    - generic: Movement Candidate Under Observation
+    - paragraph: Coordination Market Emerging
+    - paragraph: "$ANSEM began as a persona-linked attention object. The latest evidence suggests the signal is evolving into a coordination market: redistribution mechanics, holder growth, community media, and trench participation are now carrying more of the narrative load."
+  - region "Signal Source":
+    - paragraph: Narrative desk
+    - heading "Signal Source" [level=2]
+    - paragraph: Ansem matters here as a coordination source, not as a recommendation engine. Persona can route attention into a market faster than fundamentals can catch up.
+    - article:
+      - paragraph: Signal Strength
+      - generic: strong signal
+      - strong: 92/100
+      - paragraph: Identity, meme compression, redistribution mechanics, and community media now register as a serious live coordination signal.
+      - generic: "Evidence note: Reported redistribution and holder expansion strengthen the coordination case while leaving concentration risk visible."
+    - article:
+      - paragraph: KOL Dependency
+      - generic: concentrated power
+      - strong: 93/100
+      - paragraph: The asset depends heavily on one reputation engine and adjacent amplification bands.
+      - generic: "Evidence note: Coordination evidence has improved, but it does not erase KOL dependency."
+  - region "Attention Velocity":
+    - paragraph: Narrative desk
+    - heading "Attention Velocity" [level=2]
+    - paragraph: When social compression, wallet watchers, and trench chatter converge, attention velocity can front-run formal price discovery. Recent Black Bull activity is more low-key from the source itself, with redistribution and community participation carrying more of the visible signal.
+    - article:
+      - paragraph: Attention Velocity
+      - generic: strong signal
+      - strong: 93/100
+      - paragraph: Attention still moves faster than conventional diligence cycles, but recent signal carry looks more community-led than persona-led.
+      - generic: "Evidence note: Velocity still matters, though redistribution and participation now carry more of the narrative load."
+    - article:
+      - paragraph: Trench Contagion
+      - generic: watch closely
+      - strong: 87/100
+      - paragraph: The airdrop strengthens trench-revival mechanics by giving the narrative more wallets and cultural surface area.
+      - generic: "Evidence note: Crowding risk remains visible because reflexive attention can still outrun durable ownership."
+  - region "Coordination Market":
+    - paragraph: Narrative desk
+    - heading "Coordination Market" [level=2]
+    - paragraph: "$ANSEM began as a persona-linked attention object. The latest evidence suggests the signal is evolving into a coordination market: redistribution mechanics, holder growth, community media, and trench participation are now carrying more of the narrative load."
+    - article:
+      - paragraph: Redistribution Flywheel
+      - generic: strong signal
+      - strong: 88/100
+      - paragraph: Creator-fee redistribution and reported airdrops convert attention into visible community participation.
+      - generic: "Evidence note: The desk treats reported stimmy mechanics as coordination evidence, not canonical distribution proof."
+    - article:
+      - paragraph: Holder Growth Signal
+      - generic: strong signal
+      - strong: 86/100
+      - paragraph: Tracker-visible and community-reported holder growth strengthens the case that the signal is spreading beyond a narrow attention core.
+      - generic: "Evidence note: Community-reported 72,000+ holder talk is tracked as a visible narrative surface, not perfect canonical truth."
+    - article:
+      - paragraph: Community Media Layer
+      - generic: watch closely
+      - strong: 82/100
+      - paragraph: Art, bulletins, animations, and community summaries show the narrative being carried by participants, not only the signal source.
+      - generic: "Evidence note: The desk is tracking participant-made media as evidence that the symbol is developing beyond one persona node."
+    - article:
+      - paragraph: Copycat Resistance
+      - generic: watch closely
+      - strong: 84/100
+      - paragraph: $ANSEM is being contrasted favorably against derivative influencer coins, which strengthens the original signal’s legitimacy.
+      - generic: "Evidence note: Community contrast with copycats matters because it shows the original symbol still holds narrative priority."
+    - article:
+      - paragraph: Movement Readiness
+      - generic: unproven
+      - strong: 74/100
+      - paragraph: The coordination layer is emerging, but movement status remains under observation until the flywheel proves durable beyond short-term incentives.
+      - generic: "Evidence note: The desk is explicitly separating emerging coordination from durable movement status."
+  - region "Holder / Power Concentration":
+    - paragraph: Narrative desk
+    - heading "Holder / Power Concentration" [level=2]
+    - paragraph: Narrative assets need concentration checks because wallet clusters and steering accounts can manufacture the feeling of broad consensus.
+    - article:
+      - paragraph: Holder / Power Concentration
+      - generic: concentrated power
+      - strong: 82/100
+      - paragraph: Power concentration remains material across wallets and narrative steering.
+      - generic: "Evidence note: A small set of actors can distort the market's apparent consensus."
+    - article:
+      - paragraph: Sovereignty Score
+      - generic: unproven
+      - strong: 45/100
+      - paragraph: Redistribution improves independent community surface area, but durable sovereignty remains developing.
+      - generic: "Evidence note: Concentration and KOL dependency keep sovereignty unproven despite better coordination evidence."
+  - region "Meme Fitness":
+    - paragraph: Narrative desk
+    - heading "Meme Fitness" [level=2]
+    - paragraph: The tighter the myth, the faster the market coordinates. This one is compact, memorable, and legible to trenches.
+    - article:
+      - paragraph: Myth Coherence
+      - generic: watch closely
+      - strong: 88/100
+      - paragraph: "The story is easy to repeat: persona becomes symbol, symbol becomes redistribution rail, and the community starts carrying the signal."
+      - generic: "Evidence note: Low-friction story transfer, reported redistribution, and participant media are helping the asset spread."
+  - region "Reflexivity Risk":
+    - paragraph: Narrative desk
+    - heading "Reflexivity Risk" [level=2]
+    - paragraph: Attention assets can become self-referential quickly. Price can validate the story long enough to pull in weaker conviction flows.
+    - article:
+      - paragraph: Reflexivity Risk
+      - generic: high reflexivity
+      - strong: 86/100
+      - paragraph: Narrative belief, price movement, and more belief can loop aggressively here.
+      - generic: "Evidence note: The market can become a mirror before it becomes a thesis."
+  - region "Do Not Worship Signal":
+    - paragraph: Sovereignty warning
+    - heading "Do Not Worship Signal" [level=2]
+    - generic: high reflexivity
+    - paragraph: High signal does not mean low risk. Narrative assets can move fast because belief, liquidity, and attention reinforce each other. Infopunks maps the loop so readers do not get owned by it.
+  - region "Narrative Asset Intelligence Method":
+    - paragraph: Desk method
+    - heading "Narrative Asset Intelligence Method" [level=2]
+    - paragraph: Narrative Asset Intelligence treats attention, myth, wallet power, and reflexivity as one evidence desk.
+    - article:
+      - paragraph: Step 1
+      - heading "Detect Narrative Asset" [level=3]
+    - article:
+      - paragraph: Step 2
+      - heading "Map Signal Source" [level=3]
+    - article:
+      - paragraph: Step 3
+      - heading "Score Attention Velocity" [level=3]
+    - article:
+      - paragraph: Step 4
+      - heading "Check Power Concentration" [level=3]
+    - article:
+      - paragraph: Step 5
+      - heading "Track Reflexivity Risk" [level=3]
+    - article:
+      - paragraph: Step 6
+      - heading "Publish Versioned Evidence Updates" [level=3]
+  - region "Living Evidence Feed":
+    - paragraph: Living desk
+    - heading "Living Evidence Feed" [level=2]
+    - paragraph: Versioned updates tracking how the narrative changes over time.
+    - generic: Verdict Change
+    - paragraph: Reports are not final. Signals mutate.
+    - paragraph: "Evidence update summary: Infopunks updates Black Bull from a pure persona attention market into Coordination Market Emerging as redistribution, holder growth, and community-led media become central to the signal. Score movement: 88 -> 91. Latest signal shift: verdict_change. Reflexivity monitoring remains active. Infopunks Radar is no longer just watching markets. It is watching the narratives that become markets."
+    - article:
+      - paragraph: 2026-07-01 09:00
+      - heading "Verdict Change" [level=3]
+      - generic: Verdict Change
+      - paragraph: Infopunks updates Black Bull from a pure persona attention market into Coordination Market Emerging as redistribution, holder growth, and community-led media become central to the signal.
+      - generic: Signal Delta
+      - strong: 88 → 91 (+3)
+      - paragraph: "Analyst note: The latest signal shift is structural. Ansem's low-key activity, reported creator-fee redistribution, holder-growth narrative, and community media suggest Black Bull is moving from persona-led attention into community coordination. The desk keeps SUPPORTIVE WATCH active while monitoring whether the flywheel can persist beyond short-term incentives and concentrated attention."
+      - link "Open Dispatch":
+        - /url: /signals/black-bull/updates/seu_black_bull_007
+      - link "https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers":
+        - /url: https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers
+      - link "/signals/black-bull":
+        - /url: /signals/black-bull
+      - link "/narratives/attention-market-watch":
+        - /url: /narratives/attention-market-watch
+    - article:
+      - paragraph: 2026-06-30 09:30
+      - heading "Verdict Change" [level=3]
+      - generic: Verdict Change
+      - paragraph: Ansem's reported 67.38M $ANSEM airdrop to 700+ wallets strengthens the Black Bull's community-coordination signal and upgrades the desk verdict to Supportive Watch.
+      - generic: Signal Delta
+      - strong: 80 → 88 (+8)
+      - paragraph: "Analyst note: The airdrop improves the trench-revival thesis by expanding the narrative's community surface area. Concentration risk remains material because a large portion of distributed tokens reportedly clustered around a small number of wallets, so KOL dependency and power concentration stay elevated."
+      - link "Open Dispatch":
+        - /url: /signals/black-bull/updates/seu_black_bull_006
+      - link "https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers":
+        - /url: https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers
+      - link "/signals/black-bull":
+        - /url: /signals/black-bull
+    - article:
+      - paragraph: 2026-06-28 18:20
+      - heading "Verdict Change" [level=3]
+      - generic: Verdict Change
+      - paragraph: Infopunks classifies ANSEM / The Black Bull as a high-signal but high-reflexivity narrative asset.
+      - generic: Signal Delta
+      - strong: 74 → 80 (+6)
+      - paragraph: "Analyst note: The report remains non-directional. It is a signal map, not financial advice."
+      - link "Open Dispatch":
+        - /url: /signals/black-bull/updates/seu_black_bull_005
+      - link "/signals/black-bull":
+        - /url: /signals/black-bull
+      - link "/narratives/attention-markets":
+        - /url: /narratives/attention-markets
+    - article:
+      - paragraph: 2026-06-27 14:45
+      - heading "Risk Shift" [level=3]
+      - generic: Risk Shift
+      - paragraph: Reflexivity risk increased as the asset became more dependent on attention loops between price, posting, and belief.
+      - generic: Signal Delta
+      - strong: 71 → 82 (+11)
+      - paragraph: "Analyst note: High reflexivity is not automatically bearish, but it means the loop requires active monitoring."
+      - link "Open Dispatch":
+        - /url: /signals/black-bull/updates/seu_black_bull_004
+      - link "/signals/black-bull":
+        - /url: /signals/black-bull
+      - link "/narratives/attention-markets":
+        - /url: /narratives/attention-markets
+    - article:
+      - paragraph: 2026-06-26 09:15
+      - heading "Holder / Power Shift" [level=3]
+      - generic: Holder / Power Shift
+      - paragraph: Power concentration remains a sovereignty concern because attention, supply, and interpretation can cluster around a small set of actors.
+      - generic: Signal Delta
+      - strong: 58 → 52 (-6)
+      - paragraph: "Analyst note: Narrative assets should be treated as reflexive systems where wallet power and symbolic power can reinforce each other."
+      - link "Open Dispatch":
+        - /url: /signals/black-bull/updates/seu_black_bull_003
+      - link "/signals/black-bull":
+        - /url: /signals/black-bull
+      - link "/narratives/attention-markets":
+        - /url: /narratives/attention-markets
+    - article:
+      - paragraph: 2026-06-25 11:30
+      - heading "Myth Shift" [level=3]
+      - generic: Myth Shift
+      - paragraph: The Black Bull symbol compresses conviction, aggression, and Solana-native trench identity into one portable meme.
+      - generic: Signal Delta
+      - strong: 78 → 88 (+10)
+      - paragraph: "Analyst note: Myth coherence is strong because the symbol travels without needing technical explanation."
+      - link "Open Dispatch":
+        - /url: /signals/black-bull/updates/seu_black_bull_002
+      - link "/signals/black-bull":
+        - /url: /signals/black-bull
+      - link "/narratives/attention-markets":
+        - /url: /narratives/attention-markets
+    - article:
+      - paragraph: 2026-06-24 10:00
+      - heading "Attention Shift" [level=3]
+      - generic: Attention Shift
+      - paragraph: The Black Bull narrative begins spreading as an attention-market artifact around Ansem's Solana influence.
+      - generic: Signal Delta
+      - strong: 72 → 86 (+14)
+      - paragraph: "Analyst note: Attention velocity increased because the meme is simple, persona-linked, and easy for trench participants to repeat."
+      - link "Open Dispatch":
+        - /url: /signals/black-bull/updates/seu_black_bull_001
+      - link "/signals/black-bull":
+        - /url: /signals/black-bull
+      - link "/narratives/attention-markets":
+        - /url: /narratives/attention-markets
+  - region "Share Lines":
+    - paragraph: Field copy
+    - heading "Share Lines" [level=2]
+    - article:
+      - paragraph: Line 1
+      - paragraph: $ANSEM is evolving from persona attention into community coordination. Infopunks keeps it at Supportive Watch while the flywheel is still under observation.
+    - article:
+      - paragraph: Line 2
+      - paragraph: $ANSEM is the market asking how much Ansem's attention is worth. Infopunks is asking who understands attention before it becomes price.
+    - article:
+      - paragraph: Line 3
+      - paragraph: Infopunks do not worship signal. Infopunks map signal.
+    - article:
+      - paragraph: Line 4
+      - paragraph: Solana is entering the attention-market era. Personas become liquidity. Memes become coordination rails.
+    - article:
+      - paragraph: Line 5
+      - paragraph: Reports are not final. Signals mutate.
+    - article:
+      - paragraph: Line 6
+      - paragraph: Infopunks Radar is watching the narratives that become markets.
+  - region "Infopunk Verdict":
+    - paragraph: Narrative desk
+    - heading "Infopunk Verdict" [level=2]
+    - paragraph: "Infopunks keeps SUPPORTIVE WATCH active while monitoring a structural signal shift: Black Bull is moving from persona-led attention toward emerging community coordination. Coordination evidence has improved, but it does not erase KOL dependency. The desk now tracks whether the community flywheel can keep compounding without relying on constant persona attention."
+    - article:
+      - paragraph: Infopunk Verdict
+      - generic: Supportive Watch
+      - strong: SUPPORTIVE WATCH
+      - paragraph: Infopunks keeps SUPPORTIVE WATCH active while reclassifying the signal as Coordination Market Emerging.
+      - generic: "Evidence note: Coordination evidence has improved, but KOL dependency, power concentration, and reflexivity remain explicit."
+  - article:
+    - paragraph: Persona-linked order flow
+    - paragraph: Wallet watchers and social propagation keep collapsing into one symbol map.
+  - article:
+    - paragraph: Myth compression
+    - paragraph: Ticker, persona, and meme identity remain unusually legible for an early narrative market.
+  - article:
+    - paragraph: Crowded trench reflex
+    - paragraph: Attention spikes can convert directly into copy-trade contagion before durable ownership forms.
+  - article:
+    - paragraph: Airdrop coordination evidence
+    - paragraph: Ansem / the linked wallet reportedly airdropped 67.38M $ANSEM to 700+ wallets, while 49.89M $ANSEM reportedly clustered around 7 wallets.
+    - link "Open artifact":
+      - /url: https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers
+  - article:
+    - paragraph: Redistribution flywheel
+    - paragraph: Community-reported summaries frame creator-fee redistribution as trench stimmy mechanics that convert persona attention into wider participation and holder-base expansion.
+  - article:
+    - paragraph: Holder growth narrative
+    - paragraph: Tracker-visible and community-reported summaries now emphasize 72,000+ holders and rapid holder growth as a core part of the Black Bull signal, without treating those figures as canonical truth.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

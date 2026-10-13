@@ -1,0 +1,320 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Market Map
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-market-map-content"
+- banner:
+  - navigation "Machine Market Map navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Market Map":
+  - paragraph: Robotic.sh Machine Market Map
+  - heading "Machine Market Map" [level=1]
+  - paragraph: 13 robotic.sh services mapped. 8 normalized machine-function categories. 0 robotic.sh market-wide execution claims. Planning only.
+  - paragraph: Read-only category map for the visible robotic.sh catalog. No robotic.sh market-wide execution claim, no benchmark claim, no winner claim.
+  - generic "Machine market map summary":
+    - generic: 13 services mapped
+    - generic: 8 categories
+    - generic: "strongest: translation"
+    - generic: "riskiest: compute"
+    - generic: 0 robotic.sh market-wide execution claims
+    - generic: 0 service-specific execution receipts recorded
+    - generic: planning only
+  - region "Machine market map hero summary":
+    - article:
+      - text: Services Mapped
+      - strong: "13"
+      - text: robotic.sh visible catalog
+    - article:
+      - text: Category Count
+      - strong: "8"
+      - text: normalized machine-function groups
+    - article:
+      - text: Strongest Readiness
+      - strong: translation
+      - text: allow 1 · strong_candidate 0 · possible_candidate 1 · review_required 0 · not_ready 0
+    - article:
+      - text: Riskiest Category
+      - strong: compute
+      - text: allow 0 · review 1 · deny 0
+  - region "Machine market map caveats":
+    - paragraph: 0 robotic.sh market-wide execution claims. Planning only.
+    - paragraph: 0 service-specific execution receipts recorded. 0 payment success claims. 0 benchmark claims. 0 winner claims.
+    - paragraph:
+      - text: Execution requires service-specific receipts before any robotic.sh success claim can be made.
+      - link "View public snapshot":
+        - /url: /machine-economy-snapshot
+      - link "View rail coverage":
+        - /url: /machine-rail-coverage
+  - region "Category map":
+    - article "AI / inference category":
+      - paragraph: Category Map
+      - heading "AI / inference" [level=2]
+      - generic: 5 services
+      - generic: 0 service-specific execution receipts
+      - generic "AI / inference services":
+        - link "Generative Language":
+          - /url: /machine-service/generative-language
+        - link "Document AI":
+          - /url: /machine-service/document-ai
+        - link "Claude":
+          - /url: /machine-service/claude
+        - link "ChatGPT":
+          - /url: /machine-service/chatgpt
+        - link "Wolfram Alpha":
+          - /url: /machine-service/wolfram-alpha
+      - paragraph:
+        - generic: allow / review / deny
+        - generic: 1 / 0 / 0
+      - paragraph:
+        - generic: readiness tier distribution
+        - generic: strong_candidate 0 · possible_candidate 1 · review_required 4 · not_ready 0
+      - paragraph:
+        - generic: execution status summary
+        - generic: not_attempted 5 · attempted-recorded 0 · execution-tested 0 · repeatability-recorded 0
+      - paragraph:
+        - generic: evidence health summary
+        - generic: scaffold 5 · listed 0
+      - paragraph:
+        - generic: category risk note
+        - generic: Current policy coverage skews allow, but category status is still planning-only and not execution-proven.
+      - paragraph:
+        - generic: machine-use narrative
+        - generic: This category shows how machines could use ai / inference services for machines can generate plans, summaries, and multimodal interpretations with preflight spend policy., machines can turn documents into structured evidence for logistics, billing, and identity workflows. +3 more.
+    - article "data / query category":
+      - paragraph: Category Map
+      - heading "data / query" [level=2]
+      - generic: 1 services
+      - generic: 0 service-specific execution receipts
+      - generic "data / query services":
+        - link "BigQuery":
+          - /url: /machine-service/bigquery
+      - paragraph:
+        - generic: allow / review / deny
+        - generic: 0 / 0 / 0
+      - paragraph:
+        - generic: readiness tier distribution
+        - generic: strong_candidate 0 · possible_candidate 0 · review_required 0 · not_ready 1
+      - paragraph:
+        - generic: execution status summary
+        - generic: not_attempted 1 · attempted-recorded 0 · execution-tested 0 · repeatability-recorded 0
+      - paragraph:
+        - generic: evidence health summary
+        - generic: scaffold 1 · listed 0
+      - paragraph:
+        - generic: category risk note
+        - generic: Current policy coverage skews allow, but category status is still planning-only and not execution-proven.
+      - paragraph:
+        - generic: machine-use narrative
+        - generic: This category shows how machines could use data / query services for autonomous systems can query operational datasets before routing or purchasing decisions..
+    - article "translation category":
+      - paragraph: Category Map
+      - heading "translation" [level=2]
+      - generic: 1 services
+      - generic: strongest readiness
+      - generic: 0 service-specific execution receipts
+      - generic "translation services":
+        - link "Cloud Translation":
+          - /url: /machine-service/cloud-translation
+      - paragraph:
+        - generic: allow / review / deny
+        - generic: 1 / 0 / 0
+      - paragraph:
+        - generic: readiness tier distribution
+        - generic: strong_candidate 0 · possible_candidate 1 · review_required 0 · not_ready 0
+      - paragraph:
+        - generic: execution status summary
+        - generic: not_attempted 1 · attempted-recorded 0 · execution-tested 0 · repeatability-recorded 0
+      - paragraph:
+        - generic: evidence health summary
+        - generic: scaffold 1 · listed 0
+      - paragraph:
+        - generic: category risk note
+        - generic: Current policy coverage skews allow, but category status is still planning-only and not execution-proven.
+      - paragraph:
+        - generic: machine-use narrative
+        - generic: This category shows how machines could use translation services for machines can translate instructions, labels, support messages, and field reports across languages..
+    - article "maps / navigation category":
+      - paragraph: Category Map
+      - heading "maps / navigation" [level=2]
+      - generic: 1 services
+      - generic: 0 service-specific execution receipts
+      - generic "maps / navigation services":
+        - link "NAVER Maps":
+          - /url: /machine-service/naver-maps
+      - paragraph:
+        - generic: allow / review / deny
+        - generic: 0 / 0 / 0
+      - paragraph:
+        - generic: readiness tier distribution
+        - generic: strong_candidate 0 · possible_candidate 0 · review_required 1 · not_ready 0
+      - paragraph:
+        - generic: execution status summary
+        - generic: not_attempted 1 · attempted-recorded 0 · execution-tested 0 · repeatability-recorded 0
+      - paragraph:
+        - generic: evidence health summary
+        - generic: scaffold 1 · listed 0
+      - paragraph:
+        - generic: category risk note
+        - generic: Physical-world route decisions require bounded test scenarios, source validation, and clear non-operational demo constraints before execution.
+      - paragraph:
+        - generic: machine-use narrative
+        - generic: NAVER Maps exposes routing, geocoding, and navigation services for autonomous machines. This is high machine relevance but requires review because routing outputs can influence physical-world movement.
+      - paragraph:
+        - generic: proof path
+        - link "Inspect proof path":
+          - /url: /machine-execution-plan/naver-maps
+    - article "web / retrieval category":
+      - paragraph: Category Map
+      - heading "web / retrieval" [level=2]
+      - generic: 2 services
+      - generic: 0 service-specific execution receipts
+      - generic "web / retrieval services":
+        - link "Firecrawl":
+          - /url: /machine-service/firecrawl
+        - link "Exa":
+          - /url: /machine-service/exa
+      - paragraph:
+        - generic: allow / review / deny
+        - generic: 0 / 0 / 0
+      - paragraph:
+        - generic: readiness tier distribution
+        - generic: strong_candidate 0 · possible_candidate 0 · review_required 2 · not_ready 0
+      - paragraph:
+        - generic: execution status summary
+        - generic: not_attempted 2 · attempted-recorded 0 · execution-tested 0 · repeatability-recorded 0
+      - paragraph:
+        - generic: evidence health summary
+        - generic: scaffold 2 · listed 0
+      - paragraph:
+        - generic: category risk note
+        - generic: Current policy coverage skews allow, but category status is still planning-only and not execution-proven.
+      - paragraph:
+        - generic: machine-use narrative
+        - generic: This category shows how machines could use web / retrieval services for machines can convert web pages into clean text for route research and market monitoring., machines can discover web evidence and candidate services before spend decisions..
+    - article "storage category":
+      - paragraph: Category Map
+      - heading "storage" [level=2]
+      - generic: 1 services
+      - generic: 0 service-specific execution receipts
+      - generic "storage services":
+        - link "Stableupload":
+          - /url: /machine-service/stableupload
+      - paragraph:
+        - generic: allow / review / deny
+        - generic: 0 / 1 / 0
+      - paragraph:
+        - generic: readiness tier distribution
+        - generic: strong_candidate 0 · possible_candidate 1 · review_required 0 · not_ready 0
+      - paragraph:
+        - generic: execution status summary
+        - generic: not_attempted 1 · attempted-recorded 0 · execution-tested 0 · repeatability-recorded 0
+      - paragraph:
+        - generic: evidence health summary
+        - generic: scaffold 1 · listed 0
+      - paragraph:
+        - generic: category risk note
+        - generic: Contains review-required services. Human review and bounded authority remain mandatory.
+      - paragraph:
+        - generic: machine-use narrative
+        - generic: This category shows how machines could use storage services for robots and agents can store images, logs, manifests, and task artifacts with cost controls..
+    - article "verification category":
+      - paragraph: Category Map
+      - heading "verification" [level=2]
+      - generic: 1 services
+      - generic: 0 service-specific execution receipts
+      - generic "verification services":
+        - link "2Captcha":
+          - /url: /machine-service/2captcha
+      - paragraph:
+        - generic: allow / review / deny
+        - generic: 0 / 1 / 0
+      - paragraph:
+        - generic: readiness tier distribution
+        - generic: strong_candidate 0 · possible_candidate 0 · review_required 0 · not_ready 1
+      - paragraph:
+        - generic: execution status summary
+        - generic: not_attempted 1 · attempted-recorded 0 · execution-tested 0 · repeatability-recorded 0
+      - paragraph:
+        - generic: evidence health summary
+        - generic: scaffold 1 · listed 0
+      - paragraph:
+        - generic: category risk note
+        - generic: Contains review-required services. Human review and bounded authority remain mandatory.
+      - paragraph:
+        - generic: machine-use narrative
+        - generic: This category shows how machines could use verification services for machines can identify routes that claim captcha-solving capability for policy review..
+    - article "compute category":
+      - paragraph: Category Map
+      - heading "compute" [level=2]
+      - generic: 1 services
+      - generic: highest review / deny risk
+      - generic: 0 service-specific execution receipts
+      - generic "compute services":
+        - link "QVAC":
+          - /url: /machine-service/qvac
+      - paragraph:
+        - generic: allow / review / deny
+        - generic: 0 / 1 / 0
+      - paragraph:
+        - generic: readiness tier distribution
+        - generic: strong_candidate 0 · possible_candidate 0 · review_required 1 · not_ready 0
+      - paragraph:
+        - generic: execution status summary
+        - generic: not_attempted 1 · attempted-recorded 0 · execution-tested 0 · repeatability-recorded 0
+      - paragraph:
+        - generic: evidence health summary
+        - generic: scaffold 1 · listed 0
+      - paragraph:
+        - generic: category risk note
+        - generic: Contains review-required services. Human review and bounded authority remain mandatory.
+      - paragraph:
+        - generic: machine-use narrative
+        - generic: This category shows how machines could use compute services for autonomous robots and agents can request attestable compute before committing machine spend..
+  - region "Market interpretation panel":
+    - paragraph: Radar Interpretation
+    - heading "Market interpretation" [level=2]
+    - generic: 0 service-specific execution receipts
+    - paragraph:
+      - generic: strongest now
+      - generic: translation has the clearest readiness profile in the visible catalog.
+    - paragraph:
+      - generic: review risk
+      - generic: compute carries the highest current review / deny concentration.
+    - paragraph:
+      - generic: not execution-proven yet
+      - generic: Every category remains receipt-dependent. No robotic.sh-visible category is execution-proven on this page.
+    - paragraph:
+      - generic: why receipts matter
+      - generic: Catalog presence, policy coverage, and planning signals do not become execution-proven without service-specific receipts.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

@@ -1,0 +1,65 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: alibaba machine translation general
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-execution-content"
+- banner:
+  - navigation "Machine Execution navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Alibaba machine execution detail":
+  - paragraph: Machine Execution
+  - heading "Alibaba Machine Translation General" [level=1]
+  - paragraph: Service-specific execution evidence for a Pay.sh machine-translation route candidate.
+  - generic: execution-tested
+  - generic: Pay.sh
+  - generic: Solana
+  - generic: Harness executed
+  - generic: Radar recorded
+  - status:
+    - strong: No execution receipt yet.
+    - generic: No execution-tested receipt exists for Alibaba Machine Translation General yet.
+  - region "Evidence caveats":
+    - paragraph: Evidence Caveats
+    - heading "Repeatability artifact caveats" [level=2]
+    - list:
+      - listitem: This is a repeatability artifact, not a benchmark.
+      - listitem: No winner is claimed.
+      - listitem: Payment is not claimed without explicit payment evidence.
+      - listitem: Repeatability applies only to Alibaba Machine Translation General.
+      - listitem: This does not imply the full robotic.sh market is execution-tested.
+  - region "AnyTrans relationship":
+    - paragraph: Relationship to AnyTrans
+    - heading "Current state" [level=2]
+    - paragraph: AnyTrans remains attempted-recorded and blocked by provider workspace authorization. Alibaba Machine Translation General is the first service-specific successful execution-tested Pay.sh route in this machine-translation evidence set.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

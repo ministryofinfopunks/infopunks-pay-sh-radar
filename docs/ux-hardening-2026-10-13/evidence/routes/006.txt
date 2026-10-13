@@ -1,0 +1,43 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: qualification missing record
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- navigation "4663 navigation":
+  - link "Now":
+    - /url: /4663#now
+  - link "Watch":
+    - /url: /4663#watch
+  - link "Call":
+    - /url: /4663#call
+  - link "Proof":
+    - /url: /4663#proof
+- main:
+  - generic: //4663 / PRINT
+  - heading "//4663 PRINT 0830" [level=1]
+  - paragraph: MARKET-STATE EVIDENCE
+  - status: DEGRADED / Persisted intelligence is temporarily unavailable.
+  - paragraph: This PRINT is not available. No market state is inferred.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

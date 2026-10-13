@@ -1,0 +1,423 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Signal Graph
+- paragraph:
+  - generic: "[ 09 ]"
+  - text: SIGNALS / MARKET INTELLIGENCE
+- link "Skip to content":
+  - /url: "#graph-content"
+- main:
+  - paragraph: Infopunks Signal Graph
+  - heading "Infopunks Signal Graph" [level=1]
+  - paragraph: Stop scrolling the feed. Read the graph.
+  - paragraph: A proof-aware map of claims, memes, agents, projects, tokens, posts, routes, receipts, checks, loops, and narrative clusters.
+  - paragraph: The feed shows what people are saying.
+  - paragraph: The graph shows what the signal is becoming.
+  - link "Explore the graph":
+    - /url: "#graph-canvas"
+  - link "View 24h ripples":
+    - /url: "#graph-ripples"
+  - region "Proof state legend":
+    - paragraph: Proof State Legend
+    - strong: Unproven
+    - generic: unproven
+    - strong: Validated
+    - generic: validated
+    - strong: Disputed
+    - generic: disputed
+    - strong: Corrupted
+    - generic: corrupted
+    - strong: Compounding
+    - generic: compounding
+  - region "Signal Graph totals":
+    - paragraph: Graph Totals
+    - term: Nodes
+    - definition: "53"
+    - term: Edges
+    - definition: "70"
+    - term: Clusters
+    - definition: "5"
+    - term: Validated
+    - definition: "16"
+    - term: Disputed
+    - definition: "2"
+    - term: Compounding
+    - definition: "18"
+    - paragraph: Last updated Jun 25, 2026, 2:30 PM
+  - region "Check a signal":
+    - paragraph: Check a signal
+    - heading "Check a signal" [level=2]
+    - paragraph: Paste a claim, post, token, project, or narrative fragment. Infopunks will preview where it belongs in the graph.
+    - paragraph: v0 preview. Full live ingestion comes later.
+    - generic: Signal label
+    - textbox "Signal label":
+      - /placeholder: Agent wallets need route memory before autonomous spend.
+    - generic: Summary
+    - textbox "Summary":
+      - /placeholder: Optional context, evidence, or narrative fragment.
+    - generic: Source URL
+    - textbox "Source URL":
+      - /placeholder: https://example.com/thread
+    - generic: Cluster
+    - combobox "Cluster":
+      - option "Auto-detect cluster" [selected]
+      - option "Agentic Payments"
+      - option "Machine Markets"
+      - option "Pre-Spend Intelligence"
+      - option "Carbon Finance 2.0"
+      - option "CT Subcultures"
+    - button "Map signal"
+    - region "Signal placement preview":
+      - paragraph: Placement Preview
+      - heading "Signal placement preview" [level=3]
+      - paragraph: Map a signal to preview its suggested proof state, cluster, connected edges, and placement explanation.
+  - complementary "Cluster filters and graph stats":
+    - paragraph: Cluster Filters
+    - group "Filter graph by cluster":
+      - button "All clusters"
+      - button "Agentic Payments"
+      - button "Machine Markets"
+      - button "Pre-Spend Intelligence"
+      - button "Carbon Finance 2.0"
+      - button "CT Subcultures"
+    - paragraph: Clusters
+    - button "Agentic Payments Compounding Wallet-aware agent payment rails, settlement narratives, and interoperable spend surfaces. 6 nodes · 10 edges":
+      - strong: Agentic Payments
+      - generic: Compounding
+      - generic: Wallet-aware agent payment rails, settlement narratives, and interoperable spend surfaces.
+      - generic: 6 nodes · 10 edges
+    - button "Machine Markets Validated Machine buyers, service routes, and DePIN-linked payment narratives for autonomous services. 6 nodes · 10 edges":
+      - strong: Machine Markets
+      - generic: Validated
+      - generic: Machine buyers, service routes, and DePIN-linked payment narratives for autonomous services.
+      - generic: 6 nodes · 10 edges
+    - button "Pre-Spend Intelligence Validated Receipt-backed route memory, provider reputation, and public proof checks before spend. 9 nodes · 17 edges":
+      - strong: Pre-Spend Intelligence
+      - generic: Validated
+      - generic: Receipt-backed route memory, provider reputation, and public proof checks before spend.
+      - generic: 9 nodes · 17 edges
+    - button "Carbon Finance 2.0 Disputed Claims-sensitive environmental markets where proof quality directly changes asset credibility. 5 nodes · 7 edges":
+      - strong: Carbon Finance 2.0
+      - generic: Disputed
+      - generic: Claims-sensitive environmental markets where proof quality directly changes asset credibility.
+      - generic: 5 nodes · 7 edges
+    - button "CT Subcultures Compounding Feed-native memes and threads where claims, screenshots, and proof language compete for attention. 4 nodes · 7 edges":
+      - strong: CT Subcultures
+      - generic: Compounding
+      - generic: Feed-native memes and threads where claims, screenshots, and proof language compete for attention.
+      - generic: 4 nodes · 7 edges
+  - region "Read the graph":
+    - paragraph: Visual Memory Layer
+    - heading "Read the graph" [level=2]
+    - paragraph: Clusters orbit the canvas. Click any node to inspect its proof state, links, and connected signal.
+    - group "Signal Graph cluster and node map":
+      - generic: Agentic Payments
+      - generic: Machine Markets
+      - generic: Pre-Spend Intelligence
+      - generic: Carbon Finance 2.0
+      - generic: CT Subcultures
+      - generic "receipt · Pay.sh is currently best evidenced on the Solana payment rail."
+      - generic "shared wallet · Agent wallets depend on Pay.sh-compatible rails for bounded spend."
+      - generic "proof link · Pre-Spend Intelligence evaluates whether Pay.sh routes are ready before spend."
+      - generic "semantic similarity · Both map agent-native payment flows, but their proof surfaces differ."
+      - generic "amplification · x402-style payment narratives amplify agentic.market distribution narratives."
+      - generic "semantic similarity · Base payment discussions increasingly route through x402 framing."
+      - generic "contradiction · Competing payment rail narratives are not equally evidenced in the current seed set."
+      - generic "amplification · Machine wallet narratives intensify the claim that machines will pay machines."
+      - generic "citation · agentic.market is cited as a venue for machine-to-machine commerce claims."
+      - generic "proof link · Machine market receipts are the proof path for machine-to-machine payment claims."
+      - generic "semantic similarity · DePIN and machine markets overlap as programmable supply surfaces."
+      - generic "receipt · Translation is one of the safer machine-market routes in the current seed window."
+      - generic "receipt · NAVER geocode is tracked as a bounded proof path inside machine markets."
+      - generic "amplification · Feed narratives are actively amplifying DePIN-as-market-memory."
+      - generic "semantic similarity · Both clusters imagine distributed service markets, but one is more feed-led."
+      - generic "proof link · First-safe machine routes borrow pre-spend proof discipline."
+      - generic "proof link · Bounded navigation proof paths are tracked through loop memory."
+      - generic "proof link · Route memory is a core claim of the Pre-Spend Intelligence product surface."
+      - generic "proof link · Provider reputation is treated as a downstream effect of receipt memory."
+      - generic "receipt · receipt_001 is a canonical seed artifact for route memory."
+      - generic "receipt · receipt_005 strengthens the claim that some routes are repeatable."
+      - generic "citation · Proof Feed turns provider reliability claims into inspectable public checks."
+      - generic "receipt link · The receipt graph is anchored by inspectable route receipts."
+      - generic "proof link · Proof Feed uses receipt graph context to evaluate public claims."
+      - generic "proof link · Loops frequently link back to proof checks as public memory anchors."
+      - generic "citation · LoopLab operationalizes the doctrine that failure memory should constrain spend."
+      - generic "proof link · No receipt, no trust is the public reason the Proof Feed exists."
+      - generic "semantic similarity · Route memory is the structural form of the no-receipt-no-trust doctrine."
+      - generic "amplification · The slogan packages proof discipline as a cultural meme."
+      - generic "amplification · The graph slogan spreads through CT subculture threads."
+      - generic "repeated narrative · Claim-markets rhetoric repeats across CT threads."
+      - generic "semantic similarity · Claim markets and proof checks both route claims through explicit evaluation."
+      - generic "citation · Disputed proof states often emerge from screenshot-heavy feed narratives."
+      - generic "contradiction · Carbon-claim narratives often degrade into disputed proof states."
+      - generic "amplification · Carbon finance 2.0 amplifies claims-sensitive environmental assets."
+      - generic "citation · Tokenized carbon credits inherit the integrity burden of carbon claims."
+      - generic "amplification · Green alpha memes inflate the attention paid to tokenized carbon narratives."
+      - generic "proof link · Integrity receipts frame carbon credits as proof-sensitive instruments."
+      - generic "semantic similarity · Carbon integrity critics converge on the same no-receipt-no-trust discipline."
+      - generic "citation · The graph-reading slogan is cited by integrity threads as an antidote to feed noise."
+      - generic "provider category · Graph edge is derived from provider category metadata."
+      - generic "provider category · Graph edge is derived from provider category metadata."
+      - generic "provider category · Graph edge is derived from provider category metadata."
+      - generic "provider category · Graph edge is derived from provider category metadata."
+      - generic "provider category · Graph edge is derived from provider category metadata."
+      - generic "provider category · Graph edge is derived from provider category metadata."
+      - generic "provider category · Graph edge is derived from provider category metadata."
+      - generic "provider category · Graph edge is derived from provider category metadata."
+      - generic "provider category · Graph edge is derived from provider category metadata."
+      - generic "provider category · Graph edge is derived from provider category metadata."
+      - generic "provider category · Graph edge is derived from provider category metadata."
+      - generic "provider category · Graph edge is derived from provider category metadata."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - generic "amplification · Graph edge is derived from narrative keyword membership."
+      - button "agent cognition, narrative, Compounding":
+        - generic: agent cognition
+      - button "Agent wallets, agent, Validated":
+        - generic: Agent wallets
+      - button "agentic.market, project, Compounding":
+        - generic: agentic.market
+      - button "AI/ML, category, Compounding":
+        - generic: AI/ML
+      - button "Base payments, project, Unproven":
+        - generic: Base payments
+      - button "Carbon credits are claims-sensitive instruments, claim, Disputed":
+        - generic: Carbon credits are claims-sensitive instruments
+      - button "Carbon finance 2.0, project, Compounding":
+        - generic: Carbon finance 2.0
+      - button "Claim markets, meme, Compounding":
+        - generic: Claim markets
+      - button "Cloud Speech-to-Text API, provider, Unproven":
+        - generic: Cloud Speech-to-Text API
+      - button "Cloud Translation API, provider, Unproven":
+        - generic: Cloud Translation API
+      - button "Cloud Translation first-safe route, route, Validated":
+        - generic: Cloud Translation first-safe route
+      - button "coordination rails, narrative, Compounding":
+        - generic: coordination rails
+      - button "CT subculture thread, post, Unproven":
+        - generic: CT subculture thread
+      - button "Data, category, Compounding":
+        - generic: Data
+      - button "data exhaust, narrative, Compounding":
+        - generic: data exhaust
+      - button "DePIN, project, Compounding":
+        - generic: DePIN
+      - button "DePIN thread about machine buyers, post, Unproven":
+        - generic: DePIN thread about machine buyers
+      - button "Disputed proof check, proof check, Disputed":
+        - generic: Disputed proof check
+      - button "dTelecom, provider, Unproven":
+        - generic: dTelecom
+      - button "Fact Check Tools API, provider, Unproven":
+        - generic: Fact Check Tools API
+      - button "fal.ai, provider, Unproven":
+        - generic: fal.ai
+      - button "Generative Language API (Gemini), provider, Unproven":
+        - generic: Generative Language API (Gemini)
+      - button "Green alpha, meme, Corrupted":
+        - generic: Green alpha
+      - button "Integrity receipts thread, post, Validated":
+        - generic: Integrity receipts thread
+      - button "Knowledge Graph Search API, provider, Unproven":
+        - generic: Knowledge Graph Search API
+      - button "LoopLab, loop run, Validated":
+        - generic: LoopLab
+      - button "Machine markets, project, Validated":
+        - generic: Machine markets
+      - button "machine media, narrative, Compounding":
+        - generic: machine media
+      - button "Machine-to-machine payments, claim, Compounding":
+        - generic: Machine-to-machine payments
+      - button "Media, category, Compounding":
+        - generic: Media
+      - button "Messaging, category, Compounding":
+        - generic: Messaging
+      - button "NAVER geocode proof path, route, Validated":
+        - generic: NAVER geocode proof path
+      - button "No receipt, no trust, claim, Validated":
+        - generic: No receipt, no trust
+      - button "Other, category, Compounding":
+        - generic: Other
+      - button "Pre-Spend Intelligence, project, Validated":
+        - generic: Pre-Spend Intelligence
+      - button "Proof Feed, proof check, Validated":
+        - generic: Proof Feed
+      - button "Provider reputation, claim, Validated":
+        - generic: Provider reputation
+      - button "Receipt graph, project, Validated":
+        - generic: Receipt graph
+      - button "receipt_001, receipt, Validated":
+        - generic: receipt_001
+      - button "receipt_005, receipt, Validated":
+        - generic: receipt_005
+      - button "RentCast API, provider, Unproven":
+        - generic: RentCast API
+      - button "Route memory, claim, Validated":
+        - generic: Route memory
+      - button "Search, category, Compounding":
+        - generic: Search
+      - button "Solana payments, project, Validated":
+        - generic: Solana payments
+      - button "StableEmail, provider, Unproven":
+        - generic: StableEmail
+      - button "StableEnrich, provider, Unproven":
+        - generic: StableEnrich
+      - button "StableStudio, provider, Unproven":
+        - generic: StableStudio
+      - button "StableUpload, provider, Unproven":
+        - generic: StableUpload
+      - button "Stop scrolling the feed. Read the graph., meme, Compounding":
+        - generic: Stop scrolling the feed. Read the graph.
+      - button "Storage, category, Compounding":
+        - generic: Storage
+      - button "Tokenized carbon credit, token, Unproven":
+        - generic: Tokenized carbon credit
+      - button "x402, project, Compounding":
+        - generic: x402
+      - button "Pay.sh, project, Validated":
+        - generic: Pay.sh
+  - complementary "Selected node details":
+    - paragraph: Selected Node
+    - heading "Pay.sh" [level=2]
+    - button "Copy node signal"
+    - generic: project
+    - generic: Validated
+    - generic: Agentic Payments
+    - paragraph: Settlement rail and provider surface that turns routes into machine-readable spend options.
+    - term: Confidence
+    - definition: 93/100
+    - term: Velocity
+    - definition: 82/100
+    - term: Created
+    - definition: Jun 12, 2026, 2:30 PM
+    - term: Updated
+    - definition: Jun 25, 2026, 2:30 PM
+    - heading "Connected nodes" [level=3]
+    - button "Solana payments"
+    - button "Agent wallets"
+    - button "Pre-Spend Intelligence"
+    - button "x402"
+    - heading "Receipts" [level=3]
+    - link "receipt_005":
+      - /url: /receipts/receipt_005
+    - link "receipt_010":
+      - /url: /receipts/receipt_010
+    - heading "Claims" [level=3]
+    - link "claim_001":
+      - /url: /claims/claim_001
+    - heading "Loops" [level=3]
+    - link "loop_pre_spend_route":
+      - /url: /loops/loop_pre_spend_route
+    - heading "Routes" [level=3]
+    - paragraph: No linked routes recorded.
+    - heading "Providers" [level=3]
+    - paragraph: No linked providers recorded.
+    - heading "Services" [level=3]
+    - paragraph: No linked services recorded.
+    - heading "Source URLs" [level=3]
+    - link "https://pay.sh":
+      - /url: https://pay.sh
+    - heading "Connected edges" [level=3]
+    - article:
+      - strong: receipt
+      - generic: 91/100
+      - paragraph: Pay.sh is currently best evidenced on the Solana payment rail.
+    - article:
+      - strong: shared wallet
+      - generic: 88/100
+      - paragraph: Agent wallets depend on Pay.sh-compatible rails for bounded spend.
+    - article:
+      - strong: proof link
+      - generic: 90/100
+      - paragraph: Pre-Spend Intelligence evaluates whether Pay.sh routes are ready before spend.
+    - article:
+      - strong: semantic similarity
+      - generic: 72/100
+      - paragraph: Both map agent-native payment flows, but their proof surfaces differ.
+  - region "24h Ripples":
+    - paragraph: 24h Ripples
+    - heading "24h Ripples" [level=2]
+    - paragraph: What changed in the graph since the last cycle.
+    - article:
+      - paragraph: Agentic Payments
+      - heading "Payment rail narrative is consolidating around wallet-aware routes" [level=3]
+      - button "Copy signal"
+      - paragraph: Agent wallets, Pay.sh, and x402 are being discussed as one stack, but Base evidence still lags Solana receipts.
+      - generic: Compounding
+      - generic: Impact 82/100
+      - generic: 5 linked nodes
+      - paragraph: Changed Jun 25, 2026, 2:15 AM
+    - article:
+      - paragraph: Machine Markets
+      - heading "Machine buyers are moving from demo copy to bounded route plans" [level=3]
+      - button "Copy signal"
+      - paragraph: Cloud translation and NAVER geocode remain bounded proof paths while DePIN threads amplify the broader machine-market thesis.
+      - generic: Validated
+      - generic: Impact 76/100
+      - generic: 5 linked nodes
+      - paragraph: Changed Jun 25, 2026, 2:15 AM
+    - article:
+      - paragraph: Pre-Spend Intelligence
+      - heading "Receipt doctrine is hardening into product memory" [level=3]
+      - button "Copy signal"
+      - paragraph: "Routes, receipts, Proof Feed, and LoopLab are converging on one message: route memory should outlive the feed."
+      - generic: Validated
+      - generic: Impact 91/100
+      - generic: 5 linked nodes
+      - paragraph: Changed Jun 25, 2026, 2:30 PM
+    - article:
+      - paragraph: Carbon Finance 2.0
+      - heading "Carbon narratives are being challenged as proof-sensitive claims" [level=3]
+      - button "Copy signal"
+      - paragraph: Integrity threads are pressuring tokenized carbon stories to surface receipts instead of relying on green alpha rhetoric.
+      - generic: Disputed
+      - generic: Impact 74/100
+      - generic: 4 linked nodes
+      - paragraph: Changed Jun 25, 2026, 2:15 AM
+    - article:
+      - paragraph: CT Subcultures
+      - heading "CT is memeing the graph as an antidote to screenshot markets" [level=3]
+      - button "Copy signal"
+      - paragraph: Claim-market memes and graph-reading memes are spreading together as culture adapts to proof-aware information flows.
+      - generic: Compounding
+      - generic: Impact 80/100
+      - generic: 4 linked nodes
+      - paragraph: Changed Jun 25, 2026, 2:30 PM
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

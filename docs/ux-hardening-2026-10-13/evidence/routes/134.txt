@@ -1,0 +1,228 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: TROLL
+- paragraph:
+  - generic: "[ 09 ]"
+  - text: SIGNALS / MARKET INTELLIGENCE
+- link "Skip to content":
+  - /url: "#signal-content"
+- main:
+  - paragraph: Narrative signal report
+  - heading "$TROLL / The Re-Indexed Archetype" [level=1]
+  - paragraph: TROLL is not a fresh meme trying to become culture. It is old internet culture being reactivated by the trenches as a Solana-native community asset. Its strength comes from archetype survival, community takeover energy, and tracker-visible holder surface that has remained legible across multiple rotations.
+  - paragraph: This report maps signal conditions around a narrative asset. It is a narrative intelligence artifact, not a trading instruction.
+  - paragraph: Infopunks Radar is no longer just watching markets. It is watching the narratives that become markets.
+  - paragraph: Signal source
+  - paragraph: Community takeover + legacy internet meme archetype
+  - paragraph: Last updated
+  - paragraph: 2026-06-30 13:30
+  - region "Latest desk update":
+    - paragraph: Latest Desk Update
+    - heading "Verdict Change" [level=2]
+    - generic: Verdict Change
+    - paragraph: Infopunks upgrades $TROLL to Durable Re-index after reclassifying its long circulation, 64,000+ holder surface, and legacy internet archetype survival as stronger evidence.
+    - generic: 2026-06-30 13:30
+    - link "Open Living Evidence Feed":
+      - /url: "#living-evidence-feed"
+  - paragraph: Mapped asset
+  - heading "TROLL / The Re-Indexed Archetype" [level=2]
+  - paragraph: Infopunks upgrades $TROLL to Durable Re-index. The signal is not novelty. The signal is survival. TROLL has lived through multiple market rotations, attention collapses, revivals, and trench regime changes. A meme that remains in circulation for more than 435 days and still carries a 64,000+ holder surface is no longer just a temporary joke. It becomes internet memory with a market wrapper. TROLL is not a fresh meme trying to become culture. TROLL is old internet culture being reactivated by the trenches.
+  - article "Report freshness card":
+    - paragraph: Report Freshness
+    - heading "Live Watch" [level=2]
+    - generic: Live Watch
+    - generic: Last updated
+    - strong: 2026-06-30 13:30
+    - generic: Evidence updates
+    - strong: "2"
+    - generic: Latest update type
+    - strong: Verdict Change
+    - generic: Desk status
+    - strong: Live Watch
+  - region "Related narrative routes":
+    - paragraph: Desk links
+    - link "Attention Markets Thesis":
+      - /url: /narratives/attention-markets
+    - link "Narrative Intel Index":
+      - /url: /narratives
+  - region "Signal Source":
+    - paragraph: Narrative desk
+    - heading "Signal Source" [level=2]
+    - paragraph: TROLL's signal source is not one KOL. It is an old internet-native archetype plus community takeover structure.
+    - article:
+      - paragraph: Signal Strength
+      - generic: strong signal
+      - strong: 90/100
+      - paragraph: The signal comes from archetype survival plus community takeover structure, not from novelty.
+      - generic: "Evidence note: More than 435 days in circulation and a 64,000+ tracker-visible holder surface give the re-index thesis durable evidence."
+  - region "Archetype Survival":
+    - paragraph: Narrative desk
+    - heading "Archetype Survival" [level=2]
+    - paragraph: The signal is survival, not novelty. TROLL has remained in circulation for more than 435 days, survived rotations and volatility, and kept enough continuity for the re-index thesis to strengthen over time.
+    - article:
+      - paragraph: Meme Fitness
+      - generic: strong signal
+      - strong: 96/100
+      - paragraph: The troll symbol is already installed in internet memory, so it travels without needing fresh lore education.
+      - generic: "Evidence note: Legacy meme recognizability reduces explanation friction across internet-native communities."
+    - article:
+      - paragraph: Myth Coherence
+      - generic: strong signal
+      - strong: 93/100
+      - paragraph: "The story is compact: old internet archetype, new chain, community-run reactivation."
+      - generic: "Evidence note: The narrative does not depend on invention; it depends on recognizable survival and return."
+    - article:
+      - paragraph: Archetype Survival
+      - generic: strong signal
+      - strong: 94/100
+      - paragraph: Longevity strengthens the re-index thesis because the symbol survived rotations, volatility, and trench regime changes.
+      - generic: "Evidence note: The signal is survival, not novelty: more than 435 days in circulation materially changes the quality of the meme case."
+  - region "Holder Surface":
+    - paragraph: Narrative desk
+    - heading "Holder Surface" [level=2]
+    - paragraph: Public tracker and on-chain context show a 64,000+ holder surface. Infopunks treats that as a meaningful tracker-visible surface rather than perfect canonical truth, and continues to monitor concentration closely.
+    - article:
+      - paragraph: Community Surface
+      - generic: strong signal
+      - strong: 89/100
+      - paragraph: Community surface is visible across the takeover framing and the tracker-visible holder surface.
+      - generic: "Evidence note: A 64,000+ holder surface strengthens the surface-area case, while concentration still requires monitoring."
+    - article:
+      - paragraph: Holder / Power Concentration
+      - generic: concentrated power
+      - strong: 72/100
+      - paragraph: The holder surface is broad enough to matter, but concentration still needs monitoring before distribution claims get over-read.
+      - generic: "Evidence note: The 64,000+ holder surface is tracker-visible and useful, but it is not perfect canonical truth about distribution quality."
+  - region "Community Takeover":
+    - paragraph: Narrative desk
+    - heading "Community Takeover" [level=2]
+    - paragraph: The community takeover framing remains important because it shifts the signal away from single-person dependency and toward trench-level cultural maintenance.
+    - article:
+      - paragraph: Community Surface
+      - generic: strong signal
+      - strong: 89/100
+      - paragraph: Community surface is visible across the takeover framing and the tracker-visible holder surface.
+      - generic: "Evidence note: A 64,000+ holder surface strengthens the surface-area case, while concentration still requires monitoring."
+    - article:
+      - paragraph: Sovereignty Score
+      - generic: watch closely
+      - strong: 63/100
+      - paragraph: Community takeover improves independence versus persona-led narratives and gives the asset a more durable ownership story.
+      - generic: "Evidence note: Sovereignty is stronger than a persona-led meme, but it still depends on whether the community can defend the symbol through future rotations."
+  - region "Attention Velocity":
+    - paragraph: Narrative desk
+    - heading "Attention Velocity" [level=2]
+    - paragraph: "TROLL has market visibility and recognizable lore, but the stronger case now comes from durability: attention is amplifying a meme that has already survived multiple regime changes."
+    - article:
+      - paragraph: Attention Velocity
+      - generic: watch closely
+      - strong: 82/100
+      - paragraph: Recognizable lore and trench memory keep attention moving, even though the case rests more on durability than speed.
+      - generic: "Evidence note: Attention matters here, but it is secondary to the stronger evidence that the meme can persist through multiple cycles."
+    - article:
+      - paragraph: Trench Contagion
+      - generic: watch closely
+      - strong: 86/100
+      - paragraph: Legacy meme shorthand can spread fast in trench environments because the symbol is universally legible.
+      - generic: "Evidence note: Contagion can accelerate precisely because the meme does not need a long onboarding curve."
+  - region "Reflexivity Risk":
+    - paragraph: Narrative desk
+    - heading "Reflexivity Risk" [level=2]
+    - paragraph: Legacy memes can revive quickly, but attention loops can also overheat. Track whether price, posting, and belief become self-reinforcing without new evidence.
+    - article:
+      - paragraph: Reflexivity Risk
+      - generic: high reflexivity
+      - strong: 78/100
+      - paragraph: Legacy memes can reignite quickly, which means posting, price, and belief can start reinforcing each other before evidence deepens.
+      - generic: "Evidence note: Track whether attention loops remain evidence-led or become self-justifying."
+    - article:
+      - paragraph: Sovereignty Score
+      - generic: watch closely
+      - strong: 63/100
+      - paragraph: Community takeover improves independence versus persona-led narratives and gives the asset a more durable ownership story.
+      - generic: "Evidence note: Sovereignty is stronger than a persona-led meme, but it still depends on whether the community can defend the symbol through future rotations."
+  - region "Living Evidence Feed":
+    - paragraph: Living desk
+    - heading "Living Evidence Feed" [level=2]
+    - paragraph: Versioned updates tracking how the narrative changes over time.
+    - generic: Verdict Change
+    - paragraph: Reports are not final. Signals mutate.
+    - paragraph: "Evidence update summary: Infopunks upgrades $TROLL to Durable Re-index after reclassifying its long circulation, 64,000+ holder surface, and legacy internet archetype survival as stronger evidence. Score movement: 86 -> 90. Latest signal shift: verdict_change. Reflexivity monitoring remains active. Infopunks Radar is no longer just watching markets. It is watching the narratives that become markets."
+    - article:
+      - paragraph: 2026-06-30 13:30
+      - heading "Verdict Change" [level=3]
+      - generic: Verdict Change
+      - paragraph: Infopunks upgrades $TROLL to Durable Re-index after reclassifying its long circulation, 64,000+ holder surface, and legacy internet archetype survival as stronger evidence.
+      - generic: Signal Delta
+      - strong: 86 → 90 (+4)
+      - paragraph: "Analyst note: TROLL's signal is not novelty. The signal is survival. More than 435 days in circulation and a 64,000+ holder surface suggest the meme has persisted through multiple rotations instead of relying only on fresh attention. The desk upgrades the verdict while continuing to monitor concentration, reflexivity, and evidence quality."
+      - link "Open Dispatch":
+        - /url: /signals/troll/updates/seu_troll_002
+      - link "https://solscan.io/token/5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2":
+        - /url: https://solscan.io/token/5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2
+      - link "/signals/troll":
+        - /url: /signals/troll
+    - article:
+      - paragraph: 2026-06-30 12:00
+      - heading "Verdict Change" [level=3]
+      - generic: Verdict Change
+      - paragraph: Infopunks opens $TROLL as the second re-indexed signal report, classifying it as a legacy internet archetype entering Solana-native community takeover form.
+      - paragraph: "Analyst note: TROLL's signal is not novelty. The signal is resurrection. The meme already exists in internet memory; the desk is now watching whether community takeover structure, liquidity, holder surface, and trench attention can turn that legacy archetype into a durable Solana-native narrative asset."
+      - link "Open Dispatch":
+        - /url: /signals/troll/updates/seu_troll_001
+      - link "https://dexscreener.com/solana/4w2cysotx6czaugmmwg13hdpy4qemg2czekyeqyk9ama":
+        - /url: https://dexscreener.com/solana/4w2cysotx6czaugmmwg13hdpy4qemg2czekyeqyk9ama
+      - link "/signals/troll":
+        - /url: /signals/troll
+  - region "Infopunk Verdict":
+    - paragraph: Narrative desk
+    - heading "Infopunk Verdict" [level=2]
+    - paragraph: Infopunks upgrades $TROLL to Durable Re-index. The signal is not novelty. The signal is survival. TROLL has lived through multiple market rotations, attention collapses, revivals, and trench regime changes. A meme that remains in circulation for more than 435 days and still carries a 64,000+ holder surface is no longer just a temporary joke. It becomes internet memory with a market wrapper. TROLL is not a fresh meme trying to become culture. TROLL is old internet culture being reactivated by the trenches.
+    - article:
+      - paragraph: Infopunk Verdict
+      - generic: Durable Re-index
+      - strong: DURABLE RE-INDEX
+      - paragraph: Old internet culture reactivated by Solana trench memory.
+      - generic: "Evidence note: The desk upgrades the verdict while keeping concentration, reflexivity, and evidence quality visible."
+  - article:
+    - paragraph: Solscan holder surface
+    - paragraph: Public tracker-visible holder surface shows 64,000+ wallets on Solscan. Infopunks treats this as a visible surface, not canonical proof of perfect distribution.
+    - link "Open artifact":
+      - /url: https://solscan.io/token/5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2
+  - article:
+    - paragraph: Community takeover profile
+    - paragraph: "Community takeover framing remains central to the signal: the meme is being carried by a community-run structure rather than a single personality node."
+    - link "Open artifact":
+      - /url: https://dexscreener.com/solana/4w2cysotx6czaugmmwg13hdpy4qemg2czekyeqyk9ama
+  - article:
+    - paragraph: Legacy meme home
+    - paragraph: The project site anchors the archetype in familiar internet-native troll lore rather than newly invented story scaffolding.
+    - link "Open artifact":
+      - /url: https://trololol.io
+  - article:
+    - paragraph: Archetype survival
+    - paragraph: More than 435 days in circulation matters because the signal is survival, not novelty. Longevity strengthens the re-index thesis by showing the archetype can persist through multiple rotations.
+    - link "Open artifact":
+      - /url: https://solscan.io/token/5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

@@ -1,0 +1,48 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: qualification missing record
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-service-content"
+- banner:
+  - navigation "Machine Service Dossier navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Service Dossier":
+  - region "Unknown machine service":
+    - status:
+      - strong: Machine service not found.
+      - generic: This service is not in the current robotic.sh visible service mirror.
+    - paragraph: Pay.sh execution candidates are tracked separately from the robotic.sh visible service mirror. Alibaba Machine Translation General is the first service-specific execution-tested Pay.sh route in this machine-translation evidence set; it is not counted as one of the 13 visible robotic.sh services unless robotic.sh lists it.
+    - link "Back to Machine Market":
+      - /url: /machine-market
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

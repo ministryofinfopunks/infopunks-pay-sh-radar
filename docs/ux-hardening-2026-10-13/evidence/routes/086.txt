@@ -1,0 +1,37 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: qualification missing record
+- paragraph:
+  - generic: "[ 07 ]"
+  - text: JUDGMENT / PRE-SPEND INTELLIGENCE
+- main "Preflight card not found":
+  - paragraph: INFOPUNKS PREFLIGHT CARD
+  - heading "provider card not found." [level=1]
+  - paragraph:
+    - text: No public preflight card is available for
+    - code: qualification-missing-record
+    - text: .
+  - link "Back to Radar":
+    - /url: /
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

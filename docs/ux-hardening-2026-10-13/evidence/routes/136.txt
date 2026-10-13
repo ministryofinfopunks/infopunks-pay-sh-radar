@@ -1,0 +1,68 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Pre-Spend Terminal
+- paragraph:
+  - generic: "[ 07 ]"
+  - text: JUDGMENT / PRE-SPEND INTELLIGENCE
+- main:
+  - paragraph: Solana Radar · Pre-Spend Intelligence
+  - heading "Should this agent spend?" [level=1]
+  - paragraph: Describe the intent. Inspect the evidence-bound decision before committing funds.
+  - note: Advisory assessment. Execution requires separate authorization. Subject network and fee settlement are independent.
+  - form "Spend check":
+    - heading "Run a Check" [level=2]
+    - text: Agent identity
+    - textbox "Agent identity": radar-browser
+    - text: Tenant access key
+    - textbox "Tenant access key"
+    - paragraph: Your operator-issued key stays in this tab's memory. Check does not authorize payment or execute an action.
+    - text: Intent
+    - textbox "Intent": buy_market_research
+    - text: Subject or route identifier
+    - generic: Optional · preserved in deep links
+    - textbox "Subject or route identifier Optional · preserved in deep links"
+    - text: Budget
+    - spinbutton "Budget": "25"
+    - text: Risk tolerance
+    - combobox "Risk tolerance":
+      - option "low" [selected]
+      - option "medium"
+      - option "high"
+      - option "critical"
+    - text: Service payment preference
+    - textbox "Service payment preference This is the service method, independent of the Judgment fee rail. Native Solana fee settlement is unavailable.": stablecoin
+    - generic: This is the service method, independent of the Judgment fee rail. Native Solana fee settlement is unavailable.
+    - text: Required confidence
+    - spinbutton "Required confidence": "80"
+    - button "Run a Check":
+      - text: Run a Check
+      - generic: ↗
+    - paragraph: This check cannot sign, execute, or automatically pay.
+  - region "Evidence before action.":
+    - paragraph: Canonical Judgment
+    - heading "Evidence before action." [level=2]
+    - text: ◎
+    - paragraph: A check returns one of four decisions. Missing, stale, or unqualified evidence remains visible.
+    - paragraph: Insufficient evidence is free. No paid canonical receipt is issued.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

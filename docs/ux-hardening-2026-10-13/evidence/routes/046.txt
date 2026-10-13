@@ -1,0 +1,297 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Loops
+- paragraph:
+  - generic: "[ 08 ]"
+  - text: LOOPLAB / COLLECTIVE MEMORY
+- main "Loops page":
+  - paragraph: Infopunks LoopLab
+  - heading "Where autonomous work becomes collective memory." [level=1]
+  - paragraph: AI is moving from prompts to loops. LoopLab turns autonomous runs into proof receipts so the next agent does not start from zero.
+  - paragraph: Prompts made agents talk. Loops make agents work. Proof receipts make that work trustworthy.
+  - link "Open Proof Feed":
+    - /url: /check
+  - link "Inspect first loop":
+    - /url: /loops/loop_pre_spend_route
+  - generic "Collective memory counters":
+    - article:
+      - generic: total loops
+      - strong: "6"
+    - article:
+      - generic: proof checks linked
+      - strong: "6"
+    - article:
+      - generic: evidence artifacts
+      - strong: "11"
+    - article:
+      - generic: failure reasons logged
+      - strong: "4"
+    - article:
+      - generic: decision states issued
+      - strong: "4"
+  - region "How the loop works":
+    - paragraph: How The Loop Works
+    - heading "Loop engineering in seven fields" [level=2]
+    - paragraph: Prompts made agents talk. Loops make agents work.
+    - article:
+      - paragraph: Objective
+      - paragraph: Define what autonomous work is supposed to improve.
+    - article:
+      - paragraph: Hypothesis
+      - paragraph: State what the loop expects to prove or disprove.
+    - article:
+      - paragraph: Action
+      - paragraph: Record what the agent or operator actually ran.
+    - article:
+      - paragraph: Evidence
+      - paragraph: Attach artifacts, notes, and linked proof receipts.
+    - article:
+      - paragraph: Score
+      - paragraph: Quantify how much confidence the loop earned.
+    - article:
+      - paragraph: Proof Receipt
+      - paragraph: Link the loop to a public Infopunks receipt check.
+    - article:
+      - paragraph: Memory
+      - paragraph: Persist failure and success so the next agent starts ahead.
+  - region "Loop receipt cards":
+    - article "Loop Receipt Card":
+      - paragraph: INFOPUNKS LOOP RECEIPT
+      - generic: TRUST
+      - heading "Pre-Spend API Route Loop" [level=2]
+      - paragraph: Keep pre-spend route decisions tied to receipt-backed evidence before autonomous spend.
+      - paragraph:
+        - generic: Proof state
+        - strong: verified
+      - paragraph:
+        - generic: Score
+        - strong: "88"
+      - paragraph:
+        - generic: Linked check
+        - strong: check_route_pay_sh_seed
+      - paragraph:
+        - generic: Runs
+        - strong: "1"
+      - heading "Failure reason" [level=3]
+      - paragraph: No failure reason recorded for this loop.
+      - generic: No receipt, no trust.
+      - generic: check_route_pay_sh_seed
+    - link "Inspect loop":
+      - /url: /loops/loop_pre_spend_route
+    - link "Open proof receipt":
+      - /url: /check/check_route_pay_sh_seed
+    - article "Loop Receipt Card":
+      - paragraph: INFOPUNKS LOOP RECEIPT
+      - generic: TRUST
+      - heading "Provider Trust Loop" [level=2]
+      - paragraph: Turn provider reliability observations into reusable trust memory.
+      - paragraph:
+        - generic: Proof state
+        - strong: verified
+      - paragraph:
+        - generic: Score
+        - strong: "92"
+      - paragraph:
+        - generic: Linked check
+        - strong: check_provider_reliability_seed
+      - paragraph:
+        - generic: Runs
+        - strong: "1"
+      - heading "Failure reason" [level=3]
+      - paragraph: No failure reason recorded for this loop.
+      - generic: No receipt, no trust.
+      - generic: check_provider_reliability_seed
+    - link "Inspect loop":
+      - /url: /loops/loop_provider_trust
+    - link "Open proof receipt":
+      - /url: /check/check_provider_reliability_seed
+    - article "Loop Receipt Card":
+      - paragraph: INFOPUNKS LOOP RECEIPT
+      - generic: DO NOT USE YET
+      - heading "Failure Memory Loop" [level=2]
+      - paragraph: Record failures so agents stop repeating bad paths.
+      - paragraph:
+        - generic: Proof state
+        - strong: failure recorded
+      - paragraph:
+        - generic: Score
+        - strong: "41"
+      - paragraph:
+        - generic: Linked check
+        - strong: check_agent_autonomy_seed
+      - paragraph:
+        - generic: Runs
+        - strong: "1"
+      - heading "Failure reason" [level=3]
+      - paragraph: Autonomy claim is still louder than the recorded evidence.
+      - generic: No receipt, no trust.
+      - generic: check_agent_autonomy_seed
+    - link "Inspect loop":
+      - /url: /loops/loop_failure_memory
+    - link "Open proof receipt":
+      - /url: /check/check_agent_autonomy_seed
+    - article "Loop Receipt Card":
+      - paragraph: INFOPUNKS LOOP RECEIPT
+      - generic: CAUTION
+      - heading "Machine Service Route Loop" [level=2]
+      - paragraph: Test whether machine-service route surfaces are safe enough for first use.
+      - paragraph:
+        - generic: Proof state
+        - strong: partial
+      - paragraph:
+        - generic: Score
+        - strong: "67"
+      - paragraph:
+        - generic: Linked check
+        - strong: check_machine_market_seed
+      - paragraph:
+        - generic: Runs
+        - strong: "1"
+      - heading "Failure reason" [level=3]
+      - paragraph: Repeatable service receipts are still partial.
+      - generic: No receipt, no trust.
+      - generic: check_machine_market_seed
+    - link "Inspect loop":
+      - /url: /loops/loop_machine_service_route
+    - link "Open proof receipt":
+      - /url: /check/check_machine_market_seed
+    - article "Loop Receipt Card":
+      - paragraph: INFOPUNKS LOOP RECEIPT
+      - generic: UNPROVEN
+      - heading "Carbon Claim Integrity Loop" [level=2]
+      - paragraph: Force environmental market claims through a receipt discipline before they become routing memory.
+      - paragraph:
+        - generic: Proof state
+        - strong: unproven
+      - paragraph:
+        - generic: Score
+        - strong: "29"
+      - paragraph:
+        - generic: Linked check
+        - strong: check_token_narrative_seed
+      - paragraph:
+        - generic: Runs
+        - strong: "1"
+      - heading "Failure reason" [level=3]
+      - paragraph: Narrative outruns receipts and the claim source remains incomplete.
+      - generic: No receipt, no trust.
+      - generic: check_token_narrative_seed
+    - link "Inspect loop":
+      - /url: /loops/loop_carbon_claim_integrity
+    - link "Open proof receipt":
+      - /url: /check/check_token_narrative_seed
+    - article "Loop Receipt Card":
+      - paragraph: INFOPUNKS LOOP RECEIPT
+      - generic: CAUTION
+      - heading "MONITOR Narrative Pre-Spend Loop" [level=2]
+      - paragraph: Keep the MONITOR market narrative linked to Proof Feed and pre-spend caution before any payment is attempted.
+      - paragraph:
+        - generic: Proof state
+        - strong: unproven
+      - paragraph:
+        - generic: Score
+        - strong: "0"
+      - paragraph:
+        - generic: Linked check
+        - strong: check_monitor
+      - paragraph:
+        - generic: Runs
+        - strong: "1"
+      - heading "Failure reason" [level=3]
+      - paragraph: No payment executed; outcome remains NOT_VERIFIED.
+      - generic: No receipt, no trust.
+      - generic: check_monitor
+    - link "Inspect loop":
+      - /url: /loops/monitor-narrative-pre-spend
+    - link "Open proof receipt":
+      - /url: /check/check_monitor
+  - region "Failure Wall":
+    - paragraph: Failure Wall
+    - heading "Every failed loop is memory for the next agent." [level=2]
+    - paragraph: Corrupted signal is economic risk.
+    - article:
+      - paragraph: failure recorded
+      - heading "Failure Memory Loop" [level=3]
+      - paragraph: Autonomy claim is still louder than the recorded evidence.
+      - paragraph:
+        - generic: Score
+        - strong: "41"
+      - paragraph:
+        - generic: Decision
+        - strong: DO NOT USE YET
+      - paragraph:
+        - generic: Proof
+        - strong: failure recorded
+      - paragraph:
+        - link "Inspect failure memory":
+          - /url: /loops/loop_failure_memory
+    - article:
+      - paragraph: partial
+      - heading "Machine Service Route Loop" [level=3]
+      - paragraph: Repeatable service receipts are still partial.
+      - paragraph:
+        - generic: Score
+        - strong: "67"
+      - paragraph:
+        - generic: Decision
+        - strong: CAUTION
+      - paragraph:
+        - generic: Proof
+        - strong: partial
+      - paragraph:
+        - link "Inspect failure memory":
+          - /url: /loops/loop_machine_service_route
+    - article:
+      - paragraph: unproven
+      - heading "Carbon Claim Integrity Loop" [level=3]
+      - paragraph: Narrative outruns receipts and the claim source remains incomplete.
+      - paragraph:
+        - generic: Score
+        - strong: "29"
+      - paragraph:
+        - generic: Decision
+        - strong: UNPROVEN
+      - paragraph:
+        - generic: Proof
+        - strong: unproven
+      - paragraph:
+        - link "Inspect failure memory":
+          - /url: /loops/loop_carbon_claim_integrity
+    - article:
+      - paragraph: unproven
+      - heading "MONITOR Narrative Pre-Spend Loop" [level=3]
+      - paragraph: No payment executed; outcome remains NOT_VERIFIED.
+      - paragraph:
+        - generic: Score
+        - strong: "0"
+      - paragraph:
+        - generic: Decision
+        - strong: CAUTION
+      - paragraph:
+        - generic: Proof
+        - strong: unproven
+      - paragraph:
+        - link "Inspect failure memory":
+          - /url: /loops/monitor-narrative-pre-spend
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

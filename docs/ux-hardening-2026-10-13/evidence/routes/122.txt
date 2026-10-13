@@ -1,0 +1,151 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Routes
+- paragraph:
+  - generic: "[ 03 ]"
+  - text: ROUTES / SERVICE INTELLIGENCE
+- main "Routes":
+  - paragraph: Receipt-backed route intelligence
+  - heading "Routes" [level=1]
+  - paragraph: Before your agent pays, inspect the route. These cards show known blockers, safer route posture, and the receipts behind each economic action.
+  - region "Pre-spend intelligence metrics":
+    - article:
+      - text: Legacy diagnostic records
+      - strong: "3"
+    - article:
+      - text: routes indexed
+      - strong: "6"
+    - article:
+      - text: providers scored
+      - strong: "5"
+    - article:
+      - text: receipts generated
+      - strong: "11"
+    - article:
+      - text: pre-spend checks completed
+      - strong: "6"
+    - article:
+      - text: human validations submitted
+      - strong: "3"
+    - article:
+      - text: failed routes avoided
+      - strong: "0"
+    - article:
+      - text: claims challenged
+      - strong: "2"
+    - article:
+      - text: repeatable routes discovered
+      - strong: "3"
+  - generic: service type
+  - combobox "service type":
+    - option "all" [selected]
+    - option "service_market_research"
+    - option "service_token_pricing"
+    - option "service_receipt_parsing"
+    - option "service_compliance_scan"
+    - option "service_private_profile_scrape"
+  - generic: sort
+  - combobox "sort":
+    - option "confidence sorting" [selected]
+    - option "risk sorting"
+  - region "Route cards":
+    - article:
+      - 'link "buy_market_research route_pay_sh_market_research_01 POST /market/research risk medium confidence 0 cost 0.25 USDC latency range 900-1600 ms last successful run 2026-06-14 Known blockers: occasional timeout under high load, output quality varies by prompt specificity Inspect route evidence graph"':
+        - /url: /routes/route_pay_sh_market_research_01
+        - paragraph: buy_market_research
+        - heading "route_pay_sh_market_research_01" [level=2]
+        - paragraph: POST /market/research
+        - generic: risk medium
+        - generic: confidence 0
+        - generic: cost 0.25 USDC
+        - generic: latency range 900-1600 ms
+        - generic: last successful run 2026-06-14
+        - paragraph: "Known blockers: occasional timeout under high load, output quality varies by prompt specificity"
+        - generic: Inspect route evidence graph
+    - article:
+      - 'link "buy_market_research route_pay_sh_market_research_03 POST /research/brief risk low confidence 0 cost 0.31 USDC latency range 780-1280 ms last successful run 2026-06-15 Known blockers: none Inspect route evidence graph"':
+        - /url: /routes/route_pay_sh_market_research_03
+        - paragraph: buy_market_research
+        - heading "route_pay_sh_market_research_03" [level=2]
+        - paragraph: POST /research/brief
+        - generic: risk low
+        - generic: confidence 0
+        - generic: cost 0.31 USDC
+        - generic: latency range 780-1280 ms
+        - generic: last successful run 2026-06-15
+        - paragraph: "Known blockers: none"
+        - generic: Inspect route evidence graph
+    - article:
+      - 'link "price_token_quote route_pay_sh_token_quote_01 GET /token/quote risk low confidence 0 cost 0.07 USDC latency range 240-510 ms last successful run 2026-06-16 Known blockers: none Inspect route evidence graph"':
+        - /url: /routes/route_pay_sh_token_quote_01
+        - paragraph: price_token_quote
+        - heading "route_pay_sh_token_quote_01" [level=2]
+        - paragraph: GET /token/quote
+        - generic: risk low
+        - generic: confidence 0
+        - generic: cost 0.07 USDC
+        - generic: latency range 240-510 ms
+        - generic: last successful run 2026-06-16
+        - paragraph: "Known blockers: none"
+        - generic: Inspect route evidence graph
+    - article:
+      - 'link "extract_receipt_fields route_pay_sh_receipt_parse_02 POST /receipt/parse risk medium confidence 0 cost 0.12 USDC latency range 620-1180 ms last successful run 2026-05-22 Known blockers: stale receipt evidence, layout-heavy PDFs may require manual review Inspect route evidence graph"':
+        - /url: /routes/route_pay_sh_receipt_parse_02
+        - paragraph: extract_receipt_fields
+        - heading "route_pay_sh_receipt_parse_02" [level=2]
+        - paragraph: POST /receipt/parse
+        - generic: risk medium
+        - generic: confidence 0
+        - generic: cost 0.12 USDC
+        - generic: latency range 620-1180 ms
+        - generic: last successful run 2026-05-22
+        - paragraph: "Known blockers: stale receipt evidence, layout-heavy PDFs may require manual review"
+        - generic: Inspect route evidence graph
+    - article:
+      - 'link "run_compliance_scan route_pay_sh_compliance_scan_01 POST /compliance/scan risk high confidence 0 cost 1.80 USDC latency range 1500-2800 ms last successful run 2026-06-15 Known blockers: claim sensitivity requires policy review Inspect route evidence graph"':
+        - /url: /routes/route_pay_sh_compliance_scan_01
+        - paragraph: run_compliance_scan
+        - heading "route_pay_sh_compliance_scan_01" [level=2]
+        - paragraph: POST /compliance/scan
+        - generic: risk high
+        - generic: confidence 0
+        - generic: cost 1.80 USDC
+        - generic: latency range 1500-2800 ms
+        - generic: last successful run 2026-06-15
+        - paragraph: "Known blockers: claim sensitivity requires policy review"
+        - generic: Inspect route evidence graph
+    - article:
+      - 'link "scrape_private_profile route_pay_sh_profile_scrape_09 POST /profile/scrape risk critical confidence 0 cost 0.90 USDC latency range 2200-4200 ms last successful run n/a Known blockers: no recent successful receipt, provider dispute unresolved, settlement mismatch for stablecoin agents Inspect route evidence graph"':
+        - /url: /routes/route_pay_sh_profile_scrape_09
+        - paragraph: scrape_private_profile
+        - heading "route_pay_sh_profile_scrape_09" [level=2]
+        - paragraph: POST /profile/scrape
+        - generic: risk critical
+        - generic: confidence 0
+        - generic: cost 0.90 USDC
+        - generic: latency range 2200-4200 ms
+        - generic: last successful run n/a
+        - paragraph: "Known blockers: no recent successful receipt, provider dispute unresolved, settlement mismatch for stablecoin agents"
+        - generic: Inspect route evidence graph
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

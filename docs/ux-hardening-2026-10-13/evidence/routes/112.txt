@@ -1,0 +1,56 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: claim
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- main:
+  - paragraph: Project Claim Intake
+  - heading "State the claim. Attach the evidence." [level=1]
+  - paragraph: Submission only creates queued intake. It is not an endorsement and never becomes reviewed truth automatically.
+  - text: Project name
+  - textbox "Project name"
+  - text: Exact Robinhood Chain contract
+  - textbox "Exact Robinhood Chain contract"
+  - text: Contact email or approved contact method
+  - textbox "Contact email or approved contact method"
+  - text: Claim category
+  - combobox "Claim category":
+    - option "Identity" [selected]
+    - option "Product live"
+    - option "Revenue"
+    - option "Other"
+  - text: Claim statement
+  - textbox "Claim statement"
+  - text: Supporting HTTPS evidence, one per line
+  - textbox "Supporting HTTPS evidence, one per line"
+  - checkbox "I accept the disclosure."
+  - text: I accept the disclosure.
+  - checkbox "I have authority to submit."
+  - text: I have authority to submit.
+  - checkbox "I consent to necessary privacy handling."
+  - text: I consent to necessary privacy handling.
+  - button "Queue claim for review"
+  - paragraph: Payment may purchase analysis work, never verification, publication, or a favorable conclusion.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

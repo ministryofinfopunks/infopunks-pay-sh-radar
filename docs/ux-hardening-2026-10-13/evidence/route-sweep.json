@@ -1,0 +1,1844 @@
+[
+  {
+    "route": "/",
+    "screenshot": "001.jpg",
+    "alerts": [],
+    "h1": [
+      "Before your agent spends, check the evidence."
+    ],
+    "height": 3739,
+    "scroll": 390,
+    "status": [],
+    "title": "INFOPUNKS RADAR / Radar · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663",
+    "screenshot": "002.jpg",
+    "alerts": [],
+    "h1": [
+      "Robinhood Chain,right now."
+    ],
+    "height": 5557,
+    "scroll": 390,
+    "status": [
+      "Some research sources are temporarily unavailable. Available evidence remains shown.",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "OPEN NOT CALLED",
+      "Private CALL history requires an approved identity. Public Pulse remains available; a new CALL is only submitted after you explicitly sign it."
+    ],
+    "title": "ROBINHOOD CHAIN / 4663 · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/call/qualification-missing-record",
+    "screenshot": "003.jpg",
+    "alerts": [],
+    "h1": [
+      "CALL RECEIPT"
+    ],
+    "height": 1388,
+    "scroll": 390,
+    "status": [
+      "DEGRADED / Persisted intelligence is temporarily unavailable."
+    ],
+    "title": "ROBINHOOD CHAIN / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/campaign/qualification-missing-record",
+    "screenshot": "004.jpg",
+    "alerts": [],
+    "h1": [],
+    "height": 1388,
+    "scroll": 390,
+    "status": [
+      "DEGRADED / Persisted intelligence is temporarily unavailable."
+    ],
+    "title": "ROBINHOOD CHAIN / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/consensus/qualification-missing-record",
+    "screenshot": "005.jpg",
+    "alerts": [],
+    "h1": [
+      "INFOPUNKS CONSENSUS"
+    ],
+    "height": 1388,
+    "scroll": 390,
+    "status": [
+      "DEGRADED / Persisted intelligence is temporarily unavailable."
+    ],
+    "title": "ROBINHOOD CHAIN / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/print/qualification-missing-record",
+    "screenshot": "006.jpg",
+    "alerts": [],
+    "h1": [
+      "//4663 PRINT 0830"
+    ],
+    "height": 1388,
+    "scroll": 390,
+    "status": [
+      "DEGRADED / Persisted intelligence is temporarily unavailable."
+    ],
+    "title": "ROBINHOOD CHAIN / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/proof/0x1111111111111111111111111111111111111111",
+    "screenshot": "007.jpg",
+    "alerts": [],
+    "h1": [
+      "PROOF PROFILE"
+    ],
+    "height": 1388,
+    "scroll": 390,
+    "status": [
+      "DEGRADED / Persisted intelligence is temporarily unavailable."
+    ],
+    "title": "ROBINHOOD CHAIN / 0x1111111111111111111111111111111111111111 · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/proof/qualification-missing-record",
+    "screenshot": "008.jpg",
+    "alerts": [],
+    "h1": [
+      "PROOF"
+    ],
+    "height": 1388,
+    "scroll": 390,
+    "status": [
+      "DEGRADED / Persisted intelligence is temporarily unavailable."
+    ],
+    "title": "ROBINHOOD CHAIN / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/receipts",
+    "screenshot": "009.jpg",
+    "alerts": [],
+    "h1": [
+      "RECEIPTS"
+    ],
+    "height": 1547,
+    "scroll": 390,
+    "status": [],
+    "title": "ROBINHOOD CHAIN / receipts · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/reflexive",
+    "screenshot": "010.jpg",
+    "alerts": [],
+    "h1": [
+      "STOCK TOKENSARE BECOMING MONEY."
+    ],
+    "height": 5348,
+    "scroll": 390,
+    "status": [],
+    "title": "REFLEXIVE RADAR / reflexive · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/reflexive/census",
+    "screenshot": "011.jpg",
+    "alerts": [],
+    "h1": [
+      "COUNT THECATEGORY."
+    ],
+    "height": 1363,
+    "scroll": 390,
+    "status": [],
+    "title": "REFLEXIVE RADAR / census · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/reflexive/pair/qualification-missing-record",
+    "screenshot": "012.jpg",
+    "alerts": [],
+    "h1": [],
+    "height": 1388,
+    "scroll": 390,
+    "status": [],
+    "title": "REFLEXIVE RADAR / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/reflexive/preflight/ipx-pltr",
+    "screenshot": "013.jpg",
+    "alerts": [],
+    "h1": [
+      "IPX / PLTR// PREFLIGHT LAB"
+    ],
+    "height": 5106,
+    "scroll": 390,
+    "status": [],
+    "title": "IPX PLTR / ipx pltr · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/reflexive/stock/qualification-missing-record",
+    "screenshot": "014.jpg",
+    "alerts": [],
+    "h1": [],
+    "height": 1388,
+    "scroll": 390,
+    "status": [],
+    "title": "REFLEXIVE RADAR / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/reflexive/watch",
+    "screenshot": "015.jpg",
+    "alerts": [],
+    "h1": [
+      "WATCH DISCOVERS.RADAR VERIFIES."
+    ],
+    "height": 8917,
+    "scroll": 390,
+    "status": [],
+    "title": "REFLEXIVE RADAR / watch · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/reflexive/watch/qualification-missing-record",
+    "screenshot": "016.jpg",
+    "alerts": [],
+    "h1": [],
+    "height": 1388,
+    "scroll": 390,
+    "status": [],
+    "title": "REFLEXIVE RADAR / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/resolution/qualification-missing-record",
+    "screenshot": "017.jpg",
+    "alerts": [],
+    "h1": [
+      "RESOLUTION RECEIPT"
+    ],
+    "height": 1388,
+    "scroll": 390,
+    "status": [
+      "DEGRADED / Persisted intelligence is temporarily unavailable."
+    ],
+    "title": "ROBINHOOD CHAIN / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/share/qualification-missing-record",
+    "screenshot": "018.jpg",
+    "alerts": [],
+    "h1": [
+      "Intelligence before the wallet acts."
+    ],
+    "height": 46518,
+    "scroll": 390,
+    "status": [
+      "Panel data unavailableBenchmark data delayed",
+      "Panel data unavailableAgent readiness cards delayed",
+      "Ecosystem StatusCritical propagation watchSystemic or critical propagation signals are present. Review propagation watch and recent degradations first.System reading: ecosystem pressure is systemic in the current propagation window.CatalogFIXTURE-BACKED RADAR STATEPropagationsystemicLatest Event10/12/2026, 11:20:44 PMFeatured ContextStableUpload",
+      "No preflight decision yet.Before your agent pays, it checks Infopunks for route intelligence.",
+      "No comparison selected.Select two or three providers or endpoints, then run Compare.",
+      "No mappings match filters.Adjust status, category, or intent filters.",
+      "Benchmark not ready.Readiness data is unavailable. Refresh once catalog history loads.",
+      "History warming up.No historical snapshots available yet",
+      "Risk enrichment delayedRisk enrichment delayed",
+      "History enrichment delayedHistory enrichment delayed",
+      "No degradations detected.Safe metadata monitors have not reported recent reachability degradation."
+    ],
+    "title": "ROBINHOOD CHAIN / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/4663/signals/qualification-missing-record",
+    "screenshot": "019.jpg",
+    "alerts": [],
+    "h1": [
+      "SIGNAL PROOF"
+    ],
+    "height": 1388,
+    "scroll": 390,
+    "status": [
+      "DEGRADED / Persisted intelligence is temporarily unavailable."
+    ],
+    "title": "ROBINHOOD CHAIN / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/abundance",
+    "screenshot": "020.jpg",
+    "alerts": [],
+    "h1": [
+      "Abundance Desk"
+    ],
+    "height": 13507,
+    "scroll": 390,
+    "status": [],
+    "title": "Abundance Desk",
+    "width": 390
+  },
+  {
+    "route": "/attention-market-watch",
+    "screenshot": "021.jpg",
+    "alerts": [],
+    "h1": [
+      "Attention Market Watch"
+    ],
+    "height": 9331,
+    "scroll": 390,
+    "status": [],
+    "title": "Infopunks Attention Market Watch",
+    "width": 390
+  },
+  {
+    "route": "/attention-market-watch/qualification-missing-record",
+    "screenshot": "022.jpg",
+    "alerts": [],
+    "h1": [],
+    "height": 1205,
+    "scroll": 390,
+    "status": [],
+    "title": "Infopunks Attention Market Watch: $QUALIFICATION-MISSING-RECORD",
+    "width": 390
+  },
+  {
+    "route": "/benchmarks",
+    "screenshot": "023.jpg",
+    "alerts": [],
+    "h1": [
+      "Radar Evidence Ledger"
+    ],
+    "height": 10239,
+    "scroll": 390,
+    "status": [],
+    "title": "Benchmarks | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/benchmarks/qualification-missing-record",
+    "screenshot": "024.jpg",
+    "alerts": [],
+    "h1": [
+      "Benchmark Not Found"
+    ],
+    "height": 1349,
+    "scroll": 390,
+    "status": [],
+    "title": "Benchmark Not Found | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/check",
+    "screenshot": "025.jpg",
+    "alerts": [],
+    "h1": [
+      "Check the receipts before the market believes the claim."
+    ],
+    "height": 7277,
+    "scroll": 390,
+    "status": [],
+    "title": "JUDGMENT / Check · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/check/monitor",
+    "screenshot": "026.jpg",
+    "alerts": [],
+    "h1": [],
+    "height": 2165,
+    "scroll": 390,
+    "status": [],
+    "title": "JUDGMENT / monitor · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/check/qualification-missing-record",
+    "screenshot": "027.jpg",
+    "alerts": [],
+    "h1": [
+      "Proof check not found"
+    ],
+    "height": 1349,
+    "scroll": 390,
+    "status": [],
+    "title": "JUDGMENT / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/claim",
+    "screenshot": "028.jpg",
+    "alerts": [],
+    "h1": [
+      "Claims are how Infopunks turns receipts into reusable signal."
+    ],
+    "height": 4464,
+    "scroll": 390,
+    "status": [],
+    "title": "Claims | Infopunks Builder",
+    "width": 390
+  },
+  {
+    "route": "/claims/qualification-missing-record",
+    "screenshot": "029.jpg",
+    "alerts": [],
+    "h1": [
+      "Claim not found"
+    ],
+    "height": 1349,
+    "scroll": 390,
+    "status": [],
+    "title": "qualification-missing-record | Claim Detail",
+    "width": 390
+  },
+  {
+    "route": "/developers",
+    "screenshot": "030.jpg",
+    "alerts": [],
+    "h1": [
+      "Before your agent pays, it checks Infopunks.",
+      "Check before you spend."
+    ],
+    "height": 8534,
+    "scroll": 390,
+    "status": [],
+    "title": "Developers | Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/developers/wallet-safety",
+    "screenshot": "031.jpg",
+    "alerts": [],
+    "h1": [
+      "Wallet Safety Developer Quickstart"
+    ],
+    "height": 17769,
+    "scroll": 390,
+    "status": [],
+    "title": "Wallet Safety Developer Quickstart | Infopunks Builder",
+    "width": 390
+  },
+  {
+    "route": "/developers/wallet-safety/integrations",
+    "screenshot": "032.jpg",
+    "alerts": [],
+    "h1": [
+      "Wallet Safety Integration Registry"
+    ],
+    "height": 9304,
+    "scroll": 390,
+    "status": [],
+    "title": "Wallet Safety Integration Registry | Infopunks Builder",
+    "width": 390
+  },
+  {
+    "route": "/developers/wallet-safety/integrations/qualification-missing-record",
+    "screenshot": "033.jpg",
+    "alerts": [],
+    "h1": [
+      "Integration Readiness Detail"
+    ],
+    "height": 1349,
+    "scroll": 390,
+    "status": [],
+    "title": "Integration Readiness Detail | Infopunks Builder",
+    "width": 390
+  },
+  {
+    "route": "/evaluation-request",
+    "screenshot": "034.jpg",
+    "alerts": [],
+    "h1": [
+      "Request an Infopunks Evaluation"
+    ],
+    "height": 4671,
+    "scroll": 390,
+    "status": [],
+    "title": "EVALUATION / Evaluation Request · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/graph",
+    "screenshot": "035.jpg",
+    "alerts": [],
+    "h1": [
+      "Infopunks Signal Graph"
+    ],
+    "height": 8231,
+    "scroll": 390,
+    "status": [],
+    "title": "SIGNALS / Signal Graph · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/hermes",
+    "screenshot": "036.jpg",
+    "alerts": [],
+    "h1": [
+      "Hermes Desk"
+    ],
+    "height": 34756,
+    "scroll": 390,
+    "status": [],
+    "title": "Hermes Desk",
+    "width": 390
+  },
+  {
+    "route": "/hermes/decision-feedback",
+    "screenshot": "037.jpg",
+    "alerts": [],
+    "h1": [
+      "Decision Receipt and Feedback Loop"
+    ],
+    "height": 7038,
+    "scroll": 390,
+    "status": [],
+    "title": "Decision Receipt and Feedback Loop",
+    "width": 390
+  },
+  {
+    "route": "/hermes/memory-loop",
+    "screenshot": "038.jpg",
+    "alerts": [],
+    "h1": [
+      "Agent Memory Loop"
+    ],
+    "height": 11156,
+    "scroll": 390,
+    "status": [],
+    "title": "HERMES / Memory Loop · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/hermes/pre-spend-decision",
+    "screenshot": "039.jpg",
+    "alerts": [],
+    "h1": [
+      "Pre-Spend Decision Engine"
+    ],
+    "height": 7747,
+    "scroll": 390,
+    "status": [],
+    "title": "Pre-Spend Decision Engine",
+    "width": 390
+  },
+  {
+    "route": "/hermes/reputation-ledger",
+    "screenshot": "040.jpg",
+    "alerts": [],
+    "h1": [
+      "Reputation Ledger"
+    ],
+    "height": 8105,
+    "scroll": 390,
+    "status": [],
+    "title": "HERMES / Reputation Ledger · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/hermes/skill-pack",
+    "screenshot": "041.jpg",
+    "alerts": [],
+    "h1": [
+      "Infopunks Hermes Skill Pack"
+    ],
+    "height": 11807,
+    "scroll": 390,
+    "status": [],
+    "title": "Infopunks Hermes Skill Pack",
+    "width": 390
+  },
+  {
+    "route": "/hermes/spend-policy",
+    "screenshot": "042.jpg",
+    "alerts": [],
+    "h1": [
+      "Agent Spend Policy Layer"
+    ],
+    "height": 16283,
+    "scroll": 390,
+    "status": [],
+    "title": "Agent Spend Policy Layer",
+    "width": 390
+  },
+  {
+    "route": "/hermes/wallet-audit-trail",
+    "screenshot": "043.jpg",
+    "alerts": [],
+    "h1": [
+      "Autonomous Wallet Audit Trail"
+    ],
+    "height": 16500,
+    "scroll": 390,
+    "status": [],
+    "title": "Autonomous Wallet Audit Trail",
+    "width": 390
+  },
+  {
+    "route": "/hermes/wallet-risk-score",
+    "screenshot": "044.jpg",
+    "alerts": [],
+    "h1": [
+      "Wallet Risk Score"
+    ],
+    "height": 5805,
+    "scroll": 390,
+    "status": [],
+    "title": "Wallet Risk Score",
+    "width": 390
+  },
+  {
+    "route": "/hermes/wallet-safety",
+    "screenshot": "045.jpg",
+    "alerts": [],
+    "h1": [
+      "Wallet Safety API"
+    ],
+    "height": 12991,
+    "scroll": 390,
+    "status": [],
+    "title": "Wallet Safety API",
+    "width": 390
+  },
+  {
+    "route": "/loops",
+    "screenshot": "046.jpg",
+    "alerts": [],
+    "h1": [
+      "Where autonomous work becomes collective memory."
+    ],
+    "height": 9522,
+    "scroll": 390,
+    "status": [],
+    "title": "LOOPLAB / Loops · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/loops/qualification-missing-record",
+    "screenshot": "047.jpg",
+    "alerts": [],
+    "h1": [
+      "Loop not found"
+    ],
+    "height": 1349,
+    "scroll": 390,
+    "status": [],
+    "title": "LOOPLAB / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-benchmark-methodology",
+    "screenshot": "048.jpg",
+    "alerts": [],
+    "h1": [
+      "Machine Benchmark Methodology"
+    ],
+    "height": 7990,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine Benchmark Methodology | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-benchmark-readiness",
+    "screenshot": "049.jpg",
+    "alerts": [],
+    "h1": [
+      "Machine Benchmark Readiness"
+    ],
+    "height": 6020,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine Benchmark Readiness | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-comparable-routes",
+    "screenshot": "050.jpg",
+    "alerts": [],
+    "h1": [
+      "Machine Comparable Routes"
+    ],
+    "height": 5165,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine Comparable Routes | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-dossier/qualification-missing-record",
+    "screenshot": "051.jpg",
+    "alerts": [],
+    "h1": [
+      "qualification-missing-record"
+    ],
+    "height": 4611,
+    "scroll": 390,
+    "status": [
+      "No Radar-observed activity.Run machine preflight to create the first Radar-observed receipt.",
+      "No receipts for this machine.Run a preflight decision to start its behavioral memory."
+    ],
+    "title": "qualification-missing-record Machine Dossier | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-economy-snapshot",
+    "screenshot": "052.jpg",
+    "alerts": [],
+    "h1": [
+      "Machine Market Radar Snapshot"
+    ],
+    "height": 10443,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine Economy Public Snapshot | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-execution-blockers",
+    "screenshot": "053.jpg",
+    "alerts": [],
+    "h1": [
+      "Execution Blockers"
+    ],
+    "height": 18331,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine Execution Blockers | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-execution-plan/qualification-missing-record",
+    "screenshot": "054.jpg",
+    "alerts": [],
+    "h1": [],
+    "height": 1205,
+    "scroll": 390,
+    "status": [
+      "Execution proof plan not found.This service_id is not in the current robotic.sh visible service mirror."
+    ],
+    "title": "qualification-missing-record Execution Proof Plan | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-execution-shortlist",
+    "screenshot": "055.jpg",
+    "alerts": [],
+    "h1": [
+      "Execution Shortlist"
+    ],
+    "height": 13961,
+    "scroll": 390,
+    "status": [],
+    "title": "Robotic.sh Execution Shortlist | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-execution/alibaba-machine-translation-general",
+    "screenshot": "056.jpg",
+    "alerts": [],
+    "h1": [
+      "Alibaba Machine Translation General"
+    ],
+    "height": 1804,
+    "scroll": 390,
+    "status": [
+      "No execution receipt yet.No execution-tested receipt exists for Alibaba Machine Translation General yet."
+    ],
+    "title": "Alibaba Machine Translation General Execution | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-execution/qualification-missing-record",
+    "screenshot": "057.jpg",
+    "alerts": [
+      "Execution receipt detail unavailable: 404 /v1/machine-preflight/receipts/qualification-missing-record"
+    ],
+    "h1": [],
+    "height": 1205,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine Execution Receipt qualification-missing-record | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-first-safe-routes",
+    "screenshot": "058.jpg",
+    "alerts": [],
+    "h1": [
+      "Machine First Safe Route Queue"
+    ],
+    "height": 8453,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine First Safe Route Queue | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-market",
+    "screenshot": "059.jpg",
+    "alerts": [],
+    "h1": [
+      "Machine Market Command Center"
+    ],
+    "height": 25219,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine Market | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-market-changelog",
+    "screenshot": "060.jpg",
+    "alerts": [],
+    "h1": [
+      "Machine Market Changelog"
+    ],
+    "height": 5069,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine Market Changelog | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-market-map",
+    "screenshot": "061.jpg",
+    "alerts": [],
+    "h1": [
+      "Machine Market Map"
+    ],
+    "height": 11388,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine Market Map | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-market/cards/qualification-missing-record",
+    "screenshot": "062.jpg",
+    "alerts": [],
+    "h1": [
+      "machine-service card not found."
+    ],
+    "height": 1205,
+    "scroll": 390,
+    "status": [],
+    "title": "Infopunks Preflight Card: machine-service qualification-missing-record",
+    "width": 390
+  },
+  {
+    "route": "/machine-no-claim-ledger",
+    "screenshot": "063.jpg",
+    "alerts": [],
+    "h1": [
+      "Machine No-Claim Ledger"
+    ],
+    "height": 2844,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine No-Claim Ledger | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-preflight",
+    "screenshot": "064.jpg",
+    "alerts": [],
+    "h1": [
+      "Machine Preflight"
+    ],
+    "height": 3334,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine Preflight | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-proof-ladder",
+    "screenshot": "065.jpg",
+    "alerts": [],
+    "h1": [
+      "Machine Market Proof Ladder"
+    ],
+    "height": 5613,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine Market Proof Ladder | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-rail-coverage",
+    "screenshot": "066.jpg",
+    "alerts": [],
+    "h1": [
+      "Machine Execution Rail Coverage"
+    ],
+    "height": 18448,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine Rail Coverage | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-readiness-matrix",
+    "screenshot": "067.jpg",
+    "alerts": [],
+    "h1": [
+      "Machine Readiness Matrix"
+    ],
+    "height": 10096,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine Readiness Matrix | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-receipts",
+    "screenshot": "068.jpg",
+    "alerts": [],
+    "h1": [
+      "Machine Receipts"
+    ],
+    "height": 9937,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine Receipts | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-route-risk-matrix",
+    "screenshot": "069.jpg",
+    "alerts": [],
+    "h1": [
+      "Route-Level Risk Matrix"
+    ],
+    "height": 9524,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine Route-Level Risk Matrix | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-service/qualification-missing-record",
+    "screenshot": "070.jpg",
+    "alerts": [],
+    "h1": [],
+    "height": 1205,
+    "scroll": 390,
+    "status": [
+      "Machine service not found.This service is not in the current robotic.sh visible service mirror."
+    ],
+    "title": "qualification-missing-record Service Dossier | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/machine-translation-evidence",
+    "screenshot": "071.jpg",
+    "alerts": [],
+    "h1": [
+      "Machine Translation Evidence Plan"
+    ],
+    "height": 5468,
+    "scroll": 390,
+    "status": [],
+    "title": "Machine Translation Evidence Plan | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/narratives",
+    "screenshot": "072.jpg",
+    "alerts": [],
+    "h1": [
+      "Narrative Asset Intelligence"
+    ],
+    "height": 28659,
+    "scroll": 390,
+    "status": [],
+    "title": "Infopunks Narrative Asset Intelligence",
+    "width": 390
+  },
+  {
+    "route": "/narratives/abundance-desk",
+    "screenshot": "073.jpg",
+    "alerts": [],
+    "h1": [
+      "Abundance Desk"
+    ],
+    "height": 13507,
+    "scroll": 390,
+    "status": [],
+    "title": "Abundance Desk",
+    "width": 390
+  },
+  {
+    "route": "/narratives/attention-market-watch",
+    "screenshot": "074.jpg",
+    "alerts": [],
+    "h1": [
+      "Attention Market Watch"
+    ],
+    "height": 9331,
+    "scroll": 390,
+    "status": [],
+    "title": "Infopunks Attention Market Watch",
+    "width": 390
+  },
+  {
+    "route": "/narratives/attention-markets",
+    "screenshot": "075.jpg",
+    "alerts": [],
+    "h1": [
+      "Attention Markets"
+    ],
+    "height": 2874,
+    "scroll": 390,
+    "status": [],
+    "title": "Infopunks Attention Markets Thesis",
+    "width": 390
+  },
+  {
+    "route": "/narratives/hermes-desk",
+    "screenshot": "076.jpg",
+    "alerts": [],
+    "h1": [
+      "Hermes Desk"
+    ],
+    "height": 8733,
+    "scroll": 390,
+    "status": [],
+    "title": "Hermes Desk",
+    "width": 390
+  },
+  {
+    "route": "/narratives/robinhood-chain",
+    "screenshot": "077.jpg",
+    "alerts": [],
+    "h1": [
+      "RH Chain Signal Desk",
+      "Know what is moving.Know what is real."
+    ],
+    "height": 16104,
+    "scroll": 390,
+    "status": [],
+    "title": "RH Chain Signal Desk",
+    "width": 390
+  },
+  {
+    "route": "/proof/execution/qualification-missing-record",
+    "screenshot": "078.jpg",
+    "alerts": [],
+    "h1": [
+      "Inspect execution evidence."
+    ],
+    "height": 1227,
+    "scroll": 390,
+    "status": [],
+    "title": "RECEIPTS / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/proof/observation/qualification-missing-record",
+    "screenshot": "079.jpg",
+    "alerts": [],
+    "h1": [
+      "Inspect observation evidence."
+    ],
+    "height": 1227,
+    "scroll": 390,
+    "status": [],
+    "title": "RECEIPTS / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/propagation/qualification-missing-record",
+    "screenshot": "080.jpg",
+    "alerts": [],
+    "h1": [
+      "Propagation Cluster Not Found"
+    ],
+    "height": 1205,
+    "scroll": 390,
+    "status": [],
+    "title": "Propagation Cluster Not Found | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/providers",
+    "screenshot": "081.jpg",
+    "alerts": [],
+    "h1": [
+      "Providers"
+    ],
+    "height": 3602,
+    "scroll": 390,
+    "status": [],
+    "title": "Providers | Infopunks Builder",
+    "width": 390
+  },
+  {
+    "route": "/providers/provider_pay_sh_lattice",
+    "screenshot": "082.jpg",
+    "alerts": [],
+    "h1": [
+      "Lattice Research Relay"
+    ],
+    "height": 4435,
+    "scroll": 390,
+    "status": [],
+    "title": "provider_pay_sh_lattice | Provider Detail",
+    "width": 390
+  },
+  {
+    "route": "/providers/qualification-missing-record",
+    "screenshot": "083.jpg",
+    "alerts": [],
+    "h1": [
+      "Provider Not Found"
+    ],
+    "height": 1349,
+    "scroll": 390,
+    "status": [],
+    "title": "qualification-missing-record Provider Intelligence | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/radar/cards",
+    "screenshot": "084.jpg",
+    "alerts": [],
+    "h1": [
+      "Preflight Card Index"
+    ],
+    "height": 4772,
+    "scroll": 390,
+    "status": [],
+    "title": "Preflight Card Index",
+    "width": 390
+  },
+  {
+    "route": "/radar/cards/benchmark/qualification-missing-record",
+    "screenshot": "085.jpg",
+    "alerts": [],
+    "h1": [
+      "benchmark card not found."
+    ],
+    "height": 1205,
+    "scroll": 390,
+    "status": [],
+    "title": "Infopunks Preflight Card: benchmark qualification-missing-record",
+    "width": 390
+  },
+  {
+    "route": "/radar/cards/provider/qualification-missing-record",
+    "screenshot": "086.jpg",
+    "alerts": [],
+    "h1": [
+      "provider card not found."
+    ],
+    "height": 1205,
+    "scroll": 390,
+    "status": [],
+    "title": "Infopunks Preflight Card: provider qualification-missing-record",
+    "width": 390
+  },
+  {
+    "route": "/radar/readiness/qualification-missing-record",
+    "screenshot": "087.jpg",
+    "alerts": [],
+    "h1": [
+      "Provider readiness card not found."
+    ],
+    "height": 1205,
+    "scroll": 390,
+    "status": [],
+    "title": "Agent Spend Readiness Card | Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/receipts",
+    "screenshot": "088.jpg",
+    "alerts": [],
+    "h1": [
+      "Receipts"
+    ],
+    "height": 6523,
+    "scroll": 390,
+    "status": [],
+    "title": "Receipts | Infopunks Builder",
+    "width": 390
+  },
+  {
+    "route": "/receipts/qualification-missing-record",
+    "screenshot": "089.jpg",
+    "alerts": [],
+    "h1": [
+      "Receipt Not Found"
+    ],
+    "height": 1349,
+    "scroll": 390,
+    "status": [],
+    "title": "Receipt Not Found | Infopunks Pay.sh Radar",
+    "width": 390
+  },
+  {
+    "route": "/receipts/receipt_001",
+    "screenshot": "090.jpg",
+    "alerts": [],
+    "h1": [
+      "receipt_001"
+    ],
+    "height": 3846,
+    "scroll": 390,
+    "status": [],
+    "title": "receipt_001 | Receipt Detail",
+    "width": 390
+  },
+  {
+    "route": "/revenue-receipts",
+    "screenshot": "091.jpg",
+    "alerts": [],
+    "h1": [
+      "Infopunks Revenue Receipts"
+    ],
+    "height": 3889,
+    "scroll": 390,
+    "status": [],
+    "title": "RECEIPTS / Revenue Receipts · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/revenue-receipts/qualification-missing-record",
+    "screenshot": "092.jpg",
+    "alerts": [],
+    "h1": [
+      "Receipt not found."
+    ],
+    "height": 1349,
+    "scroll": 390,
+    "status": [],
+    "title": "RECEIPTS / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-meme-pulse",
+    "screenshot": "093.jpg",
+    "alerts": [],
+    "h1": [
+      "RH Meme Pulse"
+    ],
+    "height": 10023,
+    "scroll": 390,
+    "status": [],
+    "title": "RH Meme Pulse | Infopunks",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "screenshot": "094.jpg",
+    "alerts": [],
+    "h1": [
+      "Know what is moving.Know what is real."
+    ],
+    "height": 14928,
+    "scroll": 390,
+    "status": [],
+    "title": "RH Chain Signal Desk",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/100-receipts",
+    "screenshot": "095.jpg",
+    "alerts": [],
+    "h1": [
+      "100 Tokens. 100 Receipts. One Public Memory."
+    ],
+    "height": 9705,
+    "scroll": 390,
+    "status": [],
+    "title": "100 Tokens. 100 Receipts. | Infopunks",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/4663-index",
+    "screenshot": "096.jpg",
+    "alerts": [],
+    "h1": [
+      "4663 Signal Index"
+    ],
+    "height": 13676,
+    "scroll": 390,
+    "status": [],
+    "title": "4663 Signal Index",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/clone-radar",
+    "screenshot": "097.jpg",
+    "alerts": [],
+    "h1": [
+      "Clone & Impersonator Radar"
+    ],
+    "height": 14861,
+    "scroll": 390,
+    "status": [],
+    "title": "Clone & Impersonator Radar | Infopunks",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/daily-receipts",
+    "screenshot": "098.jpg",
+    "alerts": [],
+    "h1": [
+      "Daily RH Chain Receipts"
+    ],
+    "height": 15155,
+    "scroll": 390,
+    "status": [],
+    "title": "Daily RH Chain Receipts",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/daily-receipts/qualification-missing-record",
+    "screenshot": "099.jpg",
+    "alerts": [],
+    "h1": [
+      "Daily RH Chain Receipt · qualification-missing-record"
+    ],
+    "height": 2291,
+    "scroll": 390,
+    "status": [],
+    "title": "Daily RH Chain Receipts",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/discovery-queue",
+    "screenshot": "100.jpg",
+    "alerts": [],
+    "h1": [
+      "Auto Discovery Queue"
+    ],
+    "height": 10006,
+    "scroll": 390,
+    "status": [],
+    "title": "RH Chain Discovery Queue | Infopunks",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/distribution-pack",
+    "screenshot": "101.jpg",
+    "alerts": [],
+    "h1": [
+      "RH Chain Distribution Pack"
+    ],
+    "height": 9101,
+    "scroll": 390,
+    "status": [],
+    "title": "RH Chain Distribution Pack | Infopunks",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/intelligence-receipts/qualification-missing-record",
+    "screenshot": "102.jpg",
+    "alerts": [],
+    "h1": [],
+    "height": 1244,
+    "scroll": 390,
+    "status": [],
+    "title": "ROBINHOOD CHAIN / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/launch-surfaces",
+    "screenshot": "103.jpg",
+    "alerts": [],
+    "h1": [
+      "Launch Surface Watch"
+    ],
+    "height": 8168,
+    "scroll": 390,
+    "status": [],
+    "title": "RH Chain Signal Desk",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/launchpad-observatory",
+    "screenshot": "104.jpg",
+    "alerts": [],
+    "h1": [
+      "RH Chain Launchpad Observatory"
+    ],
+    "height": 9878,
+    "scroll": 390,
+    "status": [],
+    "title": "RH Chain Launchpad Observatory | Infopunks",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/live-snapshot",
+    "screenshot": "105.jpg",
+    "alerts": [],
+    "h1": [
+      "RH Chain Live Snapshot"
+    ],
+    "height": 5657,
+    "scroll": 390,
+    "status": [],
+    "title": "RH Chain Live Snapshot",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/market",
+    "screenshot": "106.jpg",
+    "alerts": [],
+    "h1": [
+      "Market structure is waiting for fresh pair evidence."
+    ],
+    "height": 7056,
+    "scroll": 390,
+    "status": [
+      "",
+      "Current market data is unavailable.No current exact-contract pair observations are available; no market totals were inferred."
+    ],
+    "title": "Robinhood Chain Market Pulse | Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/market-structure",
+    "screenshot": "107.jpg",
+    "alerts": [],
+    "h1": [
+      "4663 Market Structure"
+    ],
+    "height": 5801,
+    "scroll": 390,
+    "status": [],
+    "title": "4663 Market Structure | Infopunks",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/market-structure/attention-quality",
+    "screenshot": "108.jpg",
+    "alerts": [],
+    "h1": [
+      "Paid Attention Watch"
+    ],
+    "height": 2149,
+    "scroll": 390,
+    "status": [],
+    "title": "Paid Attention Watch | Infopunks",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/market-structure/cross-layer",
+    "screenshot": "109.jpg",
+    "alerts": [],
+    "h1": [
+      "Cross-Layer Assets"
+    ],
+    "height": 2873,
+    "scroll": 390,
+    "status": [],
+    "title": "Cross-Layer Intersections | Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/meme-pulse",
+    "screenshot": "110.jpg",
+    "alerts": [],
+    "h1": [
+      "RH Meme Pulse"
+    ],
+    "height": 10023,
+    "scroll": 390,
+    "status": [],
+    "title": "RH Meme Pulse | Infopunks",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/projects",
+    "screenshot": "111.jpg",
+    "alerts": [],
+    "h1": [],
+    "height": 1219,
+    "scroll": 390,
+    "status": [],
+    "title": "ROBINHOOD CHAIN / projects · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/projects/claim",
+    "screenshot": "112.jpg",
+    "alerts": [],
+    "h1": [
+      "State the claim. Attach the evidence."
+    ],
+    "height": 1803,
+    "scroll": 390,
+    "status": [],
+    "title": "ROBINHOOD CHAIN / claim · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/projects/qualification-missing-record",
+    "screenshot": "113.jpg",
+    "alerts": [],
+    "h1": [],
+    "height": 1244,
+    "scroll": 390,
+    "status": [],
+    "title": "ROBINHOOD CHAIN / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/review-pipeline",
+    "screenshot": "114.jpg",
+    "alerts": [],
+    "h1": [
+      "Review Pipeline"
+    ],
+    "height": 11529,
+    "scroll": 390,
+    "status": [],
+    "title": "RH Chain Review Pipeline | Infopunks",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/review-pipeline/day/2026-10-12",
+    "screenshot": "115.jpg",
+    "alerts": [],
+    "h1": [
+      "Review Pipeline"
+    ],
+    "height": 11529,
+    "scroll": 390,
+    "status": [],
+    "title": "RH Chain Review Pipeline | Infopunks",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/review-queue",
+    "screenshot": "116.jpg",
+    "alerts": [],
+    "h1": [
+      "RH Chain Review Queue"
+    ],
+    "height": 7808,
+    "scroll": 390,
+    "status": [],
+    "title": "RH Chain Review Queue",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/risk-patterns",
+    "screenshot": "117.jpg",
+    "alerts": [],
+    "h1": [
+      "Clone & Impersonator Radar"
+    ],
+    "height": 14861,
+    "scroll": 390,
+    "status": [],
+    "title": "Vampire / Rug Pattern Watch | Infopunks",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/scout",
+    "screenshot": "118.jpg",
+    "alerts": [],
+    "h1": [
+      "RH Chain Scout Agent"
+    ],
+    "height": 2285,
+    "scroll": 390,
+    "status": [],
+    "title": "RH Chain Signal Desk",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/scouts",
+    "screenshot": "119.jpg",
+    "alerts": [],
+    "h1": [
+      "Signal Scouts"
+    ],
+    "height": 4067,
+    "scroll": 390,
+    "status": [],
+    "title": "Signal Scouts | Infopunks",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/submit",
+    "screenshot": "120.jpg",
+    "alerts": [],
+    "h1": [
+      "RH Chain Signal Desk"
+    ],
+    "height": 3000,
+    "scroll": 390,
+    "status": [],
+    "title": "Submit Signal | RH Chain Signal Desk",
+    "width": 390
+  },
+  {
+    "route": "/rh-chain-signal-desk/tokens/qualification-missing-record",
+    "screenshot": "121.jpg",
+    "alerts": [],
+    "h1": [
+      "Unknown token"
+    ],
+    "height": 4501,
+    "scroll": 390,
+    "status": [],
+    "title": "RH Chain Token Dossier | Infopunks",
+    "width": 390
+  },
+  {
+    "route": "/routes",
+    "screenshot": "122.jpg",
+    "alerts": [],
+    "h1": [
+      "Routes"
+    ],
+    "height": 4611,
+    "scroll": 390,
+    "status": [],
+    "title": "Routes | Infopunks Builder",
+    "width": 390
+  },
+  {
+    "route": "/routes/qualification-missing-record",
+    "screenshot": "123.jpg",
+    "alerts": [],
+    "h1": [
+      "Route not found"
+    ],
+    "height": 1349,
+    "scroll": 390,
+    "status": [],
+    "title": "qualification-missing-record | Route Detail",
+    "width": 390
+  },
+  {
+    "route": "/routes/route_pay_sh_market_research_01",
+    "screenshot": "124.jpg",
+    "alerts": [],
+    "h1": [
+      "route_pay_sh_market_research_01"
+    ],
+    "height": 5573,
+    "scroll": 390,
+    "status": [],
+    "title": "route_pay_sh_market_research_01 | Route Detail",
+    "width": 390
+  },
+  {
+    "route": "/services",
+    "screenshot": "125.jpg",
+    "alerts": [],
+    "h1": [
+      "Services"
+    ],
+    "height": 4950,
+    "scroll": 390,
+    "status": [],
+    "title": "Services | Infopunks Builder",
+    "width": 390
+  },
+  {
+    "route": "/services/qualification-missing-record",
+    "screenshot": "126.jpg",
+    "alerts": [],
+    "h1": [
+      "Service not found"
+    ],
+    "height": 1349,
+    "scroll": 390,
+    "status": [],
+    "title": "qualification-missing-record | Service Detail",
+    "width": 390
+  },
+  {
+    "route": "/services/service_market_research",
+    "screenshot": "127.jpg",
+    "alerts": [],
+    "h1": [
+      "service_market_research"
+    ],
+    "height": 4259,
+    "scroll": 390,
+    "status": [],
+    "title": "service_market_research | Service Detail",
+    "width": 390
+  },
+  {
+    "route": "/signal-hunt",
+    "screenshot": "128.jpg",
+    "alerts": [],
+    "h1": [
+      "Signal Hunt"
+    ],
+    "height": 10360,
+    "scroll": 390,
+    "status": [],
+    "title": "SIGNALS / Signal Hunt · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/signal-hunt/qualification-missing-record",
+    "screenshot": "129.jpg",
+    "alerts": [],
+    "h1": [],
+    "height": 1349,
+    "scroll": 390,
+    "status": [],
+    "title": "SIGNALS / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/signals/ansem",
+    "screenshot": "130.jpg",
+    "alerts": [],
+    "h1": [
+      "Ansem"
+    ],
+    "height": 3394,
+    "scroll": 390,
+    "status": [],
+    "title": "Infopunks Signal Source: Ansem",
+    "width": 390
+  },
+  {
+    "route": "/signals/black-bull",
+    "screenshot": "131.jpg",
+    "alerts": [],
+    "h1": [
+      "$ANSEM / The Black Bull"
+    ],
+    "height": 17087,
+    "scroll": 390,
+    "status": [],
+    "title": "Infopunks Signal Report: $ANSEM / The Black Bull",
+    "width": 390
+  },
+  {
+    "route": "/signals/qualification-missing-record",
+    "screenshot": "132.jpg",
+    "alerts": [],
+    "h1": [
+      "Intelligence before the wallet acts."
+    ],
+    "height": 46786,
+    "scroll": 390,
+    "status": [
+      "Panel data unavailableBenchmark data delayed",
+      "Panel data unavailableAgent readiness cards delayed",
+      "Ecosystem StatusCritical propagation watchSystemic or critical propagation signals are present. Review propagation watch and recent degradations first.System reading: ecosystem pressure is systemic in the current propagation window.CatalogFIXTURE-BACKED RADAR STATEPropagationsystemicLatest Event10/12/2026, 11:20:44 PMFeatured Contextfal.ai",
+      "No preflight decision yet.Before your agent pays, it checks Infopunks for route intelligence.",
+      "No comparison selected.Select two or three providers or endpoints, then run Compare.",
+      "History warming up.No historical snapshots available yet",
+      "No anomalies detected.No current advisory risk anomaly requires attention.",
+      "No degradations detected.Safe metadata monitors have not reported recent reachability degradation."
+    ],
+    "title": "SIGNALS / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/signals/qualification-missing-record/updates/qualification-missing-record",
+    "screenshot": "133.jpg",
+    "alerts": [],
+    "h1": [
+      "Signal update not found."
+    ],
+    "height": 1205,
+    "scroll": 390,
+    "status": [],
+    "title": "SIGNALS / qualification missing record · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/signals/troll",
+    "screenshot": "134.jpg",
+    "alerts": [],
+    "h1": [
+      "$TROLL / The Re-Indexed Archetype"
+    ],
+    "height": 10922,
+    "scroll": 390,
+    "status": [],
+    "title": "Infopunks Signal Report: $TROLL / The Re-Indexed Archetype",
+    "width": 390
+  },
+  {
+    "route": "/solana",
+    "screenshot": "135.jpg",
+    "alerts": [],
+    "h1": [
+      "Proof before agent spend."
+    ],
+    "height": 48463,
+    "scroll": 390,
+    "status": [
+      "Panel data unavailableBenchmark data delayed",
+      "Panel data unavailableAgent readiness cards delayed",
+      "Ecosystem StatusCritical propagation watchSystemic or critical propagation signals are present. Review propagation watch and recent degradations first.System reading: ecosystem pressure is systemic in the current propagation window.CatalogFIXTURE-BACKED RADAR STATEPropagationsystemicLatest Event10/12/2026, 11:20:44 PMFeatured Contextfal.ai",
+      "No preflight decision yet.Before your agent pays, it checks Infopunks for route intelligence.",
+      "No comparison selected.Select two or three providers or endpoints, then run Compare.",
+      "History warming up.No historical snapshots available yet",
+      "No anomalies detected.No current advisory risk anomaly requires attention.",
+      "No degradations detected.Safe metadata monitors have not reported recent reachability degradation."
+    ],
+    "title": "Solana Radar | Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/spend-terminal",
+    "screenshot": "136.jpg",
+    "alerts": [],
+    "h1": [
+      "Should this agent spend?"
+    ],
+    "height": 2403,
+    "scroll": 390,
+    "status": [],
+    "title": "Spend Check | Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/unicorn-radar",
+    "screenshot": "137.jpg",
+    "alerts": [],
+    "h1": [
+      "Infopunks Unicorn Radar"
+    ],
+    "height": 4556,
+    "scroll": 390,
+    "status": [],
+    "title": "SIGNALS / Unicorn Radar · Infopunks Radar",
+    "width": 390
+  },
+  {
+    "route": "/unicorn-radar/qualification-missing-record",
+    "screenshot": "138.jpg",
+    "alerts": [],
+    "h1": [
+      "Candidate not found."
+    ],
+    "height": 1349,
+    "scroll": 390,
+    "status": [],
+    "title": "SIGNALS / qualification missing record · Infopunks Radar",
+    "width": 390
+  }
+]

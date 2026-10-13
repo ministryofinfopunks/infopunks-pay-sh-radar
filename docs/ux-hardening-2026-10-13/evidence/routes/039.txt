@@ -1,0 +1,214 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Pre-Spend Decision
+- paragraph:
+  - generic: "[ 15 ]"
+  - text: HERMES / WALLET MEMORY
+- link "Skip to content":
+  - /url: "#hermes-pre-spend-content"
+- main:
+  - paragraph: Spend Gate
+  - heading "Pre-Spend Decision Engine" [level=1]
+  - paragraph: Before an agent spends, it checks the ledger.
+  - link "Open Example JSON":
+    - /url: /v1/hermes/pre-spend-decision/example
+  - link "Open Memory Loop":
+    - /url: /hermes/memory-loop
+  - link "Open feedback loop":
+    - /url: /hermes/decision-feedback
+  - link "Back to Hermes Desk":
+    - /url: /hermes
+  - paragraph: Decision doctrine
+  - paragraph: Reputation is not just displayed.
+  - paragraph: Reputation now decides.
+  - region "Pre-spend decision flow":
+    - article:
+      - generic: "1"
+      - heading "Spend Intent" [level=2]
+      - paragraph: Route, provider, service, amount, and execution context enter the decision engine.
+    - article:
+      - generic: "2"
+      - heading "Reputation Ledger" [level=2]
+      - paragraph: Provider, route, and service memory are gathered from reviewed claims and receipts.
+    - article:
+      - generic: "3"
+      - heading "Decision" [level=2]
+      - paragraph: "A deterministic state is returned: proceed, caution, test spend, stop, or request more evidence."
+    - article:
+      - generic: "4"
+      - heading "Required Action" [level=2]
+      - paragraph: The engine recommends the next action the agent should take before money moves.
+    - article:
+      - generic: "5"
+      - heading "New Receipt" [level=2]
+      - paragraph: The next run can create a new receipt, claim, and future ledger update.
+  - region "Memory loop note":
+    - paragraph: Memory loop
+    - heading "The decision engine is part of a larger memory loop." [level=2]
+    - link "Open Memory Loop":
+      - /url: /hermes/memory-loop
+    - link "Open Spend Policy Layer":
+      - /url: /hermes/spend-policy
+    - paragraph: The decision engine is part of a larger memory loop. Decisions produce receipts. Outcomes produce feedback. Feedback changes future reputation.
+    - paragraph: The Pre-Spend Decision Engine recommends action. The Spend Policy Layer converts that recommendation into an allow, test, review, or block decision.
+    - paragraph: Policy reconciliation compares the policy receipt against the actual wallet outcome before feedback is used for the next spend.
+    - paragraph: For developers, the Wallet Safety API bundles the pre-spend decision with policy, receipts, reconciliation, audit trail, risk score, and final recommendation.
+    - link "Open Wallet Safety API":
+      - /url: /hermes/wallet-safety
+  - region "Example decision card":
+    - paragraph: Example decision card
+    - heading "Seeded decision output." [level=2]
+    - article "Pre-spend decision hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective":
+      - paragraph: Pre-Spend Decision
+      - generic: Do Not Spend
+      - generic: Do Not Use Provider
+      - heading "route_pay_sh_market_research_01" [level=3]
+      - paragraph: Provider reputation is degraded in the ledger.
+      - generic "0.21 confidence":
+        - generic: confidence
+        - strong: "0.21"
+      - paragraph:
+        - generic: route_id
+        - generic: route_pay_sh_market_research_01
+      - paragraph:
+        - generic: provider_id
+        - generic: provider_pay_sh_lattice
+      - paragraph:
+        - generic: service_id
+        - generic: service_market_research
+      - paragraph:
+        - generic: amount_usd
+        - generic: "25.00"
+      - paragraph:
+        - generic: decision
+        - generic: do_not_spend
+      - paragraph:
+        - generic: required_action
+        - generic: do_not_use_provider
+      - paragraph:
+        - generic: ledger_state
+        - generic: provider=degraded route=watchlist service=watchlist
+      - paragraph:
+        - generic: ledger_score
+        - generic: provider=0 route=0 service=0
+      - generic: provider degraded (High)
+      - generic: route on watchlist (Medium)
+      - generic: service on watchlist (Medium)
+      - paragraph:
+        - generic: provider_reputation
+        - generic: Lattice Research Relay is degraded with trust score 0.
+      - paragraph:
+        - generic: route_reputation
+        - generic: POST /market/research (provider_pay_sh_lattice) is on the watchlist and should be test-spent before larger usage.
+      - paragraph:
+        - generic: service_reputation
+        - generic: Market Research is on the watchlist and should be test-spent before larger usage.
+      - paragraph:
+        - generic: reputation inputs
+        - generic: provider:provider_pay_sh_lattice, route:route_pay_sh_market_research_01, service:service_market_research
+      - paragraph:
+        - generic: receipt inputs
+        - generic: receipt_hermes_hermes_agentic_market_provider_risk_review, receipt_hermes_hermes_pay_sh_route_pre_spend_check, receipt_hermes_hermes_signal_hunt_narrative_scan
+      - paragraph:
+        - generic: claim inputs
+        - generic: claim_hermes_promoted_hermes_agentic_market_provider_risk_review, claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check, claim_hermes_promoted_hermes_signal_hunt_narrative_scan
+      - paragraph:
+        - generic: run inputs
+        - generic: hermes_agentic_market_provider_risk_review, hermes_pay_sh_route_pre_spend_check, hermes_signal_hunt_narrative_scan
+  - region "Decision Receipts":
+    - paragraph: Decision Receipts
+    - heading "Pre-spend decisions should be receiptable." [level=2]
+    - paragraph: Outcomes close the loop.
+    - paragraph: Decision receipts become intelligence when compared against what happened after spend.
+    - paragraph: A decision without an outcome is advice.
+    - paragraph: A decision with a receipt becomes intelligence.
+    - paragraph:
+      - generic: receipt_id
+      - generic: receipt_hermes_decision_hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective
+    - paragraph:
+      - generic: summary
+      - generic: "Provider reputation is degraded in the ledger. Required action: do_not_use_provider."
+    - paragraph:
+      - generic: conversion
+      - generic: Decision receipt conversion is deterministic and stateless.
+  - region "Decision state mapping":
+    - paragraph: Decision state mapping
+    - heading "Bounded spend language." [level=2]
+    - paragraph:
+      - generic: proceed
+      - generic: Provider and route evidence is strong enough to spend without extra gating.
+    - paragraph:
+      - generic: proceed_with_caution
+      - generic: Evidence is mixed or incomplete, so spend should stay constrained.
+    - paragraph:
+      - generic: test_spend_first
+      - generic: The next safe move is a small deterministic test spend.
+    - paragraph:
+      - generic: do_not_spend
+      - generic: Ledger evidence says stop or move to a fallback path.
+    - paragraph:
+      - generic: insufficient_evidence
+      - generic: The spend context needs more proof before money moves.
+  - region "Required action mapping":
+    - paragraph: Required action mapping
+    - heading "What the agent should do next." [level=2]
+    - paragraph:
+      - generic: none
+      - generic: Spend can proceed without extra gating.
+    - paragraph:
+      - generic: run_small_test_spend
+      - generic: Use a constrained test spend before scaling.
+    - paragraph:
+      - generic: request_more_evidence
+      - generic: Wait for stronger receipt or claim evidence.
+    - paragraph:
+      - generic: use_fallback_route
+      - generic: Move to a safer route.
+    - paragraph:
+      - generic: do_not_use_provider
+      - generic: Do not spend through the provider.
+    - paragraph:
+      - generic: manual_review_required
+      - generic: Escalate before spending.
+  - region "Risk factors":
+    - paragraph: Risk factors
+    - heading "Why the engine raises caution." [level=2]
+    - generic: missing provider reputation
+    - generic: missing route reputation
+    - generic: missing service reputation
+    - generic: watchlist status
+    - generic: degraded target
+    - generic: disputed target
+    - generic: high amount
+    - generic: insufficient evidence
+  - region "Inputs used":
+    - paragraph: Inputs used
+    - heading "The decision engine reads accumulated evidence, not vibes." [level=2]
+    - generic: provider reputation
+    - generic: route reputation
+    - generic: service reputation
+    - generic: receipts
+    - generic: reviewed claims
+    - generic: Hermes runs
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

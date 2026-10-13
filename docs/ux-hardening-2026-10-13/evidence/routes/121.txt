@@ -1,0 +1,115 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: qualification missing record
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#dossier-content"
+- main:
+  - paragraph: source required
+  - heading "Source required" [level=2]
+  - paragraph: This route will not aggregate placeholder contracts or infer identity from provider context.
+  - paragraph: RH Chain token dossier
+  - heading "Unknown token" [level=1]
+  - paragraph: A calm, exact-contract intelligence file. Unknown stays unknown.
+  - paragraph: qualificat…record
+  - link "Read desk memory":
+    - /url: "#dossier-memory"
+  - link "Add source evidence":
+    - /url: /rh-chain-signal-desk/submit
+  - complementary:
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Unavailable
+      - generic: Status
+      - strong: Unavailable
+      - generic: Observed
+      - strong: Oct 13, 2026, 4:51 AM UTC
+      - generic: Relative age
+      - strong: Updated just now
+      - generic: Sources
+      - strong: Source required
+      - generic: Source policy
+      - paragraph: Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - paragraph: Dossier inclusion is public intelligence memory, not endorsement, safety verification, listing, financial advice, or an official Robinhood partnership.
+  - paragraph: "Resolution: unknown · claims source required for claims. Provider context never creates approval, endorsement, or a safety finding."
+  - region "Token Dossier Card":
+    - article "Token Dossier Card share card":
+      - generic: INFOPUNKS
+      - strong: Token Dossier Card
+      - paragraph: Unknown · exact contract
+      - generic: Finding
+      - paragraph: Source required before identity-specific context. Placeholder contracts are not token identities.
+      - generic: Risk caveat
+      - paragraph: Source required before identity-specific context.
+      - generic: 2026-10-13T04:51:25.102Z
+      - generic: Token Dossier memory
+      - link "Open desk ↗":
+        - /url: /rh-chain-signal-desk/tokens/qualification-missing-record
+      - button "Copy link"
+  - paragraph: Infopunks Memory
+  - heading "What the desk remembers" [level=2]
+  - article:
+    - paragraph: 4663 Index context
+    - heading "Not indexed" [level=3]
+    - paragraph: No exact contract match is in the public index. Dossiers never add a token to the index.
+  - article:
+    - paragraph: Scout retrieval
+    - heading "Read-only desk context" [level=3]
+    - paragraph: Source required before identity-specific context. Placeholder contracts are not token identities.
+  - paragraph: External Context
+  - heading "Provider context, never a verdict" [level=2]
+  - article:
+    - paragraph: DexScreener pair
+    - heading "Unavailable" [level=3]
+    - paragraph: No pair context returned.
+  - article:
+    - paragraph: Blockscout explorer
+    - heading "Unverified" [level=3]
+    - paragraph: Contract not found · type unknown · deployer unknown · unavailable
+  - article:
+    - paragraph: CoinGecko relevance
+    - heading "unavailable" [level=3]
+    - paragraph: Source required before identity-specific context.
+  - paragraph: Launch Context
+  - heading "Claims stay claims until receipted" [level=2]
+  - paragraph: No launch context is attached to this exact contract record.
+  - paragraph: Risk Notes
+  - heading "Evidence gaps remain visible" [level=2]
+  - paragraph: Source required before identity-specific context.
+  - paragraph: Placeholder contract values cannot be used to join review records, receipts, or index memory.
+  - paragraph: Receipt Trail
+  - heading "Public memory, timestamped" [level=2]
+  - paragraph: No receipt, review update, or safely exposed audit event is attached to this exact contract.
+  - paragraph: Improve the record
+  - heading "Evidence before narrative." [level=2]
+  - link "Submit more evidence":
+    - /url: /rh-chain-signal-desk/submit
+  - button "Share Token Dossier"
+  - link "Open Distribution Pack":
+    - /url: /rh-chain-signal-desk/distribution-pack
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

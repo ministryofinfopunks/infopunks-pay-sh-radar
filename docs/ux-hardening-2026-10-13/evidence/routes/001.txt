@@ -1,0 +1,139 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- main:
+  - region "Before your agent spends, check the evidence.":
+    - paragraph: "[ 01 ] INFOPUNKS RADAR / TWO ECONOMIES"
+    - heading "Before your agent spends, check the evidence." [level=1]
+    - paragraph: Radar evaluates routes, providers, and payment risk before funds move. Evidence-bound decisions. Inspectable reasoning. Accountable receipts.
+    - generic: Route, endpoint, or provider identifier
+    - generic: ">"
+    - textbox "Route, endpoint, or provider identifier":
+      - /placeholder: Paste a route, endpoint, or provider…
+    - paragraph: Use a catalog identifier or endpoint. Review intent and policy in the Spend Terminal.
+    - button "Run Spend Check":
+      - generic: ▶
+      - text: Run Spend Check
+    - link "Inspect judgment format":
+      - /url: "#judgment-preview"
+      - text: Inspect judgment format
+    - paragraph: No wallet required to explore. Advisory checks; no automatic payment.
+    - complementary "JUDGMENT PREVIEW":
+      - heading "JUDGMENT PREVIEW" [level=2]:
+        - text: JUDGMENT PREVIEW
+      - generic: NO CHECK RUN
+      - heading "Your next spend route" [level=3]
+      - paragraph: Service / provider / payment endpoint
+      - paragraph: Subject network and fee rail are independent.
+      - paragraph: Outcome
+      - strong:
+        - text: AWAITING EVIDENCE
+      - paragraph: Confidence
+      - strong: —
+      - paragraph: A policy-bound decision appears after a check. Missing or stale evidence cannot become permission to spend.
+      - heading "Evidence summary" [level=3]
+      - generic "Provider verification NOT CHECKED":
+        - generic: Provider verification
+        - generic: NOT CHECKED
+      - generic "Route history NOT CHECKED":
+        - generic: Route history
+        - generic: NOT CHECKED
+      - generic "Payment risk analysis NOT CHECKED":
+        - generic: Payment risk analysis
+        - generic: NOT CHECKED
+      - generic "Policy match (your rules) REQUIRED":
+        - generic: Policy match (your rules)
+        - generic: REQUIRED
+      - strong: Receipt
+      - paragraph: Not issued. No check or execution has occurred.
+      - generic: NOT ISSUED
+      - paragraph: Judgment is advisory. Execution requires separate authorization.
+  - region "One Judgment Protocol":
+    - paragraph: "[ 02 ]"
+    - heading "One Judgment Protocol" [level=2]
+    - paragraph: From evidence to accountable action.
+    - link "Learn more":
+      - /url: /developers
+      - text: Learn more
+    - region "Four-receipt lifecycle":
+      - paragraph: Architecture reference · no stage records claimed
+      - list:
+        - strong:
+          - generic: 01 /
+          - text: OBSERVATION
+        - paragraph: Collect evidence. Preserve provenance and gaps.
+        - strong:
+          - generic: 02 /
+          - text: JUDGMENT
+        - paragraph: Apply frozen policy. Make an evidence-bound decision.
+        - strong:
+          - generic: 03 /
+          - text: EXECUTION
+        - paragraph: Separate authorization. Independently verify what happened.
+        - strong:
+          - generic: 04 /
+          - text: EVALUATION
+        - paragraph: Attest outcomes. Eligible evaluations inform future checks.
+    - paragraph: Execution and Evaluation receipts appear only when their proof exists.
+  - region "Two economies and one standard of proof":
+    - article:
+      - paragraph: "[ 03 ] PRIMARY UTILITY"
+      - heading "Solana Radar" [level=2]
+      - paragraph: Should this agent spend?
+      - link "Check a Spend Route":
+        - /url: /spend-terminal
+      - paragraph: Inspect service routes, providers, payment risk, and evidence before funds move.
+      - paragraph: Advisory checks · execution separately authorized
+      - generic "Solana Radar coverage":
+        - generic: Routes
+        - generic: Providers
+        - generic: Payments
+        - generic: Risk
+        - generic: Evidence
+    - article:
+      - paragraph: "[ 04 ] MARKET INTELLIGENCE"
+      - heading "Robinhood Chain" [level=2]
+      - paragraph: Does this market deserve trust?
+      - link "Inspect a Market":
+        - /url: /rh-chain-signal-desk/market
+      - paragraph: Inspect contracts, PLTR markets, liquidity, counterparties, and proof.
+      - paragraph: Read-only inspection · trading policy unqualified
+      - generic "Robinhood Chain coverage":
+        - generic: Contracts
+        - generic: Liquidity
+        - generic: Counterparties
+        - generic: Proof
+    - article:
+      - paragraph: "[ 05 ] PRINCIPLES"
+      - heading "No receipt, no trust." [level=2]:
+        - text: No receipt,
+        - text: no trust.
+      - paragraph: Every decision should be inspectable, verifiable, and accountable.
+      - link "Inspect receipt evidence":
+        - /url: /receipts
+        - text: Inspect receipt evidence
+  - region "One Standard of Proof.":
+    - paragraph: "[ 06 ] ONE RADAR. TWO ECONOMIES."
+    - heading "One Standard of Proof." [level=2]
+    - paragraph: Intelligence before the wallet acts.
+    - paragraph: Solana leads with service spending intelligence. Robinhood Chain leads with read-only market inspection. Both use the same trust principles and receipt authority.
+    - paragraph: Pay.sh is a spend rail. Judgment assesses the action under policy. Separately authorized infrastructure handles execution.
+    - link "Integration documentation":
+      - /url: /developers
+      - text: Integration documentation
+    - paragraph: POST /v1/pre-spend/check · illustrative request
+    - generic "Minimal advisory check request":
+      - code: "{ \"agent_id\": \"your-agent\", \"intent\": \"buy_market_research\", \"budget\": 25, \"risk_tolerance\": \"low\", \"preferred_settlement\": \"stablecoin\", \"required_confidence\": 80 }"
+    - paragraph: Illustrative advisory request; inspect the API contract for required fields. This request does not execute or pay.
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

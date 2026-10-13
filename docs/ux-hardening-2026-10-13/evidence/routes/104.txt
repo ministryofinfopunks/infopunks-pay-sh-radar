@@ -1,0 +1,337 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: Observatory
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#launchpad-observatory-content"
+- main:
+  - paragraph: RH Chain post-NOXA intelligence
+  - heading "RH Chain Launchpad Observatory" [level=1]
+  - paragraph: Where tokens start. Where claims break. Where receipts matter.
+  - paragraph: Read the origin. Keep the receipt.
+  - link "Read surface health":
+    - /url: "#surface-health-board"
+  - link "Submit launch evidence":
+    - /url: /rh-chain-signal-desk/submit
+  - complementary:
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Manual snapshot
+      - generic: Status
+      - strong: Stale
+      - generic: Observed
+      - strong: Jul 16, 2026, 12:00 AM UTC
+      - generic: Relative age
+      - strong: Updated 89 days ago
+      - generic: Sources
+      - strong: "11"
+      - generic: Source policy
+      - paragraph: Surface status and claims are manual, source-dependent intelligence. Human-reviewed receipts outrank external or live context. No token, launchpad, or route is endorsed or treated as verified.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory. Infopunks does not launch the token. Infopunks remembers the launch.
+    - paragraph: This is a read-only launch-origin intelligence surface, not a launch, trading, or safety service. Reported disruption, fee, activity, and rival-share claims remain unverified unless a human-reviewed receipt says otherwise.
+  - paragraph: Surface Health Board
+  - heading "Interfaces change. Origin needs memory." [level=2]
+  - article:
+    - paragraph: noxa_fun
+    - heading "NOXA Fun" [level=3]
+    - generic: degraded
+    - term: Confidence
+    - definition: medium
+    - term: Last observed
+    - definition: Jul 16, 2026, 12:00 AM UTC
+    - term: Data mode
+    - definition: manual
+    - generic: front end dependency
+    - generic: creator fee claim uncertainty
+    - generic: fee model mutation
+    - generic: source required
+    - paragraph: The stress event matters because memory must outlast one interface and one fee design.
+    - paragraph: Reported NOXA launch pause and fee-model mutation are retained as manual context. Current availability, domain state, and fee/revenue details require primary, timestamped or on-chain evidence.
+  - article:
+    - paragraph: pons
+    - heading "Pons" [level=3]
+    - generic: active
+    - term: Confidence
+    - definition: low
+    - term: Last observed
+    - definition: Jul 16, 2026, 12:00 AM UTC
+    - term: Data mode
+    - definition: manual
+    - generic: source required
+    - paragraph: Active is contextual status, not an endorsement or a launch route.
+    - paragraph: Pons is tracked as reported launch-surface context; current activity needs a primary, timestamped source.
+  - article:
+    - paragraph: flap_sh
+    - heading "flap.sh" [level=3]
+    - generic: source required
+    - term: Confidence
+    - definition: low
+    - term: Last observed
+    - definition: Jul 16, 2026, 12:00 AM UTC
+    - term: Data mode
+    - definition: manual
+    - generic: rival surface rotation
+    - generic: source required
+    - paragraph: A listed surface is not a safety or quality signal.
+    - paragraph: Presence as a rival surface is a reported context claim; exact operation and origin records need receipts.
+  - article:
+    - paragraph: trensh_today
+    - heading "trensh.today" [level=3]
+    - generic: source required
+    - term: Confidence
+    - definition: low
+    - term: Last observed
+    - definition: Jul 16, 2026, 12:00 AM UTC
+    - term: Data mode
+    - definition: manual
+    - generic: rival surface rotation
+    - generic: source required
+    - paragraph: Memory follows evidence, not surface branding.
+    - paragraph: Reported competitor context is retained for manual review only.
+  - article:
+    - paragraph: bankr
+    - heading "bankr" [level=3]
+    - generic: source required
+    - term: Confidence
+    - definition: low
+    - term: Last observed
+    - definition: Jul 16, 2026, 12:00 AM UTC
+    - term: Data mode
+    - definition: manual
+    - generic: creator fee claim uncertainty
+    - generic: launch quality filtering
+    - generic: source required
+    - paragraph: Creator claims are not a substitute for receipts.
+    - paragraph: Reported launch-surface context has not been promoted to a reviewed operational claim.
+  - article:
+    - paragraph: tokeny_fun
+    - heading "tokeny.fun" [level=3]
+    - generic: source required
+    - term: Confidence
+    - definition: low
+    - term: Last observed
+    - definition: Jul 16, 2026, 12:00 AM UTC
+    - term: Data mode
+    - definition: manual
+    - generic: rival surface rotation
+    - generic: source required
+    - paragraph: No receipt, no upgraded claim.
+    - paragraph: Manual registry entry for a reported launch surface; no safety inference is available.
+  - article:
+    - paragraph: vlad_fun
+    - heading "vlad.fun" [level=3]
+    - generic: source required
+    - term: Confidence
+    - definition: low
+    - term: Last observed
+    - definition: Jul 16, 2026, 12:00 AM UTC
+    - term: Data mode
+    - definition: manual
+    - generic: clone flood
+    - generic: vampire copycat risk
+    - generic: source required
+    - paragraph: Similarity is a review prompt, not a misconduct finding.
+    - paragraph: Manual registry entry for reported launch context only.
+  - article:
+    - paragraph: robindotmarket
+    - heading "robindotmarket" [level=3]
+    - generic: source required
+    - term: Confidence
+    - definition: low
+    - term: Last observed
+    - definition: Jul 16, 2026, 12:00 AM UTC
+    - term: Data mode
+    - definition: manual
+    - generic: clone flood
+    - generic: rival surface rotation
+    - generic: source required
+    - paragraph: A familiar name never establishes identity.
+    - paragraph: Manual registry entry for reported launch context only.
+  - article:
+    - paragraph: uniswap_direct_launches
+    - heading "Uniswap direct launches" [level=3]
+    - generic: active
+    - term: Confidence
+    - definition: medium
+    - term: Last observed
+    - definition: Jul 16, 2026, 12:00 AM UTC
+    - term: Data mode
+    - definition: manual
+    - generic: launch quality filtering
+    - generic: fee model mutation
+    - generic: source required
+    - paragraph: A pool is evidence to inspect, not a verdict.
+    - paragraph: Direct-pool creation is observable launch context, not a quality, liquidity, or safety determination.
+  - article:
+    - paragraph: pump_fun_routed_rh_chain
+    - heading "Pump routing" [level=3]
+    - generic: source required
+    - term: Confidence
+    - definition: low
+    - term: Last observed
+    - definition: Jul 16, 2026, 12:00 AM UTC
+    - term: Data mode
+    - definition: manual
+    - generic: rival surface rotation
+    - generic: source required
+    - paragraph: A route label never establishes canonical launch origin.
+    - paragraph: Reported Pump routing context is retained for source review only.
+  - article:
+    - paragraph: unknown_manual
+    - heading "unknown/manual" [level=3]
+    - generic: unknown
+    - term: Confidence
+    - definition: low
+    - term: Last observed
+    - definition: Jul 16, 2026, 12:00 AM UTC
+    - term: Data mode
+    - definition: manual
+    - generic: source required
+    - paragraph: Do not upgrade an unknown origin from silence.
+    - paragraph: No attributable launch surface has been supplied.
+  - paragraph: Post-NOXA Stress Map
+  - heading "The first stress test made the gaps visible." [level=2]
+  - article:
+    - text: "01"
+    - heading "First stress test" [level=3]
+    - paragraph: NOXA was the first launchpad stress test represented in RH Chain memory. The recorded disruption is reported context, not an intent or safety finding.
+  - article:
+    - text: "02"
+    - heading "Routes moved around the interface" [level=3]
+    - paragraph: Liquidity and launch activity were reported to route around the disruption. Exact routes, counts, and volumes remain source_required.
+  - article:
+    - text: "03"
+    - heading "Fee design becomes a battlefield" [level=3]
+    - paragraph: Reported creator-revenue shifts, fee routing, burns, and buybacks remain source_required unless primary or on-chain evidence is attached.
+  - article:
+    - text: "04"
+    - heading "Fragmentation raises the memory requirement" [level=3]
+    - paragraph: More launch surfaces mean more opportunities for origin confusion, duplicate claims, fee confusion, and stale screenshots. Exact contracts, sources, and reviewed receipts matter more.
+  - paragraph: Claim Ledger
+  - heading "Claims stay source_required until receipted." [level=2]
+  - region "Launchpad claim ledger":
+    - text: Scroll horizontally for all columns →
+    - table:
+      - rowgroup:
+        - row "Claim class Surface Claim State Record note":
+          - columnheader "Claim class"
+          - columnheader "Surface"
+          - columnheader "Claim"
+          - columnheader "State"
+          - columnheader "Record note"
+      - rowgroup:
+        - row "outage claim NOXA Fun Reported NOXA disruption and launch restrictions during the post-NOXA stress window. source required Manual registry context only; primary, timestamped evidence and human review are required before promotion.":
+          - cell "outage claim"
+          - cell "NOXA Fun"
+          - cell "Reported NOXA disruption and launch restrictions during the post-NOXA stress window."
+          - cell "source required":
+            - generic: source required
+          - cell "Manual registry context only; primary, timestamped evidence and human review are required before promotion."
+        - row "launch count NOXA Fun Reported launch continuity or launch-count changes around the disruption. source required Manual registry context only; primary, timestamped evidence and human review are required before promotion.":
+          - cell "launch count"
+          - cell "NOXA Fun"
+          - cell "Reported launch continuity or launch-count changes around the disruption."
+          - cell "source required":
+            - generic: source required
+          - cell "Manual registry context only; primary, timestamped evidence and human review are required before promotion."
+        - row "fee claim NOXA Fun Reported NOXA fee-model shift during the launch pause. source required Manual registry context only; primary, timestamped evidence and human review are required before promotion.":
+          - cell "fee claim"
+          - cell "NOXA Fun"
+          - cell "Reported NOXA fee-model shift during the launch pause."
+          - cell "source required":
+            - generic: source required
+          - cell "Manual registry context only; primary, timestamped evidence and human review are required before promotion."
+        - row "creator revenue shift NOXA Fun Reported shift toward redirecting transaction revenue to creators. source required Manual registry context only; primary, timestamped evidence and human review are required before promotion.":
+          - cell "creator revenue shift"
+          - cell "NOXA Fun"
+          - cell "Reported shift toward redirecting transaction revenue to creators."
+          - cell "source required":
+            - generic: source required
+          - cell "Manual registry context only; primary, timestamped evidence and human review are required before promotion."
+        - row "fee claim bankr Reported creator-fee or launch-fee terms. source required Manual registry context only; primary, timestamped evidence and human review are required before promotion.":
+          - cell "fee claim"
+          - cell "bankr"
+          - cell "Reported creator-fee or launch-fee terms."
+          - cell "source required":
+            - generic: source required
+          - cell "Manual registry context only; primary, timestamped evidence and human review are required before promotion."
+        - row "rival share claim flap.sh Reported rival-surface share or rotation after NOXA stress. source required Manual registry context only; primary, timestamped evidence and human review are required before promotion.":
+          - cell "rival share claim"
+          - cell "flap.sh"
+          - cell "Reported rival-surface share or rotation after NOXA stress."
+          - cell "source required":
+            - generic: source required
+          - cell "Manual registry context only; primary, timestamped evidence and human review are required before promotion."
+        - row "notable token claim Uniswap direct launches Reported token origin through a direct Uniswap pool. source required Manual registry context only; primary, timestamped evidence and human review are required before promotion.":
+          - cell "notable token claim"
+          - cell "Uniswap direct launches"
+          - cell "Reported token origin through a direct Uniswap pool."
+          - cell "source required":
+            - generic: source required
+          - cell "Manual registry context only; primary, timestamped evidence and human review are required before promotion."
+        - row "notable token claim unknown/manual Reported token origin without a canonical launch-surface receipt. source required Manual registry context only; primary, timestamped evidence and human review are required before promotion.":
+          - cell "notable token claim"
+          - cell "unknown/manual"
+          - cell "Reported token origin without a canonical launch-surface receipt."
+          - cell "source required":
+            - generic: source required
+          - cell "Manual registry context only; primary, timestamped evidence and human review are required before promotion."
+  - paragraph: Risk Notes
+  - heading "Slow down where origin gets blurry." [level=2]
+  - article:
+    - heading "Fake relaunches" [level=3]
+    - paragraph: A relaunch claim needs a canonical contract, source timestamp, and reviewed link before it becomes desk memory.
+  - article:
+    - heading "Clone floods" [level=3]
+    - paragraph: Similar names, branding, or interfaces are verification prompts, not proof of misconduct.
+  - article:
+    - heading "Vampire / copycat launches" [level=3]
+    - paragraph: Origin and migration claims need direct evidence; competition alone does not establish copying.
+  - article:
+    - heading "Front-end dependency" [level=3]
+    - paragraph: An interface can fail, migrate, or change while token-origin claims remain unresolved.
+  - article:
+    - heading "Fee-model claim laundering" [level=3]
+    - paragraph: Creator-fee, burn, buyback, and transaction-revenue claims need primary terms or on-chain evidence before promotion.
+  - article:
+    - heading "Low-quality direct Uniswap launches" [level=3]
+    - paragraph: A direct pool does not establish reliable liquidity, canonical identity, or safety.
+  - article:
+    - heading "Rival-pad impersonation" [level=3]
+    - paragraph: Rival-surface branding or screenshots do not establish canonical launch origin.
+  - paragraph: Keep the record intact
+  - heading "Infopunks does not launch the token. Infopunks remembers the launch." [level=2]
+  - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+  - link "Submit launch evidence":
+    - /url: /rh-chain-signal-desk/submit
+  - link "View Clone Radar":
+    - /url: /rh-chain-signal-desk/clone-radar
+  - link "Ask Scout":
+    - /url: /rh-chain-signal-desk/scout
+  - 'link "View Daily Receipt #005"':
+    - /url: /rh-chain-signal-desk/daily-receipts/rh_daily_005
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

@@ -1,0 +1,38 @@
+# Component-level remediation plan — awaiting approval
+
+## Change boundary
+
+Create a new isolated managed worktree/branch from the current integration candidate only after the user approves the corrections. Recheck the integration head at that point and reconcile any newer tenant-aware Spend work before editing. Proposed branch name: `codex/radar-product-ux-hardening`. No application implementation has started.
+
+Reuse `docs/design-system/constitution.md`, `radarTokens.css`, `radarDesignSystem.css`, ProductHeader/Footer, RadarAppShell, RadarSectionHeader, RadarStatus, RadarReceiptLifecycle, RadarEvidenceRow, RadarAsyncState, RadarDataTable, existing native labels, API consumers and regression tests. These maintained files are the design/UX equivalent; do not create a second DESIGN.md/token/theme system to satisfy a generic skill convention. Record native-select ownership explicitly in the maintained constitution/behavior documentation rather than replacing native controls for appearance alone.
+
+Preserve `judgmentCheckClient` authentication/header/timeout/idempotency behavior, canonical schemas, canonical decisions, server ownership and verification. No backend, migrations, signing, policy, security, payment or execution edits are in scope. No automatic payment, trade, execution, secret persistence or baseline update is permitted.
+
+## Implementation sequence
+
+| Batch | Issues / files | Concrete change | Review evidence and acceptance |
+|---|---|---|---|
+| A. Journey routing and recovery | UX-03/04; `radarApp.tsx`, existing RH/reflexive readers and `RhChainRouteState`, `RadarAsyncState` | Correct existing share dispatch. Replace raw/dead-end public errors with state-specific task headings, supported GET retry and owner-list links. Keep all partial evidence. Unknown signals use an honest existing-family fallback. | Valid/missing share and signal captures; success/404/503/timeout/empty matrix; no mutation retries; no anonymous private requests. Private denial remains generic. |
+| B. Spend and credential feedback | UX-01/05/08/12; `spendTerminalPage.tsx`, `canonicalReceiptPage.tsx`, existing field CSS | Add canonical constraint-based inline validation, explanatory auth guidance, first-invalid focus, described help/error, value preservation and a shared accessible reveal control. Preserve default masking. Retain confirmed catalog subject in the evidence link. | Empty/invalid/expired identity; negative/empty budget and invalid confidence; unchanged retry key and duplicate-submit prevention; zero secrets in URL/storage/logs; no data or authorization contract change. Existing low-level anonymous-client behavior remains separately tested. |
+| C. Evidence hierarchy | UX-06/07/13; `radarDesignSystem.tsx/.css`, `canonicalReceiptPage.tsx`, `radarAppShell.tsx/pageIdentity` | Separate lifecycle title/status/detail within existing tiles. Summarize only returned record fields. Add independently authenticated parent-inspection links without prefetching/copying credentials. Resolve proof-archive breadcrumb. | Narrow/desktop full inspected screenshots; pending and missing-stage truth; expired Judgment and unavailable verification; keyboard disclosures/source; owner/cross-tenant regression. Do not label absent records completed. |
+| D. Search and list continuity | UX-02/09; semantic search in `radarApp.tsx`, `RoutesIndexPage` in `preSpendBuilderPages.tsx` | Track draft vs committed query; no-results only after a completed matching query. Add immediate clear, IME-safe submit and stale-response suppression. Persist safe committed route filters/sort in URL state. | Before-submit, results, no-results, error, slow-overlap and clear captures; latest-query wins; refresh/back/forward restores selections; invalid URL values fall back safely. Preserve explicit search submission and current endpoint. |
+| E. Semantic ownership | UX-10; legacy route wrappers and shell context | Use one global banner/contentinfo/skip target and one task h1. Retain local content and controls as sections. Give missing states task headings. Document existing native select ownership and applicable shared field behavior. | Landmark/heading automation plus keyboard/AT traversal; sibling-screen comparisons; no content removal, duplicated global chrome or visual reorganization. |
+| F. Measured performance | UX-11; existing route imports/lazy boundaries and build | Measure unchanged deep routes first. Split existing route families only if cold-route payload/long-task measurements justify the change. Extend existing import ownership; avoid a framework rewrite or new visual primitives. | Same-host/tool/fixture cold desktop/mobile comparisons with repeated runs; transferred bytes, LCP/CLS/TBT and long tasks; separate field p75/INP if available. Homepage/Spend imports and mobile Signal Lens suppression stay intact. A smaller individual chunk is not automatically a smaller full journey. |
+
+Every batch is reviewable before the next. If a proposed correction needs a changed backend field or new security/payment behavior, mark it blocked and omit that implementation rather than inventing a contract. The test-spend cap is such a constraint: show only returned policy reasons; no new cap calculation.
+
+## Qualification after authorization
+
+Run the existing project commands, using only an isolated synthetic local runtime and separate evidence output directories. Confirm script output destinations before executing; several current scripts hard-code UI-INT2 paths and must not overwrite approved/frozen evidence. Add or adapt qualification harness output configuration only in the isolated branch when needed.
+
+- `npm run check:design`, `npm run typecheck`, `npm run lint`, `npm run build`, `git diff --check`.
+- Full PostgreSQL-backed existing test suite using the documented disposable QA cluster and all required test database variables. Preserve every existing tenant/security/Judgment/receipt/payment regression; no silent skips. Existing formatter is not configured; use project conventions rather than adding one.
+- `npm run test:ui` / `scripts/qualify-ui-int2-routes.cjs`: complete maintained inventory, all seven widths, WCAG-tagged axe violations and inconclusive nodes, menus and page exceptions.
+- `scripts/qualify-unified-radar-browser.mjs`: authorized/unauthorized identity matrix, source disclosures, keyboard/reduced motion, layout and recovery.
+- `npm run test:ui:journeys` / `scripts/qualify-ui-int2-journeys.cjs`: retain actual API/PG receipt and Spend journeys; add canonical test-spend/denial and missing/outage states without real settlement.
+- `npm run test:ui:visuals` / `scripts/compare-ui-int2-visuals.cjs`: frozen baseline comparisons and reviewed correction regions. Never overwrite baselines. Any expected changed pixels are itemized for review; they do not excuse unrelated drift.
+- `scripts/qualify-ui-int2-text-scaling.cjs`, native zoom and local source/table scrolling. Current emulated widths are not real-device qualification.
+- `scripts/qualify-ui-int2-performance.py` and the established Lighthouse workflow: repeated before/after cases including deep research routes. No statistical speed claim from one sample; no TBT→INP substitution.
+- Premium strict static audit with canonical ownership mapping. Adjudicate generic findings against the maintained constitution; do not redesign or remove native semantics just to silence a scanner.
+
+The existing WebKit limitation and missing physical-device/AT access remain explicit HOLD conditions until verified. Preserve original visual approval; any proposal to change identity needs separate approval. No merge, deployment or release readiness is part of this plan.

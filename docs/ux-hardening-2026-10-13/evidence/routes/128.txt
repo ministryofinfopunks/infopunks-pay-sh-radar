@@ -1,0 +1,280 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Signal Hunt
+- paragraph:
+  - generic: "[ 09 ]"
+  - text: SIGNALS / MARKET INTELLIGENCE
+- main "Signal Hunt page":
+  - paragraph: The cultural front door of Infopunks intelligence
+  - heading "Signal Hunt" [level=1]
+  - heading "Find signal before it becomes consensus." [level=2]
+  - paragraph: Most timelines see noise. Infopunks hunt signal.
+  - paragraph: The crowd finds it. Proof Feed records it. LoopLab remembers it. Agents use it before spend.
+  - paragraph: Signal Hunt turns CT attention into reusable intelligence. Culture finds the edge. Infrastructure makes it durable.
+  - link "Submit Signal":
+    - /url: "#submit-signal"
+  - link "Verify Signal":
+    - /url: "#verify-signal"
+  - generic "Signal Hunt counters":
+    - article:
+      - generic: fresh
+      - strong: "1"
+    - article:
+      - generic: under review
+      - strong: "1"
+    - article:
+      - generic: verified
+      - strong: "1"
+    - article:
+      - generic: noise / disputed
+      - strong: "2"
+  - region "Fresh Signals":
+    - paragraph: Fresh Signals
+    - heading "1" [level=2]
+    - paragraph: New cultural intake before the story hardens.
+    - article "Machine-wallet infra is becoming public culture instead of back-office plumbing":
+      - paragraph: agent_infra
+      - generic: Fresh Signal
+      - generic: Unproven
+      - heading "Machine-wallet infra is becoming public culture instead of back-office plumbing" [level=3]
+      - paragraph: Machine identity, wallet rails, and preflight policy are starting to compress into one memetic stack.
+      - paragraph:
+        - generic: Signal score
+        - strong: "81"
+      - paragraph:
+        - generic: Velocity
+        - strong: "71"
+      - paragraph:
+        - generic: Risk
+        - strong: "58"
+      - paragraph:
+        - generic: Evidence
+        - strong: "3"
+      - generic: Loops
+      - link "loop_provider_trust":
+        - /url: /loops/loop_provider_trust
+      - generic: Routes
+      - link "route_pay_sh_market_research_03":
+        - /url: /routes/route_pay_sh_market_research_03
+      - link "Open signal":
+        - /url: /signal-hunt/hunt_machine_wallet_desks
+  - region "Under Review":
+    - paragraph: Under Review
+    - heading "1" [level=2]
+    - paragraph: Signals with enough surface area to investigate, but not enough proof to graduate.
+    - article "TROLL is behaving like internet memory, not fresh meme novelty":
+      - paragraph: meme_archetype
+      - generic: Under Review
+      - generic: Receipts Attached
+      - heading "TROLL is behaving like internet memory, not fresh meme novelty" [level=3]
+      - paragraph: The signal is survival. Old internet lore keeps re-entering trench circulation with enough holder surface and myth coherence to matter again.
+      - paragraph:
+        - generic: Signal score
+        - strong: "88"
+      - paragraph:
+        - generic: Velocity
+        - strong: "74"
+      - paragraph:
+        - generic: Risk
+        - strong: "67"
+      - paragraph:
+        - generic: Evidence
+        - strong: "3"
+      - generic: Proof checks
+      - link "check_provider_reliability_seed":
+        - /url: /check/check_provider_reliability_seed
+      - generic: Signal updates
+      - link "troll":
+        - /url: /signals/troll
+      - link "Open signal":
+        - /url: /signal-hunt/hunt_troll_reindex
+  - region "Verified Signals":
+    - paragraph: Verified Signals
+    - heading "1" [level=2]
+    - paragraph: Culture-layer signal that now connects cleanly into the proof and memory stack.
+    - article "Black Bull attention is mutating into community coordination":
+      - paragraph: attention_market
+      - generic: Verified Signal
+      - generic: Validated
+      - heading "Black Bull attention is mutating into community coordination" [level=3]
+      - paragraph: The signal is no longer only persona velocity. Redistribution mechanics and participant-made media are carrying the object into a broader coordination loop.
+      - paragraph:
+        - generic: Signal score
+        - strong: "92"
+      - paragraph:
+        - generic: Velocity
+        - strong: "89"
+      - paragraph:
+        - generic: Risk
+        - strong: "79"
+      - paragraph:
+        - generic: Evidence
+        - strong: "3"
+      - generic: Proof checks
+      - link "check_route_pay_sh_seed":
+        - /url: /check/check_route_pay_sh_seed
+      - generic: Loops
+      - link "loop_pre_spend_route":
+        - /url: /loops/loop_pre_spend_route
+      - generic: Signal updates
+      - link "black-bull":
+        - /url: /signals/black-bull
+      - generic: Routes
+      - link "route_pay_sh_market_research_01":
+        - /url: /routes/route_pay_sh_market_research_01
+      - link "Open signal":
+        - /url: /signal-hunt/hunt_black_bull_coordination
+  - region "Noise / Rejected":
+    - paragraph: Noise / Rejected
+    - heading "2" [level=2]
+    - paragraph: Rejected intake, weak evidence, or recycled chatter.
+    - article "Provider reputation thread is splitting between proof and vibes":
+      - paragraph: provider_reputation
+      - generic: Disputed
+      - generic: Challenged
+      - heading "Provider reputation thread is splitting between proof and vibes" [level=3]
+      - paragraph: A provider-quality story is spreading faster than the receipts supporting it, and the public discussion is now contested.
+      - paragraph:
+        - generic: Signal score
+        - strong: "61"
+      - paragraph:
+        - generic: Velocity
+        - strong: "69"
+      - paragraph:
+        - generic: Risk
+        - strong: "83"
+      - paragraph:
+        - generic: Evidence
+        - strong: "3"
+      - generic: Proof checks
+      - link "check_provider_reliability_seed":
+        - /url: /check/check_provider_reliability_seed
+      - generic: Loops
+      - link "loop_provider_trust":
+        - /url: /loops/loop_provider_trust
+      - link "Open signal":
+        - /url: /signal-hunt/hunt_disputed_provider_rep
+    - article "Another persona ticker is recycling the same copy-trade myth":
+      - paragraph: attention_market
+      - generic: Noise
+      - generic: Rejected
+      - heading "Another persona ticker is recycling the same copy-trade myth" [level=3]
+      - paragraph: The object is reading like a thin persona wrapper with weak receipts and derivative copy.
+      - paragraph:
+        - generic: Signal score
+        - strong: "34"
+      - paragraph:
+        - generic: Velocity
+        - strong: "63"
+      - paragraph:
+        - generic: Risk
+        - strong: "88"
+      - paragraph:
+        - generic: Evidence
+        - strong: "3"
+      - link "Open signal":
+        - /url: /signal-hunt/hunt_persona_copytrade_noise
+  - region "Signal Hunt flow":
+    - paragraph: Visible Flow
+    - heading "Find signal -> attach evidence -> verify receipts -> feed LoopLab -> update agent judgment" [level=2]
+    - paragraph: Signal Hunt is the front door. Proof Feed is the receipt printer. LoopLab is the memory engine. Pre-Spend Terminal is the agent judgment layer.
+  - region "How The Hunt Works":
+    - paragraph: How The Hunt Works
+    - heading "Culture in, proof out, memory forward." [level=2]
+    - paragraph: A signal is not real until it has receipts.
+    - article:
+      - paragraph: Find signal
+      - paragraph: The community spots something before the timeline turns it into consensus.
+    - article:
+      - paragraph: Attach evidence
+      - paragraph: Signal Hunt captures thesis, source, and early proof instead of letting it dissolve into the feed.
+    - article:
+      - paragraph: Verify receipts
+      - paragraph: Proof Feed checks whether the story has receipts, challenge pressure, or just vibes.
+    - article:
+      - paragraph: Feed LoopLab
+      - paragraph: LoopLab turns outcomes into memory so future agents can inherit what was learned.
+    - article:
+      - paragraph: Update judgment
+      - paragraph: Pre-Spend Terminal, Evidence Ledger, and Provider Reputation turn that memory into reusable agent judgment.
+    - article:
+      - paragraph: Make trust reusable
+      - paragraph: Agent readiness improves because the cultural intake layer was attached to proof early.
+  - region "Why Signal Hunt matters":
+    - article:
+      - paragraph: Why this matters for agents
+      - heading "Agents need evidence before action." [level=2]
+      - paragraph: Agents can spend, call APIs, consume services, and route payments, but they need evidence before action.
+      - paragraph: Signal Hunt helps communities discover early information, while the rest of the Infopunks stack turns that information into proof, memory, reputation, and pre-spend intelligence.
+    - article:
+      - paragraph: Why this matters for CT
+      - heading "CT is already a live intelligence network." [level=2]
+      - paragraph: Most signals disappear into the timeline. Signal Hunt captures early signal, separates receipts from noise, and turns cultural attention into a reusable intelligence graph.
+  - region "Proof Trail":
+    - paragraph: Proof Trail
+    - heading "Public signal should connect to public memory." [level=2]
+    - paragraph: Proof Feed is the receipt printer. LoopLab is the memory engine. Evidence Ledger makes claims traceable. Provider Reputation makes trust reusable.
+    - article:
+      - heading "Proof Feed" [level=3]
+      - paragraph: A signal is not real until it has receipts.
+      - link "Open Proof Feed":
+        - /url: /check
+    - article:
+      - heading "LoopLab" [level=3]
+      - paragraph: Turns signal outcomes into reusable memory so the next agent does not start from zero.
+      - link "Open LoopLab":
+        - /url: /loops
+    - article:
+      - heading "Pre-Spend Terminal" [level=3]
+      - paragraph: Uses recorded memory to slow down agent spend when culture outruns proof.
+      - link "Open Pre-Spend Terminal":
+        - /url: /spend-terminal
+  - article:
+    - paragraph: Submit Signal
+    - heading "Public intake for early signal." [level=2]
+    - paragraph:
+      - text: Use
+      - code: POST /v1/signal-hunt/submit
+      - text: to stage new cultural intake with evidence, thesis, and why it matters.
+    - link "Open developer surface":
+      - /url: /developers
+  - article:
+    - paragraph: Verify Signal
+    - heading "Move the hunt from vibes to proof." [level=2]
+    - paragraph:
+      - text: Use
+      - code: POST /v1/signal-hunt/:signalId/verify
+      - text: to mark signal, noise, dispute, or continued review and attach linked checks or loops.
+    - link "Start with Proof Feed":
+      - /url: /check
+  - article:
+    - paragraph: Low-cap candidates
+    - heading "Send serious Solana projects to Unicorn Radar." [level=2]
+    - paragraph:
+      - text: Use
+      - code: POST /v1/unicorn-radar/submit
+      - text: when the signal is a low-cap project that needs shipping proof, token survivability, risk flags, and receipts.
+    - link "Submit to Unicorn Radar":
+      - /url: /unicorn-radar#submit-candidate
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

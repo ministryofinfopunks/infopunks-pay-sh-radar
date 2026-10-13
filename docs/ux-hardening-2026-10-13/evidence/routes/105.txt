@@ -1,0 +1,155 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: Snapshot
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#rh-chain-content"
+- main:
+  - paragraph: Public Intelligence Desk
+  - heading "RH Chain Live Snapshot" [level=1]
+  - paragraph: External market context, cached with receipts.
+  - paragraph: Intelligence desk, not casino.
+  - link "Open Meme Pulse":
+    - /url: "#meme-pulse"
+  - link "Submit source evidence":
+    - /url: /rh-chain-signal-desk/submit
+  - complementary "Desk policy":
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Manual snapshot
+      - generic: Status
+      - strong: Fresh
+      - generic: Observed
+      - strong: Oct 13, 2026, 4:51 AM UTC
+      - generic: Relative age
+      - strong: Updated just now
+      - generic: Sources
+      - strong: Source required
+      - generic: Source policy
+      - paragraph: Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - note "Independent intelligence disclaimer":
+      - strong: Independent Infopunks intelligence surface.
+      - generic: Not affiliated with or endorsed by Robinhood.
+      - generic: No buy, sell, or listing recommendation.
+  - region "DEX Screener Provider Status":
+    - paragraph: Market / attention provider
+    - heading "DEX Screener status" [level=2]
+    - paragraph: Market and paid-attention context only. It cannot change reviewed receipts or classifications.
+    - link "Read Market Pulse":
+      - /url: /rh-chain-signal-desk/market
+    - generic: disabled
+    - article:
+      - generic: Last successful capture
+      - strong: unavailable
+    - article:
+      - generic: Latest boosts observed
+      - strong: "0"
+    - article:
+      - generic: Known token refresh
+      - strong: disabled
+    - article:
+      - generic: Fallback mode
+      - strong: active
+  - region "Blockscout Onchain Evidence Status":
+    - paragraph: Onchain evidence
+    - heading "Blockscout registry" [level=2]
+    - paragraph: Exact-contract registry, deployer, holder, and transfer evidence only. Explorer visibility does not verify claims or approve an asset.
+    - generic: disabled
+    - article:
+      - generic: Last successful capture
+      - strong: unavailable
+    - article:
+      - generic: Observed tokens
+      - strong: "0"
+    - article:
+      - generic: Enriched tokens
+      - strong: "0"
+    - article:
+      - generic: Unresolved deployers
+      - strong: "0"
+    - article:
+      - generic: Fallback state
+      - strong: disabled
+  - region "Provider Status":
+    - paragraph: Provider status
+    - heading "Provider Status" [level=2]
+    - paragraph: Freshness describes a cached external read, not live certainty.
+    - generic: live reads disabled
+    - article:
+      - generic: DefiLlama
+      - strong: disabled
+      - generic: Live snapshots are disabled.
+    - article:
+      - generic: CoinGecko
+      - strong: disabled
+      - generic: Live snapshots are disabled.
+    - article:
+      - generic: DexScreener
+      - strong: disabled
+      - generic: Live snapshots are disabled.
+    - article:
+      - generic: Blockscout
+      - strong: disabled
+      - generic: Live snapshots are disabled.
+  - region "Chain Metrics Snapshot":
+    - paragraph: Chain metrics snapshot
+    - heading "Chain Metrics Snapshot" [level=2]
+    - paragraph: Source timestamp unavailable / seeded
+    - article:
+      - paragraph: TVL
+      - strong: unavailable
+    - article:
+      - paragraph: DEX volume
+      - strong: unavailable
+    - article:
+      - paragraph: Stablecoin market cap
+      - strong: unavailable
+    - article:
+      - paragraph: Protocol count
+      - strong: unavailable
+  - region "Meme Category Snapshot":
+    - paragraph: Meme category snapshot
+    - heading "Meme Category Snapshot" [level=2]
+    - paragraph: Source timestamp unavailable / seeded
+    - article:
+      - paragraph: Category market cap
+      - strong: unavailable
+    - article:
+      - paragraph: 24h volume
+      - strong: unavailable
+  - region "Token Lookup Tool":
+    - paragraph: Token lookup
+    - heading "Token Lookup Tool" [level=2]
+    - paragraph: Fetches a cached, risk-neutral external snapshot. It does not approve a submission or establish identity without an exact contract and verified chain match.
+    - generic: Contract address
+    - textbox "Live snapshot contract address":
+      - /placeholder: 0x...
+    - button "Fetch cached snapshot"
+  - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory. Live data never overrides human-reviewed receipts, manual verdicts, review states, or index decisions.
+  - paragraph: Live Snapshot data is external, cached, and informational. It is not an endorsement, listing, partnership, trading signal, or financial recommendation.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

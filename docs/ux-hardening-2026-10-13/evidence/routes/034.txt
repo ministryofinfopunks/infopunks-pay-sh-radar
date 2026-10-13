@@ -1,0 +1,102 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Evaluation Request
+- paragraph:
+  - generic: "[ 16 ]"
+  - text: EVALUATION / COMMERCIAL EVIDENCE
+- main "Evaluation request form":
+  - paragraph: Paid intake funnel
+  - heading "Request an Infopunks Evaluation" [level=1]
+  - heading "Payment buys evaluation, not conviction." [level=2]
+  - paragraph: Submit receipts for Unicorn Radar, token survivability, risk review, agent readiness, or narrative positioning.
+  - paragraph: Paid evaluation does not guarantee a positive verdict. Strong risks may result in Watchlist or Do Not Touch Yet.
+  - link "Open Revenue Receipts":
+    - /url: /revenue-receipts
+  - link "Back to Unicorn Radar":
+    - /url: /unicorn-radar
+  - generic: Disclosure required
+  - heading "Public commercial trust layer" [level=2]
+  - paragraph: Paid evaluations may receive public Revenue Receipts. Payment buys evaluation, not conviction.
+  - paragraph: Receipts intake
+  - heading "Evaluation request fields" [level=2]
+  - paragraph: Required fields are marked with *.
+  - generic: Project name *
+  - textbox "Project name *"
+  - generic: Ticker *
+  - textbox "Ticker *"
+  - generic: Chain *
+  - textbox "Chain *"
+  - generic: Contact *
+  - textbox "Contact *"
+  - generic: Token address
+  - textbox "Token address"
+  - generic: Website
+  - textbox "Website"
+  - generic: X account
+  - textbox "X account"
+  - generic: DexScreener URL
+  - textbox "DexScreener URL"
+  - generic: Solscan URL
+  - textbox "Solscan URL"
+  - generic: Market cap
+  - textbox "Market cap"
+  - generic: Liquidity
+  - textbox "Liquidity"
+  - generic: Holder count
+  - textbox "Holder count"
+  - generic: Top 10 holder concentration
+  - textbox "Top 10 holder concentration"
+  - generic: Top 25 holder concentration
+  - textbox "Top 25 holder concentration"
+  - generic: Requested review type
+  - combobox "Requested review type":
+    - option "Unicorn Radar Evaluation" [selected]
+    - option "Do Not Touch Risk Review"
+    - option "Token Survivability Review"
+    - option "Agent Readiness Review"
+    - option "Narrative Positioning Review"
+  - generic: Paid evaluation budget
+  - textbox "Paid evaluation budget"
+  - generic: Supply notes
+  - textbox "Supply notes"
+  - generic: Launch structure
+  - textbox "Launch structure"
+  - generic: Team treasury wallets
+  - textbox "Team treasury wallets"
+  - generic: Product receipts
+  - textbox "Product receipts"
+  - generic: Marketplace economy receipts
+  - textbox "Marketplace economy receipts"
+  - generic: Community receipts
+  - textbox "Community receipts"
+  - generic: Upside thesis *
+  - textbox "Upside thesis *"
+  - generic: Risk flags *
+  - textbox "Risk flags *"
+  - generic: Why now
+  - textbox "Why now"
+  - checkbox "I understand payment buys evaluation, not conviction. Any paid status may be publicly disclosed."
+  - generic: I understand payment buys evaluation, not conviction. Any paid status may be publicly disclosed.
+  - button "Generate evaluation request"
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT
