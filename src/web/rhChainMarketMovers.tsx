@@ -8,7 +8,7 @@ export function RhChainObservedMovers({ projection, compact = false, now }: { pr
   useEffect(() => startRhChainMarketRevalidation(() => setClock(new Date())), []);
   const observed = projection.assets.filter((row) => { const age = (now ?? clock).getTime() - Date.parse(row.observed_at); return row.freshness.state === 'fresh' && age >= -60000 && age <= projection.policy.freshness_ms; });
   const assets = compact ? observed.slice(0, 3) : observed;
-  return <section className="rh-v2-section rh-v2-movers" aria-label="Observed 4663 Movers">
+  return <section id="observed-movers" className="rh-v2-section rh-v2-movers" aria-label="Observed 4663 Movers">
     <header className="rh-chain-section-head"><div><p className="section-kicker">4663 movers · measured observations</p><h2>What is moving</h2>
       <p>Stored market evidence, ranked by observed significance. Each asset keeps its exact contract, pool, source, and coverage.</p></div>
       <a href={projection.canonical_path}>Movers JSON</a></header>

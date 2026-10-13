@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { startRhChainMarketRevalidation } from './rhChainMarketRevalidation';
+import React, { useEffect, useState } from 'react';
 import type { RhChainDataFreshness, RhChainSource } from '../data/rhChain';
 import {
   calculateFreshness,
@@ -124,22 +125,27 @@ function latestObservedAt(envelope: RhChainEnvelope<unknown>): string | null {
 function sourceModeLabel(mode: RhChainDataFreshness): string {
   if (mode === 'cached' || mode === 'live_cached') return 'Cached provider snapshot';
   if (mode === 'manual' || mode === 'seeded') return 'Manual snapshot';
-  if (mode === 'persisted' || mode === 'community_submission') return 'Persisted review memory';
+  if (mode === 'persisted') return 'Persisted records';
+  if (mode === 'community_submission') return 'Community submissions';
   if (mode === 'unavailable') return 'Unavailable';
   return 'Source required';
 }
 
 export function RhChainProvenance({ envelope, doctrine = RH_CHAIN_DOCTRINE }: { envelope: RhChainEnvelope<unknown>; doctrine?: string }) {
-  const [now] = useState(() => Date.now());
-  const observedAt = latestObservedAt(envelope);
-  const state = calculateFreshness(observedAt, freshnessSourceMode(envelope.data_mode), now);
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => startRhChainMarketRevalidation(() => setNow(Date.now())), []);
+  const projection = (envelope.data as { market_movers?: import('../services/rhChainMarketMoversService').RhChainMarketMoversPayload } | null)?.market_movers;
+  const observedAt = projection ? projection.assets.map((row) => row.observed_at).sort().at(-1) ?? null : latestObservedAt(envelope);
+  const age = observedAt ? now - Date.parse(observedAt) : NaN;
+  const state = projection ? !Number.isFinite(age) || age < -60000 ? 'unknown' : age > projection.policy.freshness_ms ? 'stale' : 'fresh' : calculateFreshness(observedAt, freshnessSourceMode(envelope.data_mode), now);
+  const sourceCount = projection ? new Set(projection.assets.map((row) => row.source.source_url).filter(Boolean)).size : envelope.sources.length;
   return <div className="rh-chain-provenance" aria-label="Source policy and freshness">
     <div className="rh-chain-provenance-grid">
       <div><span>Source mode</span><strong>{sourceModeLabel(envelope.data_mode)}</strong></div>
-      <div><span>Status</span><strong className={`freshness-${state}`}>{freshnessLabel(state)}</strong></div>
+      <div><span>Status</span><strong className={`freshness-${state}`}>{projection && state === 'unknown' ? 'Source required' : freshnessLabel(state)}</strong></div>
       <div className="rh-chain-observed-time"><span>Observed</span><strong>{formatAbsoluteUtc(observedAt)}</strong></div>
       <div><span>Relative age</span><strong>{formatRelativeAge(observedAt, now)}</strong></div>
-      <div><span>Sources</span><strong>{envelope.sources.length || 'Source required'}</strong></div>
+      <div><span>Sources</span><strong>{sourceCount || 'Source required'}</strong></div>
     </div>
     <div className="rh-chain-policy-copy"><span>Source policy</span><p>{envelope.meta.source_policy}</p></div>
     <div className="rh-chain-policy-copy"><span>Doctrine</span><p>{doctrine}</p></div>

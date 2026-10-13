@@ -2,6 +2,8 @@
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { RhChainProvenance } from '../src/web/rhChainUi';
+import { buildRhChainApiResponse } from '../src/services/rhChainIntelligenceService';
 import { RhChainSignalDeskV2 } from '../src/web/rhChainSignalDeskV2';
 import { getRhChainPayload, getRhChainDailyReceipts } from '../src/data/rhChain';
 import { assembleRhChain4663Index } from '../src/services/rhChainIntelligenceService';
@@ -19,6 +21,19 @@ function renderElement(element: React.ReactElement) {
 }
 function render(projection: ReturnType<typeof deriveRhChainMarketMovers>) { return renderElement(<RhChainObservedMovers projection={projection} now={new Date(projection.generated_at)} />); }
 describe('observed market rendering', () => {
+  it('does not imply that persistence confers review and does not use computation time as observation time', () => {
+    vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(moverNow));
+    const empty = deriveRhChainMarketMovers({}, new Date(moverNow));
+    const host = renderElement(<RhChainProvenance envelope={buildRhChainApiResponse(assembleRhChain4663Index(empty))} />);
+    const values = [...host.querySelectorAll('.rh-chain-provenance-grid strong')].map((element) => element.textContent);
+    expect(values[0]).toBe('Persisted records'); expect(values[1]).toBe('Source required'); expect(values[2]).toBe('Timestamp unavailable');
+  });
+  it('marks cached projection provenance stale after its actual observation window expires', () => {
+    vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(Date.parse(moverNow) + 16 * 60000));
+    const projection = deriveRhChainMarketMovers({ [contract]: moverSamples() }, new Date(moverNow));
+    const host = renderElement(<RhChainProvenance envelope={buildRhChainApiResponse(assembleRhChain4663Index(projection))} />);
+    expect(host.querySelector('.freshness-stale')).toBeTruthy(); expect(host.textContent).not.toContain('Persisted review memory');
+  });
   it('keeps summary-rail observation labels and market freshness separate from stale reviewed receipts', () => {
     vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(moverNow));
     const projection = deriveRhChainMarketMovers({ [contract]: moverSamples() }, new Date(moverNow));
