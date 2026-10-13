@@ -35,7 +35,7 @@ export default function CanonicalReceiptPage({ kind, id }: { kind: Kind; id: str
         if (checked.ok) proof = (await checked.json()).data;
       }
       setRecord(parsed.data as unknown as Record<string, unknown>); setVerification(proof);
-    } catch (err) { if (err instanceof Error && err.message === 'A valid tenant identity is required.') { setKeyError('This key could not authorize inspection. Ask your operator for a valid tenant key.'); document.getElementById('receipt-tenant-key')?.focus(); } else setError(abort.signal.aborted ? 'Inspection timed out. No new action was authorized.' : err instanceof Error ? err.message : 'Receipt service unavailable.'); }
+    } catch (err) { if (err instanceof Error && err.message === 'A valid tenant identity is required.') { setKeyError('This key could not authorize inspection. Ask your operator for a valid tenant key.'); document.getElementById('receipt-tenant-key')?.focus(); } else setError(abort.signal.aborted ? 'Inspection timed out. No new action was authorized.' : err instanceof Error && ['Receipt unavailable for this authenticated identity.', 'Receipt service unavailable. Retry safely.', 'Receipt contract validation failed. No proof is established.'].includes(err.message) ? err.message : 'Receipt service unavailable. Retry safely.'); }
     finally { clearTimeout(timeout); controller.current = null; setBusy(false); }
   }
   const verified = verification?.issuer_signature_valid === true && verification?.ancestry_valid === true;

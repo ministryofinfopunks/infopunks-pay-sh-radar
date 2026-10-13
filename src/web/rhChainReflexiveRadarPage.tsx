@@ -34,7 +34,7 @@ function useResource<T>(url: string) {
   const [data, setData] = useState<T | null>(null); const [error, setError] = useState<string | null>(null); const [attempt, setAttempt] = useState(0);
   useEffect(() => { if (!url) return; let live = true; setError(null);
     const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 12000);
-    void api<T>(url, controller.signal).then(value => { if (live) setData(value); }, reason => { if (live) setError(controller.signal.aborted ? 'The evidence request timed out.' : reason instanceof Error ? reason.message : 'Evidence unavailable.'); }).finally(() => clearTimeout(timer));
+    void api<T>(url, controller.signal).then(value => { if (live) setData(value); }, reason => { if (live) setError(controller.signal.aborted ? 'The evidence request timed out.' : reason instanceof Error && ['Canonical asset refresh is required. No market state is inferred.', 'Evidence unavailable at this destination.', 'The evidence service is temporarily unavailable.'].includes(reason.message) ? reason.message : 'The evidence service is temporarily unavailable.'); }).finally(() => clearTimeout(timer));
     return () => { live = false; clearTimeout(timer); controller.abort(); };
   }, [url, attempt]); return { data, error, retry: () => setAttempt(value => value + 1) };
 }

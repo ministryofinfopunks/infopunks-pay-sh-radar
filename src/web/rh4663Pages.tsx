@@ -43,7 +43,7 @@ function useApi<T>(path: string, refresh = 0) {
     fetch(toApiUrl(API_BASE_URL, path), { signal: controller.signal, headers: { accept: 'application/json' } })
       .then(async (response) => { if (!response.ok) throw new Error(response.status === 404 || response.status === 403 ? 'This evidence is unavailable at this destination.' : 'The evidence service is temporarily unavailable.'); return response.json() as Promise<{ data: T }>; })
       .then((body) => { if (active) setState({ data: body.data, status: body.data ? 'ready' : 'degraded', message: body.data ? undefined : 'No evidence was returned.' }); })
-      .catch(error => { if (active) setState(prior => ({ ...prior, status: 'degraded', message: controller.signal.aborted ? 'The evidence request timed out.' : error instanceof Error ? error.message : 'The evidence service is temporarily unavailable.' })); })
+      .catch(error => { if (active) setState(prior => ({ ...prior, status: 'degraded', message: controller.signal.aborted ? 'The evidence request timed out.' : error instanceof Error && ['This evidence is unavailable at this destination.', 'The evidence service is temporarily unavailable.'].includes(error.message) ? error.message : 'The evidence service is temporarily unavailable.' })); })
       .finally(() => window.clearTimeout(timeout));
     return () => { active = false; window.clearTimeout(timeout); controller.abort(); };
   }, [path, refresh, attempt]);
