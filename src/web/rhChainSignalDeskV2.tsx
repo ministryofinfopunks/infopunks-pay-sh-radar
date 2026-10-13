@@ -1,3 +1,5 @@
+import { startRhChainMarketRevalidation } from './rhChainMarketRevalidation';
+import { RhChainObservedMovers } from './rhChainMarketMovers';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type {
   RhChain4663Asset,
@@ -135,7 +137,8 @@ function riskPriority(state: RhChainRiskState | 'unavailable') {
 
 export function RhChainSignalDeskV2(props: RhChainSignalDeskV2Props) {
   const [mode, setMode] = useState<RhChainDeskMode>('brief');
-  const [now] = useState(() => new Date());
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => startRhChainMarketRevalidation(() => setNow(new Date())), []);
   const today = useMemo(() => selectTodayOn4663(props.todayOn4663, now), [props.todayOn4663, now]);
   const movers = useMemo(() => selectFeaturedMovers(props.signalIndex), [props.signalIndex]);
   const risks = useMemo(() => selectFeaturedRisks(props.desk, now), [props.desk, now]);
@@ -157,6 +160,7 @@ export function RhChainSignalDeskV2(props: RhChainSignalDeskV2Props) {
     />
 
     <TodayOn4663 cards={today} />
+    {props.todayOn4663?.editorial_memory && <details className="panel"><summary>Historical reviewed memory</summary><p>Campaign material and editorial risk cues retain their original evidence dates.</p><ul>{props.todayOn4663.editorial_memory.cards.map((card) => <li key={card.id}><a href={card.href}>{card.title}: {card.verdict}</a> · {formatTimestamp(card.source.observed_at)}</li>)}</ul></details>}
 
     {props.dailyReceipts
       ? <DailyReceiptFeature receipt={props.dailyReceipts.latest_receipt} />
@@ -165,7 +169,7 @@ export function RhChainSignalDeskV2(props: RhChainSignalDeskV2Props) {
         : <RhChainRouteState state="loading" title="Opening the Daily Receipt…" />}
 
     {props.signalIndex
-      ? <MoversSection movers={movers} />
+      ? props.signalIndex.market_movers ? <RhChainObservedMovers projection={props.signalIndex.market_movers} compact /> : <MoversSection movers={movers} />
       : props.failures.signalIndex
         ? <RhChainModuleDegradedNotice failure={props.failures.signalIndex} moduleName="4663 movers" unaffectedCopy="Reviewed receipt and risk memory remain accessible." />
         : <RhChainRouteState state="loading" title="Opening 4663 movers…" />}
@@ -466,7 +470,7 @@ function RhChainShareMenu({ receipt }: { receipt: RhChainDailyReceipt }) {
 
 function MoversSection({ movers }: { movers: RhChain4663Asset[] }) {
   return <section className="rh-v2-section rh-v2-movers" aria-labelledby="rh-v2-movers-title">
-    <SectionHeading titleId="rh-v2-movers-title" kicker="4663 movers" title="What is moving" copy="Ranked attention with the caveat still attached." action={<a href="/rh-chain-signal-desk/4663-index">View Full 4663 Index</a>} />
+    <SectionHeading titleId="rh-v2-movers-title" kicker="4663 movers" title="What is moving" copy="Historical reviewed index memory. Current observations require the persisted Movers projection." action={<a href="/rh-chain-signal-desk/4663-index">View Full 4663 Index</a>} />
     <div className="rh-v2-mover-grid">
       {movers.length ? movers.map((asset) => <MoverCard key={`${asset.rank}-${asset.ticker}-${asset.token_contract}`} asset={asset} />) : <p className="rh-v2-empty">No ranked mover is available. Nothing has been inferred.</p>}
     </div>

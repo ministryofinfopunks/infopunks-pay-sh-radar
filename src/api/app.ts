@@ -113,6 +113,7 @@ import { assembleRhChainLaunchpadObservatory } from '../services/rhChainLaunchpa
 import { assembleRhChainScouts } from '../services/rhChainScoutsService';
 import { assembleRhChainDistributionPack } from '../services/rhChainDistributionPackService';
 import { assembleRhChainReceiptRelay } from '../services/rhChainReceiptRelayService';
+import { RhChainMarketMoversService } from '../services/rhChainMarketMoversService';
 import { RhChainStockEvidenceService, qualifiedStockAssets } from '../services/rhChainStockEvidenceService';
 import { registerRhChainStockEvidenceRoutes } from './rhChainStockEvidenceRoutes';
 import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, PairV5OnchainVerifier, PostgresReflexiveStore, ReflexiveRadarService, stableId, type ReflexiveProvider } from '../services/rhChainReflexiveRadarService';
@@ -1044,6 +1045,7 @@ export async function createApp(
     classificationFor: (contract) => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? []), ...(rhChainReviewPipeline?.marketStructureCandidates() ?? [])].find((classification) => classification.contract.toLowerCase() === contract.toLowerCase()) ?? null,
     ...options.rhChainMarketSnapshotOptions
   });
+  const rhChainMarketMovers = new RhChainMarketMoversService(rhChainMarketSnapshotStore, { requireDurable: config.isProduction, now: options.rhChainMarketSnapshotOptions?.now, stockContracts: async () => qualifiedStockAssets((await reflexiveRadar.snapshot()).assets).map((asset) => asset.canonical_contract) });
   const rhChainAttentionReceiptStore: RhChainAttentionReceiptStore = options.rhChainAttentionReceiptStore
     ?? (rhChainPostgresPool ? new PostgresRhChainAttentionReceiptStore(rhChainPostgresPool) : new InMemoryRhChainAttentionReceiptStore());
   const rhChainAttentionQuality = new RhChainAttentionQualityService({
@@ -2956,7 +2958,7 @@ export async function createApp(
     if (!reviewer) return reply.code(400).send(buildRhChainApiErrorResponse('reviewer_id_required'));
     try { return safeJsonExport(buildRhChainApiResponse({ draft: await rhChainDailyReceiptDrafts.reject(req.params.draft_id, reviewer) })); } catch (error) { return reply.code(409).send(buildRhChainApiErrorResponse(error instanceof Error ? error.message : 'rh_chain_daily_receipt_reject_failed')); }
   });
-  app.get('/v1/rh-chain', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainIntelligence(await rhChainChainPulse.getLatest()))));
+  app.get('/v1/rh-chain', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainIntelligence(await rhChainChainPulse.getLatest(), await rhChainMarketMovers.read()))));
   app.get('/v1/rh-chain/memes', async () => safeJsonExport(buildRhChainApiResponse({
     generated_at: getRhChainPayload().generated_at,
     source_policy: getRhChainPayload().source_policy,
@@ -3143,6 +3145,7 @@ export async function createApp(
     const [pulse, genesis, today, signals, liveSignals, latestPrint] = await Promise.all([rh4663PulseRead(), rh4663GenesisRead(), rh4663TodayInput(), rh4663Store.listSignals(5).catch(() => []), rh4663Intelligence.publicSignals({ limit: 3 }).catch(() => []), rh4663LatestPrintRead()]);
     const index = assembleRhChain4663Index();
     return { data: safeJsonExport({
+      market_context_reference: '/v1/rh-chain/market/movers', historical_rotation_memory: true,
       identity: 'INFOPUNKS // 4663', thesis: 'WE WATCH THE FLOW.',
       rotation_snapshot: { top_signal: index.overview.top_signal, highest_volume: index.overview.highest_volume, highest_risk: index.overview.highest_risk, last_updated: index.last_updated, source_status: rh4663SourceStatus(index.freshness_state) },
       pulse, today, latest_print: latestPrint, live_signals: { count: liveSignals.length, signals: liveSignals }, signal_hunt: { count: signals.length, signals }, genesis,
@@ -3499,34 +3502,16 @@ export async function createApp(
   app.get<{ Params: { receiptId: string } }>('/v1/4663/receipts/:receiptId', async (req, reply) => {
     try { return { data: safeJsonExport(await rh4663Phase2.receipt(req.params.receiptId)) }; } catch (error) { return rh4663Failure(reply, error); }
   });
-  app.get('/v1/rh-chain/4663-index', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChain4663Index())));
+  app.get('/v1/rh-chain/4663-index', async (_req, reply) => { reply.header('Cache-Control', 'no-store'); return safeJsonExport(buildRhChainApiResponse(assembleRhChain4663Index(await rhChainMarketMovers.read()))); });
+  app.get('/v1/rh-chain/4663-index/memory', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChain4663Index())));
+  const moversRead = async (_req: unknown, reply: import('fastify').FastifyReply) => { reply.header('Cache-Control', 'no-store'); return safeJsonExport(buildRhChainApiResponse(await rhChainMarketMovers.read())); };
+  app.get('/v1/rh-chain/market/movers', moversRead);
+  app.get('/v1/4663/market/movers', moversRead);
   app.get('/v1/rh-chain/campaigns/100-receipts', async () => safeJsonExport(buildRhChainApiResponse(getRhChain100ReceiptsCampaign())));
-  app.get('/v1/rh-chain/today-on-4663', async () => {
-    try {
-      const [dailyReceipts, submissions] = await Promise.all([
-        rhChainDailyReceiptDrafts.publicFeed(),
-        rhChainSubmissionStore.list(),
-        rhChainMemePulse.getLatest()
-      ]);
-      const reviewQueue = assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem));
-      return safeJsonExport(buildRhChainApiResponse(assembleRhChainTodayOn4663({
-        dailyReceipts,
-        index: assembleRhChain4663Index(),
-        cloneRadar: assembleRhChainCloneRadar(reviewQueue.items),
-        // Reading the automation snapshot is intentional: a failed snapshot read
-        // sends this convenience surface to its manual fallback. The public card
-        // remains derived from existing reviewed/manual desk memory.
-        memePulse: assembleRhChainMemePulseScreen(),
-        storage_status: 'available'
-      })));
-    } catch {
-      // This endpoint is a distribution convenience, never a reason to hide the reviewed static record.
-      return safeJsonExport(buildRhChainApiResponse(assembleRhChainTodayOn4663({
-        data_mode: 'manual_fallback',
-        freshness_state: 'source_required',
-        storage_status: 'unavailable'
-      })));
-    }
+  app.get('/v1/rh-chain/today-on-4663', async (_req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const [marketMovers, daily] = await Promise.all([rhChainMarketMovers.read(), rhChainDailyReceiptDrafts.publicFeed().then((data) => ({ data, available: true })).catch(() => ({ data: assembleRhChainDailyReceipts(), available: false }))]);
+    return safeJsonExport(buildRhChainApiResponse(assembleRhChainTodayOn4663({ marketMovers, dailyReceipts: daily.data, storage_status: daily.available ? 'available' : 'unavailable' })));
   });
   app.get('/v1/rh-chain/daily-receipts', async () => safeJsonExport(buildRhChainApiResponse(await rhChainDailyReceiptDrafts.publicFeed())));
   app.get<{ Params: { receipt_id: string } }>('/v1/rh-chain/daily-receipts/:receipt_id', async (req, reply) => {

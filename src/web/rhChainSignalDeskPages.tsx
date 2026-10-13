@@ -1,3 +1,5 @@
+import { startRhChainMarketRevalidation } from './rhChainMarketRevalidation';
+import { RhChainObservedMovers } from './rhChainMarketMovers';
 import React, { useEffect, useState } from 'react';
 import type {
   RhChain4663Asset,
@@ -190,16 +192,17 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
     api<RhChainOnchainProviderStatus>('/v1/rh-chain/onchain/provider-status').then((response) => setOnchainProviderStatus(response.data)).catch(() => undefined);
   }, []);
 
-  // The server refreshes Chain Pulse on its automation interval. Keep the desk
-  // aligned with that snapshot without polling review, receipt, or index state.
+  // Public projection reads never collect upstream data. Revalidate current cards
+  // only while visible; editorial receipts retain their own publication lifecycle.
   useEffect(() => {
     const refreshPulse = () => api<RhChainPayload>('/v1/rh-chain')
       .then((response) => { setDesk(response.data); if (useDeskEnvelope) setRouteEnvelope(response); })
       .catch(() => undefined);
     const refreshMemePulse = () => api<RhChainMemePulsePayload>('/v1/rh-chain/meme-pulse').then((response) => setMemePulse(response.data)).catch(() => undefined);
-    const timer = window.setInterval(() => { refreshPulse(); refreshMemePulse(); }, 60_000);
-    return () => window.clearInterval(timer);
-  }, [useDeskEnvelope]);
+    const refreshIndex = () => api<RhChain4663IndexPayload>('/v1/rh-chain/4663-index').then((response) => { setSignalIndex(response.data); setSignalIndexFailure(null); if (indexRoute) setRouteEnvelope(response); }).catch((error) => setSignalIndexFailure(requestFailure(error, '/v1/rh-chain/4663-index', '4663 signal index')));
+    const refreshToday = () => api<RhChainTodayOn4663Payload>('/v1/rh-chain/today-on-4663').then((response) => setTodayOn4663(response.data)).catch(() => undefined);
+    return startRhChainMarketRevalidation(() => Promise.allSettled([refreshPulse(), refreshMemePulse(), refreshIndex(), refreshToday()]));
+  }, [useDeskEnvelope, indexRoute]);
 
   const degraded = (failure: RhChainRequestFailure, moduleName: string, unaffectedCopy = 'Other Signal Desk intelligence remains accessible.') => (
     <RhChainModuleDegradedNotice failure={failure} moduleName={moduleName} unaffectedCopy={unaffectedCopy} />
@@ -218,7 +221,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
     else if (reviewQueueRoute) routeContent = reviewQueue ? <RhChainReviewQueuePage queue={reviewQueue} /> : reviewQueueFailure ? degraded(reviewQueueFailure, 'Review queue') : loading('Opening review queue…');
     else if (submitRoute) routeContent = <SubmitSignalSection />;
     else {
-      const todayFallback = dailyReceipts && signalIndex ? assembleRhChainTodayOn4663({ dailyReceipts, index: signalIndex, memePulse: memePulse ?? undefined }) : null;
+      const todayFallback = dailyReceipts && signalIndex ? assembleRhChainTodayOn4663({ marketMovers: signalIndex.market_movers, dailyReceipts, index: signalIndex, memePulse: memePulse ?? undefined }) : null;
       routeContent = <RhChainSignalDeskV2
         desk={desk}
         envelope={routeEnvelope}
@@ -753,6 +756,7 @@ function DailySourceNotesSection({ feed }: { feed: RhChainDailyReceiptsPayload }
 }
 
 function SignalIndexPreview({ index }: { index: RhChain4663IndexPayload }) {
+  if (index.market_movers) return <RhChainObservedMovers projection={index.market_movers} compact />;
   const topAssets = index.assets.slice(0, 3);
   return <section className="panel rh-chain-section rh-chain-section--utility rh-chain-4663-preview" aria-label="4663 Signal Index Preview">
     <div className="rh-chain-section-head">
@@ -784,6 +788,7 @@ function SignalIndexPreview({ index }: { index: RhChain4663IndexPayload }) {
 }
 
 function RhChain4663IndexPage({ index }: { index: RhChain4663IndexPayload }) {
+  if (index.market_movers) return <><RhChainObservedMovers projection={index.market_movers} /><details className="panel"><summary>Historical reviewed index and campaign memory</summary><p>These reviewed classifications and scores retain their original dates and are separate from current market observations.</p><RhChain4663IndexPage index={{ ...index, market_movers: undefined, freshness_state: 'stale' }} /></details></>;
   const top = index.assets[0];
   return <>
     {index.freshness_state !== 'fresh' && <section className="panel rh-chain-section rh-chain-daily-warning" aria-label="Index freshness"><p>Manual index values require refresh.</p></section>}

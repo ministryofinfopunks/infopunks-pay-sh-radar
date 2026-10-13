@@ -14,6 +14,7 @@ import { assembleRhChainCloneRadar } from './rhChainCloneRadarService';
 import { assembleRhChainMemePulseScreen } from './rhChainMemePulseService';
 import { getRhChainFreshnessState, type RhChainFreshnessState } from './rhChainTruthGuards';
 import { getRhChain100ReceiptsCampaign } from '../data/rhChain100Receipts';
+import type { RhChainMarketMover, RhChainMarketMoversPayload } from './rhChainMarketMoversService';
 
 export type RhChainTodayOn4663Card = {
   id: 'top_signal' | 'biggest_risk' | 'latest_receipt' | 'highest_attention_move';
@@ -22,7 +23,13 @@ export type RhChainTodayOn4663Card = {
   href: string;
   source: RhChainSource;
   freshness_state: RhChainFreshnessState;
-  judgment_state: 'reviewed_memory' | 'requires_review' | 'attention_context';
+  judgment_state: 'reviewed_memory' | 'requires_review' | 'attention_context' | 'observed_fact';
+  record_scope?: 'current_observation' | 'historical_reviewed_memory' | 'availability_notice';
+  observation_id?: string | null;
+  observed_at?: string | null;
+  time_basis?: 'provider_observation' | 'provider_fetch';
+  coverage_state?: 'complete' | 'insufficient_data' | 'unavailable' | 'reviewed_memory';
+  evidence_references?: string[];
 };
 
 export type RhChainTodayOn4663Payload = {
@@ -31,12 +38,15 @@ export type RhChainTodayOn4663Payload = {
   source_policy: string;
   disclaimer: string;
   doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory.';
-  data_mode: 'manual' | 'manual_fallback';
+  data_mode: 'manual' | 'manual_fallback' | 'persisted';
   freshness_state: RhChainFreshnessState;
   storage_status: 'available' | 'unavailable';
   caveats: string[];
   latest_receipt: RhChainDailyReceipt;
   cards: RhChainTodayOn4663Card[];
+  market_projection_id?: string;
+  market_projection_href?: string;
+  editorial_memory?: { scope: 'HISTORICAL_REVIEWED_MEMORY'; campaign_href: string; cards: RhChainTodayOn4663Card[]; storage_status: 'available' | 'unavailable' };
 };
 
 type TodayOptions = {
@@ -47,6 +57,8 @@ type TodayOptions = {
   data_mode?: 'manual' | 'manual_fallback';
   freshness_state?: RhChainFreshnessState;
   storage_status?: 'available' | 'unavailable';
+  marketMovers?: RhChainMarketMoversPayload;
+  now?: Date;
 };
 
 const riskPriority: Record<RhChainRiskState, number> = {
@@ -59,6 +71,7 @@ const riskPriority: Record<RhChainRiskState, number> = {
 
 /** A compact, read-only conversion surface built only from existing desk memory. */
 export function assembleRhChainTodayOn4663(options: TodayOptions = {}): RhChainTodayOn4663Payload {
+  if (options.marketMovers) return assembleObservedToday(options.marketMovers, options);
   const dailyReceipts = options.dailyReceipts ?? getRhChainDailyReceipts();
   const index = options.index ?? getRhChain4663Index();
   const cloneRadar = options.cloneRadar ?? assembleRhChainCloneRadar();
@@ -138,4 +151,37 @@ export function assembleRhChainTodayOn4663(options: TodayOptions = {}): RhChainT
       }
     ]
   };
+}
+
+function assembleObservedToday(movers: RhChainMarketMoversPayload, options: TodayOptions): RhChainTodayOn4663Payload {
+  const { marketMovers: _market, ...memoryOptions } = options;
+  const memory = assembleRhChainTodayOn4663(memoryOptions);
+  const top = movers.assets.find((asset) => asset.lane === 'stock_token') ?? movers.assets[0];
+  const volume = movers.assets.slice().sort((a, b) => Math.abs(b.metrics.volume_delta_pct) - Math.abs(a.metrics.volume_delta_pct) || a.rank - b.rank)[0];
+  const liquidity = movers.assets.slice().sort((a, b) => Math.abs(b.metrics.liquidity_delta_pct) - Math.abs(a.metrics.liquidity_delta_pct) || a.rank - b.rank)[0];
+  const observedCard = (id: RhChainTodayOn4663Card['id'], title: string, asset: RhChainMarketMover | undefined, finding: (row: RhChainMarketMover) => string): RhChainTodayOn4663Card => ({
+    id, title, verdict: asset ? finding(asset) : 'No current qualified observation. Inspect coverage and research gaps.',
+    href: asset?.investigation_href ?? movers.canonical_path,
+    source: asset?.source ?? createRhChainSource({ source_name: 'Persisted market observations unavailable', source_url: movers.canonical_path,
+      observed_at: '', updated_at: '', data_mode: 'unavailable', confidence_level: 'low', note: 'Availability notice only. No market number or observation timestamp is inferred.' }),
+    freshness_state: asset?.freshness.state ?? 'source_required', judgment_state: 'observed_fact',
+    record_scope: asset ? 'current_observation' : 'availability_notice', observation_id: asset?.observation_id ?? null,
+    observed_at: asset?.observed_at ?? null, time_basis: asset?.freshness.time_basis, coverage_state: asset ? 'complete' : movers.storage_status === 'unavailable' ? 'unavailable' : 'insufficient_data',
+    evidence_references: asset?.observation_ids ?? []
+  });
+  const receipt = { ...memory.cards.find((card) => card.id === 'latest_receipt')!, title: 'Reviewed receipt memory', record_scope: 'historical_reviewed_memory' as const,
+    observation_id: null, observed_at: memory.latest_receipt.observed_at ?? memory.latest_receipt.generated_at, coverage_state: 'reviewed_memory' as const, evidence_references: [memory.latest_receipt.receipt_id] };
+  return { ...memory, generated_at: movers.generated_at, data_mode: movers.storage_status === 'unavailable' ? 'manual_fallback' : 'persisted',
+    freshness_state: movers.assets.length ? 'fresh' : 'source_required', storage_status: movers.storage_status,
+    source_policy: 'Current cards are deterministic facts from qualified stored market observations. Campaigns, risk interpretation and reviewed Daily Receipts remain labeled historical memory; no observation creates a reviewed verdict.',
+    caveats: [...memory.caveats, 'The market score measures observed significance. Rolling volume is not capital flow. Indexed liquidity is not executable capacity.'],
+    market_projection_id: movers.projection_id, market_projection_href: movers.canonical_path,
+    cards: [observedCard('top_signal', top?.lane === 'stock_token' ? 'Stock Token observation' : 'Market observation', top,
+      (row) => `${row.ticker} · observed significance ${row.significance_score}/100 · price change ${row.metrics.price_delta_pct}% across the observed window.`),
+    observedCard('highest_attention_move', 'Rolling volume change', volume,
+      (row) => `${row.ticker} · rolling 1h volume changed ${row.metrics.volume_delta_pct}% across the observed window.`),
+    observedCard('biggest_risk', 'Liquidity change', liquidity,
+      (row) => `${row.ticker} · provider pool liquidity changed ${row.metrics.liquidity_delta_pct}% across the observed window.`), receipt],
+    editorial_memory: { scope: 'HISTORICAL_REVIEWED_MEMORY', campaign_href: '/rh-chain-signal-desk/100-receipts', storage_status: options.storage_status ?? 'available',
+      cards: memory.cards.map((card) => ({ ...card, record_scope: 'historical_reviewed_memory' })) } };
 }

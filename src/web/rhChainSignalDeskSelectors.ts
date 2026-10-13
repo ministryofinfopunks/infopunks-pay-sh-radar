@@ -25,7 +25,9 @@ export type TodayOn4663Selection = {
   observedAt: string | null;
   sourceCount: number;
   evidenceState: RhChainFreshnessState;
-  classification: 'reviewed memory' | 'attention context' | 'requires review' | 'unavailable';
+  classification: 'reviewed memory' | 'attention context' | 'requires review' | 'observed fact' | 'unavailable';
+  observationId?: string | null;
+  coverageState?: string;
 };
 
 export type FeaturedRiskKind = 'identity' | 'liquidity' | 'deployer';
@@ -122,13 +124,14 @@ export function selectTodayOn4663(payload: RhChainTodayOn4663Payload | null, now
     const card = payload ? cardById(payload, definition.sourceId) : null;
     return {
       id: definition.id,
-      title: definition.title,
+      title: card?.judgment_state === 'observed_fact' || card?.record_scope === 'historical_reviewed_memory' ? card.title : definition.title,
       verdict: card?.verdict ?? 'No current evidence-backed update is available.',
       href: card?.href ?? definition.fallbackHref,
-      observedAt: card?.source.observed_at ?? null,
-      sourceCount: card?.source.source_name ? 1 : 0,
-      evidenceState: evidenceStateForSource(card?.source, now),
-      classification: card ? definition.classification : 'unavailable'
+      observedAt: card?.record_scope === 'availability_notice' ? null : card?.observed_at ?? card?.source.observed_at ?? null,
+      observationId: card?.observation_id ?? null, coverageState: card?.coverage_state,
+      sourceCount: card?.record_scope === 'availability_notice' ? 0 : card?.source.source_name ? 1 : 0,
+      evidenceState: card?.judgment_state === 'observed_fact' ? card.freshness_state === 'fresh' && card.observed_at && now.getTime() - Date.parse(card.observed_at) > 15 * 60000 ? 'stale' : card.freshness_state : evidenceStateForSource(card?.source, now),
+      classification: card?.record_scope === 'availability_notice' ? 'unavailable' : card?.judgment_state === 'observed_fact' ? 'observed fact' : card ? definition.classification : 'unavailable'
     };
   });
 }

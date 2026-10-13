@@ -124,8 +124,10 @@ export function assembleRhChainReceipts() {
   return listRhChainReceipts();
 }
 
-export function assembleRhChain4663Index() {
-  return getRhChain4663Index();
+export function assembleRhChain4663Index(marketMovers?: import('./rhChainMarketMoversService').RhChainMarketMoversPayload) {
+  const memory = getRhChain4663Index();
+  if (!marketMovers) return memory;
+  return { ...memory, market_movers: marketMovers, active_ranking: 'market_movers.assets' as const, legacy_fields_scope: 'HISTORICAL_EDITORIAL_MEMORY' as const, data_mode: 'persisted' as const, generated_at: marketMovers.generated_at, freshness_state: marketMovers.assets.length ? 'fresh' as const : 'source_required' as const, source_policy: 'Active ranking is market_movers.assets, derived from persisted observations. Legacy assets, overview, scoring_model, thresholds and campaign_context are historical editorial memory, never current market rankings.' };
 }
 
 export function assembleRhChainDailyReceipts() {
@@ -134,7 +136,7 @@ export function assembleRhChainDailyReceipts() {
 
 export function assembleRhChainLaunchSurfaces() { return getRhChainLaunchSurfaces(); }
 
-export function assembleRhChainIntelligence(snapshot?: RhChainMetricsSnapshot | null) {
+export function assembleRhChainIntelligence(snapshot?: RhChainMetricsSnapshot | null, marketMovers?: import('./rhChainMarketMoversService').RhChainMarketMoversPayload) {
   const desk = getRhChainPayload();
   return {
     ...desk,
@@ -144,7 +146,7 @@ export function assembleRhChainIntelligence(snapshot?: RhChainMetricsSnapshot | 
     meme_pulse: assembleRhChainMemePulse(),
     review_queue: assembleRhChainReviewQueue(),
     receipts: assembleRhChainReceipts(),
-    signal_index_4663_detail: assembleRhChain4663Index(),
+    signal_index_4663_detail: assembleRhChain4663Index(marketMovers),
     daily_receipts: assembleRhChainDailyReceipts()
   };
 }

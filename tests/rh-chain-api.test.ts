@@ -205,7 +205,7 @@ describe('RH Chain Signal Desk API', () => {
     }
   });
 
-  it('serves Today on 4663 with a static manual fallback when receipt storage is unavailable', async () => {
+  it('keeps current Today empty and preserves labeled receipt memory when receipt storage is unavailable', async () => {
     const unavailableReceiptStore = {
       adapter: 'memory' as const,
       durable: false,
@@ -221,15 +221,16 @@ describe('RH Chain Signal Desk API', () => {
       expect(response.statusCode).toBe(200);
       expect(response.json().data).toEqual(expect.objectContaining({
         title: 'Today on 4663',
-        data_mode: 'manual_fallback',
+        data_mode: 'persisted',
         freshness_state: 'source_required',
-        storage_status: 'unavailable',
+        storage_status: 'available',
         latest_receipt: expect.objectContaining({ receipt_id: 'rh_daily_006' }),
+        editorial_memory: expect.objectContaining({ scope: 'HISTORICAL_REVIEWED_MEMORY', storage_status: 'unavailable' }),
         cards: expect.arrayContaining([
-          expect.objectContaining({ title: 'Top Signal' }),
-          expect.objectContaining({ title: 'Biggest Risk' }),
-          expect.objectContaining({ title: 'Latest Receipt' }),
-          expect.objectContaining({ title: 'Highest Attention Move' })
+          expect.objectContaining({ title: 'Market observation', record_scope: 'availability_notice', observation_id: null }),
+          expect.objectContaining({ title: 'Liquidity change', record_scope: 'availability_notice', observation_id: null }),
+          expect.objectContaining({ title: 'Reviewed receipt memory', record_scope: 'historical_reviewed_memory' }),
+          expect.objectContaining({ title: 'Rolling volume change', record_scope: 'availability_notice', observation_id: null })
         ])
       }));
     } finally {

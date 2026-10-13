@@ -56,7 +56,8 @@ export interface RhChainMarketSnapshotStore {
   readonly durable: boolean;
   save(snapshot: RhChainMarketSnapshot): Promise<boolean | void>;
   list(contract: string, operation?: { timeoutMs?: number }): Promise<RhChainMarketSnapshot[]>;
-  listMany?(contracts: string[]): Promise<Record<string, RhChainMarketSnapshot[]>>;
+  listObservedContracts?(limit: number): Promise<string[]>;
+  listMany?(contracts: string[], since?: string): Promise<Record<string, RhChainMarketSnapshot[]>>;
   latestMany?(contracts: string[]): Promise<Record<string, RhChainMarketSnapshot | null>>;
   listAggregates?(contract: string, resolution: RhChainMarketResolution, since?: string): Promise<RhChainMarketAggregate[]>;
   pruneHistory?(now: Date): Promise<void>;
@@ -73,7 +74,7 @@ export class InMemoryRhChainMarketSnapshotStore implements RhChainMarketSnapshot
     const key = snapshot.token_address.toLowerCase();
     const retained = this.snapshots.get(key) ?? [];
     if (this.seenIds.has(snapshot.snapshot_id)) return false;
-    const next = [...retained, structuredClone(snapshot)].sort((a, b) => a.captured_at.localeCompare(b.captured_at) || a.snapshot_id.localeCompare(b.snapshot_id));
+    const next = [...retained, structuredClone(snapshot)].sort((a, b) => Date.parse(a.captured_at) - Date.parse(b.captured_at) || a.snapshot_id.localeCompare(b.snapshot_id));
     this.snapshots.set(key, next);
     this.seenIds.add(snapshot.snapshot_id);
     for (const resolution of ['hour', 'day'] as const) {
@@ -83,7 +84,8 @@ export class InMemoryRhChainMarketSnapshotStore implements RhChainMarketSnapshot
     return true;
   }
   async list(contract: string) { return structuredClone(this.snapshots.get(contract.toLowerCase()) ?? []); }
-  async listMany(contracts: string[]) { return Object.fromEntries(contracts.slice(0, 300).map((contract) => [contract.toLowerCase(), structuredClone(this.snapshots.get(contract.toLowerCase()) ?? [])])); }
+  async listObservedContracts(limit: number) { return [...this.snapshots].filter(([, rows]) => rows.length).map(([key]) => key).sort().slice(0, limit); }
+  async listMany(contracts: string[], since?: string) { return Object.fromEntries(contracts.slice(0, 300).map((contract) => [contract.toLowerCase(), structuredClone((this.snapshots.get(contract.toLowerCase()) ?? []).filter((s, i, list) => !since || Date.parse(s.captured_at) >= Date.parse(since) || i === list.length - 1))])); }
   async latestMany(contracts: string[]) { return Object.fromEntries(contracts.slice(0, 300).map((contract) => [contract.toLowerCase(), structuredClone(this.snapshots.get(contract.toLowerCase())?.at(-1) ?? null)])); }
   async listAggregates(contract: string, resolution: RhChainMarketResolution, since?: string) {
     return structuredClone([...this.aggregates.values()].filter((item) => item.token_address === contract.toLowerCase() && item.resolution === resolution && (!since || item.bucket_end > since)).sort((a, b) => a.bucket_start.localeCompare(b.bucket_start) || (a.pair_address ?? '').localeCompare(b.pair_address ?? '')));
@@ -115,14 +117,15 @@ export class PostgresRhChainMarketSnapshotStore implements RhChainMarketSnapshot
     return result.rowCount === 1;
   }
   async list(contract: string, operation?: { timeoutMs?: number }) { await this.ready(); const result = await this.pool.query({ text: 'select payload from (select snapshot_id,captured_at,payload from rh_chain_market_snapshots where token_address=$1 order by captured_at desc,snapshot_id desc limit 4096) retained order by captured_at,snapshot_id', values: [contract.toLowerCase()], query_timeout: operation?.timeoutMs } as pg.QueryConfig & { query_timeout?: number }) as pg.QueryResult<{ payload: RhChainMarketSnapshot }>; return result.rows.map((row) => row.payload); }
-  async listMany(contracts: string[]) {
+  async listObservedContracts(limit: number) { await this.ready(); const rows = await this.pool.query<{ token_address: string }>('select distinct token_address from rh_chain_market_snapshots order by token_address limit $1', [Math.max(1, Math.min(301, Math.floor(limit)))]); return rows.rows.map((row) => row.token_address); }
+  async listMany(contracts: string[], since?: string) {
     const normalized = [...new Set(contracts.map(normalize).filter(Boolean))].slice(0, 300);
     if (!normalized.length) return {};
     await this.ready();
     const result = await this.pool.query<{ token_address: string; payload: RhChainMarketSnapshot }>(`select token_address, payload from (
-      select token_address, payload, row_number() over (partition by token_address order by captured_at desc,snapshot_id desc) as retained_row
+      select token_address, captured_at, payload, row_number() over (partition by token_address order by captured_at desc,snapshot_id desc) as retained_row
       from rh_chain_market_snapshots where token_address = any($1::text[])
-    ) snapshots where retained_row <= 4096 order by token_address, (payload->>'captured_at')::timestamptz asc, payload->>'snapshot_id'`, [normalized]);
+    ) snapshots where retained_row <= 4096 and ($2::timestamptz is null or captured_at >= $2::timestamptz or retained_row=1) order by token_address, (payload->>'captured_at')::timestamptz asc, payload->>'snapshot_id'`, [normalized, since ?? null]);
     const grouped = Object.fromEntries(normalized.map((contract) => [contract, [] as RhChainMarketSnapshot[]]));
     for (const row of result.rows) grouped[row.token_address.toLowerCase()]?.push(row.payload);
     return grouped;

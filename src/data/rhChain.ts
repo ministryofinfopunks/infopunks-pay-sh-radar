@@ -423,6 +423,10 @@ export type RhChain4663IndexOverview = {
 };
 
 export type RhChain4663IndexPayload = {
+  market_movers?: import('../services/rhChainMarketMoversService').RhChainMarketMoversPayload;
+  active_ranking?: 'market_movers.assets';
+  legacy_fields_scope?: 'HISTORICAL_EDITORIAL_MEMORY';
+  data_mode?: RhChainDataFreshness;
   name: '4663 Signal Index';
   subtitle: 'A living index of Robinhood Chain attention assets, risk states, and narrative mutations.';
   generated_at: string;
