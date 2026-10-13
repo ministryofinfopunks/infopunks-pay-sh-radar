@@ -162,6 +162,8 @@ describe('pre-spend builder pages', () => {
   it('renders spend terminal and links result routes and receipts', async () => {
     const { root, container } = await render('/spend-terminal');
     expect(container.textContent).toContain('Should this agent spend?');
+    const key = container.querySelector('input[aria-label="Tenant access key"]') as HTMLInputElement;
+    act(() => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(key, 'synthetic-tenant-key'); key.dispatchEvent(new Event('input', { bubbles: true })); });
     const form = container.querySelector('form')!;
     await act(async () => {
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
@@ -181,6 +183,8 @@ describe('pre-spend builder pages', () => {
     expect((container.querySelector('input[maxlength="256"]') as HTMLInputElement).value).toBe('allocate_to_pltr_paired_narrative_token');
     expect((container.querySelector('input[maxlength="64"]') as HTMLInputElement).value).toBe('stablecoin');
 
+    const key = container.querySelector('input[aria-label="Tenant access key"]') as HTMLInputElement;
+    act(() => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(key, 'synthetic-tenant-key'); key.dispatchEvent(new Event('input', { bubbles: true })); });
     const form = container.querySelector('form')!;
     await act(async () => {
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));

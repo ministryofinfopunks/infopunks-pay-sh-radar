@@ -22,7 +22,7 @@ export type RadarStageRecord = { state: RadarEvidenceState; detail: string; href
 const stageIcons: TerminalIconName[] = ['eye', 'judgment', 'execution', 'evaluation'];
 const STAGES: readonly RadarReceiptStage[] = ['observation', 'judgment', 'execution', 'evaluation'];
 export function RadarReceiptLifecycle({ records, reference = false }: { records?: Partial<Record<RadarReceiptStage, RadarStageRecord>>; reference?: boolean }) {
-  return <section className="radar-lifecycle" aria-label="Four-receipt lifecycle">
+  return <section className="radar-lifecycle" data-reference={reference || undefined} aria-label="Four-receipt lifecycle">
     <p className="radar-lifecycle-caption">{reference ? 'Architecture reference · no stage records claimed' : 'Receipt lifecycle · inspect each stage independently'}</p>
     <ol>{STAGES.map((stage, index) => {
       const record = records?.[stage];

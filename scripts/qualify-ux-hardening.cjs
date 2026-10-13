@@ -11,7 +11,7 @@ const routes = ['/spend-terminal?subject=route_pay_sh_market_research_01','/sola
  const browser = await chromium.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
  const results = []; const performance = [];
  for (const width of [390,1440]) {
-  for (let i = 0; i < routes.length; i++) {
+  for (let i = 0; !process.env.UX_PERFORMANCE_ONLY && i < routes.length; i++) {
    const context = await browser.newContext({ viewport: {width,height:900}, reducedMotion:'reduce', locale:'en-US',timezoneId:'Asia/Colombo' });
    const page = await context.newPage();
    await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' || new URL(route.request().url()).hostname === 'localhost' ? route.continue() : route.abort());
@@ -24,12 +24,12 @@ const routes = ['/spend-terminal?subject=route_pay_sh_market_research_01','/sola
    fs.writeFileSync(path.join(out,`${String(i+1).padStart(2,'0')}-${width}.txt`), await page.locator('body').innerText());
    results.push({route:routes[i],width,...state}); await context.close();
   }
-  for (const route of ['/solana','/4663/share/qualification-missing-record','/spend-terminal','/']) for (let repeat=0;repeat<3;repeat++) {
+  if (!process.env.UX_STATES_ONLY) for (const route of ['/solana','/4663/share/qualification-missing-record','/spend-terminal','/']) for (let repeat=0;repeat<3;repeat++) {
    const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'}); const page=await context.newPage();
    await page.addInitScript(()=>{window.uxLongTasks=[];window.uxLcp=[];window.uxCls=[]; for(const [type,key] of [['longtask','uxLongTasks'],['largest-contentful-paint','uxLcp'],['layout-shift','uxCls']]) new PerformanceObserver(list=>window[key].push(...list.getEntries().map(e=>({start:e.startTime,duration:e.duration,value:e.value,hadRecentInput:e.hadRecentInput})))).observe({type,buffered:true});});
    await page.goto(base+route);await page.waitForTimeout(5000);
    performance.push({route,width,repeat,...await page.evaluate(()=>({resources:performance.getEntriesByType('resource').filter(e=>/\.(js|css)/.test(e.name)).map(e=>({name:e.name.split('/').pop(),bytes:e.encodedBodySize,duration:e.duration})),longTasks:window.uxLongTasks,lcp:window.uxLcp.at(-1)?.start,cls:window.uxCls.filter(e=>!e.hadRecentInput).reduce((s,e)=>s+e.value,0)}))});await context.close();
   }
  }
- await browser.close();fs.writeFileSync(path.join(out,'states.json'),JSON.stringify(results,null,2));fs.writeFileSync(path.join(out,'performance.json'),JSON.stringify(performance,null,2));console.log(label,results.length,'captures',performance.length,'cold navigations');
+ await browser.close();if(!process.env.UX_PERFORMANCE_ONLY) fs.writeFileSync(path.join(out,'states.json'),JSON.stringify(results,null,2));if(!process.env.UX_STATES_ONLY) fs.writeFileSync(path.join(out,'performance.json'),JSON.stringify(performance,null,2));console.log(label,results.length,'captures',performance.length,'cold navigations');
 })().catch(error=>{console.error(error);process.exitCode=1});

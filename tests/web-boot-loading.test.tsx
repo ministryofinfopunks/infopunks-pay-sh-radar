@@ -336,7 +336,7 @@ describe('radar boot loading behavior', () => {
     });
 
     expect(fetchState.calls).toContain('/v1/search');
-    expect(container.textContent).toContain('Semantic search unavailable');
+    expect(container.textContent).toContain('Search service unavailable');
     expect(container.textContent).not.toContain('Radar degraded: unable to load live pulse');
   });
 

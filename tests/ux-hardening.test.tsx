@@ -51,3 +51,7 @@ it('UX-03/04: missing RH share reaches owning reader and retries only the GET',a
 it('UX-03: unknown signal does not render a different economy',async()=>{
  window.history.replaceState({},'', '/signals/unknown');const fetch=vi.spyOn(globalThis,'fetch');await mount(<ResearchApp/>);expect(fetch).not.toHaveBeenCalled();expect(el.textContent).toContain('Signal unavailable');expect(el.querySelector('a[href="/attention-market-watch"]')).not.toBeNull();expect(el.textContent).not.toContain('Solana Radar');
 });
+
+it('UX-03: a supported shared object preserves Robinhood source and canonical context',async()=>{
+ window.history.replaceState({},'', '/4663/share/fixture?source=watch');vi.spyOn(globalThis,'fetch').mockResolvedValue(json({data:{share_object_id:'fixture',share_type:'NOW_FINDING',title:'Fixture',primary_statement:'Robinhood source evidence',secondary_statement:'Source-bound context',evidence_state:'UNVERIFIED',observed_at:'2026-10-07T00:00:00Z',source_ref:{source_type:'WATCH',href:'/4663/reflexive/watch/fixture'},deep_link:'/4663/reflexive/watch/fixture',canonical_url:'/4663/share/fixture?source=watch',share_text:'Fixture',og_image_url:'/fixture.png'}}));await mount(<Rh4663Page/>);expect(el.querySelector('h1')?.textContent).toBe('Robinhood source evidence');expect(el.querySelector('a[href="/4663/reflexive/watch/fixture"]')).not.toBeNull();expect(location.search).toBe('?source=watch');expect(el.textContent).not.toContain('Solana');
+});

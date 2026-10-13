@@ -16,8 +16,8 @@ describe('Reflexive Radar initial registry state', () => {
     }));
     const container = document.createElement('div'); document.body.append(container); root = createRoot(container);
     await act(async () => { root!.render(<ReflexiveRadarPage />); await new Promise((resolve) => setTimeout(resolve, 0)); });
-    expect(container.textContent).toContain('AI / NVDA AUDIT UNAVAILABLE');
-    expect(container.textContent).toContain('CANONICAL ASSET REFRESH IS REQUIRED');
-    expect(container.textContent).toContain('NO MARKET STATE IS INFERRED');
+    expect(container.textContent).toContain('AI / NVDA audit unavailable');
+    expect(container.textContent).toContain('Canonical asset refresh is required');
+    expect(container.textContent).toContain('No market state is inferred');
   });
 });

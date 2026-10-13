@@ -264,7 +264,7 @@ body { margin: 0; }
 }
 
 /* UX-06: preserve tile geometry while separating stage from evidence status. */
-.radar-lifecycle li > div > strong { display: block; margin-bottom: var(--space-2, .5rem); }
+.radar-lifecycle:not([data-reference]) li > div > strong { display: block; margin-bottom: var(--space-2, .5rem); }
 .radar-credential-field { margin-bottom: var(--space-4, 1rem); }
 .radar-credential-field > label { display: block; margin-bottom: var(--space-2, .5rem); }
 .radar-credential-control { display: flex; gap: var(--space-2, .5rem); align-items: center; }

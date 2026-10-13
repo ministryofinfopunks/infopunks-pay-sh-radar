@@ -102,6 +102,7 @@ for (const scenario of ['server_failure', 'timeout']) {
     // An intentionally unanswered request exercises the real browser timeout. No success is fabricated.
   });
   await failedPage.goto(base + '/spend-terminal?subject=route_for_qualification&intent=quote');
+  await failedPage.getByLabel('Tenant access key', { exact: true }).fill('radar-ci-tenant-a-static-not-secret');
   await failedPage.getByRole('button', { name: 'Run a Check' }).click();
   await failedPage.getByRole('alert').waitFor({ timeout: 16000 });
   failureScenarios.push({ scenario, classification: 'INJECTED_LOCAL_FAILURE_ONLY', message: await failedPage.getByRole('alert').textContent(), retry_available: await failedPage.getByRole('button', { name: 'Retry check' }).isEnabled(), deep_link_subject: await failedPage.getByLabel('Subject or route identifier').inputValue() });
