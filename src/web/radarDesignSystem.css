@@ -269,7 +269,7 @@ body { margin: 0; }
 .radar-credential-field > label { display: block; margin-bottom: var(--space-2, .5rem); }
 .radar-credential-control { display: flex; gap: var(--space-2, .5rem); align-items: center; }
 .radar-credential-control input { min-width: 0; flex: 1; width: 100%; }
-.radar-credential-control button { flex: 0 0 auto; width: auto; min-height: 44px; }
+.radar-credential-field .radar-credential-control button { flex: 0 0 auto; width: auto; min-height: 44px; }
 .radar-field-error { display: block; color: var(--radar-blocked); overflow-wrap: anywhere; }
 .radar-receipt-summary { display: grid; gap: var(--space-3, .75rem); }
 .radar-receipt-summary div { min-width: 0; }
