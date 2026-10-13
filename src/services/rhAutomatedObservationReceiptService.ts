@@ -8,7 +8,7 @@ export const AUTOMATED_OBSERVATION_SCHEMA = 'rh-automated-observation-v1';
 export const AUTOMATED_OBSERVATION_CALCULATION = 'same-pair-observed-endpoints-v1';
 export function canonicalObservationJson(value: unknown): string {
   if (Array.isArray(value)) return '[' + value.map(canonicalObservationJson).join(',') + ']';
-  if (value && typeof value === 'object') return '{' + Object.entries(value).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => JSON.stringify(k) + ':' + canonicalObservationJson(v)).join(',') + '}';
+  if (value && typeof value === 'object') return '{' + Object.entries(value).filter(([, v]) => v !== undefined).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([k, v]) => JSON.stringify(k) + ':' + canonicalObservationJson(v)).join(',') + '}';
   return JSON.stringify(value);
 }
 export function observationCommitment(value: unknown) { return createHash('sha256').update(canonicalObservationJson(value)).digest('hex'); }
