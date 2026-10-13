@@ -1,0 +1,24 @@
+GLOBAL
+
+QUERY THE ECOSYSTEM
+
+SEMANTIC SEARCH
+
+Ask across provider metadata, trust context, signal context, categories, endpoints, and receipts without leaving the radar surface.
+
+ECOSYSTEM QUERY
+Clear search
+Search
+
+Search by category, provider name, endpoint type, route intent, degradation state, price clarity, or metadata completeness.
+
+high trust finance APIs
+degraded OCR providers
+SOL price endpoints
+low-cost data endpoints
+providers with clear pricing
+route eligible endpoints
+machine media providers
+metadata incomplete providers
+No matching providers.
+Try a category, provider name, endpoint type, or task intent.

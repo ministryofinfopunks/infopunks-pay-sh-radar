@@ -1,0 +1,161 @@
+{
+  "candidate": "3d4f846349f2ef02be11c349f57bbc598cf41435",
+  "browser": "155.0.8059.40",
+  "fixture_sha256": "2ffc4fc34c0e2c901ea06b3b5fc3d021cc0eca95577b6a03b0c7fad13a9f47c1",
+  "method": "Three paired cold anonymous Chromium contexts per route/width, immutable response replay and fixed Date. Shared macOS host; no simulated mobile CPU/network throttling, field p75, INP or real-device claim. Encoded body bytes exclude HTTP headers.",
+  "samples": 48,
+  "comparisons": [
+    {
+      "width": 390,
+      "route": "/",
+      "before": {
+        "encoded_bytes": 83394,
+        "LCP_ms_median": 76,
+        "CLS_median": 0,
+        "long_task_total_ms_median": 0,
+        "sample_count": 3
+      },
+      "after": {
+        "encoded_bytes": 83706,
+        "LCP_ms_median": 76,
+        "CLS_median": 0,
+        "long_task_total_ms_median": 0,
+        "sample_count": 3
+      },
+      "encoded_change_percent": 0.37
+    },
+    {
+      "width": 390,
+      "route": "/spend-terminal",
+      "before": {
+        "encoded_bytes": 109447,
+        "LCP_ms_median": 384,
+        "CLS_median": 0,
+        "long_task_total_ms_median": 0,
+        "sample_count": 3
+      },
+      "after": {
+        "encoded_bytes": 111369,
+        "LCP_ms_median": 396,
+        "CLS_median": 0,
+        "long_task_total_ms_median": 0,
+        "sample_count": 3
+      },
+      "encoded_change_percent": 1.76
+    },
+    {
+      "width": 390,
+      "route": "/solana",
+      "before": {
+        "encoded_bytes": 489757,
+        "LCP_ms_median": 464,
+        "CLS_median": 0,
+        "long_task_total_ms_median": 0,
+        "sample_count": 3
+      },
+      "after": {
+        "encoded_bytes": 493034,
+        "LCP_ms_median": 456,
+        "CLS_median": 0,
+        "long_task_total_ms_median": 0,
+        "sample_count": 3
+      },
+      "encoded_change_percent": 0.67
+    },
+    {
+      "width": 390,
+      "route": "/4663/share/qualification-missing-record",
+      "before": {
+        "encoded_bytes": 489757,
+        "LCP_ms_median": 472,
+        "CLS_median": 0,
+        "long_task_total_ms_median": 0,
+        "sample_count": 3
+      },
+      "after": {
+        "encoded_bytes": 186033,
+        "LCP_ms_median": 368,
+        "CLS_median": 0,
+        "long_task_total_ms_median": 0,
+        "sample_count": 3
+      },
+      "encoded_change_percent": -62.02
+    },
+    {
+      "width": 1440,
+      "route": "/",
+      "before": {
+        "encoded_bytes": 83394,
+        "LCP_ms_median": 80,
+        "CLS_median": 0,
+        "long_task_total_ms_median": 0,
+        "sample_count": 3
+      },
+      "after": {
+        "encoded_bytes": 83706,
+        "LCP_ms_median": 84,
+        "CLS_median": 0,
+        "long_task_total_ms_median": 0,
+        "sample_count": 3
+      },
+      "encoded_change_percent": 0.37
+    },
+    {
+      "width": 1440,
+      "route": "/spend-terminal",
+      "before": {
+        "encoded_bytes": 109447,
+        "LCP_ms_median": 392,
+        "CLS_median": 0,
+        "long_task_total_ms_median": 0,
+        "sample_count": 3
+      },
+      "after": {
+        "encoded_bytes": 111369,
+        "LCP_ms_median": 380,
+        "CLS_median": 0,
+        "long_task_total_ms_median": 0,
+        "sample_count": 3
+      },
+      "encoded_change_percent": 1.76
+    },
+    {
+      "width": 1440,
+      "route": "/solana",
+      "before": {
+        "encoded_bytes": 489757,
+        "LCP_ms_median": 460,
+        "CLS_median": 0,
+        "long_task_total_ms_median": 0,
+        "sample_count": 3
+      },
+      "after": {
+        "encoded_bytes": 493034,
+        "LCP_ms_median": 460,
+        "CLS_median": 0,
+        "long_task_total_ms_median": 0,
+        "sample_count": 3
+      },
+      "encoded_change_percent": 0.67
+    },
+    {
+      "width": 1440,
+      "route": "/4663/share/qualification-missing-record",
+      "before": {
+        "encoded_bytes": 489757,
+        "LCP_ms_median": 468,
+        "CLS_median": 0,
+        "long_task_total_ms_median": 0,
+        "sample_count": 3
+      },
+      "after": {
+        "encoded_bytes": 186033,
+        "LCP_ms_median": 372,
+        "CLS_median": 0,
+        "long_task_total_ms_median": 0,
+        "sample_count": 3
+      },
+      "encoded_change_percent": -62.02
+    }
+  ]
+}

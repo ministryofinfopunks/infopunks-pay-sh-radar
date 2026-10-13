@@ -1,0 +1,486 @@
+{
+  "source_sha": "3d4f846349f2ef02be11c349f57bbc598cf41435",
+  "method": "200% root CSS text scaling; native zoom and device font settings untested",
+  "reports": [
+    {
+      "route": "/",
+      "width": 390,
+      "scale": "200% root text size",
+      "scrollWidth": 390,
+      "fontSize": "32px",
+      "mainTitles": 1,
+      "controls": [
+        {
+          "fontSize": "32px",
+          "height": 44
+        },
+        {
+          "fontSize": "32px",
+          "height": 40
+        },
+        {
+          "fontSize": "26px",
+          "height": 58.390625
+        }
+      ]
+    },
+    {
+      "route": "/",
+      "width": 1440,
+      "scale": "200% root text size",
+      "scrollWidth": 1440,
+      "fontSize": "32px",
+      "mainTitles": 1,
+      "controls": [
+        {
+          "fontSize": "28px",
+          "height": 36
+        },
+        {
+          "fontSize": "24px",
+          "height": 122.78125
+        }
+      ]
+    },
+    {
+      "route": "/spend-terminal",
+      "width": 390,
+      "scale": "200% root text size",
+      "scrollWidth": 390,
+      "fontSize": "32px",
+      "mainTitles": 1,
+      "controls": [
+        {
+          "fontSize": "32px",
+          "height": 44
+        },
+        {
+          "fontSize": "28px",
+          "height": 83.765625
+        },
+        {
+          "fontSize": "28px",
+          "height": 83.765625
+        },
+        {
+          "fontSize": "32px",
+          "height": 71.59375
+        },
+        {
+          "fontSize": "32px",
+          "height": 71.59375
+        },
+        {
+          "fontSize": "30px",
+          "height": 72.5
+        },
+        {
+          "fontSize": "32px",
+          "height": 71.59375
+        },
+        {
+          "fontSize": "32px",
+          "height": 71.59375
+        },
+        {
+          "fontSize": "32px",
+          "height": 71.59375
+        },
+        {
+          "fontSize": "32px",
+          "height": 71.59375
+        },
+        {
+          "fontSize": "32px",
+          "height": 71.59375
+        },
+        {
+          "fontSize": "30px",
+          "height": 70.5
+        }
+      ]
+    },
+    {
+      "route": "/spend-terminal",
+      "width": 1440,
+      "scale": "200% root text size",
+      "scrollWidth": 1440,
+      "fontSize": "32px",
+      "mainTitles": 1,
+      "controls": [
+        {
+          "fontSize": "28px",
+          "height": 83.765625
+        },
+        {
+          "fontSize": "28px",
+          "height": 83.765625
+        },
+        {
+          "fontSize": "32px",
+          "height": 71.59375
+        },
+        {
+          "fontSize": "32px",
+          "height": 71.59375
+        },
+        {
+          "fontSize": "30px",
+          "height": 72.5
+        },
+        {
+          "fontSize": "32px",
+          "height": 71.59375
+        },
+        {
+          "fontSize": "32px",
+          "height": 71.59375
+        },
+        {
+          "fontSize": "32px",
+          "height": 71.59375
+        },
+        {
+          "fontSize": "32px",
+          "height": 71.59375
+        },
+        {
+          "fontSize": "32px",
+          "height": 71.59375
+        },
+        {
+          "fontSize": "30px",
+          "height": 70.5
+        }
+      ]
+    },
+    {
+      "route": "/developers",
+      "width": 390,
+      "scale": "200% root text size",
+      "scrollWidth": 390,
+      "fontSize": "32px",
+      "mainTitles": 1,
+      "controls": [
+        {
+          "fontSize": "32px",
+          "height": 44
+        },
+        {
+          "fontSize": "28px",
+          "height": 71.390625
+        },
+        {
+          "fontSize": "24px",
+          "height": 49.59375
+        },
+        {
+          "fontSize": "26px",
+          "height": 66.296875
+        },
+        {
+          "fontSize": "26px",
+          "height": 66.296875
+        },
+        {
+          "fontSize": "26px",
+          "height": 66.296875
+        },
+        {
+          "fontSize": "26px",
+          "height": 66.296875
+        },
+        {
+          "fontSize": "24px",
+          "height": 47.59375
+        }
+      ]
+    },
+    {
+      "route": "/developers",
+      "width": 1440,
+      "scale": "200% root text size",
+      "scrollWidth": 1440,
+      "fontSize": "32px",
+      "mainTitles": 1,
+      "controls": [
+        {
+          "fontSize": "28px",
+          "height": 99.390625
+        },
+        {
+          "fontSize": "24px",
+          "height": 49.59375
+        },
+        {
+          "fontSize": "26px",
+          "height": 66.296875
+        },
+        {
+          "fontSize": "26px",
+          "height": 66.296875
+        },
+        {
+          "fontSize": "26px",
+          "height": 66.296875
+        },
+        {
+          "fontSize": "26px",
+          "height": 66.296875
+        },
+        {
+          "fontSize": "24px",
+          "height": 47.59375
+        }
+      ]
+    },
+    {
+      "route": "/routes",
+      "width": 390,
+      "scale": "200% root text size",
+      "scrollWidth": 390,
+      "fontSize": "32px",
+      "mainTitles": 1,
+      "controls": [
+        {
+          "fontSize": "32px",
+          "height": 44
+        },
+        {
+          "fontSize": "28px",
+          "height": 71.390625
+        },
+        {
+          "fontSize": "24px",
+          "height": 49.59375
+        }
+      ]
+    },
+    {
+      "route": "/routes",
+      "width": 1440,
+      "scale": "200% root text size",
+      "scrollWidth": 1440,
+      "fontSize": "32px",
+      "mainTitles": 1,
+      "controls": [
+        {
+          "fontSize": "28px",
+          "height": 99.390625
+        },
+        {
+          "fontSize": "24px",
+          "height": 49.59375
+        }
+      ]
+    },
+    {
+      "route": "/rh-chain-signal-desk",
+      "width": 390,
+      "scale": "200% root text size",
+      "scrollWidth": 390,
+      "fontSize": "32px",
+      "mainTitles": 1,
+      "controls": [
+        {
+          "fontSize": "32px",
+          "height": 44
+        },
+        {
+          "fontSize": "28px",
+          "height": 71.390625
+        },
+        {
+          "fontSize": "24px",
+          "height": 49.59375
+        },
+        {
+          "fontSize": "24px",
+          "height": 44
+        },
+        {
+          "fontSize": "24px",
+          "height": 44
+        },
+        {
+          "fontSize": "30px",
+          "height": 54
+        },
+        {
+          "fontSize": "32px",
+          "height": 54
+        },
+        {
+          "fontSize": "32px",
+          "height": 51.59375
+        },
+        {
+          "fontSize": "24px",
+          "height": 37.1875
+        },
+        {
+          "fontSize": "24px",
+          "height": 37.1875
+        },
+        {
+          "fontSize": "24px",
+          "height": 37.1875
+        },
+        {
+          "fontSize": "24px",
+          "height": 44
+        },
+        {
+          "fontSize": "24px",
+          "height": 44
+        },
+        {
+          "fontSize": "24px",
+          "height": 48
+        },
+        {
+          "fontSize": "24px",
+          "height": 48
+        },
+        {
+          "fontSize": "32px",
+          "height": 51.59375
+        },
+        {
+          "fontSize": "24px",
+          "height": 48
+        },
+        {
+          "fontSize": "24px",
+          "height": 48
+        },
+        {
+          "fontSize": "24px",
+          "height": 74.375
+        },
+        {
+          "fontSize": "24px",
+          "height": 74.375
+        },
+        {
+          "fontSize": "24px",
+          "height": 74.375
+        },
+        {
+          "fontSize": "24px",
+          "height": 74.375
+        },
+        {
+          "fontSize": "24px",
+          "height": 74.375
+        },
+        {
+          "fontSize": "24px",
+          "height": 74.375
+        }
+      ]
+    },
+    {
+      "route": "/rh-chain-signal-desk",
+      "width": 1440,
+      "scale": "200% root text size",
+      "scrollWidth": 1440,
+      "fontSize": "32px",
+      "mainTitles": 1,
+      "controls": [
+        {
+          "fontSize": "28px",
+          "height": 99.390625
+        },
+        {
+          "fontSize": "24px",
+          "height": 49.59375
+        },
+        {
+          "fontSize": "24px",
+          "height": 36
+        },
+        {
+          "fontSize": "24px",
+          "height": 36
+        },
+        {
+          "fontSize": "30px",
+          "height": 60
+        },
+        {
+          "fontSize": "32px",
+          "height": 60
+        },
+        {
+          "fontSize": "32px",
+          "height": 51.59375
+        },
+        {
+          "fontSize": "24px",
+          "height": 37.1875
+        },
+        {
+          "fontSize": "24px",
+          "height": 37.1875
+        },
+        {
+          "fontSize": "24px",
+          "height": 37.1875
+        },
+        {
+          "fontSize": "24px",
+          "height": 36
+        },
+        {
+          "fontSize": "24px",
+          "height": 36
+        },
+        {
+          "fontSize": "24px",
+          "height": 36
+        },
+        {
+          "fontSize": "24px",
+          "height": 36
+        },
+        {
+          "fontSize": "32px",
+          "height": 51.59375
+        },
+        {
+          "fontSize": "24px",
+          "height": 36
+        },
+        {
+          "fontSize": "24px",
+          "height": 36
+        },
+        {
+          "fontSize": "24px",
+          "height": 74.375
+        },
+        {
+          "fontSize": "24px",
+          "height": 74.375
+        },
+        {
+          "fontSize": "24px",
+          "height": 74.375
+        },
+        {
+          "fontSize": "24px",
+          "height": 74.375
+        },
+        {
+          "fontSize": "24px",
+          "height": 74.375
+        },
+        {
+          "fontSize": "24px",
+          "height": 74.375
+        }
+      ]
+    }
+  ]
+}

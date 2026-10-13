@@ -1,0 +1,8 @@
+{
+  "candidate": "3d4f846349f2ef02be11c349f57bbc598cf41435",
+  "original_performance_script_sha256": "74addc5d6dd4ef8fbb7862f1b76515a61cb18c164fea54ce13c1e2ef26ba93ff",
+  "qa2_performance_script_sha256": "94ae528269c6537992027447b784aae40fb9573b4d242f932450981aeb6bf74a",
+  "sole_difference": "Output JSON path; immutable fixture and all performance operations identical",
+  "acceptance_cases": "Separate explicit configuration, unchanged delivered tests, no default .test/.spec name",
+  "controlled_preview": "Deliberate synthetic invalid responses; unchanged built candidate assets; external/paid API mutations not forwarded"
+}

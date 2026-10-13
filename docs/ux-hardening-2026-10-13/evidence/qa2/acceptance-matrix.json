@@ -1,0 +1,90 @@
+{
+  "candidate": "3d4f846349f2ef02be11c349f57bbc598cf41435",
+  "decision": "HOLD",
+  "independent_approval": "not granted; same implementing assistant performs fresh reinspection",
+  "counts": {
+    "PASS": 6,
+    "HOLD": 7,
+    "BLOCKED": 0
+  },
+  "issues": [
+    {
+      "id": "UX-01",
+      "status": "PASS",
+      "scope": "Bounded fresh technical acceptance only; independent human/security/migration/device gates remain HOLD",
+      "reason": "Spend guidance and re-enabled focus pass"
+    },
+    {
+      "id": "UX-02",
+      "status": "HOLD",
+      "scope": "Bounded fresh technical acceptance only; independent human/security/migration/device gates remain HOLD",
+      "reason": "Invalid successful envelopes become false empty results"
+    },
+    {
+      "id": "UX-03",
+      "status": "HOLD",
+      "scope": "Bounded fresh technical acceptance only; independent human/security/migration/device gates remain HOLD",
+      "reason": "Malformed share IDs lose local task recovery"
+    },
+    {
+      "id": "UX-04",
+      "status": "HOLD",
+      "scope": "Bounded fresh technical acceptance only; independent human/security/migration/device gates remain HOLD",
+      "reason": "Malformed share data crashes; receipt 401 loses focus"
+    },
+    {
+      "id": "UX-05",
+      "status": "HOLD",
+      "scope": "Bounded fresh technical acceptance only; independent human/security/migration/device gates remain HOLD",
+      "reason": "Functional validation passes; scoped visual/device/AT approval pending"
+    },
+    {
+      "id": "UX-06",
+      "status": "HOLD",
+      "scope": "Bounded fresh technical acceptance only; independent human/security/migration/device gates remain HOLD",
+      "reason": "Stage separation truthful; scoped lifecycle visual approval pending"
+    },
+    {
+      "id": "UX-07",
+      "status": "HOLD",
+      "scope": "Bounded fresh technical acceptance only; independent human/security/migration/device gates remain HOLD",
+      "reason": "Returned provenance/parents correct; scoped visual/manual inspection approval pending"
+    },
+    {
+      "id": "UX-08",
+      "status": "PASS",
+      "scope": "Bounded fresh technical acceptance only; independent human/security/migration/device gates remain HOLD",
+      "reason": "Known/unknown subject recovery context passes"
+    },
+    {
+      "id": "UX-09",
+      "status": "PASS",
+      "scope": "Bounded fresh technical acceptance only; independent human/security/migration/device gates remain HOLD",
+      "reason": "Safe URL/history/filter restoration passes"
+    },
+    {
+      "id": "UX-10",
+      "status": "PASS",
+      "scope": "Bounded fresh technical acceptance only; independent human/security/migration/device gates remain HOLD",
+      "reason": "Registered headings/shell semantics pass"
+    },
+    {
+      "id": "UX-11",
+      "status": "PASS",
+      "scope": "Bounded fresh technical acceptance only; independent human/security/migration/device gates remain HOLD",
+      "reason": "Paired fixture payload reduction reproduces"
+    },
+    {
+      "id": "UX-12",
+      "status": "HOLD",
+      "scope": "Bounded fresh technical acceptance only; independent human/security/migration/device gates remain HOLD",
+      "reason": "Reveal/memory-only semantics pass; visual/device keyboard and denial focus pending"
+    },
+    {
+      "id": "UX-13",
+      "status": "PASS",
+      "scope": "Bounded fresh technical acceptance only; independent human/security/migration/device gates remain HOLD",
+      "reason": "Owning archive context and navigation pass"
+    }
+  ]
+}

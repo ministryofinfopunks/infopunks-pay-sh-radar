@@ -1,0 +1,63 @@
+{
+  "candidate": "3d4f846349f2ef02be11c349f57bbc598cf41435",
+  "numTotalTests": 8,
+  "numPassedTests": 1,
+  "numFailedTests": 7,
+  "numPendingTests": 0,
+  "cases": [
+    {
+      "title": "UX-03: unknown share stays in Robinhood with local recovery",
+      "status": "passed",
+      "failure": []
+    },
+    {
+      "title": "UX-03: malformed share %E0%A4%A should retain owning-family recovery",
+      "status": "failed",
+      "failure": [
+        "AssertionError: expected 'INFOPUNKS RADAR // INITIALIZATION DEL\u2026' to contain 'Shared Robinhood evidence'\n    at /Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks Pay.sh Intelligence Terminal/docs/ux-hardening-2026-10-13/evidence/qa2/acceptance-cases.tsx:21:223\n    at async file:///Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks%20Pay.sh%20Intelligence%20Terminal/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+      ]
+    },
+    {
+      "title": "UX-03: malformed share %FF should retain owning-family recovery",
+      "status": "failed",
+      "failure": [
+        "AssertionError: expected 'INFOPUNKS RADAR // INITIALIZATION DEL\u2026' to contain 'Shared Robinhood evidence'\n    at /Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks Pay.sh Intelligence Terminal/docs/ux-hardening-2026-10-13/evidence/qa2/acceptance-cases.tsx:21:223\n    at async file:///Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks%20Pay.sh%20Intelligence%20Terminal/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+      ]
+    },
+    {
+      "title": "UX-04: malformed successful share response should recover locally",
+      "status": "failed",
+      "failure": [
+        "AssertionError: expected 'INFOPUNKS RADAR // INITIALIZATION DEL\u2026' to contain 'Shared Robinhood evidence'\n    at /Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks Pay.sh Intelligence Terminal/docs/ux-hardening-2026-10-13/evidence/qa2/acceptance-cases.tsx:24:285\n    at async file:///Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks%20Pay.sh%20Intelligence%20Terminal/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+      ]
+    },
+    {
+      "title": "UX-02: invalid successful envelope {} must not become no results",
+      "status": "failed",
+      "failure": [
+        "AssertionError: expected 'Skip to contentRadarSolanaRobinhood C\u2026' not to contain 'No matching providers'\n    at /Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks Pay.sh Intelligence Terminal/docs/ux-hardening-2026-10-13/evidence/qa2/acceptance-cases.tsx:27:747\n    at async file:///Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks%20Pay.sh%20Intelligence%20Terminal/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+      ]
+    },
+    {
+      "title": "UX-02: invalid successful envelope {\"data\":{}} must not become no results",
+      "status": "failed",
+      "failure": [
+        "AssertionError: expected 'Skip to contentRadarSolanaRobinhood C\u2026' not to contain 'No matching providers'\n    at /Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks Pay.sh Intelligence Terminal/docs/ux-hardening-2026-10-13/evidence/qa2/acceptance-cases.tsx:27:747\n    at async file:///Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks%20Pay.sh%20Intelligence%20Terminal/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+      ]
+    },
+    {
+      "title": "UX-02: invalid successful envelope {\"data\":null} must not become no results",
+      "status": "failed",
+      "failure": [
+        "AssertionError: expected 'Skip to contentRadarSolanaRobinhood C\u2026' not to contain 'No matching providers'\n    at /Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks Pay.sh Intelligence Terminal/docs/ux-hardening-2026-10-13/evidence/qa2/acceptance-cases.tsx:27:747\n    at async file:///Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks%20Pay.sh%20Intelligence%20Terminal/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+      ]
+    },
+    {
+      "title": "Receipt authentication: 401 should focus re-enabled corrective key",
+      "status": "failed",
+      "failure": [
+        "AssertionError: expected '' to be 'receipt-tenant-key' // Object.is equality\n    at /Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks Pay.sh Intelligence Terminal/docs/ux-hardening-2026-10-13/evidence/qa2/acceptance-cases.tsx:30:636\n    at async file:///Users/ahdilm/.codex/worktrees/radar-ux-hardening/Infopunks%20Pay.sh%20Intelligence%20Terminal/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+      ]
+    }
+  ]
+}

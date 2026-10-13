@@ -1,5 +1,7 @@
 # Infopunks Radar UX hardening — HOLD
 
+**Latest acceptance checkpoint:** [UX-QA2 report](ux-qa2-report.md) keeps integration/release HOLD. Fresh checks reconcile the delivered suite and payload measurements, while additional acceptance probes reproduce search-envelope, share-recovery and receipt-focus gaps. The earlier functional implementation dispositions do not constitute independent acceptance.
+
 **Implementation update:** UX-01 through UX-13 received explicit authorization for isolated implementation. The completed [implementation report](implementation-report.md), [issue ledger](issue-ledger.md), and [before/after evidence index](evidence/implementation/review-index.md) record the resulting branch and fresh qualification. G1 stays PASS; G2 and release stay HOLD. The audit text below is retained as the original pre-implementation decision record.
 
 Independent audit, 2026-10-13, Asia/Colombo. **Approval is required before implementation**, as requested in Step 4. No application code, contracts, frozen baselines, branch history, deployment or production data was changed.

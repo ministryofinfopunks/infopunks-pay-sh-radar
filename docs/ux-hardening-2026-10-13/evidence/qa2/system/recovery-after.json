@@ -1,0 +1,66 @@
+{
+  "classification": "SYNTHETIC_LOCAL_ONLY",
+  "receipt_hash": "sha256:f052f77f4ee8bf6a1073827c76f406535593b016e2c7d8ea248ba0401d9473dd",
+  "receipt_counts": {
+    "observation": 1,
+    "judgment": 1,
+    "execution": 1,
+    "evaluation": 1
+  },
+  "signature_valid": true,
+  "chain_valid": true,
+  "projection": {
+    "subject_type": "provider",
+    "subject_id": "provider_test",
+    "score": 5,
+    "policy_version": "derived-score.v1",
+    "evaluation_count": 1,
+    "outcome_counts": {
+      "confirmed": 1,
+      "weakened": 0,
+      "contradicted": 0
+    },
+    "last_evaluated_at": "2026-10-07T00:00:04.000Z",
+    "contributing_evaluation_ids": [
+      "e1"
+    ],
+    "projection_hash": "sha256:1c7af4b7bf81fa648de4316b04276e417bde82cbff1febddca5d384a4cab5169"
+  },
+  "tape": {
+    "version": "ipx-causal-tape.v2",
+    "accepted_through": 4,
+    "free_attempts_through": 0,
+    "quarantine_through": 0,
+    "receipt_refs": [
+      {
+        "kind": "observation",
+        "id": "o1",
+        "receipt_hash": "sha256:bf65a571e3529f544d22a7d1bd16462852068045d0ea57029d6c663f015fc0f9",
+        "acceptance_sequence": 1
+      },
+      {
+        "kind": "judgment",
+        "id": "j1",
+        "receipt_hash": "sha256:ce8c335a26998cc02bb2085aaba424cebb7be7f5d015d802de9d388df6a399c5",
+        "acceptance_sequence": 2
+      },
+      {
+        "kind": "execution",
+        "id": "x1",
+        "receipt_hash": "sha256:9b53a7b645a7604f5bc0cace0f7dbbf1c98f5f7d6a4bf2cd65b624c7d4afef80",
+        "acceptance_sequence": 3
+      },
+      {
+        "kind": "evaluation",
+        "id": "e1",
+        "receipt_hash": "sha256:fa32600544793c19a6fdbad113298d7fd6a9586c560a9002bb5bed02a8d7a7e0",
+        "acceptance_sequence": 4
+      }
+    ],
+    "free_attempt_hashes": [],
+    "quarantine_refs": [],
+    "manifest_hash": "sha256:a7b7e01c50790681caefe5fd2be116501543ebaae67fad90286d7868f88202a1"
+  },
+  "ledger_rows": 22,
+  "exact_replay_match": true
+}
