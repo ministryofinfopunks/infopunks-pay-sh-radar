@@ -1,0 +1,152 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Claims
+- paragraph:
+  - generic: "[ 07 ]"
+  - text: JUDGMENT / PRE-SPEND INTELLIGENCE
+- main "Claims":
+  - paragraph: Claim Primitive
+  - heading "Claims are how Infopunks turns receipts into reusable signal." [level=1]
+  - paragraph: route decision → receipt → claim → validation → reputation
+  - paragraph: No claim without evidence. Claims are not votes. Claims are not token markets yet. Claims are structured signal objects backed by receipts.
+  - region "Pre-spend intelligence metrics":
+    - article:
+      - text: Legacy diagnostic records
+      - strong: "3"
+    - article:
+      - text: routes indexed
+      - strong: "6"
+    - article:
+      - text: providers scored
+      - strong: "5"
+    - article:
+      - text: receipts generated
+      - strong: "11"
+    - article:
+      - text: pre-spend checks completed
+      - strong: "6"
+    - article:
+      - text: human validations submitted
+      - strong: "3"
+    - article:
+      - text: failed routes avoided
+      - strong: "0"
+    - article:
+      - text: claims challenged
+      - strong: "2"
+    - article:
+      - text: repeatable routes discovered
+      - strong: "3"
+  - paragraph: Claim Submission
+  - heading "Submission placeholder" [level=2]
+  - paragraph: Tie the statement to receipts, evidence artifacts, human validation, and a target object. No claim without evidence.
+  - generic: target type
+  - combobox "target type":
+    - option "route" [selected]
+    - option "provider"
+    - option "service"
+    - option "receipt"
+    - option "counterparty"
+    - option "claim"
+  - generic: target ID
+  - textbox "target ID": route_pay_sh_token_quote_01
+  - generic: claim type
+  - combobox "claim type":
+    - option "reliability" [selected]
+    - option "cost"
+    - option "latency"
+    - option "output_quality"
+    - option "safety"
+    - option "dispute"
+    - option "blocker"
+    - option "benchmark"
+    - option "counterparty_risk"
+  - generic: statement
+  - textbox "statement": Receipt-backed route remains safe for stablecoin quote checks.
+  - generic: receipt evidence IDs
+  - textbox "receipt evidence IDs": receipt_005, receipt_006
+  - generic: evidence artifact URIs
+  - textbox "evidence artifact URIs": artifact://artifact_token_quote_run_001
+  - generic: validation state
+  - combobox "validation state":
+    - option "unvalidated" [selected]
+    - option "machine_checked"
+    - option "human_validated"
+    - option "disputed"
+    - option "rejected"
+    - option "stale"
+  - generic: claim status
+  - combobox "claim status":
+    - option "submitted" [selected]
+    - option "under_review"
+    - option "supported"
+    - option "challenged"
+    - option "rejected"
+    - option "resolved"
+    - option "stale"
+  - button "Submit claim placeholder"
+  - paragraph: Claim Rules
+  - heading "Validation posture" [level=2]
+  - paragraph: Claims are not votes.
+  - paragraph: Claims are not token markets yet.
+  - paragraph: Human validation and challenge flow decide whether the claim should survive as reusable route intelligence.
+  - paragraph: Related receipts and evidence graph links should remain inspectable from every claim.
+  - region "Existing claims":
+    - paragraph: Existing Claims
+    - heading "Reusable signal objects" [level=2]
+    - article:
+      - 'link "blocker claim_002 target service:service_receipt_parsing status challenged validation stale confidence 66 challenges 1 Glass receipt parsing should require human validation for layout-heavy PDFs until newer receipts replace the stale evidence window. Related receipts: receipt_008 receipt_009 Inspect claim"':
+        - /url: /claims/claim_002
+        - paragraph: blocker
+        - heading "claim_002" [level=2]
+        - generic: target service:service_receipt_parsing
+        - generic: status challenged
+        - generic: validation stale
+        - generic: confidence 66
+        - generic: challenges 1
+        - paragraph: Glass receipt parsing should require human validation for layout-heavy PDFs until newer receipts replace the stale evidence window.
+        - text: "Related receipts:"
+        - link "receipt_008":
+          - /url: /receipts/receipt_008
+        - link "receipt_009":
+          - /url: /receipts/receipt_009
+        - generic: Inspect claim
+    - article:
+      - 'link "reliability claim_001 target route:route_pay_sh_token_quote_01 status supported validation human_validated confidence 91 challenges 0 Quartz token quote route remains the safest first attempt for stablecoin quote checks under current receipt evidence. Related receipts: receipt_005 receipt_006 Inspect claim"':
+        - /url: /claims/claim_001
+        - paragraph: reliability
+        - heading "claim_001" [level=2]
+        - generic: target route:route_pay_sh_token_quote_01
+        - generic: status supported
+        - generic: validation human_validated
+        - generic: confidence 91
+        - generic: challenges 0
+        - paragraph: Quartz token quote route remains the safest first attempt for stablecoin quote checks under current receipt evidence.
+        - text: "Related receipts:"
+        - link "receipt_005":
+          - /url: /receipts/receipt_005
+        - link "receipt_006":
+          - /url: /receipts/receipt_006
+        - generic: Inspect claim
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

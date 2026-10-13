@@ -1,0 +1,223 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: watch
+- paragraph:
+  - generic: "[ 12 ]"
+  - text: REFLEXIVE RADAR / MARKET STRUCTURE
+- main:
+  - paragraph: REFLEXIVE MARKETS WATCH
+  - heading "WATCH DISCOVERS. RADAR VERIFIES." [level=1]:
+    - text: WATCH DISCOVERS.
+    - text: RADAR VERIFIES.
+  - generic: The live research feed for RWA activation.
+  - generic: A claim is not evidence. A headline is not a market state. Falsification is a product feature.
+  - link "OPEN FEED ↓":
+    - /url: "#watch-feed"
+    - text: OPEN FEED
+    - generic: ↓
+  - generic: WATCH DISCOVERS
+  - generic: RADAR VERIFIES
+  - generic: MEMORY DECIDES WHETHER IT LASTED
+  - generic: PREFLIGHT DECIDES WHETHER WE SHOULD TRY IT
+  - generic: A CLAIM IS CHEAP
+  - generic: EVIDENCE IS THE PRODUCT
+  - paragraph: RMM CATEGORY CENSUS
+  - heading "COUNT BEFORE NAMING THE META." [level=2]
+  - generic: Watch claims are provisional. Radar independently verifies identity and quote direction.
+  - link "OPEN CENSUS →":
+    - /url: /4663/reflexive/census
+    - text: OPEN CENSUS
+    - generic: →
+  - paragraph: WATCH FEED
+  - heading "PROVISIONAL UNTIL RADAR PROVES IT." [level=2]
+  - generic: Source classification is provenance, not truth. Watch interpretation may later be contradicted by Radar.
+  - link "WATCH / PROVISIONAL CONFIRMS RADAR / PARTIAL AI / NVDA Capital vs Flow AI/NVDA controls 20%+ of canonical NVDA Stock Token supply. RADAR AUDIT TARGET Sep 1, 2026, 5:30 AM Re-run AI/NVDA at D7 with same-block launch-position inventory, totalSupply and quote topology.":
+    - /url: /4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW
+    - generic: WATCH / PROVISIONAL
+    - generic: CONFIRMS
+    - generic: RADAR / PARTIAL
+    - heading "AI / NVDA Capital vs Flow" [level=3]
+    - paragraph: AI/NVDA controls 20%+ of canonical NVDA Stock Token supply.
+    - generic: RADAR AUDIT TARGET
+    - time: Sep 1, 2026, 5:30 AM
+    - generic: Re-run AI/NVDA at D7 with same-block launch-position inventory, totalSupply and quote topology.
+  - link "WATCH / PROVISIONAL INSUFFICIENT DATA RADAR / UNVERIFIED BONER / HIMS Float Stress BONER/HIMS was reported as controlling roughly 81% of HIMS Stock Token float at the historical observation time. HISTORICAL STATE UNAVAILABLE Sep 1, 2026, 5:30 AM Attempt archive-capability proof for exact HIMS pool and historical totalSupply block.":
+    - /url: /4663/reflexive/watch/BONER_HIMS_FLOAT_STRESS
+    - generic: WATCH / PROVISIONAL
+    - generic: INSUFFICIENT DATA
+    - generic: RADAR / UNVERIFIED
+    - heading "BONER / HIMS Float Stress" [level=3]
+    - paragraph: BONER/HIMS was reported as controlling roughly 81% of HIMS Stock Token float at the historical observation time.
+    - generic: HISTORICAL STATE UNAVAILABLE
+    - time: Sep 1, 2026, 5:30 AM
+    - generic: Attempt archive-capability proof for exact HIMS pool and historical totalSupply block.
+  - link "WATCH / PROVISIONAL INSUFFICIENT DATA RADAR / UNVERIFIED MOO / MU Quote Persistence Quote persistence requires exact pool and lifecycle observations. WATCH ONLY Sep 1, 2026, 5:30 AM Promote one source claim into a Radar audit target when exact pool identifiers are available.":
+    - /url: /4663/reflexive/watch/MOO_MU_QUOTE_PERSISTENCE
+    - generic: WATCH / PROVISIONAL
+    - generic: INSUFFICIENT DATA
+    - generic: RADAR / UNVERIFIED
+    - heading "MOO / MU Quote Persistence" [level=3]
+    - paragraph: Quote persistence requires exact pool and lifecycle observations.
+    - generic: WATCH ONLY
+    - time: Sep 1, 2026, 5:30 AM
+    - generic: Promote one source claim into a Radar audit target when exact pool identifiers are available.
+  - link "WATCH / PROVISIONAL INSUFFICIENT DATA RADAR / UNVERIFIED SPACEHOOD / SPCX SPCX activation is discovery context until canonical Stock Token inventory is reconstructed. WATCH ONLY Sep 1, 2026, 5:30 AM Promote one source claim into a Radar audit target when exact pool identifiers are available.":
+    - /url: /4663/reflexive/watch/SPACEHOOD_SPCX
+    - generic: WATCH / PROVISIONAL
+    - generic: INSUFFICIENT DATA
+    - generic: RADAR / UNVERIFIED
+    - heading "SPACEHOOD / SPCX" [level=3]
+    - paragraph: SPCX activation is discovery context until canonical Stock Token inventory is reconstructed.
+    - generic: WATCH ONLY
+    - time: Sep 1, 2026, 5:30 AM
+    - generic: Promote one source claim into a Radar audit target when exact pool identifiers are available.
+  - link "WATCH / PROVISIONAL INSUFFICIENT DATA RADAR / PARTIAL RH Stock / Meme Map Census Watch reports approximately 216 Stock Tokens, 27 direct meme/stock pairs and 22 underlying tickers. Radar counts the active canonical denominator and verifies exact identity plus quote direction before any category conclusion. WATCH ONLY Sep 3, 2026, 5:30 AM Refresh the immutable RMM category census; select only the ranked deep-audit queue after coverage is visible.":
+    - /url: /4663/reflexive/watch/RH_STOCK_MEME_MAP_20260903
+    - generic: WATCH / PROVISIONAL
+    - generic: INSUFFICIENT DATA
+    - generic: RADAR / PARTIAL
+    - heading "RH Stock / Meme Map Census" [level=3]
+    - paragraph: Watch reports approximately 216 Stock Tokens, 27 direct meme/stock pairs and 22 underlying tickers. Radar counts the active canonical denominator and verifies exact identity plus quote direction before any category conclusion.
+    - generic: WATCH ONLY
+    - time: Sep 3, 2026, 5:30 AM
+    - generic: Refresh the immutable RMM category census; select only the ranked deep-audit queue after coverage is visible.
+  - link "WATCH / PROVISIONAL INSUFFICIENT DATA RADAR / UNVERIFIED PLTR Stock-as-Money PLTR has a separate Observation Mode and preflight evidence stream; Watch must not alter it. WATCH ONLY Sep 1, 2026, 5:30 AM Promote one source claim into a Radar audit target when exact pool identifiers are available.":
+    - /url: /4663/reflexive/watch/PLTR_AS_MONEY
+    - generic: WATCH / PROVISIONAL
+    - generic: INSUFFICIENT DATA
+    - generic: RADAR / UNVERIFIED
+    - heading "PLTR Stock-as-Money" [level=3]
+    - paragraph: PLTR has a separate Observation Mode and preflight evidence stream; Watch must not alter it.
+    - generic: WATCH ONLY
+    - time: Sep 1, 2026, 5:30 AM
+    - generic: Promote one source claim into a Radar audit target when exact pool identifiers are available.
+  - link "WATCH / PROVISIONAL INSUFFICIENT DATA RADAR / UNVERIFIED LONGX NVDAx3L NVDAx3L claims 3x NVDA exposure with NAV mint/redeem mechanics, mission pairing and fee routing. RADAR UNVERIFIED Sep 1, 2026, 5:30 AM Build derivative-equity-token adapter requirements; do not implement accounting in v0.1.":
+    - /url: /4663/reflexive/watch/LONGX_NVDA3L
+    - generic: WATCH / PROVISIONAL
+    - generic: INSUFFICIENT DATA
+    - generic: RADAR / UNVERIFIED
+    - heading "LONGX NVDAx3L" [level=3]
+    - paragraph: NVDAx3L claims 3x NVDA exposure with NAV mint/redeem mechanics, mission pairing and fee routing.
+    - generic: RADAR UNVERIFIED
+    - time: Sep 1, 2026, 5:30 AM
+    - generic: Build derivative-equity-token adapter requirements; do not implement accounting in v0.1.
+  - paragraph: FALSIFICATION QUEUE
+  - heading "THE RECORD CAN CHALLENGE THE THESIS." [level=2]
+  - generic: Negative and mixed evidence is surfaced as prominently as confirmation.
+  - link "RADAR CHALLENGE MIXED AI / NVDA Capital vs Flow Stock quote flow persistence is mixed and can challenge stock quote execution dominance.":
+    - /url: /4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW
+    - generic: RADAR CHALLENGE
+    - generic: MIXED
+    - heading "AI / NVDA Capital vs Flow" [level=3]
+    - paragraph: Stock quote flow persistence is mixed and can challenge stock quote execution dominance.
+  - link "RADAR CHALLENGE NOT REPRODUCIBLE BONER / HIMS Float Stress Historical-data mismatch can falsify any current-state comparison.":
+    - /url: /4663/reflexive/watch/BONER_HIMS_FLOAT_STRESS
+    - generic: RADAR CHALLENGE
+    - generic: NOT REPRODUCIBLE
+    - heading "BONER / HIMS Float Stress" [level=3]
+    - paragraph: Historical-data mismatch can falsify any current-state comparison.
+  - paragraph: RWA ACTIVATION CASEBOOK
+  - heading "NOT A LEADERBOARD." [level=2]
+  - generic: Cases are grouped by evidence state, not token price or market-cap potential.
+  - article:
+    - heading "CONFIRMING CASES" [level=3]
+    - paragraph: NONE
+  - article:
+    - heading "MIXED CASES" [level=3]
+    - link "AI / NVDA Capital vs Flow MIXED":
+      - /url: /4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW
+      - text: AI / NVDA Capital vs Flow
+      - generic: MIXED
+  - article:
+    - heading "FALSIFICATION CASES" [level=3]
+    - link "AI / NVDA Capital vs Flow MIXED":
+      - /url: /4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW
+      - text: AI / NVDA Capital vs Flow
+      - generic: MIXED
+    - link "BONER / HIMS Float Stress NOT REPRODUCIBLE":
+      - /url: /4663/reflexive/watch/BONER_HIMS_FLOAT_STRESS
+      - text: BONER / HIMS Float Stress
+      - generic: NOT REPRODUCIBLE
+  - article:
+    - heading "UNVERIFIED CASES" [level=3]
+    - link "BONER / HIMS Float Stress NOT REPRODUCIBLE":
+      - /url: /4663/reflexive/watch/BONER_HIMS_FLOAT_STRESS
+      - text: BONER / HIMS Float Stress
+      - generic: NOT REPRODUCIBLE
+    - link "MOO / MU Quote Persistence RADAR CANDIDATE":
+      - /url: /4663/reflexive/watch/MOO_MU_QUOTE_PERSISTENCE
+      - text: MOO / MU Quote Persistence
+      - generic: RADAR CANDIDATE
+    - link "SPACEHOOD / SPCX RADAR CANDIDATE":
+      - /url: /4663/reflexive/watch/SPACEHOOD_SPCX
+      - text: SPACEHOOD / SPCX
+      - generic: RADAR CANDIDATE
+    - link "RH Stock / Meme Map Census VERIFYING":
+      - /url: /4663/reflexive/watch/RH_STOCK_MEME_MAP_20260903
+      - text: RH Stock / Meme Map Census
+      - generic: VERIFYING
+    - link "PLTR Stock-as-Money RADAR CANDIDATE":
+      - /url: /4663/reflexive/watch/PLTR_AS_MONEY
+      - text: PLTR Stock-as-Money
+      - generic: RADAR CANDIDATE
+    - link "LONGX NVDAx3L RADAR CANDIDATE":
+      - /url: /4663/reflexive/watch/LONGX_NVDA3L
+      - text: LONGX NVDAx3L
+      - generic: RADAR CANDIDATE
+  - paragraph: THESIS BOARD
+  - heading "RMM AND RA1." [level=2]
+  - generic: Watch claims cannot upgrade thesis state. Case evidence must be generated independently by Radar.
+  - article:
+    - paragraph: H2A
+    - generic: SUPPORTING
+    - text: Mission markets can hold material Stock Token inventory; only Radar evidence can support this.
+    - generic: AI_NVDA_CAPITAL_VS_FLOW / BONER_HIMS_FLOAT_STRESS
+  - article:
+    - paragraph: H2B
+    - generic: OBSERVING
+    - text: Persistence is under observation across lifecycle checkpoints.
+    - generic: AI_NVDA_CAPITAL_VS_FLOW / BONER_HIMS_FLOAT_STRESS
+  - article:
+    - paragraph: H2C
+    - generic: MIXED
+    - text: AI/NVDA separates capital persistence from weaker flow persistence and quote execution dominance.
+    - generic: AI_NVDA_CAPITAL_VS_FLOW
+  - article:
+    - paragraph: H2D
+    - generic: INSUFFICIENT
+    - text: Community vault or treasury accumulation remains unavailable until independently verified.
+    - generic: AI_NVDA_CAPITAL_VS_FLOW
+  - article:
+    - paragraph: H7
+    - generic: OBSERVATIONAL
+    - text: Supply response observations require aligned sequential cases before thesis upgrade.
+    - generic: AI_NVDA_CAPITAL_VS_FLOW / BONER_HIMS_FLOAT_STRESS
+  - article:
+    - paragraph: RA1
+    - generic: EARLY SUPPORTING EVIDENCE
+    - text: RA1 is broader than RMM and cannot be confirmed from one case or from Watch claims alone.
+    - generic: AI_NVDA_CAPITAL_VS_FLOW / BONER_HIMS_FLOAT_STRESS / MOO_MU_QUOTE_PERSISTENCE / SPACEHOOD_SPCX / RH_STOCK_MEME_MAP_20260903 / PLTR_AS_MONEY / LONGX_NVDA3L
+  - text: METHODOLOGY REFLEXIVE-MARKETS-WATCH-V0.1 · MODEL reflexive-markets-watch-v0.1
+  - text: NO TRADING CTA. NO TOKEN RECOMMENDATION.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

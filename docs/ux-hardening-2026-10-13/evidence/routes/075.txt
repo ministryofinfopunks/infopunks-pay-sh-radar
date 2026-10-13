@@ -1,0 +1,79 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Attention Markets
+- paragraph:
+  - generic: "[ 09 ]"
+  - text: SIGNALS / MARKET INTELLIGENCE
+- link "Skip to content":
+  - /url: "#attention-content"
+- main:
+  - paragraph: Attention Markets
+  - heading "Attention Markets" [level=1]
+  - paragraph: Narrative markets are not just about price. They are about who gets to compress attention into a tradeable object first.
+  - paragraph: Operational note
+  - paragraph: Minimal hype. Evidence first. Watch the flow, the concentration, and the sovereignty gap.
+  - region "Attention market theses":
+    - article:
+      - paragraph: Infopunks thesis
+      - heading "personas can become liquidity" [level=2]
+      - paragraph: Narrative compression can turn a social pattern into a market rail faster than fundamentals can catch up.
+    - article:
+      - paragraph: Infopunks thesis
+      - heading "memes can become coordination rails" [level=2]
+      - paragraph: Narrative compression can turn a social pattern into a market rail faster than fundamentals can catch up.
+    - article:
+      - paragraph: Infopunks thesis
+      - heading "wallets can become myth objects" [level=2]
+      - paragraph: Narrative compression can turn a social pattern into a market rail faster than fundamentals can catch up.
+    - article:
+      - paragraph: Infopunks thesis
+      - heading "attention velocity can precede price action" [level=2]
+      - paragraph: Signal can arrive before conventional market consensus notices. Velocity itself becomes a data point.
+    - article:
+      - paragraph: Infopunks thesis
+      - heading "narrative assets require sovereignty checks" [level=2]
+      - paragraph: Before treating an asset as durable, check whether it can hold meaning without a single amplifier.
+  - region "Narrative Asset Intelligence Method":
+    - paragraph: Desk method
+    - heading "Narrative Asset Intelligence Method" [level=2]
+    - paragraph: Narrative Asset Intelligence treats attention, myth, wallet power, and reflexivity as one evidence desk.
+    - article:
+      - paragraph: Step 1
+      - heading "Detect Narrative Asset" [level=3]
+    - article:
+      - paragraph: Step 2
+      - heading "Map Signal Source" [level=3]
+    - article:
+      - paragraph: Step 3
+      - heading "Score Attention Velocity" [level=3]
+    - article:
+      - paragraph: Step 4
+      - heading "Check Power Concentration" [level=3]
+    - article:
+      - paragraph: Step 5
+      - heading "Track Reflexivity Risk" [level=3]
+    - article:
+      - paragraph: Step 6
+      - heading "Publish Versioned Evidence Updates" [level=3]
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

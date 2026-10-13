@@ -1,0 +1,579 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Rail Coverage
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-rail-coverage-content"
+- banner:
+  - navigation "Machine Rail Coverage navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Rail Coverage":
+  - paragraph: Machine Execution Rail Coverage
+  - heading "Machine Execution Rail Coverage" [level=1]
+  - paragraph: Radar separates robotic.sh catalog presence from access rail readiness, callable route surfaces, credentials, pricing, and receipt-bound execution evidence.
+  - paragraph: Radar does not ask only what service exists. It asks which rail, which route, under which proof conditions.
+  - generic "Machine rail coverage hero chips":
+    - generic: 13 services mapped
+    - generic: access rails classified
+    - generic: route surfaces separated
+    - generic: 0 robotic.sh market-wide execution claims
+    - generic: 0 service-specific execution receipts recorded
+    - generic: receipt-driven
+  - region "Machine rail coverage summary":
+    - article:
+      - text: Services mapped
+      - strong: "13"
+      - text: robotic.sh-listed services mirrored into rail metadata
+    - article:
+      - text: Pay.sh / Solana rails
+      - strong: "5"
+      - text: access rail only, not execution proof
+    - article:
+      - text: peaqOS / provider-account rails
+      - strong: "1"
+      - text: provider account surface, not receipt evidence
+    - article:
+      - text: Callable route surfaces
+      - strong: "4"
+      - text: routes listed in metadata, not executed
+    - article:
+      - text: Provider/operator setup required
+      - strong: "1"
+      - text: setup blockers remain before safe route planning
+    - article:
+      - text: No callable endpoint recorded
+      - strong: "2"
+      - text: listed presence without callable route detail
+    - article:
+      - text: Service-specific execution receipts
+      - strong: "0"
+      - text: Service-specific execution receipts are scoped to the recorded route.
+    - article:
+      - text: Payment success claims
+      - strong: "0"
+      - text: Payment remains unconfirmed unless payment evidence exists.
+    - article:
+      - text: Benchmark claims
+      - strong: "0"
+      - text: Benchmark claim requires benchmark artifact.
+  - region "Machine rail doctrine snapshot cards":
+    - article:
+      - text: Visible market
+      - strong: robotic.sh
+      - text: service visibility and public context, not Radar proof
+    - article:
+      - text: Access / spend rail
+      - strong: Pay.sh
+      - text: one rail to classify before spend
+    - article:
+      - text: Identity / wallet substrate
+      - strong: peaqOS
+      - text: machine identity, wallet, and credit surface
+    - article:
+      - text: Intelligence layer
+      - strong: Radar
+      - text: policy, evidence, receipts, memory
+    - article:
+      - text: Proof adapter
+      - strong: Harness
+      - text: execution evidence only when a receipt exists
+  - region "Machine rail interpretation strip":
+    - paragraph: Rail Interpretation
+    - heading "Separate the evidence states" [level=2]
+    - generic: screenshot-native
+    - generic "Machine rail interpretation statements":
+      - generic: Listed ≠ callable
+      - generic: Callable ≠ executed
+      - generic: Credentials ≠ payment proof
+      - generic: Route surface ≠ receipt
+    - paragraph: Radar does not ask only what service exists. It asks which rail, which route, under which proof conditions.
+  - region "Machine rail coverage caveats":
+    - paragraph: 0 market-wide execution claims. Service-specific execution receipts are scoped to the recorded route.
+    - paragraph: Rail coverage does not prove execution. Execution receipts are service-specific. Payment remains unconfirmed unless payment evidence exists.
+    - paragraph: Route metadata does not imply execution. Credential requirement does not imply payment proof.
+    - paragraph: 0 payment success claims. 0 benchmark claims. 0 winner claims.
+    - paragraph: Pay.sh availability does not imply Radar execution. robotic.sh listing does not imply callable route readiness.
+    - paragraph: Callable routes do not imply executed routes. Credentials do not imply payment proof. Execution requires service-specific receipts.
+    - group "Rail metadata attribution":
+      - generic "Rail metadata attribution Rail metadata attribution Rail and route-surface fields are catalog/planning metadata.":
+        - generic: Rail metadata attribution
+        - strong: Rail metadata attribution
+        - generic: Rail and route-surface fields are catalog/planning metadata.
+    - paragraph:
+      - link "Back to Machine Economy":
+        - /url: /machine-market
+      - link "View route risk matrix":
+        - /url: /machine-route-risk-matrix
+      - link "View first safe route queue":
+        - /url: /machine-first-safe-routes
+      - link "View execution blockers":
+        - /url: /machine-execution-blockers
+      - link "View changelog":
+        - /url: /machine-market-changelog
+      - link "View no-claim ledger":
+        - /url: /machine-no-claim-ledger
+  - region "Machine No-Claim Ledger":
+    - paragraph: No-Claim Ledger
+    - heading "Radar records restraint" [level=2]
+    - generic: Proof before trust
+    - generic "Machine no-claim doctrine":
+      - generic: Listed ≠ callable
+      - generic: Callable ≠ executed
+      - generic: Credentials ≠ payment proof
+      - generic: Route surface ≠ receipt
+      - generic: Service receipt ≠ market proof
+      - generic: Repeatability ≠ winner
+    - list:
+      - generic: "Market-wide execution claim: 0"
+      - generic: "source_type: derived_radar_state · Service receipt ≠ market proof."
+      - generic: "NAVER Maps execution claim: 0"
+      - generic: "source_type: public_context · NAVER Maps is navigation / review / not_attempted."
+      - generic: "Payment success claim: 0"
+      - generic: "source_type: radar_execution_receipt · Payment remains unconfirmed unless payment evidence exists."
+      - generic: "Benchmark claim: 0"
+      - generic: "source_type: benchmark_artifact · No benchmark artifact recorded unless explicitly linked."
+      - generic: "Winner claim: 0"
+      - generic: "source_type: derived_radar_state · No winner claim unless explicit criteria and artifact exist."
+      - generic: "Public demo counted as Radar proof: 0"
+      - generic: "source_type: public_context · Public context only. Not Radar execution evidence."
+      - generic: "Service-specific execution receipt: 0"
+      - generic: "source_type: radar_execution_receipt · Service-specific execution receipt. Not market-wide proof, not payment proof, not benchmark proof."
+      - generic: "Repeatability receipt: 0"
+      - generic: "source_type: radar_repeatability_receipt · Repeatability is route-specific. Not benchmark superiority."
+  - group "Evidence methodology drawer":
+    - generic "Evidence methodology Evidence methodology Definitions for listed, classified, policy_mapped, preflight_recorded, proof_path, proof_plan_selected, execution_receipt, and repeatability_receipt.":
+      - generic: Evidence methodology
+      - strong: Evidence methodology
+      - generic: Definitions for listed, classified, policy_mapped, preflight_recorded, proof_path, proof_plan_selected, execution_receipt, and repeatability_receipt.
+  - group "Machine rail methodology":
+    - generic "Rail Methodology Execution rail definitions Compact definitions for access rail, route surface status, setup-only states, credentials, pricing, and execution receipts.":
+      - generic: Rail Methodology
+      - strong: Execution rail definitions
+      - generic: Compact definitions for access rail, route surface status, setup-only states, credentials, pricing, and execution receipts.
+  - region "Machine rail coverage table panel":
+    - paragraph: Rail Coverage Table
+    - heading "13 robotic.sh-visible services" [level=2]
+    - generic: Catalog presence is separated from callable rail readiness. No service is execution-ready on this page without a service-specific receipt.
+    - table "Machine rail coverage table":
+      - text: Scroll horizontally for all columns →
+      - row "QVAC Tether View rail-aware proof plan compute peaqOS / operator-defined robotic.sh listed service operator runtime required operator_runtime_required Operator runtime registration is required before autonomous calls can be evaluated. 2 operator-defined runtime endpoint registration required review_required setup required before autonomous calls non-operational runtime registration review planning route only, not a receipt not execution-tested No service-specific execution receipt recorded. robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+        - cell "QVAC Tether View rail-aware proof plan":
+          - strong: QVAC
+          - generic: Tether
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/qvac
+        - cell "compute"
+        - cell "peaqOS / operator-defined robotic.sh listed service":
+          - strong: peaqOS / operator-defined
+          - generic: robotic.sh listed service
+        - cell "operator runtime required operator_runtime_required Operator runtime registration is required before autonomous calls can be evaluated.":
+          - generic: operator runtime required
+          - generic: operator_runtime_required
+          - generic: Operator runtime registration is required before autonomous calls can be evaluated.
+        - cell "2"
+        - cell "operator-defined"
+        - cell "runtime endpoint registration required"
+        - cell "review_required setup required before autonomous calls":
+          - generic: review_required
+          - generic: setup required before autonomous calls
+        - cell "non-operational runtime registration review planning route only, not a receipt":
+          - strong: non-operational runtime registration review
+          - generic: planning route only, not a receipt
+        - cell "not execution-tested No service-specific execution receipt recorded.":
+          - generic: not execution-tested
+          - generic: No service-specific execution receipt recorded.
+        - cell "robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+          - strong: robotic.sh catalog metadata
+          - generic: service identity / category / provider / market listing
+          - generic: Catalog presence does not imply execution or payment proof.
+      - row "Generative Language Google View rail-aware proof plan inference Pay.sh / Solana robotic.sh listed service no callable endpoints no_callable_endpoints No callable endpoint surface is currently recorded. Proof planning should not advance to execution. 0 per endpoint not recorded review_required pay.sh lists provider but current registry exposes no callable endpoints not recorded planning route only, not a receipt not execution-tested No service-specific execution receipt recorded. robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+        - cell "Generative Language Google View rail-aware proof plan":
+          - strong: Generative Language
+          - generic: Google
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/generative-language
+        - cell "inference"
+        - cell "Pay.sh / Solana robotic.sh listed service":
+          - strong: Pay.sh / Solana
+          - generic: robotic.sh listed service
+        - cell "no callable endpoints no_callable_endpoints No callable endpoint surface is currently recorded. Proof planning should not advance to execution.":
+          - generic: no callable endpoints
+          - generic: no_callable_endpoints
+          - generic: No callable endpoint surface is currently recorded. Proof planning should not advance to execution.
+        - cell "0"
+        - cell "per endpoint"
+        - cell "not recorded"
+        - cell "review_required pay.sh lists provider but current registry exposes no callable endpoints":
+          - generic: review_required
+          - generic: pay.sh lists provider but current registry exposes no callable endpoints
+        - cell "not recorded planning route only, not a receipt":
+          - strong: not recorded
+          - generic: planning route only, not a receipt
+        - cell "not execution-tested No service-specific execution receipt recorded.":
+          - generic: not execution-tested
+          - generic: No service-specific execution receipt recorded.
+        - cell "robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+          - strong: robotic.sh catalog metadata
+          - generic: service identity / category / provider / market listing
+          - generic: Catalog presence does not imply execution or payment proof.
+      - row "BigQuery Google View rail-aware proof plan web Pay.sh / Solana robotic.sh listed service callable routes listed callable_routes_listed Catalog exposes callable route surface, but Radar still requires a service-specific execution receipt before claiming execution. 2 $0.001 not recorded plan_eligible catalog route surface only; Radar has not executed routes bounded query result lookup planning route only, not a receipt not execution-tested No service-specific execution receipt recorded. robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+        - cell "BigQuery Google View rail-aware proof plan":
+          - strong: BigQuery
+          - generic: Google
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/bigquery
+        - cell "web"
+        - cell "Pay.sh / Solana robotic.sh listed service":
+          - strong: Pay.sh / Solana
+          - generic: robotic.sh listed service
+        - cell "callable routes listed callable_routes_listed Catalog exposes callable route surface, but Radar still requires a service-specific execution receipt before claiming execution.":
+          - generic: callable routes listed
+          - generic: callable_routes_listed
+          - generic: Catalog exposes callable route surface, but Radar still requires a service-specific execution receipt before claiming execution.
+        - cell "2"
+        - cell "$0.001"
+        - cell "not recorded"
+        - cell "plan_eligible catalog route surface only; Radar has not executed routes":
+          - generic: plan_eligible
+          - generic: catalog route surface only; Radar has not executed routes
+        - cell "bounded query result lookup planning route only, not a receipt":
+          - strong: bounded query result lookup
+          - generic: planning route only, not a receipt
+        - cell "not execution-tested No service-specific execution receipt recorded.":
+          - generic: not execution-tested
+          - generic: No service-specific execution receipt recorded.
+        - cell "robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+          - strong: robotic.sh catalog metadata
+          - generic: service identity / category / provider / market listing
+          - generic: Catalog presence does not imply execution or payment proof.
+      - row "Document AI Google View rail-aware proof plan vision Pay.sh / Solana robotic.sh listed service no callable endpoints no_callable_endpoints No callable endpoint surface is currently recorded. Proof planning should not advance to execution. 0 per endpoint not recorded review_required pay.sh lists provider but current registry exposes no callable endpoints not recorded planning route only, not a receipt not execution-tested No service-specific execution receipt recorded. robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+        - cell "Document AI Google View rail-aware proof plan":
+          - strong: Document AI
+          - generic: Google
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/document-ai
+        - cell "vision"
+        - cell "Pay.sh / Solana robotic.sh listed service":
+          - strong: Pay.sh / Solana
+          - generic: robotic.sh listed service
+        - cell "no callable endpoints no_callable_endpoints No callable endpoint surface is currently recorded. Proof planning should not advance to execution.":
+          - generic: no callable endpoints
+          - generic: no_callable_endpoints
+          - generic: No callable endpoint surface is currently recorded. Proof planning should not advance to execution.
+        - cell "0"
+        - cell "per endpoint"
+        - cell "not recorded"
+        - cell "review_required pay.sh lists provider but current registry exposes no callable endpoints":
+          - generic: review_required
+          - generic: pay.sh lists provider but current registry exposes no callable endpoints
+        - cell "not recorded planning route only, not a receipt":
+          - strong: not recorded
+          - generic: planning route only, not a receipt
+        - cell "not execution-tested No service-specific execution receipt recorded.":
+          - generic: not execution-tested
+          - generic: No service-specific execution receipt recorded.
+        - cell "robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+          - strong: robotic.sh catalog metadata
+          - generic: service identity / category / provider / market listing
+          - generic: Catalog presence does not imply execution or payment proof.
+      - row "Stableupload Stableupload View rail-aware proof plan storage Pay.sh / Solana robotic.sh listed service callable routes listed callable_routes_listed Catalog exposes callable route surface, but Radar still requires a service-specific execution receipt before claiming execution. 3 $0.02 not recorded review_required catalog route surface only; storage policy review remains required before execution claims tiny non-sensitive fixture upload planning route only, not a receipt not execution-tested No service-specific execution receipt recorded. robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+        - cell "Stableupload Stableupload View rail-aware proof plan":
+          - strong: Stableupload
+          - generic: Stableupload
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/stableupload
+        - cell "storage"
+        - cell "Pay.sh / Solana robotic.sh listed service":
+          - strong: Pay.sh / Solana
+          - generic: robotic.sh listed service
+        - cell "callable routes listed callable_routes_listed Catalog exposes callable route surface, but Radar still requires a service-specific execution receipt before claiming execution.":
+          - generic: callable routes listed
+          - generic: callable_routes_listed
+          - generic: Catalog exposes callable route surface, but Radar still requires a service-specific execution receipt before claiming execution.
+        - cell "3"
+        - cell "$0.02"
+        - cell "not recorded"
+        - cell "review_required catalog route surface only; storage policy review remains required before execution claims":
+          - generic: review_required
+          - generic: catalog route surface only; storage policy review remains required before execution claims
+        - cell "tiny non-sensitive fixture upload planning route only, not a receipt":
+          - strong: tiny non-sensitive fixture upload
+          - generic: planning route only, not a receipt
+        - cell "not execution-tested No service-specific execution receipt recorded.":
+          - generic: not execution-tested
+          - generic: No service-specific execution receipt recorded.
+        - cell "robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+          - strong: robotic.sh catalog metadata
+          - generic: service identity / category / provider / market listing
+          - generic: Catalog presence does not imply execution or payment proof.
+      - row "Cloud Translation Google View rail-aware proof plan translation Pay.sh / Solana robotic.sh listed service callable routes listed callable_routes_listed Catalog exposes callable route surface, but Radar still requires a service-specific execution receipt before claiming execution. 1 per endpoint not recorded proof_plan_selected callable route metadata listed; execution status remains receipt-scoped safe translation phrase planning route only, not a receipt not execution-tested No service-specific execution receipt recorded. robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+        - cell "Cloud Translation Google View rail-aware proof plan":
+          - strong: Cloud Translation
+          - generic: Google
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/cloud-translation
+        - cell "translation"
+        - cell "Pay.sh / Solana robotic.sh listed service":
+          - strong: Pay.sh / Solana
+          - generic: robotic.sh listed service
+        - cell "callable routes listed callable_routes_listed Catalog exposes callable route surface, but Radar still requires a service-specific execution receipt before claiming execution.":
+          - generic: callable routes listed
+          - generic: callable_routes_listed
+          - generic: Catalog exposes callable route surface, but Radar still requires a service-specific execution receipt before claiming execution.
+        - cell "1"
+        - cell "per endpoint"
+        - cell "not recorded"
+        - cell "proof_plan_selected callable route metadata listed; execution status remains receipt-scoped":
+          - generic: proof_plan_selected
+          - generic: callable route metadata listed; execution status remains receipt-scoped
+        - cell "safe translation phrase planning route only, not a receipt":
+          - strong: safe translation phrase
+          - generic: planning route only, not a receipt
+        - cell "not execution-tested No service-specific execution receipt recorded.":
+          - generic: not execution-tested
+          - generic: No service-specific execution receipt recorded.
+        - cell "robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+          - strong: robotic.sh catalog metadata
+          - generic: service identity / category / provider / market listing
+          - generic: Catalog presence does not imply execution or payment proof.
+      - row "Claude Anthropic View rail-aware proof plan inference not recorded robotic.sh listed service not recorded not_recorded Rail surface is not recorded yet. Execution planning remains blocked or review-required. not recorded not recorded not recorded not_recorded rail surface not recorded in the current registry not recorded planning route only, not a receipt not execution-tested No service-specific execution receipt recorded. robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+        - cell "Claude Anthropic View rail-aware proof plan":
+          - strong: Claude
+          - generic: Anthropic
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/claude
+        - cell "inference"
+        - cell "not recorded robotic.sh listed service":
+          - strong: not recorded
+          - generic: robotic.sh listed service
+        - cell "not recorded not_recorded Rail surface is not recorded yet. Execution planning remains blocked or review-required.":
+          - generic: not recorded
+          - generic: not_recorded
+          - generic: Rail surface is not recorded yet. Execution planning remains blocked or review-required.
+        - cell "not recorded"
+        - cell "not recorded"
+        - cell "not recorded"
+        - cell "not_recorded rail surface not recorded in the current registry":
+          - generic: not_recorded
+          - generic: rail surface not recorded in the current registry
+        - cell "not recorded planning route only, not a receipt":
+          - strong: not recorded
+          - generic: planning route only, not a receipt
+        - cell "not execution-tested No service-specific execution receipt recorded.":
+          - generic: not execution-tested
+          - generic: No service-specific execution receipt recorded.
+        - cell "robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+          - strong: robotic.sh catalog metadata
+          - generic: service identity / category / provider / market listing
+          - generic: Catalog presence does not imply execution or payment proof.
+      - row "ChatGPT OpenAI View rail-aware proof plan inference not recorded robotic.sh listed service not recorded not_recorded Rail surface is not recorded yet. Execution planning remains blocked or review-required. not recorded not recorded not recorded not_recorded rail surface not recorded in the current registry not recorded planning route only, not a receipt not execution-tested No service-specific execution receipt recorded. robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+        - cell "ChatGPT OpenAI View rail-aware proof plan":
+          - strong: ChatGPT
+          - generic: OpenAI
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/chatgpt
+        - cell "inference"
+        - cell "not recorded robotic.sh listed service":
+          - strong: not recorded
+          - generic: robotic.sh listed service
+        - cell "not recorded not_recorded Rail surface is not recorded yet. Execution planning remains blocked or review-required.":
+          - generic: not recorded
+          - generic: not_recorded
+          - generic: Rail surface is not recorded yet. Execution planning remains blocked or review-required.
+        - cell "not recorded"
+        - cell "not recorded"
+        - cell "not recorded"
+        - cell "not_recorded rail surface not recorded in the current registry":
+          - generic: not_recorded
+          - generic: rail surface not recorded in the current registry
+        - cell "not recorded planning route only, not a receipt":
+          - strong: not recorded
+          - generic: planning route only, not a receipt
+        - cell "not execution-tested No service-specific execution receipt recorded.":
+          - generic: not execution-tested
+          - generic: No service-specific execution receipt recorded.
+        - cell "robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+          - strong: robotic.sh catalog metadata
+          - generic: service identity / category / provider / market listing
+          - generic: Catalog presence does not imply execution or payment proof.
+      - row "2Captcha 2Captcha View rail-aware proof plan web not recorded robotic.sh listed service not recorded not_recorded Rail surface is not recorded yet. Execution planning remains blocked or review-required. not recorded not recorded not recorded not_recorded rail surface not recorded in the current registry not recorded planning route only, not a receipt not execution-tested No service-specific execution receipt recorded. robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+        - cell "2Captcha 2Captcha View rail-aware proof plan":
+          - strong: 2Captcha
+          - generic: 2Captcha
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/2captcha
+        - cell "web"
+        - cell "not recorded robotic.sh listed service":
+          - strong: not recorded
+          - generic: robotic.sh listed service
+        - cell "not recorded not_recorded Rail surface is not recorded yet. Execution planning remains blocked or review-required.":
+          - generic: not recorded
+          - generic: not_recorded
+          - generic: Rail surface is not recorded yet. Execution planning remains blocked or review-required.
+        - cell "not recorded"
+        - cell "not recorded"
+        - cell "not recorded"
+        - cell "not_recorded rail surface not recorded in the current registry":
+          - generic: not_recorded
+          - generic: rail surface not recorded in the current registry
+        - cell "not recorded planning route only, not a receipt":
+          - strong: not recorded
+          - generic: planning route only, not a receipt
+        - cell "not execution-tested No service-specific execution receipt recorded.":
+          - generic: not execution-tested
+          - generic: No service-specific execution receipt recorded.
+        - cell "robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+          - strong: robotic.sh catalog metadata
+          - generic: service identity / category / provider / market listing
+          - generic: Catalog presence does not imply execution or payment proof.
+      - row "Firecrawl Firecrawl View rail-aware proof plan web not recorded robotic.sh listed service not recorded not_recorded Rail surface is not recorded yet. Execution planning remains blocked or review-required. not recorded not recorded not recorded not_recorded rail surface not recorded in the current registry not recorded planning route only, not a receipt not execution-tested No service-specific execution receipt recorded. robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+        - cell "Firecrawl Firecrawl View rail-aware proof plan":
+          - strong: Firecrawl
+          - generic: Firecrawl
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/firecrawl
+        - cell "web"
+        - cell "not recorded robotic.sh listed service":
+          - strong: not recorded
+          - generic: robotic.sh listed service
+        - cell "not recorded not_recorded Rail surface is not recorded yet. Execution planning remains blocked or review-required.":
+          - generic: not recorded
+          - generic: not_recorded
+          - generic: Rail surface is not recorded yet. Execution planning remains blocked or review-required.
+        - cell "not recorded"
+        - cell "not recorded"
+        - cell "not recorded"
+        - cell "not_recorded rail surface not recorded in the current registry":
+          - generic: not_recorded
+          - generic: rail surface not recorded in the current registry
+        - cell "not recorded planning route only, not a receipt":
+          - strong: not recorded
+          - generic: planning route only, not a receipt
+        - cell "not execution-tested No service-specific execution receipt recorded.":
+          - generic: not execution-tested
+          - generic: No service-specific execution receipt recorded.
+        - cell "robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+          - strong: robotic.sh catalog metadata
+          - generic: service identity / category / provider / market listing
+          - generic: Catalog presence does not imply execution or payment proof.
+      - row "Wolfram Alpha Wolfram Research View rail-aware proof plan inference not recorded robotic.sh listed service not recorded not_recorded Rail surface is not recorded yet. Execution planning remains blocked or review-required. not recorded not recorded not recorded not_recorded rail surface not recorded in the current registry not recorded planning route only, not a receipt not execution-tested No service-specific execution receipt recorded. robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+        - cell "Wolfram Alpha Wolfram Research View rail-aware proof plan":
+          - strong: Wolfram Alpha
+          - generic: Wolfram Research
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/wolfram-alpha
+        - cell "inference"
+        - cell "not recorded robotic.sh listed service":
+          - strong: not recorded
+          - generic: robotic.sh listed service
+        - cell "not recorded not_recorded Rail surface is not recorded yet. Execution planning remains blocked or review-required.":
+          - generic: not recorded
+          - generic: not_recorded
+          - generic: Rail surface is not recorded yet. Execution planning remains blocked or review-required.
+        - cell "not recorded"
+        - cell "not recorded"
+        - cell "not recorded"
+        - cell "not_recorded rail surface not recorded in the current registry":
+          - generic: not_recorded
+          - generic: rail surface not recorded in the current registry
+        - cell "not recorded planning route only, not a receipt":
+          - strong: not recorded
+          - generic: planning route only, not a receipt
+        - cell "not execution-tested No service-specific execution receipt recorded.":
+          - generic: not execution-tested
+          - generic: No service-specific execution receipt recorded.
+        - cell "robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+          - strong: robotic.sh catalog metadata
+          - generic: service identity / category / provider / market listing
+          - generic: Catalog presence does not imply execution or payment proof.
+      - row "Exa Exa View rail-aware proof plan web not recorded robotic.sh listed service not recorded not_recorded Rail surface is not recorded yet. Execution planning remains blocked or review-required. not recorded not recorded not recorded not_recorded rail surface not recorded in the current registry not recorded planning route only, not a receipt not execution-tested No service-specific execution receipt recorded. robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+        - cell "Exa Exa View rail-aware proof plan":
+          - strong: Exa
+          - generic: Exa
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/exa
+        - cell "web"
+        - cell "not recorded robotic.sh listed service":
+          - strong: not recorded
+          - generic: robotic.sh listed service
+        - cell "not recorded not_recorded Rail surface is not recorded yet. Execution planning remains blocked or review-required.":
+          - generic: not recorded
+          - generic: not_recorded
+          - generic: Rail surface is not recorded yet. Execution planning remains blocked or review-required.
+        - cell "not recorded"
+        - cell "not recorded"
+        - cell "not recorded"
+        - cell "not_recorded rail surface not recorded in the current registry":
+          - generic: not_recorded
+          - generic: rail surface not recorded in the current registry
+        - cell "not recorded planning route only, not a receipt":
+          - strong: not recorded
+          - generic: planning route only, not a receipt
+        - cell "not execution-tested No service-specific execution receipt recorded.":
+          - generic: not execution-tested
+          - generic: No service-specific execution receipt recorded.
+        - cell "robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+          - strong: robotic.sh catalog metadata
+          - generic: service identity / category / provider / market listing
+          - generic: Catalog presence does not imply execution or payment proof.
+      - row "NAVER Maps NAVER View rail-aware proof plan navigation peaqOS / provider account robotic.sh listed service callable routes listed callable_routes_listed Catalog exposes callable route surface, but Radar still requires a service-specific execution receipt before claiming execution. 4 Naver Cloud account pricing Naver Cloud provider credentials required review_required catalog route surface only; Radar has not executed routes geocode lookup planning route only, not a receipt not execution-tested No service-specific execution receipt recorded. robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+        - cell "NAVER Maps NAVER View rail-aware proof plan":
+          - strong: NAVER Maps
+          - generic: NAVER
+          - link "View rail-aware proof plan":
+            - /url: /machine-execution-plan/naver-maps
+        - cell "navigation"
+        - cell "peaqOS / provider account robotic.sh listed service":
+          - strong: peaqOS / provider account
+          - generic: robotic.sh listed service
+        - cell "callable routes listed callable_routes_listed Catalog exposes callable route surface, but Radar still requires a service-specific execution receipt before claiming execution.":
+          - generic: callable routes listed
+          - generic: callable_routes_listed
+          - generic: Catalog exposes callable route surface, but Radar still requires a service-specific execution receipt before claiming execution.
+        - cell "4"
+        - cell "Naver Cloud account pricing"
+        - cell "Naver Cloud provider credentials required"
+        - cell "review_required catalog route surface only; Radar has not executed routes":
+          - generic: review_required
+          - generic: catalog route surface only; Radar has not executed routes
+        - cell "geocode lookup planning route only, not a receipt":
+          - strong: geocode lookup
+          - generic: planning route only, not a receipt
+        - cell "not execution-tested No service-specific execution receipt recorded.":
+          - generic: not execution-tested
+          - generic: No service-specific execution receipt recorded.
+        - cell "robotic.sh catalog metadata service identity / category / provider / market listing Catalog presence does not imply execution or payment proof.":
+          - strong: robotic.sh catalog metadata
+          - generic: service identity / category / provider / market listing
+          - generic: Catalog presence does not imply execution or payment proof.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

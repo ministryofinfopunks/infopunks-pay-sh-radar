@@ -1,0 +1,518 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Execution Blockers
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-execution-blockers-content"
+- banner:
+  - navigation "Machine Execution Blockers navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Execution Blockers":
+  - paragraph: Execution Blockers
+  - heading "Execution Blockers" [level=1]
+  - paragraph: Radar does not just find what can run. Radar explains why most things should not run yet.
+  - generic "Machine execution blocker hero chips":
+    - generic: Machines should not spend blind
+    - generic: credentials separated
+    - generic: payment proof separated
+    - generic: 0 robotic.sh market-wide execution claims
+  - region "Machine execution blocker summary":
+    - article:
+      - text: Blocker rows
+      - strong: "29"
+      - text: policy and evidence blockers
+    - article:
+      - text: Services blocked
+      - strong: "13"
+      - text: services with one or more blockers
+    - article:
+      - text: Route surface blockers
+      - strong: "8"
+      - text: listed is not callable
+    - article:
+      - text: Credential blockers
+      - strong: "2"
+      - text: credentials are not payment proof
+    - article:
+      - text: Setup blockers
+      - strong: "1"
+      - text: operator or provider setup required
+    - article:
+      - text: Receipt blockers
+      - strong: "13"
+      - text: receipt required before execution claim
+  - region "Machine execution blocker groups":
+    - paragraph: Blocker groups
+    - heading "What still blocks safe execution" [level=2]
+    - paragraph:
+      - generic: no callable endpoint recorded
+      - generic: listed presence without callable route surface.
+    - paragraph:
+      - generic: credentials required
+      - generic: credential readiness is not payment proof.
+    - paragraph:
+      - generic: provider setup required
+      - generic: provider onboarding and setup still missing.
+    - paragraph:
+      - generic: policy review
+      - generic: review gates remain before bounded proof attempts.
+    - paragraph:
+      - generic: physical-world risk
+      - generic: routing outputs can affect movement and safety constraints.
+    - paragraph:
+      - generic: sensitive data risk
+      - generic: query/upload routes can expose regulated or private data.
+    - paragraph:
+      - generic: operator runtime required
+      - generic: runtime registration or operator setup still required.
+    - paragraph:
+      - generic: no payment proof
+      - generic: Payment success claims remain 0 unless payment evidence exists.
+    - paragraph:
+      - generic: no benchmark artifact
+      - generic: Benchmark claims remain 0 unless artifact exists.
+    - paragraph:
+      - generic: no winner criteria
+      - generic: Winner claims remain 0 unless explicit criteria and artifact exist.
+  - region "Machine No-Claim Ledger":
+    - paragraph: No-Claim Ledger
+    - heading "Radar records restraint" [level=2]
+    - generic: Proof before trust
+    - generic "Machine no-claim doctrine":
+      - generic: Listed ≠ callable
+      - generic: Callable ≠ executed
+      - generic: Credentials ≠ payment proof
+      - generic: Route surface ≠ receipt
+      - generic: Service receipt ≠ market proof
+      - generic: Repeatability ≠ winner
+    - list:
+      - generic: "Market-wide execution claim: 0"
+      - generic: "source_type: derived_radar_state · Service receipt ≠ market proof."
+      - generic: "NAVER Maps execution claim: 0"
+      - generic: "source_type: public_context · NAVER Maps is navigation / review / not_attempted."
+      - generic: "Payment success claim: 0"
+      - generic: "source_type: radar_execution_receipt · Payment remains unconfirmed unless payment evidence exists."
+      - generic: "Benchmark claim: 0"
+      - generic: "source_type: benchmark_artifact · No benchmark artifact recorded unless explicitly linked."
+      - generic: "Winner claim: 0"
+      - generic: "source_type: derived_radar_state · No winner claim unless explicit criteria and artifact exist."
+      - generic: "Public demo counted as Radar proof: 0"
+      - generic: "source_type: public_context · Public context only. Not Radar execution evidence."
+      - generic: "Service-specific execution receipt: 0"
+      - generic: "source_type: radar_execution_receipt · Service-specific execution receipt. Not market-wide proof, not payment proof, not benchmark proof."
+      - generic: "Repeatability receipt: 0"
+      - generic: "source_type: radar_repeatability_receipt · Repeatability is route-specific. Not benchmark superiority."
+  - region "Machine execution blocker table panel":
+    - paragraph: Blockers
+    - heading "29 blockers recorded" [level=2]
+    - generic: Rows are derived from current registry and receipt metadata. Missing data is kept visible.
+    - table "Machine execution blocker table":
+      - text: Scroll horizontally for all columns →
+      - row "QVAC qvac receipt No service-specific execution receipt recorded. Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available. Keep listed/callable states separate from execution claims. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "QVAC qvac":
+          - strong: QVAC
+          - generic: qvac
+        - cell "receipt":
+          - generic: receipt
+        - cell "No service-specific execution receipt recorded."
+        - cell "Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available."
+        - cell "Keep listed/callable states separate from execution claims."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/qvac
+      - row "QVAC qvac setup Operator runtime registration required. Setup/registration evidence and non-operational route semantics before execution planning. Review setup path without claiming service execution. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "QVAC qvac":
+          - strong: QVAC
+          - generic: qvac
+        - cell "setup":
+          - generic: setup
+        - cell "Operator runtime registration required."
+        - cell "Setup/registration evidence and non-operational route semantics before execution planning."
+        - cell "Review setup path without claiming service execution."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/qvac
+      - row "QVAC qvac credential runtime endpoint registration required Credential status separate from payment proof and route execution receipt. Record credential readiness without treating it as payment or execution proof. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "QVAC qvac":
+          - strong: QVAC
+          - generic: qvac
+        - cell "credential":
+          - generic: credential
+        - cell "runtime endpoint registration required"
+        - cell "Credential status separate from payment proof and route execution receipt."
+        - cell "Record credential readiness without treating it as payment or execution proof."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/qvac
+      - row "QVAC qvac review Human review required before autonomous spend planning. Policy decision, bounded route constraints, and caveat acceptance. Keep Governance before autonomy as the default posture. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "QVAC qvac":
+          - strong: QVAC
+          - generic: qvac
+        - cell "review":
+          - generic: review
+        - cell "Human review required before autonomous spend planning."
+        - cell "Policy decision, bounded route constraints, and caveat acceptance."
+        - cell "Keep Governance before autonomy as the default posture."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/qvac
+      - row "Generative Language generative-language receipt No service-specific execution receipt recorded. Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available. Keep listed/callable states separate from execution claims. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Generative Language generative-language":
+          - strong: Generative Language
+          - generic: generative-language
+        - cell "receipt":
+          - generic: receipt
+        - cell "No service-specific execution receipt recorded."
+        - cell "Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available."
+        - cell "Keep listed/callable states separate from execution claims."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/generative-language
+      - row "Generative Language generative-language route surface No callable endpoint surface recorded. Concrete route metadata or a proof plan that explicitly records the missing route surface. Do not advance from listed to callable until route metadata changes. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Generative Language generative-language":
+          - strong: Generative Language
+          - generic: generative-language
+        - cell "route surface":
+          - generic: route surface
+        - cell "No callable endpoint surface recorded."
+        - cell "Concrete route metadata or a proof plan that explicitly records the missing route surface."
+        - cell "Do not advance from listed to callable until route metadata changes."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/generative-language
+      - row "Generative Language generative-language review Human review required before autonomous spend planning. Policy decision, bounded route constraints, and caveat acceptance. Keep Governance before autonomy as the default posture. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Generative Language generative-language":
+          - strong: Generative Language
+          - generic: generative-language
+        - cell "review":
+          - generic: review
+        - cell "Human review required before autonomous spend planning."
+        - cell "Policy decision, bounded route constraints, and caveat acceptance."
+        - cell "Keep Governance before autonomy as the default posture."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/generative-language
+      - row "BigQuery bigquery receipt No service-specific execution receipt recorded. Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available. Keep listed/callable states separate from execution claims. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "BigQuery bigquery":
+          - strong: BigQuery
+          - generic: bigquery
+        - cell "receipt":
+          - generic: receipt
+        - cell "No service-specific execution receipt recorded."
+        - cell "Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available."
+        - cell "Keep listed/callable states separate from execution claims."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/bigquery
+      - row "Document AI document-ai receipt No service-specific execution receipt recorded. Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available. Keep listed/callable states separate from execution claims. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Document AI document-ai":
+          - strong: Document AI
+          - generic: document-ai
+        - cell "receipt":
+          - generic: receipt
+        - cell "No service-specific execution receipt recorded."
+        - cell "Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available."
+        - cell "Keep listed/callable states separate from execution claims."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/document-ai
+      - row "Document AI document-ai route surface No callable endpoint surface recorded. Concrete route metadata or a proof plan that explicitly records the missing route surface. Do not advance from listed to callable until route metadata changes. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Document AI document-ai":
+          - strong: Document AI
+          - generic: document-ai
+        - cell "route surface":
+          - generic: route surface
+        - cell "No callable endpoint surface recorded."
+        - cell "Concrete route metadata or a proof plan that explicitly records the missing route surface."
+        - cell "Do not advance from listed to callable until route metadata changes."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/document-ai
+      - row "Document AI document-ai review Human review required before autonomous spend planning. Policy decision, bounded route constraints, and caveat acceptance. Keep Governance before autonomy as the default posture. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Document AI document-ai":
+          - strong: Document AI
+          - generic: document-ai
+        - cell "review":
+          - generic: review
+        - cell "Human review required before autonomous spend planning."
+        - cell "Policy decision, bounded route constraints, and caveat acceptance."
+        - cell "Keep Governance before autonomy as the default posture."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/document-ai
+      - row "Stableupload stableupload receipt No service-specific execution receipt recorded. Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available. Keep listed/callable states separate from execution claims. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Stableupload stableupload":
+          - strong: Stableupload
+          - generic: stableupload
+        - cell "receipt":
+          - generic: receipt
+        - cell "No service-specific execution receipt recorded."
+        - cell "Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available."
+        - cell "Keep listed/callable states separate from execution claims."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/stableupload
+      - row "Stableupload stableupload review Human review required before autonomous spend planning. Policy decision, bounded route constraints, and caveat acceptance. Keep Governance before autonomy as the default posture. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Stableupload stableupload":
+          - strong: Stableupload
+          - generic: stableupload
+        - cell "review":
+          - generic: review
+        - cell "Human review required before autonomous spend planning."
+        - cell "Policy decision, bounded route constraints, and caveat acceptance."
+        - cell "Keep Governance before autonomy as the default posture."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/stableupload
+      - row "Cloud Translation cloud-translation receipt No service-specific execution receipt recorded. Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available. Keep listed/callable states separate from execution claims. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Cloud Translation cloud-translation":
+          - strong: Cloud Translation
+          - generic: cloud-translation
+        - cell "receipt":
+          - generic: receipt
+        - cell "No service-specific execution receipt recorded."
+        - cell "Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available."
+        - cell "Keep listed/callable states separate from execution claims."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/cloud-translation
+      - row "Claude claude receipt No service-specific execution receipt recorded. Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available. Keep listed/callable states separate from execution claims. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Claude claude":
+          - strong: Claude
+          - generic: claude
+        - cell "receipt":
+          - generic: receipt
+        - cell "No service-specific execution receipt recorded."
+        - cell "Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available."
+        - cell "Keep listed/callable states separate from execution claims."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/claude
+      - row "Claude claude route surface Route surface is not recorded. Concrete route metadata or a proof plan that explicitly records the missing route surface. Do not advance from listed to callable until route metadata changes. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Claude claude":
+          - strong: Claude
+          - generic: claude
+        - cell "route surface":
+          - generic: route surface
+        - cell "Route surface is not recorded."
+        - cell "Concrete route metadata or a proof plan that explicitly records the missing route surface."
+        - cell "Do not advance from listed to callable until route metadata changes."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/claude
+      - row "ChatGPT chatgpt receipt No service-specific execution receipt recorded. Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available. Keep listed/callable states separate from execution claims. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "ChatGPT chatgpt":
+          - strong: ChatGPT
+          - generic: chatgpt
+        - cell "receipt":
+          - generic: receipt
+        - cell "No service-specific execution receipt recorded."
+        - cell "Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available."
+        - cell "Keep listed/callable states separate from execution claims."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/chatgpt
+      - row "ChatGPT chatgpt route surface Route surface is not recorded. Concrete route metadata or a proof plan that explicitly records the missing route surface. Do not advance from listed to callable until route metadata changes. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "ChatGPT chatgpt":
+          - strong: ChatGPT
+          - generic: chatgpt
+        - cell "route surface":
+          - generic: route surface
+        - cell "Route surface is not recorded."
+        - cell "Concrete route metadata or a proof plan that explicitly records the missing route surface."
+        - cell "Do not advance from listed to callable until route metadata changes."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/chatgpt
+      - row "2Captcha 2captcha receipt No service-specific execution receipt recorded. Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available. Keep listed/callable states separate from execution claims. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "2Captcha 2captcha":
+          - strong: 2Captcha
+          - generic: 2captcha
+        - cell "receipt":
+          - generic: receipt
+        - cell "No service-specific execution receipt recorded."
+        - cell "Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available."
+        - cell "Keep listed/callable states separate from execution claims."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/2captcha
+      - row "2Captcha 2captcha route surface Route surface is not recorded. Concrete route metadata or a proof plan that explicitly records the missing route surface. Do not advance from listed to callable until route metadata changes. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "2Captcha 2captcha":
+          - strong: 2Captcha
+          - generic: 2captcha
+        - cell "route surface":
+          - generic: route surface
+        - cell "Route surface is not recorded."
+        - cell "Concrete route metadata or a proof plan that explicitly records the missing route surface."
+        - cell "Do not advance from listed to callable until route metadata changes."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/2captcha
+      - row "Firecrawl firecrawl receipt No service-specific execution receipt recorded. Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available. Keep listed/callable states separate from execution claims. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Firecrawl firecrawl":
+          - strong: Firecrawl
+          - generic: firecrawl
+        - cell "receipt":
+          - generic: receipt
+        - cell "No service-specific execution receipt recorded."
+        - cell "Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available."
+        - cell "Keep listed/callable states separate from execution claims."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/firecrawl
+      - row "Firecrawl firecrawl route surface Route surface is not recorded. Concrete route metadata or a proof plan that explicitly records the missing route surface. Do not advance from listed to callable until route metadata changes. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Firecrawl firecrawl":
+          - strong: Firecrawl
+          - generic: firecrawl
+        - cell "route surface":
+          - generic: route surface
+        - cell "Route surface is not recorded."
+        - cell "Concrete route metadata or a proof plan that explicitly records the missing route surface."
+        - cell "Do not advance from listed to callable until route metadata changes."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/firecrawl
+      - row "Wolfram Alpha wolfram-alpha receipt No service-specific execution receipt recorded. Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available. Keep listed/callable states separate from execution claims. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Wolfram Alpha wolfram-alpha":
+          - strong: Wolfram Alpha
+          - generic: wolfram-alpha
+        - cell "receipt":
+          - generic: receipt
+        - cell "No service-specific execution receipt recorded."
+        - cell "Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available."
+        - cell "Keep listed/callable states separate from execution claims."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/wolfram-alpha
+      - row "Wolfram Alpha wolfram-alpha route surface Route surface is not recorded. Concrete route metadata or a proof plan that explicitly records the missing route surface. Do not advance from listed to callable until route metadata changes. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Wolfram Alpha wolfram-alpha":
+          - strong: Wolfram Alpha
+          - generic: wolfram-alpha
+        - cell "route surface":
+          - generic: route surface
+        - cell "Route surface is not recorded."
+        - cell "Concrete route metadata or a proof plan that explicitly records the missing route surface."
+        - cell "Do not advance from listed to callable until route metadata changes."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/wolfram-alpha
+      - row "Exa exa receipt No service-specific execution receipt recorded. Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available. Keep listed/callable states separate from execution claims. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Exa exa":
+          - strong: Exa
+          - generic: exa
+        - cell "receipt":
+          - generic: receipt
+        - cell "No service-specific execution receipt recorded."
+        - cell "Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available."
+        - cell "Keep listed/callable states separate from execution claims."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/exa
+      - row "Exa exa route surface Route surface is not recorded. Concrete route metadata or a proof plan that explicitly records the missing route surface. Do not advance from listed to callable until route metadata changes. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "Exa exa":
+          - strong: Exa
+          - generic: exa
+        - cell "route surface":
+          - generic: route surface
+        - cell "Route surface is not recorded."
+        - cell "Concrete route metadata or a proof plan that explicitly records the missing route surface."
+        - cell "Do not advance from listed to callable until route metadata changes."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/exa
+      - row "NAVER Maps naver-maps receipt No service-specific execution receipt recorded. Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available. Keep listed/callable states separate from execution claims. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "NAVER Maps naver-maps":
+          - strong: NAVER Maps
+          - generic: naver-maps
+        - cell "receipt":
+          - generic: receipt
+        - cell "No service-specific execution receipt recorded."
+        - cell "Durable execution receipt with service id, selected route, execution status, and payment/auth evidence if available."
+        - cell "Keep listed/callable states separate from execution claims."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/naver-maps
+      - row "NAVER Maps naver-maps credential Naver Cloud provider credentials required Credential status separate from payment proof and route execution receipt. Record credential readiness without treating it as payment or execution proof. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "NAVER Maps naver-maps":
+          - strong: NAVER Maps
+          - generic: naver-maps
+        - cell "credential":
+          - generic: credential
+        - cell "Naver Cloud provider credentials required"
+        - cell "Credential status separate from payment proof and route execution receipt."
+        - cell "Record credential readiness without treating it as payment or execution proof."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/naver-maps
+      - row "NAVER Maps naver-maps review Human review required before autonomous spend planning. Policy decision, bounded route constraints, and caveat acceptance. Keep Governance before autonomy as the default posture. robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM View proof plan":
+        - cell "NAVER Maps naver-maps":
+          - strong: NAVER Maps
+          - generic: naver-maps
+        - cell "review":
+          - generic: review
+        - cell "Human review required before autonomous spend planning."
+        - cell "Policy decision, bounded route constraints, and caveat acceptance."
+        - cell "Keep Governance before autonomy as the default posture."
+        - cell "robotic.sh catalog metadata · service identity / category / provider / market listing · observed 5/22/2026, 5:30:00 AM"
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/naver-maps
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

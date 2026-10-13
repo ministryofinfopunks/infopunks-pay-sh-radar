@@ -1,0 +1,121 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Providers
+- paragraph:
+  - generic: "[ 05 ]"
+  - text: PROVIDERS / PROVIDER EVIDENCE
+- main "Providers":
+  - paragraph: Providers scored
+  - heading "Providers" [level=1]
+  - paragraph: Provider pages show receipt-backed route intelligence, human validation, dispute history, and whether the provider belongs in a pre-spend decision at all.
+  - region "Pre-spend intelligence metrics":
+    - article:
+      - text: Legacy diagnostic records
+      - strong: "3"
+    - article:
+      - text: routes indexed
+      - strong: "6"
+    - article:
+      - text: providers scored
+      - strong: "5"
+    - article:
+      - text: receipts generated
+      - strong: "11"
+    - article:
+      - text: pre-spend checks completed
+      - strong: "6"
+    - article:
+      - text: human validations submitted
+      - strong: "3"
+    - article:
+      - text: failed routes avoided
+      - strong: "0"
+    - article:
+      - text: claims challenged
+      - strong: "2"
+    - article:
+      - text: repeatable routes discovered
+      - strong: "3"
+  - region "Provider cards":
+    - article:
+      - 'link "market_research Lattice Research Relay reliability score 0 route coverage 1 receipt count 2 validation status human_validated Known risks: broad prompts widen output variance Dispute history: none Inspect provider trust"':
+        - /url: /providers/provider_pay_sh_lattice
+        - paragraph: market_research
+        - heading "Lattice Research Relay" [level=2]
+        - generic: reliability score 0
+        - generic: route coverage 1
+        - generic: receipt count 2
+        - generic: validation status human_validated
+        - paragraph: "Known risks: broad prompts widen output variance"
+        - paragraph: "Dispute history: none"
+        - generic: Inspect provider trust
+    - article:
+      - 'link "market_research, compliance Oracle Verification Fabric reliability score 0 route coverage 2 receipt count 3 validation status human_validated Known risks: regulated claims still require policy review Dispute history: none Inspect provider trust"':
+        - /url: /providers/provider_pay_sh_oracle
+        - paragraph: market_research, compliance
+        - heading "Oracle Verification Fabric" [level=2]
+        - generic: reliability score 0
+        - generic: route coverage 2
+        - generic: receipt count 3
+        - generic: validation status human_validated
+        - paragraph: "Known risks: regulated claims still require policy review"
+        - paragraph: "Dispute history: none"
+        - generic: Inspect provider trust
+    - article:
+      - 'link "token_pricing Quartz Route Index reliability score 0 route coverage 1 receipt count 3 validation status human_validated Known risks: none Dispute history: none Inspect provider trust"':
+        - /url: /providers/provider_pay_sh_quartz
+        - paragraph: token_pricing
+        - heading "Quartz Route Index" [level=2]
+        - generic: reliability score 0
+        - generic: route coverage 1
+        - generic: receipt count 3
+        - generic: validation status human_validated
+        - paragraph: "Known risks: none"
+        - paragraph: "Dispute history: none"
+        - generic: Inspect provider trust
+    - article:
+      - 'link "receipt_parsing Glass Receipt Works reliability score 0 route coverage 1 receipt count 2 validation status stale Known risks: stale validation, mixed OCR reliability Dispute history: one unresolved format-quality complaint Inspect provider trust"':
+        - /url: /providers/provider_pay_sh_glass
+        - paragraph: receipt_parsing
+        - heading "Glass Receipt Works" [level=2]
+        - generic: reliability score 0
+        - generic: route coverage 1
+        - generic: receipt count 2
+        - generic: validation status stale
+        - paragraph: "Known risks: stale validation, mixed OCR reliability"
+        - paragraph: "Dispute history: one unresolved format-quality complaint"
+        - generic: Inspect provider trust
+    - article:
+      - 'link "private_profile_scrape Provider X reliability score 0 route coverage 1 receipt count 1 validation status disputed Known risks: unknown counterparty behavior, settlement mismatch, unsupported claims Dispute history: billing dispute unresolved, unsupported claim submitted by provider Inspect provider trust"':
+        - /url: /providers/provider_x
+        - paragraph: private_profile_scrape
+        - heading "Provider X" [level=2]
+        - generic: reliability score 0
+        - generic: route coverage 1
+        - generic: receipt count 1
+        - generic: validation status disputed
+        - paragraph: "Known risks: unknown counterparty behavior, settlement mismatch, unsupported claims"
+        - paragraph: "Dispute history: billing dispute unresolved, unsupported claim submitted by provider"
+        - generic: Inspect provider trust
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

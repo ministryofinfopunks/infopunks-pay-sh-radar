@@ -1,0 +1,65 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: qualification missing record
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#rh-chain-content"
+- main:
+  - paragraph: Daily Market Memory
+  - heading "Daily RH Chain Receipt · qualification-missing-record" [level=1]
+  - paragraph: One human-reviewed market-memory object, preserved for reference.
+  - paragraph: Receipts before narrative drift.
+  - link "Open Latest Receipt":
+    - /url: "#latest-receipt"
+  - link "Submit source evidence":
+    - /url: /rh-chain-signal-desk/submit
+  - complementary "Desk policy":
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Manual snapshot
+      - generic: Status
+      - strong: Stale
+      - generic: Observed
+      - strong: Jul 19, 2026, 12:00 AM UTC
+      - generic: Relative age
+      - strong: Updated 86 days ago
+      - generic: Sources
+      - strong: "11"
+      - generic: Source policy
+      - paragraph: Daily receipts are human-reviewed market memory. External data gives context; Infopunks gives judgment; receipts create memory. Do not let live data outrank human-reviewed receipts. Sources must include observed_at timestamps.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - note "Independent intelligence disclaimer":
+      - strong: Independent Infopunks intelligence surface.
+      - generic: Not affiliated with or endorsed by Robinhood.
+      - generic: No buy, sell, or listing recommendation.
+  - region "Daily receipt not found":
+    - paragraph: Receipt not found
+    - heading "No Daily RH Chain Receipt matches “qualification-missing-record”." [level=2]
+    - paragraph: This route does not infer or fabricate market memory. Return to the receipt timeline to use a known receipt id.
+    - link "Open receipt timeline":
+      - /url: /rh-chain-signal-desk/daily-receipts
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

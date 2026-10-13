@@ -1,0 +1,1437 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: qualification missing record
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#terminal-content"
+- banner:
+  - generic "Terminal view controls"
+- main:
+  - region "Intelligence before the wallet acts.":
+    - paragraph: Infopunks Radar
+    - heading "Intelligence before the wallet acts." [level=1]
+    - paragraph: Solana evaluates agent spending. RH Chain maps onchain finance. Receipts preserve the memory.
+    - link "Open Solana Radar":
+      - /url: /solana
+    - link "Explore Robinhood Chain":
+      - /url: /rh-chain-signal-desk
+  - region "One Radar. Two economies.":
+    - paragraph: Choose an intelligence surface
+    - heading "One Radar. Two economies." [level=2]
+    - paragraph: Move between chain environments without losing the Infopunks evidence standard.
+    - article:
+      - generic: Service evidence
+      - paragraph: Solana Radar
+      - heading "The agentic economy" [level=3]
+      - paragraph: Pre-spend intelligence for services, providers, routes, projects and machine payments.
+      - list "Solana Radar capabilities":
+        - listitem: Pre-Spend Intelligence
+        - listitem: Providers and endpoints
+        - listitem: Routes and claims
+        - listitem: Benchmarks and receipts
+        - listitem: Signal Graph and LoopLab
+      - link "Open Solana Radar":
+        - /url: /solana
+        - text: Open Solana Radar
+        - generic: ↗
+    - article:
+      - generic: Market inspection
+      - paragraph: Robinhood Chain
+      - heading "The onchain finance economy" [level=3]
+      - paragraph: Evidence-led intelligence for tokens, memes, liquidity, launchpads and emerging Robinhood Chain markets.
+      - list "Robinhood Chain capabilities":
+        - listitem: Meme Pulse
+        - listitem: Token dossiers
+        - listitem: Signal and risk review
+        - listitem: Launchpad observatory
+        - listitem: Receipts and live snapshots
+      - link "Enter RH Chain Desk":
+        - /url: /rh-chain-signal-desk
+        - text: Enter RH Chain Desk
+        - generic: ↗
+  - region "Terminal session metadata":
+    - generic: Last ingestion
+    - text: Oct 13, 2026, 4:49 AM UTC
+    - generic: Network
+    - text: fixture fallback
+    - generic: Operator
+    - text: Infopunks
+    - generic: Terminal ID
+    - text: RADAR-12-159
+    - strong: No receipt, no trust
+  - region "Proof before agent spend.":
+    - paragraph: Solana Radar · Current evidence state
+    - heading "Proof before agent spend." [level=2]
+    - paragraph: Mapped Pay.sh routes, provider evidence and benchmark readiness—kept distinct from the Robinhood Chain signal desk.
+    - paragraph: Pay.sh is the spend rail. Radar is the evidence ledger. Agents inspect evidence, request a non-executing plan, and record proof artifacts before trust compounds.
+    - region "Preflight card index call to action":
+      - paragraph: "New: Browse Preflight Cards"
+      - paragraph: Agent spend safety labels for autonomous markets.
+      - generic: Discover → Check → Pay → Prove
+      - generic: No receipt, no trust.
+      - link "Browse Preflight Cards":
+        - /url: /radar/cards
+    - generic "Proof metrics":
+      - generic: Evidence Ledger unavailable
+      - text: canonical proof metrics unavailable
+    - paragraph: Recorded means paid evidence exists. No winner means Radar refuses to infer superiority without criteria.
+    - generic "Radar orientation":
+      - strong: Orientation
+      - paragraph: Pulse shows live ecosystem intelligence. Benchmarks show artifact-backed route evidence.
+    - complementary "Solana Radar metrics and monitoring state":
+      - generic "Solana Radar evidence stats":
+        - generic: Providers
+        - strong: "12"
+        - generic: Endpoints
+        - strong: "159"
+        - generic: Avg Trust
+        - strong: unknown
+        - generic: Avg Signal
+        - strong: "53"
+        - generic: Monitoring Mode
+        - strong: Safe metadata
+        - generic: Freshness
+        - strong: Oct 13, 10:19 AM
+      - paragraph: Monitoring state
+      - generic: FIXTURE-BACKED RADAR STATE
+      - generic: "Source: pay.sh/api/catalog · providers 12 · endpoints 159 · last ingested 10/13/2026, 10:19:50 AM"
+      - link "Run a pre-spend check":
+        - /url: "#preflight"
+        - text: Run a pre-spend check
+        - generic: →
+    - navigation "Secondary Solana Radar actions":
+      - link "Compare Providers Cost and performance":
+        - /url: "#compare"
+        - generic: Compare Providers
+        - generic: Cost and performance
+      - link "View Benchmarks Readiness scores":
+        - /url: "#benchmark-readiness"
+        - generic: View Benchmarks
+        - generic: Readiness scores
+      - link "Check Mappings Route intelligence":
+        - /url: "#route-mapping-registry"
+        - generic: Check Mappings
+        - generic: Route intelligence
+      - link "Browse Claims Evidence trails":
+        - /url: /claim
+        - generic: Browse Claims
+        - generic: Evidence trails
+      - link "Agent Benchmark API Access API docs":
+        - /url: "#agent-benchmark-api"
+        - generic: Agent Benchmark API
+        - generic: Access API docs
+  - region "Machine Economy Module":
+    - paragraph: New Radar Module
+    - heading "Machine Economy Module" [level=2]
+    - paragraph: "Radar now maps the robotic.sh machine-service market: 13 listed services, bounded authority policies, preflight decisions, and machine receipts."
+    - generic: Same terminal. New species of spender.
+    - link "Open Machine Market":
+      - /url: /machine-market
+  - region "Signal Graph teaser":
+    - paragraph: Visual Memory Layer
+    - heading "Read the graph, not the feed." [level=2]
+    - paragraph: Claims, routes, receipts, loops, and narratives mapped by proof.
+    - link "Open Signal Graph":
+      - /url: /graph
+  - region "Evidence Ledger Snapshot panel":
+    - generic: GLOBAL
+    - heading "Evidence Ledger Snapshot" [level=2]
+    - status:
+      - strong: Panel data unavailable
+      - generic: Benchmark data delayed
+  - region "Agent Spend Readiness Cards":
+    - generic: GLOBAL
+    - heading "Agent Spend Readiness Cards" [level=2]
+    - paragraph: Builders can now see what agents see before spending.
+    - paragraph: Readiness cards are proof-state diagnostics, not rankings.
+    - paragraph:
+      - link "Browse public Preflight Cards":
+        - /url: /radar/cards
+    - paragraph: Grouped by proof maturity, not ranked.
+    - status:
+      - strong: Panel data unavailable
+      - generic: Agent readiness cards delayed
+  - status "Critical propagation watch":
+    - paragraph: Ecosystem Status
+    - heading "Critical propagation watch" [level=2]
+    - paragraph: Systemic or critical propagation signals are present. Review propagation watch and recent degradations first.
+    - paragraph: "System reading: ecosystem pressure is systemic in the current propagation window."
+    - generic "Current radar command metrics":
+      - generic: Catalog
+      - strong: FIXTURE-BACKED RADAR STATE
+      - generic: Propagation
+      - strong: systemic
+      - generic: Latest Event
+      - strong: 10/12/2026, 11:20:44 PM
+      - generic: Featured Context
+      - strong: StableUpload
+  - region "Global intelligence layout":
+    - region "ECOSYSTEM INTELLIGENCE":
+      - paragraph: ZONE A
+      - heading "ECOSYSTEM INTELLIGENCE" [level=2]
+      - paragraph: Catalog-backed machine economy observability
+      - paragraph: "Start here: global status, interpretation, pulse feed, and cross-provider movement before drilling into a provider."
+      - generic: GLOBAL
+      - region "Ecosystem summary metrics":
+        - generic: GLOBAL
+        - text: Ecosystem Pulse
+        - strong: machine media
+        - text: heat 61 / momentum 46
+        - generic "Evidence"
+        - generic: GLOBAL
+        - text: Trust Leader
+        - strong: n/a
+        - text: unknown/100 grade -
+        - generic "Evidence"
+        - generic: GLOBAL
+        - text: Signal Leader
+        - strong: StableEnrich
+        - text: 84/100
+        - generic "Evidence"
+        - generic: GLOBAL
+        - text: Graph Layer
+        - strong: 0 nodes
+        - text: 0 deterministic edges
+        - generic "Evidence"
+      - region "System reading":
+        - generic: GLOBAL
+        - paragraph: System Reading
+        - strong: "System reading: ecosystem pressure is systemic in the current propagation window."
+      - region "Radar Freshness":
+        - generic: GLOBAL
+        - paragraph: Latest Ingested Catalog
+        - heading "Radar Freshness" [level=2]
+        - paragraph: Timestamp clarity for catalog source, monitor checks, and the current scored snapshot.
+        - generic: catalog_generated_at
+        - strong: unknown
+        - generic: catalog_ingested_at
+        - strong: 10/12/2026, 11:20:44 PM
+        - generic: radar_updated_at
+        - strong: 10/13/2026, 10:19:50 AM
+        - generic: last_monitor_run_at
+        - strong: 10/12/2026, 11:20:44 PM
+        - generic: next_refresh_in
+        - strong: unavailable
+        - generic: data_source
+        - strong: FIXTURE-BACKED RADAR STATE
+      - region "Radar exports":
+        - generic: GLOBAL
+        - paragraph: Read-only export routes
+        - heading "Export Intelligence" [level=2]
+        - paragraph: Open machine-readable radar outputs. These do not execute paid Pay.sh APIs.
+        - link "API Docs":
+          - /url: /openapi.json
+        - button "Copy OpenAPI URL"
+        - region "JSON exports":
+          - heading "JSON exports" [level=3]
+          - generic "Copy links"
+          - button "Export Scored Catalog JSON"
+          - button "Export Providers JSON"
+          - button "Export Endpoints JSON"
+          - button "Export Route Candidates JSON"
+        - region "CSV exports":
+          - heading "CSV exports" [level=3]
+          - generic "Copy links"
+          - button "Export Providers CSV"
+          - button "Export Endpoints CSV"
+          - button "Export Route Candidates CSV"
+          - button "Export Degradations CSV"
+      - region "Ecosystem Interpretation":
+        - generic: GLOBAL
+        - paragraph: Interpretation Layer
+        - heading "Ecosystem Interpretation" [level=2]
+        - paragraph: Primary analyst readout from current receipts. Secondary interpretations stay quieter to preserve scan order.
+        - generic: STABLE / confidence 72%
+        - article:
+          - strong: Ecosystem state is stable.
+          - paragraph: No meaningful cross-provider degradation, trust-drop, unknown-telemetry, or signal-concentration pattern is present in current evidence.
+          - generic: "categories: global"
+          - generic: "providers: no affected providers"
+          - generic: "severity: stable"
+          - generic: "confidence: 72%"
+          - generic: "window: 10/12/2026, 11:20:44 PM to 10/12/2026, 11:20:44 PM"
+          - generic: "evidence: 5 supporting events"
+          - link "view full receipts":
+            - /url: /interpretations/interpretation-146e8f22c279b2e314114b43
+          - generic "Evidence"
+      - region "Live Catalog Pulse":
+        - generic: GLOBAL
+        - paragraph: Current Scored Snapshot
+        - heading "Live Catalog Pulse" [level=2]
+        - paragraph: Pay.sh catalog ingests every 7.5 min / UI polls every 15s / events emit only when catalog changes are detected.
+        - button "Collapse" [expanded]
+        - paragraph: Safe Metadata Monitor
+        - heading "Events / Degradations" [level=2]
+        - paragraph: Filtered event spine from the latest ingested catalog. No paid provider APIs are executed.
+        - generic: UI refresh 10/13/2026, 10:19:50 AM
+        - generic "Catalog timing":
+          - generic: UI refreshed
+          - strong: 10/13/2026, 10:19:50 AM
+          - generic: Catalog ingestion
+          - strong: 10/12/2026, 11:20:44 PM
+          - generic: Pay.sh catalog generated
+          - strong: unknown
+          - generic: Source
+          - strong: FIXTURE-BACKED RADAR STATE
+          - generic: Latest event batch
+          - strong: 11:20:44 PM · 391 events
+        - generic "Catalog event categories":
+          - generic: "[DISC] discovery 208"
+          - generic: "[TRUST] trust 0"
+          - generic: "[MON] monitoring 0"
+          - generic: "[$] pricing 171"
+          - generic: "[SCHEMA] schema 0"
+          - generic: "[SIGNAL] signal 12"
+        - generic "Filter and sort events":
+          - generic: state filter
+          - combobox "state filter":
+            - option "all states" [selected]
+            - option "critical"
+            - option "degraded"
+            - option "watch"
+            - option "healthy"
+            - option "unknown"
+          - generic: sort
+          - combobox "sort":
+            - option "severity" [selected]
+            - option "last observed"
+            - option "provider"
+        - strong: Catalog batch
+        - time: 11:20:44 PM
+        - generic: 50 events emitted
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Endpoint catalog metadata is incomplete. Inspect before routing.": "[STATE] Watch"
+        - strong: StableEnrich
+        - paragraph: Endpoint observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "New or existing provider observed in catalog evidence. No active warning.": "[STATE] Healthy"
+        - strong: StableEnrich
+        - paragraph: Provider discovered in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "New or existing provider observed in catalog evidence. No active warning.": "[STATE] Healthy"
+        - strong: StableEnrich
+        - paragraph: Provider observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "Pay.sh catalog refresh completed. No active warning.": "[STATE] Healthy"
+        - strong: pay-sh-catalog
+        - paragraph: Pay.sh catalog ingested in fixture_fallback mode.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Provider metadata observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[DISC] discovery"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Manifest observed in the Pay.sh catalog.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+        - generic: "[$] pricing"
+        - generic "No deterministic severity rule matched this event. Evidence incomplete.": "[STATE] Unknown"
+        - strong: StableEnrich
+        - paragraph: Pricing observed as $0.002 - $0.44.
+        - time: 11:20:44 PM
+        - generic "Receipt"
+      - generic: GLOBAL
+      - heading "Trust Leaderboard" [level=2]
+      - paragraph: Highest trust scores from current assessments.
+      - button "Collapse" [expanded]
+      - textbox "Filter Trust Leaderboard":
+        - /placeholder: filter provider or category
+      - combobox "Sort Trust Leaderboard":
+        - option "trust score" [selected]
+        - option "provider name"
+      - paragraph: No providers match the leaderboard filter.
+      - generic: GLOBAL
+      - heading "Signal Leaderboard" [level=2]
+      - paragraph: Highest signal scores from current narratives.
+      - button "Collapse" [expanded]
+      - textbox "Filter Signal Leaderboard":
+        - /placeholder: filter provider or category
+      - combobox "Sort Signal Leaderboard":
+        - option "signal score" [selected]
+        - option "provider name"
+      - generic: StableEnrich
+      - generic "Unknown Risk. Insufficient history.": Unknown Risk
+      - generic: "84"
+      - generic: StableStudio
+      - generic "Unknown Risk. Insufficient history.": Unknown Risk
+      - generic: "78"
+      - generic: fal.ai
+      - generic "Unknown Risk. Insufficient history.": Unknown Risk
+      - generic: "78"
+      - generic: dTelecom
+      - generic "Unknown Risk. Insufficient history.": Unknown Risk
+      - generic: "74"
+      - generic: Generative Language API (Gemini)
+      - generic "Unknown Risk. Insufficient history.": Unknown Risk
+      - generic: "52"
+      - generic: GLOBAL
+      - heading "Narrative Heatmap" [level=2]
+      - paragraph: Narratives group provider movement into readable market themes. Heat and severity are shown together so state is not color-only.
+      - button "Collapse" [expanded]
+      - generic: GLOBAL
+      - paragraph: Query the ecosystem
+      - heading "Semantic Search" [level=2]
+      - paragraph: Ask across provider metadata, trust context, signal context, categories, endpoints, and receipts without leaving the radar surface.
+      - generic: ecosystem query
+      - textbox "Search Pay.sh ecosystem intelligence":
+        - /placeholder: "Ask: which providers are degrading?"
+      - button "Search"
+      - paragraph: Search by category, provider name, endpoint type, route intent, degradation state, price clarity, or metadata completeness.
+      - generic "Semantic search examples":
+        - button "high trust finance APIs"
+        - button "degraded OCR providers"
+        - button "SOL price endpoints"
+        - button "low-cost data endpoints"
+        - button "providers with clear pricing"
+        - button "route eligible endpoints"
+        - button "machine media providers"
+        - button "metadata incomplete providers"
+      - text: QUERY / PAY.SH / ECOSYSTEM
+      - region "Agent Preflight":
+        - generic: GLOBAL
+        - paragraph: Agent Routing Guard
+        - heading "Agent Preflight" [level=2]
+        - paragraph: Before your agent pays, it checks Infopunks. Ask Radar where an agent should route before spending. This checks catalog intelligence only and does not execute paid APIs.
+        - generic "Agent preflight API actions":
+          - link "API Docs":
+            - /url: /openapi.json
+          - button "Copy API URL"
+          - generic "Status Unknown": Unknown
+        - generic "Preflight examples":
+          - button "Find SOL price route"
+          - button "Find token price route"
+          - button "Find OCR route"
+          - button "Find low-cost data route"
+          - button "Find high-trust provider"
+          - button "Find route-eligible finance endpoint"
+        - generic: preflight JSON input
+        - textbox "Agent preflight JSON input":
+          - /placeholder: Enter JSON payload for preflight.
+          - text: "{ \"intent\": \"get SOL price\", \"category\": \"finance\", \"constraints\": { \"min_trust\": 80, \"prefer_reachable\": true, \"require_pricing\": true, \"max_price_usd\": 0.01 } }"
+        - generic "Batch preflight hint"
+        - button "Run Preflight"
+        - status:
+          - strong: No preflight decision yet.
+          - generic: Before your agent pays, it checks Infopunks for route intelligence.
+      - region "Provider endpoint comparison engine":
+        - generic: GLOBAL
+        - heading "Provider/Endpoint Comparison Engine" [level=2]
+        - generic: mode
+        - combobox "mode":
+          - option "provider" [selected]
+          - option "endpoint"
+        - group "Comparison selection":
+          - generic: select 2-3
+          - checkbox "StableEnrich"
+          - generic: StableEnrich
+          - checkbox "StableStudio"
+          - generic: StableStudio
+          - checkbox "fal.ai"
+          - generic: fal.ai
+          - checkbox "dTelecom"
+          - generic: dTelecom
+          - checkbox "RentCast API"
+          - generic: RentCast API
+          - checkbox "Fact Check Tools API"
+          - generic: Fact Check Tools API
+          - checkbox "Generative Language API (Gemini)"
+          - generic: Generative Language API (Gemini)
+          - checkbox "Cloud Speech-to-Text API"
+          - generic: Cloud Speech-to-Text API
+          - checkbox "Knowledge Graph Search API"
+          - generic: Knowledge Graph Search API
+          - checkbox "StableUpload"
+          - generic: StableUpload
+          - checkbox "StableEmail"
+          - generic: StableEmail
+          - checkbox "Cloud Translation API"
+          - generic: Cloud Translation API
+        - button "Compare" [disabled]
+        - status:
+          - strong: No comparison selected.
+          - generic: Select two or three providers or endpoints, then run Compare.
+      - region "Cost and performance intelligence":
+        - generic: GLOBAL
+        - heading "Cost / Performance Intelligence" [level=2]
+        - region "Comparison results":
+          - status:
+            - strong: Endpoint intelligence loading
+            - generic: Enrichment delayed
+      - region "Benchmark Readiness panel":
+        - generic: GLOBAL
+        - heading "Benchmark Readiness" [level=2]
+        - paragraph: "\"Benchmark ready\" means routes are comparable. Recorded benchmark evidence requires artifact-backed paid execution. \"Catalog-estimated\" is not execution-proven."
+        - strong: ready categories
+        - generic: "1"
+        - generic: finance/data
+        - strong: not ready categories
+        - generic: "1"
+        - generic: finance/data
+        - strong: comparison ready categories
+        - generic: "1"
+        - generic: finance/data
+        - strong: next mappings needed
+        - generic: "3"
+        - generic: "finance/data/get SOL price: record normalized head-to-head benchmark metrics"
+        - generic: verify candidate comparable endpoint mapping and paid execution evidence
+        - generic: "finance/data/token search: record normalized head-to-head benchmark metrics"
+        - strong: mapped benchmark intents
+        - generic: "3"
+        - generic: finance/data/get SOL price
+        - generic: finance/data/token metadata
+        - generic: finance/data/token search
+        - strong: mapping ladder state
+        - generic: "4"
+        - generic: "StableCrypto: verified/proven"
+        - generic: "CoinGecko Onchain DEX API: verified/proven"
+        - generic: "CoinGecko Onchain DEX API: candidate/unproven"
+        - generic: "StableCrypto: candidate/unproven"
+        - paragraph: Recorded benchmark lanes now have artifact-backed evidence. Explored lanes remain scaffolded when they do not meet the hard bar.
+        - paragraph: No route winner is claimed until normalized criteria are finalized.
+      - region "Route Evidence Registry panel":
+        - generic "Route Evidence Registry"
+        - option "all" [selected]
+        - option "candidate"
+        - option "verified"
+        - option "proven"
+        - option "unproven"
+        - option "all" [selected]
+        - option "all" [selected]
+      - region "Mapping Targets panel":
+        - generic: GLOBAL
+        - paragraph: Mapping Quest Board
+        - heading "Mapping Targets" [level=2]
+        - paragraph: Recorded lanes are completed evidence-ledger entries. Scaffold lanes are planning prompts, not recorded benchmark targets.
+        - heading "Recorded" [level=3]:
+          - strong: Recorded
+        - heading "Blocked" [level=3]:
+          - strong: Blocked
+        - heading "Needs candidate" [level=3]:
+          - strong: Needs candidate
+      - region "Agent benchmark API":
+        - generic: GLOBAL
+        - paragraph: Agent API Surface
+        - heading "Agent Benchmark API" [level=2]
+        - paragraph: Read-only evidence and planning endpoints for agents. Radar exposes evidence, plans, and Harness proof records; it does not execute paid APIs.
+        - paragraph: "API host: https://infopunks-pay-sh-radar.onrender.com. The public UI lives at radar.infopunks.fun; copyable API calls target the API host."
+        - link "API Docs":
+          - /url: /openapi.json
+        - region "Agent API Surface endpoint groups":
+          - heading "Evidence" [level=3]
+          - paragraph:
+            - generic: GET
+            - code: /v1/radar/evidence-ledger
+            - generic: Agent-readable evidence before spend.
+          - paragraph:
+            - generic: GET
+            - code: /v1/radar/evidence-ledger/brief
+            - generic: Compact preflight memory from the Evidence Ledger.
+          - paragraph:
+            - generic: GET
+            - code: /v1/radar/benchmark-summary
+            - generic: Benchmark state and interpretation summary.
+          - paragraph:
+            - generic: GET
+            - code: /v1/radar/benchmark-history
+            - generic: Recorded benchmark history and evidence.
+          - heading "Bundles" [level=3]
+          - paragraph:
+            - generic: GET
+            - code: /v1/radar/bundles
+            - generic: Read-only bundle registry.
+          - paragraph:
+            - generic: GET
+            - code: /v1/radar/bundles/:bundle_id
+            - generic: Bundle detail with evidence boundaries.
+          - paragraph:
+            - generic: POST
+            - code: /v1/radar/bundles/:bundle_id/plan
+            - generic: Plan included, review-required, and blocked steps.
+          - heading "Runs" [level=3]
+          - paragraph:
+            - generic: GET
+            - code: /v1/radar/bundles/:bundle_id/runs
+            - generic: Bundle Run Ledger summaries.
+          - paragraph:
+            - generic: GET
+            - code: /v1/radar/bundles/:bundle_id/runs/:run_id
+            - generic: One Harness proof record.
+          - heading "Docs" [level=3]
+          - paragraph:
+            - generic: GET
+            - code: /openapi.json
+            - generic: OpenAPI for agents.
+        - region "Bundle planner examples":
+          - heading "Bundle Planner" [level=3]
+          - paragraph: Bundles are non-executing spend recipes. Plans map intent and constraints to included, review-required, and blocked steps. Radar does not execute paid APIs from bundle plans.
+          - generic "Bundle planner loading"
+          - article:
+            - paragraph:
+              - generic: Bundle
+              - generic: "Morning Briefing / topic: AI, crypto, world news"
+            - paragraph:
+              - generic: Planner result
+              - generic: 0 included
+              - text: ·
+              - generic: 0 review-required
+              - text: ·
+              - generic: 0 blocked
+              - text: ·
+              - generic: winner_claimed=false
+            - paragraph:
+              - generic: Execution boundary
+              - generic: clean_402=0
+              - generic: billing_unclear=0
+              - generic: billable_probe_observed=0
+            - paragraph:
+              - generic: Radar action
+              - generic: Plan only. Cleanest future Harness candidate, but not execution-ready until review-required billing boundaries are cleared.
+          - article:
+            - paragraph:
+              - generic: Bundle
+              - generic: "Market Research / topic: Circle Internet Group"
+            - paragraph:
+              - generic: Planner result
+              - generic: 0 included
+              - text: ·
+              - generic: 0 review-required
+              - text: ·
+              - generic: 0 blocked
+            - paragraph:
+              - generic: Execution boundary
+              - generic: clean_402=0
+              - generic: billing_unclear=0
+              - generic: billable_probe_observed=0
+              - generic: blocked=0
+            - paragraph:
+              - generic: Radar action
+              - generic: Two billable-probe steps are blocked under strict constraints; remaining steps require billing-boundary review.
+          - article:
+            - paragraph:
+              - generic: Bundle
+              - generic: "Talent Market Scanner / topic: AI engineer"
+            - paragraph:
+              - generic: Planner result
+              - generic: 0 included
+              - text: ·
+              - generic: 0 review-required
+              - text: ·
+              - generic: 0 blocked
+            - paragraph:
+              - generic: Execution boundary
+              - generic: clean_402=0
+              - generic: billing_unclear=0
+              - generic: blocked=0
+            - paragraph:
+              - generic: Radar action
+              - generic: Job, salary, and hiring primitives are not yet recorded.
+        - region "Bundle run ledger":
+          - heading "Bundle Run Ledger" [level=3]
+          - paragraph: Bundle runs are Harness proof records, not benchmark claims.
+          - paragraph: Radar does not execute paid APIs from this surface.
+          - paragraph: Radar remembers controlled Harness runs over time.
+          - paragraph: Bundle run history records controlled Harness proof evolution, not benchmark claims.
+          - paragraph: This run is caveated because observed cost and pay_cli HTTP status were unavailable, and one executed step had an empty source map.
+          - paragraph: winner_claimed=false
+          - generic "Bundle run ledger loading"
+        - group "Agent benchmark curl examples":
+          - generic "Copyable curl examples +"
+        - group "Agent benchmark response snippet":
+          - generic "Example response snippet +"
+        - region "Agent benchmark interpretation guidance":
+          - heading "Agent Interpretation Guidance" [level=3]
+          - paragraph:
+            - generic: benchmark-summary
+            - generic: Use when route metrics are not needed.
+          - paragraph:
+            - generic: winner_claimed=false
+            - generic: Do not treat route as winner.
+          - paragraph:
+            - generic: bundle plans
+            - generic: Non-executing spend recipes only.
+          - paragraph:
+            - generic: bundle runs
+            - generic: Harness proof records, not benchmark claims.
+          - paragraph:
+            - generic: status_code may be null in pay_cli mode
+            - generic: Use status_evidence.
+      - region "Comparison Policy panel":
+        - generic: GLOBAL
+        - heading "Comparison Policy" [level=2]
+        - paragraph: Recorded benchmark lanes have artifact-backed evidence. Explored lanes remain scaffolded when they do not meet the hard bar.
+        - paragraph: Radar can compare recorded metrics. Radar does not crown winners until scoring criteria are finalized. No benchmark currently claims a winner.
+        - status:
+          - strong: Benchmark not ready.
+          - generic: Readiness data is unavailable. Refresh once catalog history loads.
+    - region "SELECTED PROVIDER DOSSIER":
+      - paragraph: ZONE B
+      - heading "SELECTED PROVIDER DOSSIER" [level=2]
+      - paragraph: Live intelligence for selected provider
+      - paragraph: The featured provider rotates automatically unless you select or edit. Manual interaction pauses rotation to preserve context.
+      - generic: PROVIDER
+      - generic "Selected provider context":
+        - strong: StableUpload
+        - generic "severity unknown Inspect before routing.": "[STATE] Watch"
+        - generic: TRUST unknown
+        - generic: SIGNAL unknown
+        - generic: PROPAGATION CLEAR
+        - generic: MONITOR [?] unknown
+      - generic: GLOBAL
+      - paragraph: Catalog Index
+      - heading "Provider Directory" [level=2]
+      - paragraph: Filter, sort, and select providers. Active selection drives the dossier, monitor, route, trust, and endpoint panels.
+      - generic: 12 / 12 providers
+      - textbox "Filter providers by name tag FQN or category":
+        - /placeholder: filter provider, tag, FQN, category
+      - combobox "Sort providers":
+        - option "trust score" [selected]
+        - option "signal score"
+        - option "endpoint count"
+        - option "category"
+        - option "name"
+      - group "Filter providers by category":
+        - button "all" [pressed]
+        - button "AI/ML"
+        - button "Data"
+        - button "Media"
+        - button "Messaging"
+        - button "Other"
+        - button "Search"
+        - button "Storage"
+      - button "Cloud Speech-to-Text API Provider state Watch severity. Unknown Risk. Insufficient history. AI/ML / 1 endpoints / trust unknown":
+        - generic: Cloud Speech-to-Text API
+        - generic "Provider state Watch severity. Unknown Risk. Insufficient history.": Watch
+        - generic: AI/ML / 1 endpoints / trust unknown
+      - button "Cloud Translation API Provider state Watch severity. Unknown Risk. Insufficient history. Other / 0 endpoints / trust unknown":
+        - generic: Cloud Translation API
+        - generic "Provider state Watch severity. Unknown Risk. Insufficient history.": Watch
+        - generic: Other / 0 endpoints / trust unknown
+      - button "dTelecom Provider state Watch severity. Unknown Risk. Insufficient history. AI/ML / 16 endpoints / trust unknown":
+        - generic: dTelecom
+        - generic "Provider state Watch severity. Unknown Risk. Insufficient history.": Watch
+        - generic: AI/ML / 16 endpoints / trust unknown
+      - button "Fact Check Tools API Provider state Watch severity. Unknown Risk. Insufficient history. Search / 1 endpoints / trust unknown":
+        - generic: Fact Check Tools API
+        - generic "Provider state Watch severity. Unknown Risk. Insufficient history.": Watch
+        - generic: Search / 1 endpoints / trust unknown
+      - button "fal.ai Provider state Watch severity. Unknown Risk. Insufficient history. Media / 30 endpoints / trust unknown":
+        - generic: fal.ai
+        - generic "Provider state Watch severity. Unknown Risk. Insufficient history.": Watch
+        - generic: Media / 30 endpoints / trust unknown
+      - button "Generative Language API (Gemini) Provider state Watch severity. Unknown Risk. Insufficient history. AI/ML / 1 endpoints / trust unknown":
+        - generic: Generative Language API (Gemini)
+        - generic "Provider state Watch severity. Unknown Risk. Insufficient history.": Watch
+        - generic: AI/ML / 1 endpoints / trust unknown
+      - button "Knowledge Graph Search API Provider state Watch severity. Unknown Risk. Insufficient history. Search / 1 endpoints / trust unknown":
+        - generic: Knowledge Graph Search API
+        - generic "Provider state Watch severity. Unknown Risk. Insufficient history.": Watch
+        - generic: Search / 1 endpoints / trust unknown
+      - button "RentCast API Provider state Watch severity. Unknown Risk. Insufficient history. Data / 10 endpoints / trust unknown":
+        - generic: RentCast API
+        - generic "Provider state Watch severity. Unknown Risk. Insufficient history.": Watch
+        - generic: Data / 10 endpoints / trust unknown
+      - button "StableEmail Provider state Watch severity. Unknown Risk. Insufficient history. Messaging / 24 endpoints / trust unknown":
+        - generic: StableEmail
+        - generic "Provider state Watch severity. Unknown Risk. Insufficient history.": Watch
+        - generic: Messaging / 24 endpoints / trust unknown
+      - button "StableEnrich Provider state Watch severity. Unknown Risk. Insufficient history. Data / 34 endpoints / trust unknown":
+        - generic: StableEnrich
+        - generic "Provider state Watch severity. Unknown Risk. Insufficient history.": Watch
+        - generic: Data / 34 endpoints / trust unknown
+      - button "StableStudio Provider state Watch severity. Unknown Risk. Insufficient history. Media / 30 endpoints / trust unknown":
+        - generic: StableStudio
+        - generic "Provider state Watch severity. Unknown Risk. Insufficient history.": Watch
+        - generic: Media / 30 endpoints / trust unknown
+      - button "StableUpload Provider state Watch severity. Unknown Risk. Insufficient history. Storage / 11 endpoints / trust unknown" [pressed]:
+        - generic: StableUpload
+        - generic "Provider state Watch severity. Unknown Risk. Insufficient history.": Watch
+        - generic: Storage / 11 endpoints / trust unknown
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - paragraph: Selected Provider
+      - heading "Provider Intelligence Dossier" [level=2]
+      - paragraph: Provider-level trust, signal, monitor, market metadata, and evidence receipts stay linked to the selected catalog entry.
+      - generic "Featured provider auto-rotate control":
+        - generic: Featured provider
+        - checkbox "Toggle featured provider rotation" [checked]
+        - generic: Featured rotation
+        - generic: Next provider window closes Oct 13, 10:20 AM
+      - paragraph
+      - heading "StableUpload" [level=3]
+      - code: merit-systems/stableupload/hosting
+      - generic: Storage
+      - generic: fixture fallback
+      - generic: 11 endpoints
+      - generic: unknown
+      - generic: no free-tier evidence
+      - generic: metering unknown
+      - generic "severity unknown Inspect before routing.": "[STATE] Watch"
+      - generic "Unknown Risk. Insufficient history.": Unknown Risk
+      - button "Copy provider id"
+      - generic "Selected provider summary strip":
+        - generic: Provider
+        - text: StableUpload
+        - generic: State
+        - text: "[?] unknown"
+        - generic: Trust
+        - text: unknown
+        - generic: Signal
+        - text: unknown
+        - generic: Risk
+        - text: Unknown Risk
+        - generic: Route/action
+        - text: eligibility unknown
+      - generic: Trust
+      - strong: unknown
+      - generic: grade unknown
+      - generic: Signal
+      - strong: unknown
+      - generic: narrative unknown
+      - generic: Coord.
+      - strong: unknown
+      - generic: eligible
+      - generic: Risk
+      - strong: Unknown Risk
+      - generic: advisory
+      - generic: Unknowns
+      - strong: unknown
+      - generic: telemetry fields
+      - heading "Capability Brief" [level=4]
+      - paragraph: Catalog-supplied description, tags, and service URL. This does not imply endpoint execution.
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - button "Collapse" [expanded]
+      - paragraph: No provider description supplied by catalog metadata.
+      - paragraph: "use_case: unknown"
+      - generic "Evidence"
+      - heading "Route Decision Panel" [level=4]
+      - paragraph: Uses the existing route recommendation API with selected provider as optional preference input.
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - button "Collapse" [expanded]
+      - generic "Selected provider route context":
+        - generic: selected
+        - text: StableUpload
+        - generic: risk
+        - text: Unknown Risk
+        - generic: route
+        - text: eligibility unknown
+        - generic: mapping
+        - text: 11 reported / mapping incomplete
+        - generic: pricing
+        - text: unknown
+      - generic: task text
+      - textbox "Route task text": Find a low-cost image generation route for an autonomous design agent
+      - generic: category filter
+      - combobox "Route category filter":
+        - option "all categories" [selected]
+        - option "AI/ML"
+        - option "Data"
+        - option "Media"
+        - option "Messaging"
+        - option "Other"
+        - option "Search"
+        - option "Storage"
+      - generic: max price
+      - textbox "Route maximum price":
+        - /placeholder: unknown allowed
+        - text: "0.1"
+      - generic: Minimum trust score
+      - spinbutton "Route minimum trust score": "70"
+      - generic: preference
+      - combobox "Route preference":
+        - option "balanced" [selected]
+        - option "trust-prioritized"
+        - option "lowest catalog price"
+        - option "signal-prioritized"
+      - checkbox "Include selected provider as preferred route input" [checked]
+      - generic: include selected provider as preferred route input
+      - button "compute catalog-derived candidate"
+      - button "seed from selected"
+      - heading "Market Metadata" [level=4]
+      - paragraph: Pricing and catalog freshness are preserved as reported by Pay.sh metadata.
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - button "Collapse" [expanded]
+      - paragraph:
+        - generic: min_price_usd
+        - generic: $0
+      - paragraph:
+        - generic: max_price_usd
+        - generic: $100
+      - paragraph:
+        - generic: endpoint_count
+        - generic: "11"
+      - paragraph:
+        - generic: has_free_tier
+        - generic: unknown
+      - paragraph:
+        - generic: has_metering
+        - generic: unknown
+      - paragraph:
+        - generic: source_sha
+        - generic: unknown
+      - paragraph:
+        - generic: catalog_generated_at
+        - generic: unknown
+      - paragraph:
+        - generic: last_seen_at
+        - generic: unknown
+      - generic "Receipt"
+      - heading "Trust Breakdown" [level=4]
+      - paragraph: Component scores explain the visible trust total and unknown states.
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - button "Collapse" [expanded]
+      - paragraph:
+        - generic: metadata quality
+        - generic: unknown
+      - paragraph:
+        - generic: pricing clarity
+        - generic: unknown
+      - paragraph:
+        - generic: freshness
+        - generic: unknown
+      - paragraph:
+        - generic: service reachability
+        - generic: unknown
+      - paragraph:
+        - generic: latency
+        - generic: unknown
+      - paragraph:
+        - generic: endpoint response validity
+        - generic: unknown
+      - paragraph:
+        - generic: receipt reliability
+        - generic: unknown
+      - heading "Operational Monitor" [level=4]
+      - paragraph: Safe metadata reachability only; paid provider calls are not executed.
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - button "Collapse" [expanded]
+      - generic: SAFE METADATA
+      - generic "severity unknown Evidence incomplete.": "[STATE] Unknown"
+      - strong: "[?] unknown"
+      - paragraph:
+        - generic: last_check
+        - generic: unknown
+      - paragraph:
+        - generic: latency
+        - generic: unknown
+      - paragraph:
+        - generic: http_status
+        - generic: unknown
+      - paragraph:
+        - generic: monitor_mode
+        - generic: UNKNOWN
+      - paragraph: Safe monitor checks provider service reachability only. It does not execute paid Pay.sh calls.
+      - heading "Propagation Context" [level=4]
+      - paragraph: Shows whether this provider is part of the current ecosystem propagation analysis.
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - button "Collapse" [expanded]
+      - paragraph:
+        - generic: state
+        - generic: unknown
+      - paragraph:
+        - generic: severity
+        - generic: unknown
+      - paragraph:
+        - generic: provider affected
+        - generic: unknown
+      - paragraph:
+        - generic: cluster
+        - generic: none
+      - paragraph: No propagation analysis available for this provider.
+      - heading "Signal Breakdown" [level=4]
+      - paragraph: Narrative and metadata movement behind the visible signal score.
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - button "Collapse" [expanded]
+      - paragraph:
+        - generic: category heat
+        - generic: unknown
+      - paragraph:
+        - generic: ecosystem momentum
+        - generic: unknown
+      - paragraph:
+        - generic: metadata change velocity
+        - generic: unknown
+      - paragraph:
+        - generic: social velocity
+        - generic: unknown
+      - paragraph:
+        - generic: onchain/liquidity resonance
+        - generic: unknown
+      - heading "Unknown Telemetry" [level=4]
+      - paragraph: Unknown fields stay visible so absence of evidence is never hidden.
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - button "Collapse" [expanded]
+      - generic: No unknown telemetry reported by current assessments.
+      - generic "Evidence"
+      - heading "Evidence Trail" [level=4]
+      - paragraph: Recent catalog-diff receipts for this provider, ordered by severity.
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - button "Collapse" [expanded]
+      - heading "Reliability History" [level=4]
+      - paragraph: Historical trend memory from stored score, monitor, and degradation events. No paid APIs are executed.
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - button "Collapse" [expanded]
+      - status:
+        - strong: History warming up.
+        - generic: No provider history payload is available yet.
+      - heading "Endpoint Intelligence" [level=4]
+      - paragraph: Normalized endpoint metadata from safe radar export routes. Rows remain visible even when degraded or incomplete.
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - button "Collapse" [expanded]
+      - generic "Filter and sort endpoint intelligence":
+        - textbox "Filter endpoints by name provider path or category":
+          - /placeholder: filter endpoint, provider, path, category
+        - combobox "Sort endpoint intelligence":
+          - option "route eligibility" [selected]
+          - option "metadata quality"
+          - option "pricing clarity"
+          - option "reachability"
+          - option "last observed"
+          - option "name"
+      - group "Filter endpoint intelligence":
+        - button "all" [pressed]
+        - button "route eligible"
+        - button "mapping incomplete"
+        - button "degraded"
+        - button "priced"
+        - button "unknown pricing"
+      - paragraph: Mapping incomplete. Pay.sh catalog reports 11 endpoints, but endpoint-level mappings are not available in the current payload.
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - heading "Trust Assessment" [level=2]
+      - strong: unknown
+      - generic: unknown
+      - generic "Evidence"
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - heading "Signal Assessment" [level=2]
+      - strong: unknown
+      - generic: no narrative match
+      - generic "Evidence"
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - heading "Unknown Telemetry" [level=2]
+      - paragraph: "risk: [?] unknown"
+      - paragraph: "coordination eligible: unknown"
+      - paragraph: "endpoints: 11"
+      - paragraph: "health: [?] unknown"
+      - generic: none
+      - generic "Evidence"
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - heading "Endpoint List" [level=2]
+      - generic: LIVE CATALOG PARTIAL
+      - paragraph: Pay.sh catalog reports 11 endpoints for this provider. Full endpoint-level metadata is not exposed in the current catalog feed.
+      - strong: Provider capability surface
+      - generic: "Endpoint count: 11"
+      - generic: "Category: Storage"
+      - generic: "Pricing range: unknown"
+      - text: "Source: live Pay.sh catalog"
+      - generic "Evidence"
+      - generic: PROVIDER · STABLEUPLOAD / STORAGE
+      - heading "Recent Changes" [level=2]
+      - paragraph: Provider recent changes are catalog diff events.
+    - complementary "Catalog-backed ecosystem intelligence sidebar":
+      - generic: GLOBAL
+      - text: Events
+      - strong: "391"
+      - text: 84 unknown telemetry fields
+      - text: Providers
+      - strong: "12"
+      - text: 159 endpoints tracked
+      - generic: GLOBAL
+      - paragraph: Contagion Watch
+      - heading "Propagation Watch" [level=2]
+      - paragraph: Deterministic read across degradations, trust drops, unknown telemetry, narratives, and graph adjacency.
+      - paragraph: Propagation Watch reflects catalog/provider health signals, not Radar execution failure.
+      - generic: severity critical
+      - generic: state
+      - strong: systemic
+      - generic: confidence 65%
+      - paragraph:
+        - generic: cluster
+        - generic: none
+      - paragraph:
+        - generic: categories
+        - generic: none
+      - paragraph:
+        - generic: first seen
+        - generic: 10/12/2026, 11:20:44 PM
+      - paragraph:
+        - generic: latest
+        - generic: 10/12/2026, 11:20:44 PM
+      - paragraph: Catalog source is in fallback or error state, so propagation is treated as systemic catalog desync risk.
+      - generic "Top affected providers":
+        - generic: No affected providers in active window
+      - generic "Evidence"
+      - region "Anomaly Watch panel":
+        - generic: GLOBAL
+        - paragraph: Risk Signals
+        - heading "Anomaly Watch" [level=2]
+        - paragraph: Advisory anomalies from historical snapshots, monitor runs, and event logs. No paid APIs are executed.
+        - generic "Unknown Risk. Insufficient history.": Unknown Risk
+        - status:
+          - strong: Risk enrichment delayed
+          - generic: Risk enrichment delayed
+      - region "History enrichment status":
+        - generic: GLOBAL
+        - paragraph: Historical Trends
+        - heading "Ecosystem History" [level=2]
+        - status:
+          - strong: History enrichment delayed
+          - generic: History enrichment delayed
+      - generic: GLOBAL
+      - heading "Trust Changes" [level=2]
+      - paragraph: Latest trust events from catalog scoring batches.
+      - paragraph: No trust deltas beyond initial scoring.
+      - generic: GLOBAL
+      - heading "Signal Spikes" [level=2]
+      - paragraph: Signal deltas appear only when catalog-derived signal changes.
+      - paragraph: No positive signal deltas observed.
+      - generic: GLOBAL
+      - paragraph: Windowed Telemetry
+      - heading "Provider Activity" [level=2]
+      - paragraph: Activity counts are event-spine activity, not Pay.sh transaction volume.
+      - button "Show provider activity for 1h": 1h
+      - button "Show provider activity for 24h" [pressed]: 24h
+      - button "Show provider activity for 7d": 7d
+      - strong: StableEnrich
+      - generic: 74 events
+      - generic: discovery:38 / pricing:35 / signal:1
+      - generic "Evidence"
+      - strong: fal.ai
+      - generic: 66 events
+      - generic: discovery:34 / pricing:31 / signal:1
+      - generic "Evidence"
+      - strong: StableStudio
+      - generic: 66 events
+      - generic: discovery:34 / pricing:31 / signal:1
+      - generic "Evidence"
+      - strong: StableEmail
+      - generic: 54 events
+      - generic: discovery:28 / pricing:25 / signal:1
+      - generic "Evidence"
+      - strong: dTelecom
+      - generic: 38 events
+      - generic: discovery:20 / pricing:17 / signal:1
+      - generic "Evidence"
+      - strong: StableUpload
+      - generic: 28 events
+      - generic: discovery:15 / pricing:12 / signal:1
+      - generic "Evidence"
+      - strong: RentCast API
+      - generic: 26 events
+      - generic: discovery:14 / pricing:11 / signal:1
+      - generic "Evidence"
+      - strong: Cloud Speech-to-Text API
+      - generic: 8 events
+      - generic: discovery:5 / pricing:2 / signal:1
+      - generic "Evidence"
+      - strong: Fact Check Tools API
+      - generic: 8 events
+      - generic: discovery:5 / pricing:2 / signal:1
+      - generic "Evidence"
+      - strong: Generative Language API (Gemini)
+      - generic: 8 events
+      - generic: discovery:5 / pricing:2 / signal:1
+      - generic "Evidence"
+      - generic: GLOBAL
+      - paragraph: Monitor Alerts
+      - heading "Recent Degradations" [level=2]
+      - paragraph: Safe metadata events are service reachability signals, not API execution failures.
+      - status:
+        - strong: No degradations detected.
+        - generic: Safe metadata monitors have not reported recent reachability degradation.
+- contentinfo:
+  - paragraph: INFOPUNKS PAY.SH RADAR
+  - text: Catalog-derived trust, signal, routing, and safe metadata monitoring. Unknowns stay visible.Machine Economy is an observed module for bounded authority, preflight decisions, and decision receipts.
+  - generic "Radar catalog source status":
+    - generic: FIXTURE-BACKED RADAR STATE
+    - generic: "Source: pay.sh/api/catalog · providers 12 · endpoints 159 · last ingested 10/13/2026, 10:19:50 AM"
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

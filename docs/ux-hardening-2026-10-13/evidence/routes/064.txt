@@ -1,0 +1,143 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: machine preflight
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-preflight-content"
+- banner:
+  - navigation "Machine Preflight navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Preflight":
+  - paragraph: Bounded Authority
+  - heading "Machine Preflight" [level=1]
+  - paragraph: Before a machine spends, Radar checks policy, route fit, evidence, and caveats.
+  - paragraph: Preflight is not execution. Radar records whether a machine SHOULD spend before any service call occurs.
+  - generic "Machine Preflight principles":
+    - generic: Same terminal
+    - generic: New species of spender
+    - generic: Policy before spend
+  - region "Quick examples":
+    - paragraph: Quick Examples
+    - heading "Load a bounded spend scenario" [level=2]
+    - button "Delivery bot parses invoice"
+    - button "Field bot translates customer note"
+    - button "Research agent searches web"
+    - button "Sensor uploads media"
+  - paragraph:
+    - 'link "Methodology: Machine Economy evidence ladder"':
+      - /url: /solana#methodology
+    - text: Repeatability-recorded means the same route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark and does not compare providers. Benchmark-ready criteria define the minimum evidence required before a benchmark can be recorded. Criteria definition is not a benchmark.
+  - form "Machine preflight form":
+    - paragraph: Decision Request
+    - heading "Machine spend preflight" [level=2]
+    - generic: No service call occurs.
+    - generic: machine_id
+    - textbox "machine_id": did:peaq:delivery-bot-01
+    - generic: intent
+    - textbox "intent": parse an invoice image into structured fields
+    - generic: category
+    - combobox "category":
+      - option "compute"
+      - option "inference"
+      - option "web"
+      - option "vision" [selected]
+      - option "storage"
+      - option "translation"
+      - option "navigation"
+    - generic: max_cost_usd
+    - spinbutton "max_cost_usd": "0.05"
+    - generic: risk_tolerance
+    - combobox "risk_tolerance":
+      - option "low" [selected]
+      - option "medium"
+      - option "high"
+    - generic: policy template
+    - combobox "policy template":
+      - option "Ephemeral policy"
+      - option "Delivery Robot" [selected]
+      - option "Warehouse Camera"
+      - option "Autonomous Research Agent"
+      - option "DePIN Sensor"
+      - option "Field Maintenance Bot"
+    - group "allowed_markets":
+      - generic: allowed_markets
+      - checkbox "pay.sh" [checked]
+      - generic: pay.sh
+      - checkbox "robotic.sh"
+      - generic: robotic.sh
+      - checkbox "agentic.market"
+      - generic: agentic.market
+    - group "allowed_chains":
+      - generic: allowed_chains
+      - checkbox "solana" [checked]
+      - generic: solana
+      - checkbox "base"
+      - generic: base
+      - checkbox "peaq"
+      - generic: peaq
+      - checkbox "omnichain"
+      - generic: omnichain
+      - checkbox "unknown"
+      - generic: unknown
+    - checkbox "requires_receipt" [checked]
+    - generic: requires_receipt
+    - button "Run Machine Preflight"
+  - complementary "Policy summary":
+    - paragraph: Policy Template
+    - heading "Delivery Robot" [level=2]
+    - generic "Low-risk field delivery policy for translation, document vision, and limited web evidence lookups."
+    - paragraph:
+      - generic: daily_budget_usd
+      - generic: $3
+    - paragraph:
+      - generic: per_call_budget_usd
+      - generic: $0.05
+    - paragraph:
+      - generic: allowed_categories
+      - generic: vision, translation, web, navigation
+    - paragraph:
+      - generic: allowed_markets
+      - generic: request-defined
+    - paragraph:
+      - generic: allowed_chains
+      - generic: request-defined
+    - paragraph:
+      - generic: minimum_evidence
+      - generic: policy-mapped
+    - paragraph:
+      - generic: risk_tolerance
+      - generic: low
+    - paragraph:
+      - generic: receipt_required
+      - generic: "true"
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

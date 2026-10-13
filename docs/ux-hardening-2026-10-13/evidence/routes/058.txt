@@ -1,0 +1,243 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: First Safe Queue
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-first-safe-routes-content"
+- banner:
+  - navigation "Machine First Safe Route Queue navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - link "First Safe Queue":
+        - /url: /machine-first-safe-routes
+      - generic "More Machine Economy control surfaces": More
+- main "Machine First Safe Route Queue":
+  - paragraph: First Safe Route Queue
+  - heading "Machine First Safe Route Queue" [level=1]
+  - paragraph: Radar does not ask which service is most exciting. It asks which route is safest to prove first.
+  - generic "Machine first safe route hero chips":
+    - generic: route-aware queue
+    - generic: first-safe candidates
+    - generic: planning only
+    - generic: 0 robotic.sh market-wide execution claims
+    - generic: 0 service-specific execution receipts recorded
+    - generic: receipt-driven
+  - region "Machine first safe route queue summary":
+    - article:
+      - text: Queue entries
+      - strong: "5"
+      - text: ranked planning rows only
+    - article:
+      - text: First-safe candidates
+      - strong: "5"
+      - text: future proof attempts, not receipts
+    - article:
+      - text: Review-gated entries
+      - strong: "4"
+      - text: review before any attempt
+    - article:
+      - text: Blocked/setup-required entries
+      - strong: "4"
+      - text: missing route, setup, or credential evidence
+    - article:
+      - text: Service-specific execution receipts
+      - strong: "0"
+      - text: service-specific execution only
+    - article:
+      - text: Payment success claims
+      - strong: "0"
+      - text: payment_unconfirmed unless payment evidence exists
+    - article:
+      - text: Benchmark claims
+      - strong: "0"
+      - text: benchmark_not_recorded unless artifact exists
+  - region "Machine first safe route interpretation strip":
+    - paragraph: Interpretation
+    - heading "Planning queue, not proof" [level=2]
+    - generic: receipt-driven
+    - generic "Machine first safe route interpretation statements":
+      - generic: First-safe ≠ executed
+      - generic: Ranked ≠ winner
+      - generic: Blocked ≠ abandoned
+      - generic: Proof plan ≠ receipt
+  - region "Machine first safe route caveats":
+    - paragraph: 0 robotic.sh market-wide execution claims. 0 service-specific execution receipts recorded.
+    - paragraph: 0 payment success claims. 0 benchmark claims. 0 winner claims. No provider quality claim.
+    - paragraph: Payment is not confirmed unless payment evidence exists. Route metadata does not imply execution.
+    - paragraph: First-safe does not mean executed. Rank does not mean winner. Execution requires service-specific receipts.
+    - paragraph: First-safe route ranking is planning metadata. It does not imply execution, payment success, benchmark superiority, provider quality, or winner status.
+    - paragraph:
+      - link "Back to route risk matrix":
+        - /url: /machine-route-risk-matrix
+      - link "View rail coverage":
+        - /url: /machine-rail-coverage
+      - link "View benchmark readiness":
+        - /url: /machine-benchmark-readiness
+      - link "View comparable routes":
+        - /url: /machine-comparable-routes
+      - link "View translation evidence plan":
+        - /url: /machine-translation-evidence
+  - region "Machine first safe route brief":
+    - paragraph: Public Brief
+    - heading "Copyable queue brief" [level=2]
+    - button "Copy queue brief"
+    - paragraph: Radar has identified a first-safe route queue for the robotic.sh machine market. Cloud Translation remains the selected controlled proof-plan action. NAVER Maps should start with geocode, not driving directions. BigQuery should start with bounded public/synthetic queries. Stableupload should start with tiny non-sensitive fixtures. QVAC requires runtime registration review. 0 robotic.sh market-wide execution claims. Execution remains receipt-driven.
+  - region "Machine first safe route queue table panel":
+    - paragraph: Queue
+    - heading "5 first-safe route entries" [level=2]
+    - generic: Rank means suggested planning order for future proof attempts. It is not a winner claim.
+    - table "Machine first safe route queue table":
+      - text: Scroll horizontally for all columns →
+      - row "1 planning order Cloud Translation cloud-translation Selected proof plan does not imply execution-tested status. safe translation phrase simple input/output, bounded text, semantic output class is easy to verify callable endpoint surface not recorded; execution rail confirmation not recorded execution receipt, payment/auth status if available, normalized translation summary, caveats payment_unconfirmed · benchmark_not_recorded not_attempted 0 service-specific execution receipts recorded here View proof plan":
+        - cell "1 planning order":
+          - strong: "1"
+          - generic: planning order
+        - cell "Cloud Translation cloud-translation Selected proof plan does not imply execution-tested status.":
+          - strong: Cloud Translation
+          - generic: cloud-translation
+          - generic: Selected proof plan does not imply execution-tested status.
+        - cell "safe translation phrase"
+        - cell "simple input/output, bounded text, semantic output class is easy to verify"
+        - cell "callable endpoint surface not recorded; execution rail confirmation not recorded"
+        - cell "execution receipt, payment/auth status if available, normalized translation summary, caveats payment_unconfirmed · benchmark_not_recorded":
+          - text: execution receipt, payment/auth status if available, normalized translation summary, caveats
+          - generic: payment_unconfirmed · benchmark_not_recorded
+        - cell "not_attempted 0 service-specific execution receipts recorded here":
+          - generic: not_attempted
+          - generic: 0 service-specific execution receipts recorded here
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/cloud-translation
+      - row "2 planning order NAVER Maps naver-maps Driving directions is avoid-first because route guidance can influence physical-world movement. geocode lookup (GET /map-geocode/v2/geocode) lower-risk lookup than driving directions; does not require robot dispatch or physical movement Naver Cloud credentials, provider/account setup, review state, non-operational test constraints service-specific execution receipt, selected_route, credential_status, non-operational test flag, no robot command, no physical movement, normalized geocode summary payment_unconfirmed · benchmark_not_recorded not_attempted 0 service-specific execution receipts recorded here View proof plan":
+        - cell "2 planning order":
+          - strong: "2"
+          - generic: planning order
+        - cell "NAVER Maps naver-maps Driving directions is avoid-first because route guidance can influence physical-world movement.":
+          - strong: NAVER Maps
+          - generic: naver-maps
+          - generic: Driving directions is avoid-first because route guidance can influence physical-world movement.
+        - cell "geocode lookup (GET /map-geocode/v2/geocode)"
+        - cell "lower-risk lookup than driving directions; does not require robot dispatch or physical movement"
+        - cell "Naver Cloud credentials, provider/account setup, review state, non-operational test constraints"
+        - cell "service-specific execution receipt, selected_route, credential_status, non-operational test flag, no robot command, no physical movement, normalized geocode summary payment_unconfirmed · benchmark_not_recorded":
+          - text: service-specific execution receipt, selected_route, credential_status, non-operational test flag, no robot command, no physical movement, normalized geocode summary
+          - generic: payment_unconfirmed · benchmark_not_recorded
+        - cell "not_attempted 0 service-specific execution receipts recorded here":
+          - generic: not_attempted
+          - generic: 0 service-specific execution receipts recorded here
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/naver-maps
+      - 'row "3 planning order BigQuery bigquery BigQuery live status: ready_for_controlled_run. Do not query sensitive business or production data in the first proof attempt. bounded public/synthetic query bounded query result can be parsed without sensitive production data dataset boundary; credential/payment status selected_route, bounded query input, parseable tabular output, credential_status, harness gate status, execution receipt payment_unconfirmed · benchmark_not_recorded not_attempted 0 service-specific execution receipts recorded here View proof plan"':
+        - cell "3 planning order":
+          - strong: "3"
+          - generic: planning order
+        - 'cell "BigQuery bigquery BigQuery live status: ready_for_controlled_run. Do not query sensitive business or production data in the first proof attempt."':
+          - strong: BigQuery
+          - generic: bigquery
+          - generic: "BigQuery live status: ready_for_controlled_run. Do not query sensitive business or production data in the first proof attempt."
+        - cell "bounded public/synthetic query"
+        - cell "bounded query result can be parsed without sensitive production data"
+        - cell "dataset boundary; credential/payment status"
+        - cell "selected_route, bounded query input, parseable tabular output, credential_status, harness gate status, execution receipt payment_unconfirmed · benchmark_not_recorded":
+          - text: selected_route, bounded query input, parseable tabular output, credential_status, harness gate status, execution receipt
+          - generic: payment_unconfirmed · benchmark_not_recorded
+        - cell "not_attempted 0 service-specific execution receipts recorded here":
+          - generic: not_attempted
+          - generic: 0 service-specific execution receipts recorded here
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/bigquery
+      - row "4 planning order Stableupload stableupload Do not upload private, regulated, or production data in the first proof attempt. tiny non-sensitive fixture upload harmless small fixture minimizes privacy and storage risk callable route/path confirmation not recorded; storage policy review; credential/payment status selected_route, fixture hash or metadata, upload response, credential_status, execution receipt payment_unconfirmed · benchmark_not_recorded not_attempted 0 service-specific execution receipts recorded here View proof plan":
+        - cell "4 planning order":
+          - strong: "4"
+          - generic: planning order
+        - cell "Stableupload stableupload Do not upload private, regulated, or production data in the first proof attempt.":
+          - strong: Stableupload
+          - generic: stableupload
+          - generic: Do not upload private, regulated, or production data in the first proof attempt.
+        - cell "tiny non-sensitive fixture upload"
+        - cell "harmless small fixture minimizes privacy and storage risk"
+        - cell "callable route/path confirmation not recorded; storage policy review; credential/payment status"
+        - cell "selected_route, fixture hash or metadata, upload response, credential_status, execution receipt payment_unconfirmed · benchmark_not_recorded":
+          - text: selected_route, fixture hash or metadata, upload response, credential_status, execution receipt
+          - generic: payment_unconfirmed · benchmark_not_recorded
+        - cell "not_attempted 0 service-specific execution receipts recorded here":
+          - generic: not_attempted
+          - generic: 0 service-specific execution receipts recorded here
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/stableupload
+      - row "5 planning order QVAC qvac Runtime registration review comes before autonomous execution. runtime registration review, no execution operator-defined/runtime setup means execution should not proceed until registration semantics are understood operator runtime registration, callable route details, review state setup/registration evidence, route surface metadata, policy review, no execution receipt expected yet payment_unconfirmed · benchmark_not_recorded not_attempted 0 service-specific execution receipts recorded here View proof plan":
+        - cell "5 planning order":
+          - strong: "5"
+          - generic: planning order
+        - cell "QVAC qvac Runtime registration review comes before autonomous execution.":
+          - strong: QVAC
+          - generic: qvac
+          - generic: Runtime registration review comes before autonomous execution.
+        - cell "runtime registration review, no execution"
+        - cell "operator-defined/runtime setup means execution should not proceed until registration semantics are understood"
+        - cell "operator runtime registration, callable route details, review state"
+        - cell "setup/registration evidence, route surface metadata, policy review, no execution receipt expected yet payment_unconfirmed · benchmark_not_recorded":
+          - text: setup/registration evidence, route surface metadata, policy review, no execution receipt expected yet
+          - generic: payment_unconfirmed · benchmark_not_recorded
+        - cell "not_attempted 0 service-specific execution receipts recorded here":
+          - generic: not_attempted
+          - generic: 0 service-specific execution receipts recorded here
+        - cell "View proof plan":
+          - link "View proof plan":
+            - /url: /machine-execution-plan/qvac
+  - region "Machine first safe route methodology and warnings":
+    - article:
+      - paragraph: Route Warnings
+      - heading "Concise row warnings" [level=2]
+      - paragraph:
+        - generic: Cloud Translation
+        - generic: Selected proof plan does not imply execution-tested status.
+      - paragraph:
+        - generic: NAVER Maps
+        - generic: Driving directions is avoid-first because route guidance can influence physical-world movement.
+      - paragraph:
+        - generic: BigQuery
+        - generic: "BigQuery live status: ready_for_controlled_run. Do not query sensitive business or production data in the first proof attempt."
+      - paragraph:
+        - generic: Stableupload
+        - generic: Do not upload private, regulated, or production data in the first proof attempt.
+      - paragraph:
+        - generic: QVAC
+        - generic: Runtime registration review comes before autonomous execution.
+    - group "Machine first safe route methodology":
+      - generic "Methodology Compact queue definitions Planning metadata stays separate from execution proof.":
+        - generic: Methodology
+        - strong: Compact queue definitions
+        - generic: Planning metadata stays separate from execution proof.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

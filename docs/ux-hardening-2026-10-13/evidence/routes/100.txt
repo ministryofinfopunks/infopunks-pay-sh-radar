@@ -1,0 +1,204 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: discovery queue
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to discovery queue":
+  - /url: "#discovery-queue"
+- main:
+  - paragraph: RH Chain / exact-contract review inbox
+  - heading "Auto Discovery Queue" [level=1]
+  - paragraph: Market motion and onchain visibility enter here before a human reviews any classification or receipt.
+  - link "Review discoveries":
+    - /url: "#discovery-items"
+  - link "Market structure":
+    - /url: /rh-chain-signal-desk/market-structure
+  - complementary:
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Manual snapshot
+      - generic: Status
+      - strong: Fresh
+      - generic: Observed
+      - strong: Oct 13, 2026, 4:51 AM UTC
+      - generic: Relative age
+      - strong: Updated just now
+      - generic: Sources
+      - strong: Source required
+      - generic: Source policy
+      - paragraph: Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - paragraph: Discovery is not approval, index inclusion, endorsement, or a safety finding.
+  - paragraph: Queue controls
+  - heading "9 visible exact contracts" [level=2]
+  - paragraph: 0 ignored records remain retained with provenance.
+  - button "Refresh sources"
+  - paragraph: Newest discoveries, liquidity, volume, boosts, paid attention, duplicate tickers, cross-layer suggestions, and source-required claims are all review cues—not conclusions.
+  - article:
+    - paragraph: source required
+    - heading "CASHCAT / CASHCAT" [level=3]
+    - paragraph:
+      - code: "0x020bfc650a365f8bb26819deaabf3e21291018b4"
+    - paragraph: Liquidity Source required · 24h volume Source required · 0 secondary pairs
+    - paragraph: Boosts 0 · paid orders 0 · Blockscout unavailable
+    - paragraph: "Suggested layers: meme · distribution."
+    - paragraph: Existing exact-contract reviewed classification outranks discovery suggestions.
+    - paragraph: "Sources: 100 receipts · market structure"
+    - link "Open dossier":
+      - /url: /rh-chain-signal-desk/tokens/0x020bfc650a365f8bb26819deaabf3e21291018b4
+    - button "Watch"
+    - button "Promote"
+    - button "Ignore"
+    - text: Exact-contract discovery only; ticker similarity never establishes identity.DEX Screener detects market motion and paid-attention context only.Blockscout observations establish onchain visibility only.Provider context cannot create approved_signal, 4663 Index inclusion, a reviewed receipt, endorsement, or a safety finding.Existing reviewed memory or manual classification outranks auto-discovery context.
+  - article:
+    - paragraph: source required
+    - heading "TENDIES / TENDIES" [level=3]
+    - paragraph:
+      - code: "0x45242320dbb855eea8fd36804c6487e10e97fcf9"
+    - paragraph: Liquidity Source required · 24h volume Source required · 0 secondary pairs
+    - paragraph: Boosts 0 · paid orders 0 · Blockscout unavailable
+    - paragraph: "Suggested layers: meme · trading_culture."
+    - paragraph: Existing exact-contract reviewed classification outranks discovery suggestions.
+    - paragraph: "Sources: 100 receipts · market structure"
+    - link "Open dossier":
+      - /url: /rh-chain-signal-desk/tokens/0x45242320dbb855eea8fd36804c6487e10e97fcf9
+    - button "Watch"
+    - button "Promote"
+    - button "Ignore"
+    - text: Exact-contract discovery only; ticker similarity never establishes identity.DEX Screener detects market motion and paid-attention context only.Blockscout observations establish onchain visibility only.Provider context cannot create approved_signal, 4663 Index inclusion, a reviewed receipt, endorsement, or a safety finding.Existing reviewed memory or manual classification outranks auto-discovery context.
+  - article:
+    - paragraph: source required
+    - heading "PONS / PONS" [level=3]
+    - paragraph:
+      - code: "0x39dbed3a2bd333467115de45665cc57f813c4571"
+    - paragraph: Liquidity Source required · 24h volume Source required · 0 secondary pairs
+    - paragraph: Boosts 0 · paid orders 0 · Blockscout unavailable
+    - paragraph: "Suggested layers: infrastructure · launchpad · meme_distribution."
+    - paragraph: Existing exact-contract reviewed classification outranks discovery suggestions.
+    - paragraph: "Sources: 100 receipts · market structure"
+    - link "Open dossier":
+      - /url: /rh-chain-signal-desk/tokens/0x39dbed3a2bd333467115de45665cc57f813c4571
+    - button "Watch"
+    - button "Promote"
+    - button "Ignore"
+    - text: Exact-contract discovery only; ticker similarity never establishes identity.DEX Screener detects market motion and paid-attention context only.Blockscout observations establish onchain visibility only.Provider context cannot create approved_signal, 4663 Index inclusion, a reviewed receipt, endorsement, or a safety finding.Existing reviewed memory or manual classification outranks auto-discovery context.
+  - article:
+    - paragraph: source required
+    - heading "HOODRAT / HOODRAT" [level=3]
+    - paragraph:
+      - code: "0x8e62f281f282686fca6dcb39288069a93fc23f1c"
+    - paragraph: Liquidity Source required · 24h volume Source required · 0 secondary pairs
+    - paragraph: Boosts 0 · paid orders 0 · Blockscout unavailable
+    - paragraph: "Suggested layers: meme · narrative_candidate."
+    - paragraph: Existing exact-contract reviewed classification outranks discovery suggestions.
+    - paragraph: "Sources: 100 receipts · market structure"
+    - link "Open dossier":
+      - /url: /rh-chain-signal-desk/tokens/0x8e62f281f282686fca6dcb39288069a93fc23f1c
+    - button "Watch"
+    - button "Promote"
+    - button "Ignore"
+    - text: Exact-contract discovery only; ticker similarity never establishes identity.DEX Screener detects market motion and paid-attention context only.Blockscout observations establish onchain visibility only.Provider context cannot create approved_signal, 4663 Index inclusion, a reviewed receipt, endorsement, or a safety finding.Existing reviewed memory or manual classification outranks auto-discovery context.
+  - article:
+    - paragraph: source required
+    - heading "ARROW / ARROW" [level=3]
+    - paragraph:
+      - code: "0xf2915d1e3c1b0c769d0c756ec43f1c1f6c99cd03"
+    - paragraph: Liquidity Source required · 24h volume Source required · 0 secondary pairs
+    - paragraph: Boosts 0 · paid orders 0 · Blockscout unavailable
+    - paragraph: "Suggested layers: defi · utility_claim_under_review."
+    - paragraph: Existing exact-contract reviewed classification outranks discovery suggestions.
+    - paragraph: "Sources: 100 receipts · market structure"
+    - link "Open dossier":
+      - /url: /rh-chain-signal-desk/tokens/0xf2915d1e3c1b0c769d0c756ec43f1c1f6c99cd03
+    - button "Watch"
+    - button "Promote"
+    - button "Ignore"
+    - text: Exact-contract discovery only; ticker similarity never establishes identity.DEX Screener detects market motion and paid-attention context only.Blockscout observations establish onchain visibility only.Provider context cannot create approved_signal, 4663 Index inclusion, a reviewed receipt, endorsement, or a safety finding.Existing reviewed memory or manual classification outranks auto-discovery context.
+  - article:
+    - paragraph: source required
+    - heading "The Index / INDEX" [level=3]
+    - paragraph:
+      - code: "0x56910d4409f3a0c78c64dd8d0545ff0705389870"
+    - paragraph: Liquidity Source required · 24h volume Source required · 0 secondary pairs
+    - paragraph: Boosts 0 · paid orders 0 · Blockscout unavailable
+    - paragraph: "Suggested layers: rwa · defi · speculative_distribution · tokenized_equities."
+    - paragraph: Existing exact-contract reviewed classification outranks discovery suggestions.
+    - paragraph: "Sources: market structure"
+    - link "Open dossier":
+      - /url: /rh-chain-signal-desk/tokens/0x56910d4409f3a0c78c64dd8d0545ff0705389870
+    - button "Watch"
+    - button "Promote"
+    - button "Ignore"
+    - text: Exact-contract discovery only; ticker similarity never establishes identity.DEX Screener detects market motion and paid-attention context only.Blockscout observations establish onchain visibility only.Provider context cannot create approved_signal, 4663 Index inclusion, a reviewed receipt, endorsement, or a safety finding.Existing reviewed memory or manual classification outranks auto-discovery context.
+  - article:
+    - paragraph: source required
+    - heading "eBESS / eBESS" [level=3]
+    - paragraph:
+      - code: "0xca0da673a451c84917d7dd0362109efff0f8825a"
+    - paragraph: Liquidity Source required · 24h volume Source required · 0 secondary pairs
+    - paragraph: Boosts 0 · paid orders 0 · Blockscout unavailable
+    - paragraph: "Suggested layers: rwa · energy · real_world_asset_narrative."
+    - paragraph: Existing exact-contract reviewed classification outranks discovery suggestions.
+    - paragraph: "Sources: market structure"
+    - link "Open dossier":
+      - /url: /rh-chain-signal-desk/tokens/0xca0da673a451c84917d7dd0362109efff0f8825a
+    - button "Watch"
+    - button "Promote"
+    - button "Ignore"
+    - text: Exact-contract discovery only; ticker similarity never establishes identity.DEX Screener detects market motion and paid-attention context only.Blockscout observations establish onchain visibility only.Provider context cannot create approved_signal, 4663 Index inclusion, a reviewed receipt, endorsement, or a safety finding.Existing reviewed memory or manual classification outranks auto-discovery context.
+  - article:
+    - paragraph: source required
+    - heading "Oracle / ORACLE" [level=3]
+    - paragraph:
+      - code: "0x4b518240a5e520fc08916f0335460e0dd4057417"
+    - paragraph: Liquidity Source required · 24h volume Source required · 0 secondary pairs
+    - paragraph: Boosts 0 · paid orders 0 · Blockscout unavailable
+    - paragraph: "Suggested layers: infrastructure · data · tokenized_attention."
+    - paragraph: Existing exact-contract reviewed classification outranks discovery suggestions.
+    - paragraph: "Sources: market structure"
+    - link "Open dossier":
+      - /url: /rh-chain-signal-desk/tokens/0x4b518240a5e520fc08916f0335460e0dd4057417
+    - button "Watch"
+    - button "Promote"
+    - button "Ignore"
+    - text: Exact-contract discovery only; ticker similarity never establishes identity.DEX Screener detects market motion and paid-attention context only.Blockscout observations establish onchain visibility only.Provider context cannot create approved_signal, 4663 Index inclusion, a reviewed receipt, endorsement, or a safety finding.Existing reviewed memory or manual classification outranks auto-discovery context.
+  - article:
+    - paragraph: source required
+    - heading "GROKIUS / GROKIUS" [level=3]
+    - paragraph:
+      - code: "0x0f2c5b7a7625c7b097759dd7165177d63fbb8b03"
+    - paragraph: Liquidity Source required · 24h volume Source required · 0 secondary pairs
+    - paragraph: Boosts 0 · paid orders 0 · Blockscout unavailable
+    - paragraph: "Suggested layers: meme · ai_narrative."
+    - paragraph: Existing exact-contract reviewed classification outranks discovery suggestions.
+    - paragraph: "Sources: market structure"
+    - link "Open dossier":
+      - /url: /rh-chain-signal-desk/tokens/0x0f2c5b7a7625c7b097759dd7165177d63fbb8b03
+    - button "Watch"
+    - button "Promote"
+    - button "Ignore"
+    - text: Exact-contract discovery only; ticker similarity never establishes identity.DEX Screener detects market motion and paid-attention context only.Blockscout observations establish onchain visibility only.Provider context cannot create approved_signal, 4663 Index inclusion, a reviewed receipt, endorsement, or a safety finding.Existing reviewed memory or manual classification outranks auto-discovery context.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

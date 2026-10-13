@@ -1,0 +1,213 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Developer Documentation
+- paragraph:
+  - generic: "[ 14 ]"
+  - text: DEVELOPERS / INTEGRATION REFERENCE
+- main "Developers":
+  - paragraph: Developer Surface
+  - heading "Before your agent pays, it checks Infopunks." [level=1]
+  - paragraph: Infopunks is the pre-spend intelligence layer before payment. It returns receipt-backed route intelligence, known blockers, safer alternatives, and validation context before economic action.
+  - paragraph: Infopunks is not executing payment. The SDK calls POST /v1/pre-spend/check against https://radar.infopunks.fun.
+  - generic "Developer page signals":
+    - generic: pre-spend intelligence
+    - generic: receipt-backed decisions
+    - generic: not payment execution
+    - generic: before your agent pays, it checks Infopunks
+  - region "Three-step builder flow":
+    - paragraph: Builder Flow
+    - heading "Three-step builder flow" [level=2]
+    - article:
+      - paragraph: Step 1
+      - heading "Agent declares intent." [level=2]
+      - paragraph: Describe the task, budget, risk tolerance, settlement preference, and minimum confidence before any money moves.
+    - article:
+      - paragraph: Step 2
+      - heading "Infopunks checks the route." [level=2]
+      - paragraph: Route intelligence, provider reliability, receipts, blockers, validation, risk, and confidence are evaluated before spend.
+    - article:
+      - paragraph: Step 3
+      - heading "Agent receives a decision." [level=2]
+      - generic "Pre-spend decision states":
+        - generic: proceed
+        - generic: test_spend_first
+        - generic: do_not_spend
+        - generic: insufficient_evidence
+  - region "Use the pre-spend client":
+    - paragraph: SDK Usage
+    - heading "Use the pre-spend client" [level=2]
+    - paragraph: One call returns a verified Judgment. Tenant credentials bind agent identity; wallet signing requires a bounded policy and an explicit approval callback. Judgment never executes the proposed spend.
+    - region "Integration code example":
+      - code: "import { createInfopunksClient, createX402WalletPayment } from \"infopunks-pay-sh-radar/sdk\"; const client = createInfopunksClient({ baseUrl: \"https://radar.infopunks.fun\", apiKey: process.env.INFOPUNKS_TENANT_KEY!, payment: createX402WalletPayment({ signer: walletSigner, policy: { network: \"eip155:8453\", asset: \"USDC\", payTo: operatorPayTo, maxAmountAtomic: \"25000000\" }, approve: async ({ judgment }) => confirm(`Pay ${judgment.cost.amount} ${judgment.cost.asset} for this Judgment?`) }) }); const result = await client.judge({ intent: \"buy_market_research\", subject: \"service:market_research\", budget: 25, risk: \"low\", requiredConfidence: 80 }); // Returns only after the canonical receipt is verified. This never executes the spend. console.log(result.state, result.canonical_judgment);"
+  - region "POST /v1/pre-spend/check":
+    - paragraph: API
+    - heading "POST /v1/pre-spend/check" [level=2]
+    - paragraph: "Canonical decisions: proceed, test_spend_first, do_not_spend, insufficient_evidence. Inspect canonical_judgment; legacy diagnostic verdicts cannot authorize spend. Subject network is independent of fee settlement. The strict radar-judgment-context.v1 extension binds a namespaced subject, policy version, accepted evidence references, fee settlement network and expiry. RH market policy remains read-only and unqualified for trading. Native Solana fee settlement is unavailable. Canonical proof reads require operator authentication."
+    - paragraph: Builders can call the HTTP endpoint directly when they do not want the SDK wrapper. The public contract is the intelligence layer before payment, not the payment client itself.
+    - region "Integration code example":
+      - code: "POST /v1/pre-spend/check Content-Type: application/json { \"agent_id\": \"agent_001\", \"intent\": \"buy_market_research\", \"budget\": 25, \"risk_tolerance\": \"low\", \"preferred_settlement\": \"stablecoin\", \"required_confidence\": 75 }"
+    - region "Integration code example":
+      - code: "{ \"decision\": \"insufficient_evidence\", \"confidence\": 0, \"reasons\": [\"Required fresh, scoped evidence is missing.\"], \"cost\": { \"amount\": \"0\", \"asset\": \"USDC\" }, \"payment_required\": false, \"receipt\": null, \"execution_authorized\": false }"
+  - region "Tenant-owned Judgment check":
+    - paragraph: Private Judgment
+    - heading "Inspect a tenant-bound decision" [level=2]
+    - paragraph: This browser check has no payment adapter. A quoted fee stops for explicit authorization by an SDK integration; it never triggers browser payment by default.
+    - paragraph: Pre-spend intelligence
+    - heading "Check before you spend." [level=1]
+    - paragraph: One justified decision. Inspect the evidence before taking action.
+    - form "Check a spend":
+      - text: Intent
+      - textbox "Intent": buy market research
+      - text: Subject or route
+      - textbox "Subject or route":
+        - /placeholder: route:route-id
+        - text: route:route_pay_sh_market_research_03
+      - text: Budget
+      - spinbutton "Budget": "0.20"
+      - text: Risk preference
+      - combobox "Risk preference":
+        - option "low" [selected]
+        - option "medium"
+        - option "high"
+        - option "critical"
+      - text: Tenant access key
+      - textbox "Tenant access key"
+      - paragraph: Use an operator-issued credential. It stays in this tab's memory. Checking does not authorize payment or execute an action.
+      - button "Check" [disabled]
+    - region "Judgment result":
+      - paragraph: Awaiting your check
+      - heading "Should this agent spend?" [level=2]
+      - paragraph: Enter the intent, route and budget, then Check. A result requires qualified evidence.
+  - region "Decision states":
+    - paragraph: Decision States
+    - heading "Crisp outcomes for builders" [level=2]
+    - article:
+      - generic: proceed
+      - strong: Policy-bound assessment. A valid canonical receipt and separate execution authorization are required before action.
+    - article:
+      - generic: test_spend_first
+      - strong: Only a policy-defined bounded test is justified. Execution remains separately authorized.
+    - article:
+      - generic: do_not_spend
+      - strong: Reviewed evidence establishes a deterministic blocker.
+    - article:
+      - generic: insufficient_evidence
+      - strong: Abstain for free. Missing, stale, or unqualified evidence cannot authorize action.
+  - region "Receipt-backed trust":
+    - paragraph: Receipt-Backed Trust
+    - heading "No receipt, no trust." [level=2]
+    - paragraph: No receipt, no trust.
+    - paragraph: Every decision should point back to receipts.
+    - paragraph: Receipts capture route runs, cost, latency, status, validation, confidence delta, and evidence artifacts.
+    - paragraph: Evidence graph pages connect routes, providers, services, receipts, and human validation.
+  - region "Integration Registry":
+    - paragraph: Integration Registry
+    - heading "A safety API is useful. A registry makes adoption visible." [level=2]
+    - link "Open Integration Registry":
+      - /url: /developers/wallet-safety/integrations
+    - paragraph: The registry shows agents, wallets, routers, and apps that are Wallet Safety-ready or moving toward compatibility.
+  - region "Developer links":
+    - paragraph: Builder Links
+    - heading "Inspect the public surfaces" [level=2]
+    - article:
+      - link "Public link Wallet Safety API Ask once before spend. Get decision, policy, audit trail, risk score, final recommendation, and copy-paste SDK snippets. Open quickstart + snippets":
+        - /url: /developers/wallet-safety
+        - paragraph: Public link
+        - heading "Wallet Safety API" [level=2]
+        - paragraph: Ask once before spend. Get decision, policy, audit trail, risk score, final recommendation, and copy-paste SDK snippets.
+        - generic: Open quickstart + snippets
+    - article:
+      - link "Public link Spend Terminal Run the receipt-backed pre-spend check UI. Open":
+        - /url: /spend-terminal
+        - paragraph: Public link
+        - heading "Spend Terminal" [level=2]
+        - paragraph: Run the receipt-backed pre-spend check UI.
+        - generic: Open
+    - article:
+      - link "Public link Check Turn claims, routes, providers, wallets, and links into public receipt checks. Open":
+        - /url: /check
+        - paragraph: Public link
+        - heading "Check" [level=2]
+        - paragraph: Turn claims, routes, providers, wallets, and links into public receipt checks.
+        - generic: Open
+    - article:
+      - link "Public link Loops Inspect autonomous loops as proof-linked public memory objects. Open":
+        - /url: /loops
+        - paragraph: Public link
+        - heading "Loops" [level=2]
+        - paragraph: Inspect autonomous loops as proof-linked public memory objects.
+        - generic: Open
+    - article:
+      - link "Public link Routes Inspect route-level intelligence before autonomous spend. Open":
+        - /url: /routes
+        - paragraph: Public link
+        - heading "Routes" [level=2]
+        - paragraph: Inspect route-level intelligence before autonomous spend.
+        - generic: Open
+    - article:
+      - link "Public link Providers Review provider reliability, disputes, and coverage. Open":
+        - /url: /providers
+        - paragraph: Public link
+        - heading "Providers" [level=2]
+        - paragraph: Review provider reliability, disputes, and coverage.
+        - generic: Open
+    - article:
+      - link "Public link Services Compare best route, safest first attempt, and blockers. Open":
+        - /url: /services
+        - paragraph: Public link
+        - heading "Services" [level=2]
+        - paragraph: Compare best route, safest first attempt, and blockers.
+        - generic: Open
+    - article:
+      - link "Public link Receipts Trace every decision back to recorded route evidence. Open":
+        - /url: /receipts
+        - paragraph: Public link
+        - heading "Receipts" [level=2]
+        - paragraph: Trace every decision back to recorded route evidence.
+        - generic: Open
+    - article:
+      - link "Public link Claims Turn receipts into reusable signal objects with evidence and challenge placeholders. Open":
+        - /url: /claim
+        - paragraph: Public link
+        - heading "Claims" [level=2]
+        - paragraph: Turn receipts into reusable signal objects with evidence and challenge placeholders.
+        - generic: Open
+    - article:
+      - link "Public link OpenAPI Pull the public OpenAPI spec from the live endpoint. Open":
+        - /url: /openapi.json
+        - paragraph: Public link
+        - heading "OpenAPI" [level=2]
+        - paragraph: Pull the public OpenAPI spec from the live endpoint.
+        - generic: Open
+    - article:
+      - link "Public link Agent Example See the minimal example and repo path for examples/pre-spend-agent. Open":
+        - /url: /developers#agent-example
+        - paragraph: Public link
+        - heading "Agent Example" [level=2]
+        - paragraph: See the minimal example and repo path for examples/pre-spend-agent.
+        - generic: Open
+    - paragraph:
+      - text: "Minimal agent example path in repo:"
+      - code: examples/pre-spend-agent/README.md
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

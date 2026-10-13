@@ -1,0 +1,144 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: receipt_001
+- paragraph:
+  - generic: "[ 04 ]"
+  - text: RECEIPTS / PROOF ARCHIVE
+- main "Receipt detail":
+  - paragraph: Pre-Spend Receipt Detail
+  - heading "receipt_001" [level=1]
+  - paragraph: Inspect receipt evidence, linked route intelligence, and whether this run should change future pre-spend decisions.
+  - region "Signal Graph context":
+    - paragraph: Signal Graph context
+    - heading "No receipt, no trust" [level=2]
+    - link "View in Signal Graph":
+      - /url: /graph?node=claim_no_receipt_no_trust
+    - article:
+      - generic: proof state
+      - strong: Validated
+    - article:
+      - generic: cluster
+      - strong: Pre Spend Intelligence
+    - article:
+      - generic: confidence score
+      - strong: "97"
+    - article:
+      - generic: velocity score
+      - strong: "83"
+  - paragraph: Evidence view
+  - heading "Receipt evidence" [level=2]
+  - article:
+    - generic: receipt ID
+    - strong: receipt_001
+  - article:
+    - generic: timestamp
+    - strong: 2026-06-14 09:40
+  - article:
+    - generic: agent ID
+    - strong: agent_001
+  - article:
+    - generic: route ID
+    - strong:
+      - link "route_pay_sh_market_research_01":
+        - /url: /routes/route_pay_sh_market_research_01
+  - article:
+    - generic: provider ID
+    - strong:
+      - link "provider_pay_sh_lattice":
+        - /url: /providers/provider_pay_sh_lattice
+  - article:
+    - generic: service ID
+    - strong:
+      - link "service_market_research":
+        - /url: /services/service_market_research
+  - article:
+    - generic: task type
+    - strong: buy_market_research
+  - article:
+    - generic: cost
+    - strong: 0.25 USDC
+  - article:
+    - generic: payment method
+    - strong: stablecoin
+  - article:
+    - generic: latency
+    - strong: 980 ms
+  - article:
+    - generic: input summary
+    - strong: market_research prompt with topic and timeframe
+  - article:
+    - generic: output summary
+    - strong: structured brief returned
+  - article:
+    - generic: status
+    - strong: succeeded
+  - article:
+    - generic: success or failure reason
+    - strong: succeeded
+  - article:
+    - generic: validation state
+    - strong: human_validated
+  - article:
+    - generic: human notes
+    - strong: useful baseline summary
+  - article:
+    - generic: confidence delta
+    - strong: "0"
+  - article:
+    - generic: evidence artifact
+    - strong: artifact_market_research_run_001
+  - article:
+    - generic: linked route
+    - strong:
+      - link "route_pay_sh_market_research_01":
+        - /url: /routes/route_pay_sh_market_research_01
+  - article:
+    - generic: linked provider
+    - strong:
+      - link "provider_pay_sh_lattice":
+        - /url: /providers/provider_pay_sh_lattice
+  - article:
+    - generic: linked service
+    - strong:
+      - link "service_market_research":
+        - /url: /services/service_market_research
+  - paragraph: Receipt impact
+  - heading "Receipt impact" [level=2]
+  - article:
+    - generic: improves route confidence
+    - strong: "no"
+  - article:
+    - generic: reduces route confidence
+    - strong: "no"
+  - article:
+    - generic: fresh or stale
+    - strong: stale (120 days old)
+  - article:
+    - generic: human validated
+    - strong: "yes"
+  - article:
+    - generic: affect future pre-spend decisions
+    - strong: "no"
+  - paragraph: Legacy receipt intake has no reputation authority. Only a verified EvaluationReceipt can change the score projection.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

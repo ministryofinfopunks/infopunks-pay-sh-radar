@@ -1,0 +1,174 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Proof Ladder
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-proof-ladder-content"
+- banner:
+  - navigation "Machine Proof Ladder navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Market Proof Ladder":
+  - paragraph: Public Proof Surface
+  - heading "Machine Market Proof Ladder" [level=1]
+  - paragraph: Radar does not jump from catalog listing to benchmark. It records the steps between visibility, proof, repeatability, methodology, and trust.
+  - paragraph: Mapped → First-safe → Receipt → Repeatability → Readiness → Comparable routes → Methodology → Benchmark later
+  - region "Machine proof ladder doctrine":
+    - paragraph: Machine Market benchmarks require robotic.sh-listed services.
+    - paragraph: Pay.sh can be the rail, but robotic.sh visibility anchors the benchmark lane.
+    - paragraph: No robotic.sh-listed comparable route, no Machine Market benchmark.
+    - paragraph: If nothing compatible exists, Radar moves back to evidence acquisition.
+    - paragraph: No comparable route, no benchmark.
+    - paragraph: No methodology, no artifact.
+    - paragraph: No artifact, no claim.
+    - paragraph: No criteria, no winner.
+    - paragraph: Service receipt ≠ market proof.
+    - paragraph: Repeatability ≠ winner.
+    - paragraph:
+      - link "View translation evidence plan":
+        - /url: /machine-translation-evidence
+  - region "Machine benchmark gate check":
+    - paragraph: Benchmark gate check
+    - heading "Benchmark gate" [level=2]
+    - paragraph: Benchmark gate is closed until comparable routes, methodology, and readiness all pass.
+    - paragraph: "Gate status: closed"
+    - paragraph: "Why closed: comparable_routes_missing, comparable_routes_not_proven, methodology_incomplete, readiness_not_benchmark_ready, repeatability_missing, task_class_mismatch, input_class_mismatch, output_normalization_mismatch, success_criteria_mismatch, run_count_target_mismatch, safety_policy_blocked"
+    - paragraph: "What must happen next: robotic_sh_visible_service_identity = present · readiness_status = benchmark_ready · methodology_artifact_schema = present · comparable_route_count >= 2 · routes share task class · routes share input class · routes share output normalization · routes share success criteria · routes share run count target · safety/policy constraints pass"
+    - paragraph: "No benchmark claim: true"
+    - paragraph: "No winner claim: true"
+  - region "Machine proof ladder stages":
+    - paragraph: Evidence progression
+    - heading "8 ladder stages" [level=2]
+    - table "Machine proof ladder stage table":
+      - text: Scroll horizontally for all columns →
+      - row "Mapped robotic.sh-visible service exists in Radar. Radar maps the listed machine market into visible service records. Visibility and mapping coverage exist for the service. callable, executed, paid, benchmarked. /machine-market":
+        - cell "Mapped":
+          - strong: Mapped
+        - cell "robotic.sh-visible service exists in Radar."
+        - cell "Radar maps the listed machine market into visible service records.":
+          - generic: Radar maps the listed machine market into visible service records.
+        - cell "Visibility and mapping coverage exist for the service."
+        - cell "callable, executed, paid, benchmarked.":
+          - generic: callable, executed, paid, benchmarked.
+        - cell "/machine-market":
+          - link "/machine-market":
+            - /url: /machine-market
+      - row "First-safe Radar selected safer proof paths. Radar ranks first-safe candidates and blocks avoid-first routes. Safer early proof paths were selected before execution. execution. /machine-first-safe-routes":
+        - cell "First-safe":
+          - strong: First-safe
+        - cell "Radar selected safer proof paths."
+        - cell "Radar ranks first-safe candidates and blocks avoid-first routes.":
+          - generic: Radar ranks first-safe candidates and blocks avoid-first routes.
+        - cell "Safer early proof paths were selected before execution."
+        - cell "execution.":
+          - generic: execution.
+        - cell "/machine-first-safe-routes":
+          - link "/machine-first-safe-routes":
+            - /url: /machine-first-safe-routes
+      - row "Receipt service-specific receipt exists. Radar records service-scoped receipts with strict caveats. One service and route has recorded receipt evidence. market-wide proof, payment proof, benchmark proof, winner proof. /machine-receipts":
+        - cell "Receipt":
+          - strong: Receipt
+        - cell "service-specific receipt exists."
+        - cell "Radar records service-scoped receipts with strict caveats.":
+          - generic: Radar records service-scoped receipts with strict caveats.
+        - cell "One service and route has recorded receipt evidence."
+        - cell "market-wide proof, payment proof, benchmark proof, winner proof.":
+          - generic: market-wide proof, payment proof, benchmark proof, winner proof.
+        - cell "/machine-receipts":
+          - link "/machine-receipts":
+            - /url: /machine-receipts
+      - row "Repeatability repeated receipts for one route/profile. Repeatability artifacts stay route/profile scoped until benchmark gates open. The same route/profile produced repeated receipt evidence. route superiority or benchmark. /v1/machine-execution/repeatability/:service_id":
+        - cell "Repeatability":
+          - strong: Repeatability
+        - cell "repeated receipts for one route/profile."
+        - cell "Repeatability artifacts stay route/profile scoped until benchmark gates open.":
+          - generic: Repeatability artifacts stay route/profile scoped until benchmark gates open.
+        - cell "The same route/profile produced repeated receipt evidence."
+        - cell "route superiority or benchmark.":
+          - generic: route superiority or benchmark.
+        - cell "/v1/machine-execution/repeatability/:service_id":
+          - link "/v1/machine-execution/repeatability/:service_id":
+            - /url: /v1/machine-execution/repeatability/:service_id
+      - row "Readiness Radar checks if a lane can be benchmarked. Readiness lanes track missing requirements before any benchmark claim. A gate check exists for future benchmark eligibility. benchmark evidence. /machine-benchmark-readiness":
+        - cell "Readiness":
+          - strong: Readiness
+        - cell "Radar checks if a lane can be benchmarked."
+        - cell "Readiness lanes track missing requirements before any benchmark claim.":
+          - generic: Readiness lanes track missing requirements before any benchmark claim.
+        - cell "A gate check exists for future benchmark eligibility."
+        - cell "benchmark evidence.":
+          - generic: benchmark evidence.
+        - cell "/machine-benchmark-readiness":
+          - link "/machine-benchmark-readiness":
+            - /url: /machine-benchmark-readiness
+      - row "Comparable routes Radar checks whether at least two fair routes exist. Comparable-route discovery tracks parity requirements across lanes. Comparable route availability is explicitly checked. benchmark result. /machine-comparable-routes":
+        - cell "Comparable routes":
+          - strong: Comparable routes
+        - cell "Radar checks whether at least two fair routes exist."
+        - cell "Comparable-route discovery tracks parity requirements across lanes.":
+          - generic: Comparable-route discovery tracks parity requirements across lanes.
+        - cell "Comparable route availability is explicitly checked."
+        - cell "benchmark result.":
+          - generic: benchmark result.
+        - cell "/machine-comparable-routes":
+          - link "/machine-comparable-routes":
+            - /url: /machine-comparable-routes
+      - row "Methodology artifact contract exists. Methodology schema defines artifact contract and claim boundaries. Methodology requirements are documented and testable. benchmark execution. /machine-benchmark-methodology":
+        - cell "Methodology":
+          - strong: Methodology
+        - cell "artifact contract exists."
+        - cell "Methodology schema defines artifact contract and claim boundaries.":
+          - generic: Methodology schema defines artifact contract and claim boundaries.
+        - cell "Methodology requirements are documented and testable."
+        - cell "benchmark execution.":
+          - generic: benchmark execution.
+        - cell "/machine-benchmark-methodology":
+          - link "/machine-benchmark-methodology":
+            - /url: /machine-benchmark-methodology
+      - row "Benchmark later only allowed when gate opens. Benchmark execution remains deferred until all gate conditions are true. Benchmark timing is gated by explicit evidence thresholds. superiority ranking, winner claim, or benchmark already run. Gate only":
+        - cell "Benchmark later":
+          - strong: Benchmark later
+        - cell "only allowed when gate opens."
+        - cell "Benchmark execution remains deferred until all gate conditions are true.":
+          - generic: Benchmark execution remains deferred until all gate conditions are true.
+        - cell "Benchmark timing is gated by explicit evidence thresholds."
+        - cell "superiority ranking, winner claim, or benchmark already run.":
+          - generic: superiority ranking, winner claim, or benchmark already run.
+        - cell "Gate only"
+  - region "Machine benchmark-later gate":
+    - paragraph: Benchmark later gate
+    - heading "Required conditions" [level=2]
+    - paragraph: readiness_status = benchmark_ready
+    - paragraph: methodology_artifact_schema = present
+    - paragraph: comparable_route_count >= 2
+    - paragraph: Evidence-state summary only. This page does not claim benchmark execution and does not claim a winner.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

@@ -1,0 +1,195 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Decision Feedback
+- paragraph:
+  - generic: "[ 15 ]"
+  - text: HERMES / WALLET MEMORY
+- link "Skip to content":
+  - /url: "#hermes-decision-feedback-content"
+- main:
+  - paragraph: Feedback Loop
+  - heading "Decision Receipt and Feedback Loop" [level=1]
+  - paragraph: A decision becomes intelligence when the outcome is recorded.
+  - link "Open decision JSON":
+    - /url: /v1/hermes/pre-spend-decision/example
+  - link "Open Memory Loop":
+    - /url: /hermes/memory-loop
+  - link "Back to decision engine":
+    - /url: /hermes/pre-spend-decision
+  - paragraph: Loop doctrine
+  - paragraph: A decision without an outcome is advice.
+  - paragraph: A decision with a receipt becomes intelligence.
+  - region "Decision feedback loop flow":
+    - article:
+      - generic: "1"
+      - heading "Flow" [level=2]
+      - paragraph: Pre-Spend Decision -> Decision Receipt -> Spend Outcome -> Reputation Feedback -> Better Next Spend.
+    - article:
+      - generic: "2"
+      - heading "Example Decision Receipt" [level=2]
+      - paragraph: The receipt preserves why the recommendation was made.
+    - article:
+      - generic: "3"
+      - heading "Example Outcome" [level=2]
+      - paragraph: The outcome records what actually happened after the recommendation.
+    - article:
+      - generic: "4"
+      - heading "Reputation Feedback" [level=2]
+      - paragraph: The impact object turns the result into future route, provider, or service memory.
+    - article:
+      - generic: "5"
+      - heading "What the system learns" [level=2]
+      - paragraph: The next spend inherits memory from both the recommendation and the outcome.
+  - region "Memory loop note":
+    - paragraph: Memory loop
+    - heading "Feedback is not the end of the loop." [level=2]
+    - link "Open Memory Loop":
+      - /url: /hermes/memory-loop
+    - link "Open Spend Policy Layer":
+      - /url: /hermes/spend-policy
+    - paragraph: Feedback is not the end of the loop. It becomes input for the next pre-spend decision.
+    - paragraph: Policy receipts can become part of the feedback trail when comparing what the wallet was allowed to do against what actually happened.
+    - paragraph: Decision feedback tells whether the spend outcome matched the recommendation. Policy reconciliation tells whether the wallet obeyed the safety gate.
+  - region "Wallet audit trail note":
+    - paragraph: Wallet audit trail
+    - heading "Decision feedback is one part of the larger wallet audit trail." [level=2]
+    - link "Open Wallet Audit Trail":
+      - /url: /hermes/wallet-audit-trail
+    - paragraph: Decision feedback is one part of the larger wallet audit trail that shows what was recommended, what was allowed, what happened, and what changed.
+  - region "Example Decision Receipt":
+    - paragraph: Example Decision Receipt
+    - heading "Receipt-shaped decision memory." [level=2]
+    - paragraph:
+      - generic: receipt_id
+      - generic: receipt_hermes_decision_hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective
+    - paragraph:
+      - generic: decision
+      - generic: do_not_spend
+    - paragraph:
+      - generic: required_action
+      - generic: do_not_use_provider
+    - paragraph:
+      - generic: confidence
+      - generic: "0.21"
+    - paragraph:
+      - generic: summary
+      - generic: "Provider reputation is degraded in the ledger. Required action: do_not_use_provider."
+  - region "Example Outcome":
+    - paragraph: Example Outcome
+    - heading "Deterministic feedback result." [level=2]
+    - article "Decision feedback hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective":
+      - paragraph: Decision Feedback
+      - generic: Do Not Spend
+      - generic: Blocked
+      - generic: positive
+      - heading "receipt_hermes_decision_hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective" [level=3]
+      - paragraph: Spend stayed blocked after the do_not_spend recommendation, preserving caution instead of forcing execution.
+      - paragraph:
+        - generic: decision_id
+        - generic: hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective
+      - paragraph:
+        - generic: receipt_id
+        - generic: receipt_hermes_decision_hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective
+      - paragraph:
+        - generic: decision
+        - generic: do_not_spend
+      - paragraph:
+        - generic: required_action
+        - generic: do_not_use_provider
+      - paragraph:
+        - generic: confidence
+        - generic: "0.21"
+      - paragraph:
+        - generic: outcome_state
+        - generic: blocked
+      - paragraph:
+        - generic: spend_happened
+        - generic: "false"
+      - paragraph:
+        - generic: impact_direction
+        - generic: positive
+      - paragraph:
+        - generic: impact_magnitude
+        - generic: "0.01"
+      - paragraph:
+        - generic: target
+        - generic: provider:provider_pay_sh_lattice
+      - generic: decision_state=do_not_spend
+      - generic: required_action=do_not_use_provider
+      - generic: outcome_state=blocked
+      - generic: spend_happened=false
+      - generic: decision_confidence=0.21
+      - generic: Outcome supports future spend confidence.
+      - region "Decision feedback flow":
+        - generic: Pre-Spend Decision
+        - generic: "->"
+        - generic: Decision Receipt
+        - generic: "->"
+        - generic: Spend Outcome
+        - generic: "->"
+        - generic: Reputation Feedback
+        - generic: "->"
+        - generic: Better Next Spend
+      - paragraph:
+        - generic: reputation_note
+        - generic: decision_state=do_not_spend
+      - paragraph:
+        - generic: reputation_note
+        - generic: required_action=do_not_use_provider
+      - paragraph:
+        - generic: reputation_note
+        - generic: outcome_state=blocked
+      - paragraph:
+        - generic: reputation_note
+        - generic: spend_happened=false
+      - paragraph:
+        - generic: reputation_note
+        - generic: decision_confidence=0.21
+      - paragraph:
+        - generic: reputation_note
+        - generic: Outcome supports future spend confidence.
+  - region "Reputation Feedback":
+    - paragraph: Reputation Feedback
+    - heading "What gets fed back into the next spend." [level=2]
+    - paragraph:
+      - generic: direction
+      - generic: positive
+    - paragraph:
+      - generic: magnitude
+      - generic: "0.01"
+    - paragraph:
+      - generic: target
+      - generic: provider:provider_pay_sh_lattice
+    - paragraph:
+      - generic: summary
+      - generic: The decision prevented risk for provider:provider_pay_sh_lattice and should reinforce future caution.
+  - region "What the system learns":
+    - paragraph: What the system learns
+    - heading "Advice becomes reusable market memory only after outcomes land." [level=2]
+    - generic: what was recommended
+    - generic: what action was required
+    - generic: what actually happened
+    - generic: what evidence exists now
+    - generic: what should change next spend
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

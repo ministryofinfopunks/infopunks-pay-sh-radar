@@ -1,0 +1,83 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: cross layer
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to market structure":
+  - /url: "#market-structure-content"
+- main:
+  - paragraph: 4663 Market Structure
+  - heading "Cross-Layer Assets" [level=1]
+  - paragraph: Structural overlap is review-gated and exact-contract only.
+  - link "Read entries":
+    - /url: "#cross-layer-assets"
+  - link "Market structure":
+    - /url: /rh-chain-signal-desk/market-structure
+  - complementary:
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Unavailable
+      - generic: Status
+      - strong: Unavailable
+      - generic: Observed
+      - strong: Jul 9, 2026, 3:45 AM UTC
+      - generic: Relative age
+      - strong: Updated 96 days ago
+      - generic: Sources
+      - strong: Source required
+      - generic: Source policy
+      - paragraph: Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - paragraph: Provider observations cannot create a cross-layer classification.
+  - paragraph: Cross-layer assets
+  - heading "Reviewed intersections" [level=2]
+  - article:
+    - paragraph: DeFi × RWA
+    - heading "The Index" [level=3]
+    - paragraph:
+      - code: "0x56910D4409F3a0C78C64DD8D0545FF0705389870"
+      - text: ·
+      - link "DexScreener pair":
+        - /url: https://dexscreener.com/robinhood/0x00dd2df2f17d431cf3a0938f06c9cf9abc5e9643b6cc466ca3f71f3af246edf3
+    - paragraph: rwa · defi · speculative_distribution · tokenized_equities
+    - paragraph: Exact RH Chain contract and DexScreener pair are now provided. The token positions around Robinhood Chain tokenized-equity/dividend mechanics, making it an early RWA x DeFi x speculative-distribution candidate.
+    - paragraph: "Attention quality: source_required · Evidence: under_receipt_check"
+    - paragraph: Contract/pair visibility does not verify dividend mechanics, RWA backing, safety, or endorsement.
+    - text: protocol mechanicsdividend sourcetokenized-stock integration prooftreasury flowslegal/economic structuredeployer trace
+  - article:
+    - paragraph: Meme × AI Narrative (agent activity unverified)
+    - heading "GROKIUS" [level=3]
+    - paragraph:
+      - code: "0x0F2c5B7A7625C7b097759DD7165177d63fBB8b03"
+      - text: ·
+      - link "DexScreener pair":
+        - /url: https://dexscreener.com/robinhood/0x7ccef8a69c831c4ffde3eee77cb91f513f6ebf6e
+    - paragraph: meme · ai_narrative
+    - paragraph: Exact RH Chain contract and pair are provided. The token appears to use an AI/Grok-style meme wrapper, but no operational agent behavior is verified.
+    - paragraph: "Attention quality: source_required · Evidence: source_required_for_claims"
+    - paragraph: AI narrative does not prove agent activity.
+    - text: primary project sourceagent functionality proofdeployer tracecommunity/social source trail
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

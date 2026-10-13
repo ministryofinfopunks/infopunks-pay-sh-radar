@@ -1,0 +1,307 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Snapshot
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-snapshot-content"
+- banner:
+  - navigation "Machine Economy Snapshot navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Economy Public Snapshot":
+  - paragraph: Machine Market Radar Snapshot
+  - heading "Machine Market Radar Snapshot" [level=1]
+  - paragraph: Machine services are becoming spendable. Spendable does not mean safe.
+  - paragraph: Radar inserts policy, proof, and memory before autonomous action.
+  - generic "Machine economy snapshot hero chips":
+    - generic: listed ≠ callable
+    - generic: callable ≠ executed
+    - generic: credentials ≠ payment proof
+    - generic: route surface ≠ receipt
+    - generic: machine markets need judgment before spend
+    - generic: that’s Radar
+  - region "Machine economy snapshot stat grid":
+    - article:
+      - text: Services mapped
+      - strong: "13"
+      - text: robotic.sh visible catalog
+    - article:
+      - text: Categories
+      - strong: "8"
+      - text: normalized machine-function groups
+    - article:
+      - text: Policy summary
+      - strong: 2 allow / 3 review / 0 deny
+      - text: computed from current coverage
+    - article:
+      - text: First-safe queue
+      - strong: active
+      - text: route planning state only
+    - article:
+      - text: Market-wide execution claim
+      - strong: "0"
+      - text: Service receipt ≠ market proof.
+    - article:
+      - text: Service-specific execution receipts
+      - strong: "0"
+      - text: Service-specific execution only.
+    - article:
+      - text: Payment success claims
+      - strong: "0"
+      - text: not payment proof without payment evidence
+    - article:
+      - text: Benchmark claims
+      - strong: "0"
+      - text: 0 unless benchmark artifact exists
+    - article:
+      - text: Winner claims
+      - strong: "0"
+      - text: 0 unless explicit criteria/artifact exists
+    - article:
+      - text: Strongest readiness category
+      - strong: translation
+      - text: strong_candidate 0 · possible_candidate 1 · review_required 0 · not_ready 0
+    - article:
+      - text: Riskiest category
+      - strong: compute
+      - text: 0 allow / 1 review / 0 deny
+    - article:
+      - text: Next controlled action
+      - strong: Cloud Translation proof plan
+      - text: planning only
+  - region "Machine snapshot additions":
+    - article:
+      - paragraph: What changed
+      - heading "Control plane now visible" [level=2]
+      - paragraph:
+        - generic: Rail coverage added
+        - generic: Rail state is separated from route and receipt state.
+      - paragraph:
+        - generic: Route risk separated
+        - generic: Route-level risk is distinct from service-level listing.
+      - paragraph:
+        - generic: First-safe queue active
+        - generic: Planning queue exists without execution overclaims.
+      - paragraph:
+        - generic: Execution blockers visible
+        - generic: Blockers are explicit before any spend attempt.
+      - paragraph:
+        - generic: Market changelog live
+        - generic: Radar records market memory over time.
+      - paragraph:
+        - generic: No-claim ledger live
+        - generic: Proof boundaries are explicit and auditable.
+    - article:
+      - paragraph: Next safest proof path
+      - heading "Cloud Translation" [level=2]
+      - paragraph:
+        - generic: selected safest route
+        - generic: safe translation phrase
+      - paragraph:
+        - generic: proof required
+        - generic: Service-specific execution receipt with bounded input/output evidence.
+      - paragraph:
+        - generic: blocked-by
+        - generic: callable route metadata listed; execution status remains receipt-scoped
+      - paragraph:
+        - generic: caveat
+        - generic: Payment success claim, benchmark claim, and winner claim remain 0 unless explicit evidence artifacts exist.
+  - region "Machine economy story strip":
+    - paragraph: Story Strip
+    - heading "From visible catalog to future receipt" [level=2]
+    - generic: planning only
+    - generic "Machine economy story flow":
+      - generic: robotic.sh catalog
+      - generic: Radar market map
+      - generic: readiness matrix
+      - generic: proof plan selected
+      - generic: future receipt
+    - paragraph: Coverage, preflight, and proof planning do not imply execution.
+  - region "Machine economy cohort band":
+    - paragraph: Market Cohort Summary
+    - heading "13-service public cohort band" [level=2]
+    - generic: 13 services
+    - article:
+      - strong: QVAC
+      - generic: compute
+      - generic: review
+      - generic: review_required
+      - generic: not_attempted
+    - article:
+      - strong: Generative Language
+      - generic: AI / inference
+      - generic: not recorded
+      - generic: review_required
+      - generic: not_attempted
+    - article:
+      - strong: BigQuery
+      - generic: data / query
+      - generic: not recorded
+      - generic: not_ready
+      - generic: not_attempted
+    - article:
+      - strong: Document AI
+      - generic: AI / inference
+      - generic: allow
+      - generic: possible_candidate
+      - generic: not_attempted
+    - article:
+      - strong: Stableupload
+      - generic: storage
+      - generic: review
+      - generic: possible_candidate
+      - generic: not_attempted
+    - article:
+      - strong: Cloud Translation
+      - generic: translation
+      - generic: allow
+      - generic: possible_candidate
+      - generic: not_attempted
+    - article:
+      - strong: Claude
+      - generic: AI / inference
+      - generic: not recorded
+      - generic: review_required
+      - generic: not_attempted
+    - article:
+      - strong: ChatGPT
+      - generic: AI / inference
+      - generic: not recorded
+      - generic: review_required
+      - generic: not_attempted
+    - article:
+      - strong: 2Captcha
+      - generic: verification
+      - generic: review
+      - generic: not_ready
+      - generic: not_attempted
+    - article:
+      - strong: Firecrawl
+      - generic: web / retrieval
+      - generic: not recorded
+      - generic: review_required
+      - generic: not_attempted
+    - article:
+      - strong: Wolfram Alpha
+      - generic: AI / inference
+      - generic: not recorded
+      - generic: review_required
+      - generic: not_attempted
+    - article:
+      - strong: Exa
+      - generic: web / retrieval
+      - generic: not recorded
+      - generic: review_required
+      - generic: not_attempted
+    - article:
+      - strong: NAVER Maps
+      - generic: maps / navigation
+      - generic: not recorded
+      - generic: review_required
+      - generic: not_attempted
+  - region "Machine economy category summary":
+    - paragraph: Category Summary
+    - heading "8 machine-function groups" [level=2]
+    - generic: computed from current registry
+    - article "AI / inference summary":
+      - strong: AI / inference
+      - generic: 5 services
+      - generic: 1 allow / 0 review / 0 deny
+      - generic: strong_candidate 0 · possible_candidate 1 · review_required 4 · not_ready 0
+      - generic: Current policy coverage skews allow, but category status is still planning-only and not execution-proven.
+    - article "data / query summary":
+      - strong: data / query
+      - generic: 1 services
+      - generic: 0 allow / 0 review / 0 deny
+      - generic: strong_candidate 0 · possible_candidate 0 · review_required 0 · not_ready 1
+      - generic: Current policy coverage skews allow, but category status is still planning-only and not execution-proven.
+    - article "translation summary":
+      - strong: translation
+      - generic: 1 services
+      - generic: 1 allow / 0 review / 0 deny
+      - generic: strong_candidate 0 · possible_candidate 1 · review_required 0 · not_ready 0
+      - generic: Current policy coverage skews allow, but category status is still planning-only and not execution-proven.
+    - article "maps / navigation summary":
+      - strong: maps / navigation
+      - generic: 1 services
+      - generic: 0 allow / 0 review / 0 deny
+      - generic: strong_candidate 0 · possible_candidate 0 · review_required 1 · not_ready 0
+      - generic: Physical-world route decisions require bounded test scenarios, source validation, and clear non-operational demo constraints before execution.
+    - article "web / retrieval summary":
+      - strong: web / retrieval
+      - generic: 2 services
+      - generic: 0 allow / 0 review / 0 deny
+      - generic: strong_candidate 0 · possible_candidate 0 · review_required 2 · not_ready 0
+      - generic: Current policy coverage skews allow, but category status is still planning-only and not execution-proven.
+    - article "storage summary":
+      - strong: storage
+      - generic: 1 services
+      - generic: 0 allow / 1 review / 0 deny
+      - generic: strong_candidate 0 · possible_candidate 1 · review_required 0 · not_ready 0
+      - generic: Contains review-required services. Human review and bounded authority remain mandatory.
+    - article "verification summary":
+      - strong: verification
+      - generic: 1 services
+      - generic: 0 allow / 1 review / 0 deny
+      - generic: strong_candidate 0 · possible_candidate 0 · review_required 0 · not_ready 1
+      - generic: Contains review-required services. Human review and bounded authority remain mandatory.
+    - article "compute summary":
+      - strong: compute
+      - generic: 1 services
+      - generic: 0 allow / 1 review / 0 deny
+      - generic: strong_candidate 0 · possible_candidate 0 · review_required 1 · not_ready 0
+      - generic: Contains review-required services. Human review and bounded authority remain mandatory.
+  - region "Machine economy public brief":
+    - paragraph: Public Brief
+    - heading "Copyable public snapshot brief" [level=2]
+    - button "Copy snapshot brief"
+    - paragraph: "13 robotic.sh services mapped across 8 machine-function categories. Policy state: 2 allow / 3 review / 0 deny. Radar selected 1 controlled proof-plan action: Cloud Translation. 0 robotic.sh market-wide execution claims. 0 service-specific execution receipts. 0 repeatability receipts. Execution remains receipt-driven. Machines should not spend blind."
+    - paragraph: Execution remains receipt-driven. No market-wide execution claim. No benchmark claim. No winner claim.
+  - region "Machine economy snapshot caveats":
+    - paragraph: 0 robotic.sh market-wide execution claims. 0 service-specific execution receipts recorded.
+    - paragraph: 0 payment success claims. 0 benchmark claims. 0 winner claims.
+    - paragraph: Public context only. Not Radar execution evidence.
+    - paragraph: "Source discipline: Catalog, rail, route, and public-context fields are attributed separately. Public context is not Radar execution evidence."
+    - paragraph: Repeatability ≠ winner. Service receipt ≠ market proof.
+    - paragraph:
+      - link "View rail coverage":
+        - /url: /machine-rail-coverage
+      - link "View route risk matrix":
+        - /url: /machine-route-risk-matrix
+      - link "View first safe route queue":
+        - /url: /machine-first-safe-routes
+  - group "Evidence methodology drawer":
+    - generic "Evidence methodology Evidence methodology Definitions for listed, classified, policy_mapped, preflight_recorded, proof_path, proof_plan_selected, execution_receipt, and repeatability_receipt.":
+      - generic: Evidence methodology
+      - strong: Evidence methodology
+      - generic: Definitions for listed, classified, policy_mapped, preflight_recorded, proof_path, proof_plan_selected, execution_receipt, and repeatability_receipt.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

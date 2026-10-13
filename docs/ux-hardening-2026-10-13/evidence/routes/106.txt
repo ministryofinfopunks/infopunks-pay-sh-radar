@@ -1,0 +1,169 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: Market
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to Market Pulse":
+  - /url: "#market-pulse-content"
+- main:
+  - note: Read-only market inspection. Verified existence does not establish trade suitability. Trading authorization is unavailable.
+  - region "Market structure is waiting for fresh pair evidence.":
+    - paragraph: Infopunks Radar · Robinhood Chain
+    - generic: Unavailable · low confidence
+    - paragraph: Market Pulse
+    - heading "Market structure is waiting for fresh pair evidence." [level=1]
+    - paragraph: Previous-window coverage is incomplete, so momentum claims remain limited.
+    - generic "Observation details":
+      - generic: Rolling 24 hours
+      - generic: Captured Oct 13, 2026, 4:51 AM UTC
+      - generic: 0 tracked tokens
+    - region "Share Robinhood Chain Market Pulse | Infopunks Radar":
+      - group "Share controls":
+        - button "Share Market Pulse insight": Share
+        - button "Copy Market Pulse insight": Copy Insight
+        - link "Live Snapshot":
+          - /url: /rh-chain-signal-desk/live-snapshot
+      - status
+  - status "Market data quality":
+    - strong: Current market data is unavailable.
+    - generic: No current exact-contract pair observations are available; no market totals were inferred.
+  - region "The tracked market, at a glance":
+    - paragraph: Market state
+    - heading "The tracked market, at a glance" [level=2]
+    - paragraph: Canonical-pair observations only. No secondary-pool double counting.
+    - article:
+      - generic: Tracked 24h volume
+      - strong: Unavailable
+      - emphasis: No comparable window
+      - generic: Unavailable · Low confidence
+    - article:
+      - generic: Tracked liquidity
+      - strong: Unavailable
+      - emphasis: No comparable window
+      - generic: Unavailable · Low confidence
+    - article:
+      - generic: 24h transactions
+      - strong: Unavailable
+      - emphasis: No comparable window
+      - generic: Unavailable · Low confidence
+    - article:
+      - generic: Active tracked tokens
+      - strong: "0"
+      - emphasis: No comparable window
+      - generic: Unavailable · Low confidence
+    - article:
+      - generic: New pair observations
+      - strong: "0"
+      - emphasis: No comparable window
+      - generic: Unavailable · Low confidence
+    - article:
+      - generic: Provider health
+      - strong: Disabled
+      - generic: Disabled cache · latency unavailable
+  - region "Where attention is accumulating":
+    - paragraph: Layer composition
+    - heading "Where attention is accumulating" [level=2]
+    - paragraph: Reviewed exact-contract layers, weighted by tracked 24-hour volume.
+    - paragraph: source required
+    - heading "Source required" [level=2]
+    - paragraph: No current exact-contract pair observations are available. Layer shares remain uncalculated.
+  - region "What changed between windows":
+    - paragraph: Market momentum
+    - heading "What changed between windows" [level=2]
+    - paragraph: Change claims require comparable stored observations. Missing history stays visible.
+    - article:
+      - generic: Fastest-growing layer
+      - strong: Insufficient history
+      - paragraph: A comparable previous-window observation is required.
+      - text: No directional claim generated.
+    - article:
+      - generic: Largest liquidity increase
+      - strong: Insufficient history
+      - paragraph: A comparable previous-window observation is required.
+      - text: No directional claim generated.
+    - article:
+      - generic: Largest volume acceleration
+      - strong: Insufficient history
+      - paragraph: A comparable previous-window observation is required.
+      - text: No directional claim generated.
+    - article:
+      - generic: Strongest post-boost retention
+      - strong: Insufficient history
+      - paragraph: A comparable previous-window observation is required.
+      - text: No directional claim generated.
+    - article:
+      - generic: Cross-layer development
+      - strong: Insufficient history
+      - paragraph: A comparable previous-window observation is required.
+      - text: No directional claim generated.
+  - region "How narrow is the tracked market?":
+    - paragraph: Concentration
+    - heading "How narrow is the tracked market?" [level=2]
+    - paragraph: High concentration means a small number of assets or venues dominate the observed set.
+    - article:
+      - generic: Top-three volume share
+      - strong: Unavailable
+      - text: Share of the tracked canonical-pair set
+    - article:
+      - generic: Top-three liquidity share
+      - strong: Unavailable
+      - text: Share of the tracked canonical-pair set
+    - article:
+      - generic: Unknown volume share
+      - strong: Unavailable
+      - text: Share of the tracked canonical-pair set
+    - article:
+      - generic: Leading DEX share
+      - strong: Unavailable
+      - text: No leading DEX available
+  - region "Measured first. Interpreted second.":
+    - paragraph: Market interpretation
+    - heading "Measured first. Interpreted second." [level=2]
+    - paragraph: A deterministic ruleset turns observed differences into a concise public read.
+    - blockquote: Market structure is waiting for fresh pair evidence.
+    - list:
+      - listitem: Previous-window coverage is incomplete, so momentum claims remain limited.
+    - paragraph: "Rules applied: Insufficient Comparison History."
+  - complementary "Compact Market Pulse social card":
+    - paragraph: Infopunks / Market Pulse
+    - strong: Market structure is waiting for fresh pair evidence.
+    - generic: Rolling 24 hours · Oct 13, 2026, 4:51 AM UTC · Unavailable
+  - complementary "Shareable intelligence summary":
+    - paragraph: Share record
+    - heading "Market structure is waiting for fresh pair evidence." [level=3]
+    - paragraph: Previous-window coverage is incomplete, so momentum claims remain limited.
+    - term: Freshness
+    - definition: unavailable
+    - term: Confidence
+    - definition: low
+    - term: Method
+    - definition: rh_chain_market_pulse.v1
+    - term: Sources
+    - definition: Persisted Robinhood Chain market snapshot memory; reviewed exact-contract classifications; provider context is non-authoritative.
+    - paragraph:
+      - strong: "Material caveat:"
+      - text: No current exact-contract pair observations are available; no market totals were inferred.
+  - generic "Source, freshness, and methodology details"
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

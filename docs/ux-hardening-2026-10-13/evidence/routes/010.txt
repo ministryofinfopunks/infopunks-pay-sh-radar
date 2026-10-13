@@ -1,0 +1,125 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: reflexive
+- paragraph:
+  - generic: "[ 12 ]"
+  - text: REFLEXIVE RADAR / MARKET STRUCTURE
+- main:
+  - paragraph: INFOPUNKS // REFLEXIVE RADAR
+  - heading "STOCK TOKENS ARE BECOMING MONEY." [level=1]:
+    - text: STOCK TOKENS
+    - text: ARE BECOMING MONEY.
+  - generic: Robinhood Chain is creating markets where internet-native assets trade directly against real-world equity exposure.
+  - generic: Radar measures what happens when attention, liquidity and tokenized assets collide.
+  - link "VIEW EVIDENCE ↓":
+    - /url: "#pairs"
+    - text: VIEW EVIDENCE
+    - generic: ↓
+  - region "Live category numbers":
+    - article:
+      - paragraph: ACTIVE MISSION PAIRS
+      - strong: "0"
+      - generic: VERIFIED ONLY
+    - article:
+      - paragraph: 24H STOCK-QUOTE VOLUME
+      - strong: UNAVAILABLE
+      - generic: NO DEFENSIBLE AGGREGATE YET
+    - article:
+      - paragraph: TOP QUOTE STOCK
+      - strong: UNAVAILABLE
+      - generic: BY VERIFIED PAIR COUNT
+    - article:
+      - paragraph: STOCK-LINKED VOLUME SHARE
+      - strong: UNAVAILABLE
+      - generic: DENOMINATOR PENDING
+  - paragraph: LATEST REFLEXIVITY EVENT
+  - heading "NO EVENT HAS QUALIFIED." [level=2]
+  - generic: Radar records evidence, not promotional alerts.
+  - generic: AI / NVDA AUDIT UNAVAILABLE · long_audit_canonical_registry_not_refreshed · CANONICAL ASSET REFRESH IS REQUIRED; NO MARKET STATE IS INFERRED.
+  - paragraph: VERIFIED MARKETS
+  - heading "MISSION PAIRS" [level=2]
+  - generic: Pairs require an exact canonical Robinhood contract match. A ticker alone does not qualify.
+  - region "Market evidence table":
+    - text: Scroll horizontally for all columns →
+    - generic: PAIR
+    - generic: MISSION ALPHA
+    - generic: QUOTE ABSORPTION
+    - generic: STOCK BASIS
+    - generic: 24H VOLUME
+    - generic: STATUS
+    - generic: NO VERIFIED STOCK-PAIRED MARKETS YET. DISCOVERY REMAINS FAIL-CLOSED.
+  - paragraph: QUOTE ECONOMIES
+  - heading "STOCK AS MONEY" [level=2]
+  - generic: Gross Stock-touching volume, attributable inventory and supply change remain separate measures.
+  - generic: QUOTE ECONOMIES APPEAR ONLY AFTER PAIR VERIFICATION.
+  - paragraph: RMM THESIS BOARD
+  - heading "THE RECORD CAN DISAGREE." [level=2]
+  - generic: No LLM changes a thesis state. These are deterministic evidence states.
+  - article:
+    - paragraph: H1
+    - generic: INSUFFICIENT DATA
+    - text: No verified stock-paired market has been persisted.
+  - article:
+    - paragraph: H2
+    - generic: INSUFFICIENT DATA
+    - text: RMM is decomposed below; no composite RMM score is emitted.
+  - article:
+    - paragraph: H2A
+    - generic: INSUFFICIENT DATA
+    - text: Verified LONG inventory observation required.
+  - article:
+    - paragraph: H2B
+    - generic: INSUFFICIENT DATA
+    - text: D3/D7 sequential verified observations are required; today cannot fabricate them.
+  - article:
+    - paragraph: H2C
+    - generic: MIXED
+    - text: Aligned quote-market context is required.
+  - article:
+    - paragraph: H2D
+    - generic: INSUFFICIENT DATA
+    - text: No canonical community-vault identity has been independently verified.
+  - article:
+    - paragraph: H7
+    - generic: INSUFFICIENT DATA
+    - text: Supply events are observational only; aligned sequential mission observations are required.
+  - article:
+    - paragraph: H3
+    - generic: INSUFFICIENT DATA
+    - text: Lifecycle evidence is not yet sufficient for a deterministic state.
+  - article:
+    - paragraph: H4
+    - generic: INSUFFICIENT DATA
+    - text: Lifecycle evidence is not yet sufficient for a deterministic state.
+  - article:
+    - paragraph: H5
+    - generic: INSUFFICIENT DATA
+    - text: Lifecycle evidence is not yet sufficient for a deterministic state.
+  - article:
+    - paragraph: H6
+    - generic: INSUFFICIENT DATA
+    - text: No defensible matched non-stock control cohort yet.
+  - text: REFRESHED Jan 1, 1970, 5:30 AM · 0 CANONICAL ASSETS · METHODOLOGY RMM-V0.3.0
+  - text: ATTENTION IS A SIGNAL. LIQUIDITY IS AN OUTCOME. SURVIVAL IS THE TEST.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

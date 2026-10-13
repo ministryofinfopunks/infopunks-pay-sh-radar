@@ -1,0 +1,47 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: qualification missing record
+- paragraph:
+  - generic: "[ 14 ]"
+  - text: DEVELOPERS / INTEGRATION REFERENCE
+- main "Integration Readiness Detail":
+  - paragraph: Developer Registry
+  - heading "Integration Readiness Detail" [level=1]
+  - paragraph: A registry shows adoption. A detail page shows proof.
+  - paragraph:
+    - text: No seeded Wallet Safety integration detail page exists for
+    - code: qualification-missing-record
+    - text: .
+  - link "Back to Integration Registry":
+    - /url: /developers/wallet-safety/integrations
+  - link "Open developer quickstart":
+    - /url: /developers/wallet-safety
+  - region "Integration not found":
+    - paragraph: Seeded surface
+    - heading "Use one of the deterministic seeded integration IDs." [level=2]
+    - paragraph: agent_wallet_demo
+    - paragraph: pay_sh_route_guard
+    - paragraph: x402_service_router
+    - paragraph: autonomous_research_agent
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

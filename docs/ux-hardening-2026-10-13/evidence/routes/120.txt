@@ -1,0 +1,112 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: Submit
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to content":
+  - /url: "#rh-chain-content"
+- main:
+  - paragraph: Public Intelligence Desk
+  - heading "RH Chain Signal Desk" [level=1]
+  - paragraph: Wall Street rails. Meme liquidity. Infopunks intelligence.
+  - paragraph: Intelligence desk, not casino.
+  - link "Open Meme Pulse":
+    - /url: "#meme-pulse"
+  - link "View Review Queue":
+    - /url: /rh-chain-signal-desk/review-queue
+  - complementary "Desk policy":
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Manual snapshot
+      - generic: Status
+      - strong: Stale
+      - generic: Observed
+      - strong: Jul 19, 2026, 12:00 AM UTC
+      - generic: Relative age
+      - strong: Updated 86 days ago
+      - generic: Sources
+      - strong: "14"
+      - generic: Source policy
+      - paragraph: Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - note "Independent intelligence disclaimer":
+      - strong: Independent Infopunks intelligence surface.
+      - generic: Not affiliated with or endorsed by Robinhood.
+      - generic: No buy, sell, or listing recommendation.
+  - region "Submit Signal":
+    - paragraph: Submit a signal
+    - heading "Submit Signal" [level=2]
+    - paragraph: Receipts before attention. Manual review required. Public intelligence, not endorsement.
+    - generic: No receipt, no signal
+    - paragraph: Submission does not mean the token is safe, ranked, endorsed, listed, partnered, or recommended. Infopunks will not auto-add submissions to the public desk.
+    - generic: Token contract address
+    - textbox "Token contract address":
+      - /placeholder: 0x... or explorer contract
+    - generic: Ticker
+    - textbox "Ticker":
+      - /placeholder: TICKR
+    - generic: Chain
+    - textbox "Chain": Robinhood Chain
+    - generic: X / Twitter link · external, untrusted
+    - textbox "X or Twitter link":
+      - /placeholder: https://x.com/...
+    - generic: Website link · external, untrusted
+    - textbox "Website link":
+      - /placeholder: https://...
+    - generic: Liquidity link · external, untrusted
+    - textbox "Liquidity link":
+      - /placeholder: DEX pool, explorer, or liquidity receipt
+    - generic: Deployer notes
+    - textbox "Deployer notes":
+      - /placeholder: Deployer wallet, funding path, ownership controls, warnings
+    - generic: Submitter notes
+    - textbox "Submitter notes":
+      - /placeholder: Why this belongs on the intelligence desk
+    - generic "Signal Scout attribution, optional"
+    - generic "Launch context, optional"
+    - option "Unknown / not supplied" [selected]
+    - option "NOXA Fun"
+    - option "flap.sh"
+    - option "trensh.today"
+    - option "bankr"
+    - option "tokeny.fun"
+    - option "vlad.fun"
+    - option "robindotmarket"
+    - option "20lab-generated ERC-20"
+    - option "Pump.fun-routed RH Chain token"
+    - option "Uniswap direct pool launch"
+    - option "Hardhat/Foundry custom deployment"
+    - option "Unknown/manual deployment"
+    - option "Not supplied" [selected]
+    - option "Locked (claimed)"
+    - option "Burned (claimed)"
+    - option "Unlocked"
+    - option "Unknown"
+    - option "Unavailable"
+    - checkbox "I understand this is not an endorsement, listing, partnership, or financial recommendation. I am submitting this token for public intelligence review only."
+    - generic: I understand this is not an endorsement, listing, partnership, or financial recommendation. I am submitting this token for public intelligence review only.
+    - button "Submit a signal"
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

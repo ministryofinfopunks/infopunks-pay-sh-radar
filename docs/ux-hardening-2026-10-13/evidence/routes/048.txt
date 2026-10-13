@@ -1,0 +1,177 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Benchmark Methodology
+- paragraph:
+  - generic: "[ 10 ]"
+  - text: MACHINE ECONOMY / EXECUTION EVIDENCE
+- link "Skip to content":
+  - /url: "#machine-benchmark-methodology-content"
+- banner:
+  - navigation "Machine Benchmark Methodology navigation":
+    - generic "Machine Economy navigation":
+      - link "Machine Market":
+        - /url: /machine-market
+      - link "Rail Coverage":
+        - /url: /machine-rail-coverage
+      - link "Route Risk":
+        - /url: /machine-route-risk-matrix
+      - generic "More Machine Economy control surfaces": More
+- main "Machine Benchmark Methodology":
+  - paragraph: Methodology Before Benchmarks
+  - heading "Machine Benchmark Methodology" [level=1]
+  - paragraph: Methodology before benchmarks.
+  - paragraph: This is the inspection form, not the race.
+  - region "Machine benchmark methodology posture":
+    - paragraph: Machine Market benchmarks require robotic.sh-listed services.
+    - paragraph: Pay.sh can be the rail, but robotic.sh visibility anchors the benchmark lane.
+    - paragraph: No robotic.sh-listed comparable route, no Machine Market benchmark.
+    - paragraph: If nothing compatible exists, Radar moves back to evidence acquisition.
+    - paragraph: No comparable route, no benchmark.
+    - paragraph: No criteria, no winner.
+    - paragraph: No artifact, no claim.
+    - paragraph:
+      - link "Back to Machine Market":
+        - /url: /machine-market
+      - link "View benchmark readiness":
+        - /url: /machine-benchmark-readiness
+      - link "View comparable routes":
+        - /url: /machine-comparable-routes
+      - link "View translation evidence plan":
+        - /url: /machine-translation-evidence
+  - region "Machine benchmark gate check":
+    - paragraph: Benchmark gate check
+    - heading "Benchmark gate" [level=2]
+    - paragraph: Benchmark gate is closed until comparable routes, methodology, and readiness all pass.
+    - paragraph: "Gate status: closed"
+    - paragraph: "Why closed: comparable_routes_missing, comparable_routes_not_proven, methodology_incomplete, readiness_not_benchmark_ready, repeatability_missing, task_class_mismatch, input_class_mismatch, output_normalization_mismatch, success_criteria_mismatch, run_count_target_mismatch, safety_policy_blocked"
+    - paragraph: "What must happen next: robotic_sh_visible_service_identity = present · readiness_status = benchmark_ready · methodology_artifact_schema = present · comparable_route_count >= 2 · routes share task class · routes share input class · routes share output normalization · routes share success criteria · routes share run count target · safety/policy constraints pass"
+    - paragraph: "No benchmark claim: true"
+    - paragraph: "No winner claim: true"
+  - region "Global benchmark gate":
+    - paragraph: Global benchmark gate
+    - heading "Execution gate" [level=2]
+    - paragraph: "benchmark_execution_allowed: false"
+    - paragraph: "Blocked: benchmark execution requires robotic_sh_visible_service_identity, readiness_status=benchmark_ready, methodology_artifact_schema=present, and comparable_route_count>=2."
+    - paragraph: "required_conditions: robotic_sh_visible_service_identity = present · readiness_status = benchmark_ready · methodology_artifact_schema = present · comparable_route_count >= 2"
+  - region "Artifact schema fields":
+    - paragraph: Artifact schema fields
+    - heading "Schema contract" [level=2]
+    - paragraph: benchmark_id · lane_id · task_class · routes_compared · input_set · normalization_strategy · success_criteria · run_count · cost_fields · latency_fields · payment_fields · safety_constraints · policy_constraints · comparable_route_count · readiness_status · methodology_status · artifact_status · winner_policy · winner_claim · benchmark_claim · caveats · generated_at
+  - region "Lane methodology scaffolds":
+    - paragraph: Lane methodology scaffolds
+    - heading "4 lane artifacts" [level=2]
+    - table "Machine benchmark methodology artifact table":
+      - text: Scroll horizontally for all columns →
+      - row "machine_translation machine-benchmark-machine_translation Machine Translation anytrans (machine_translation_safe_phrase) · alibaba-machine-translation-general (machine_translation_safe_phrase) 0 missing_comparable_routes scaffold comparable_route_missing, comparable_routes_missing, repeatability_missing false benchmark_claim=false · winner_claim=false Machine Market benchmarks require robotic.sh-listed services. No robotic.sh-listed comparable route, no Machine Market benchmark. Methodology artifact schema is not benchmark evidence. Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts. No winner claim exists until explicit criteria and artifacts exist. No benchmark execution has been run by this scaffold.":
+        - cell "machine_translation machine-benchmark-machine_translation":
+          - strong: machine_translation
+          - generic: machine-benchmark-machine_translation
+        - cell "Machine Translation"
+        - cell "anytrans (machine_translation_safe_phrase) · alibaba-machine-translation-general (machine_translation_safe_phrase)":
+          - generic: anytrans (machine_translation_safe_phrase) · alibaba-machine-translation-general (machine_translation_safe_phrase)
+        - cell "0"
+        - cell "missing_comparable_routes"
+        - cell "scaffold"
+        - cell "comparable_route_missing, comparable_routes_missing, repeatability_missing":
+          - generic: comparable_route_missing, comparable_routes_missing, repeatability_missing
+        - cell "false"
+        - cell "benchmark_claim=false · winner_claim=false":
+          - generic: benchmark_claim=false · winner_claim=false
+        - cell "Machine Market benchmarks require robotic.sh-listed services. No robotic.sh-listed comparable route, no Machine Market benchmark. Methodology artifact schema is not benchmark evidence. Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts. No winner claim exists until explicit criteria and artifacts exist. No benchmark execution has been run by this scaffold.":
+          - generic: Machine Market benchmarks require robotic.sh-listed services. No robotic.sh-listed comparable route, no Machine Market benchmark. Methodology artifact schema is not benchmark evidence. Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts. No winner claim exists until explicit criteria and artifacts exist. No benchmark execution has been run by this scaffold.
+      - row:
+        - cell "data_query_bigquery machine-benchmark-data_query_bigquery":
+          - strong: data_query_bigquery
+          - generic: machine-benchmark-data_query_bigquery
+        - cell "Data Query / BigQuery"
+        - cell "bigquery (bigquery_bounded_query)":
+          - generic: bigquery (bigquery_bounded_query)
+        - cell "1"
+        - cell "missing_comparable_routes"
+        - cell "scaffold"
+        - cell "comparable_route_missing, comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing":
+          - generic: comparable_route_missing, comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing
+        - cell "false"
+        - cell "benchmark_claim=false · winner_claim=false":
+          - generic: benchmark_claim=false · winner_claim=false
+        - cell "Machine Market benchmarks require robotic.sh-listed services. No robotic.sh-listed comparable route, no Machine Market benchmark. Methodology artifact schema is not benchmark evidence. Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts. No winner claim exists until explicit criteria and artifacts exist. No benchmark execution has been run by this scaffold.":
+          - generic: Machine Market benchmarks require robotic.sh-listed services. No robotic.sh-listed comparable route, no Machine Market benchmark. Methodology artifact schema is not benchmark evidence. Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts. No winner claim exists until explicit criteria and artifacts exist. No benchmark execution has been run by this scaffold.
+      - row:
+        - cell "storage_stableupload machine-benchmark-storage_stableupload":
+          - strong: storage_stableupload
+          - generic: machine-benchmark-storage_stableupload
+        - cell "Storage / Stableupload"
+        - cell "stableupload (stableupload_tiny_fixture)":
+          - generic: stableupload (stableupload_tiny_fixture)
+        - cell "1"
+        - cell "missing_comparable_routes"
+        - cell "scaffold"
+        - cell "comparable_route_missing, comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing":
+          - generic: comparable_route_missing, comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing
+        - cell "false"
+        - cell "benchmark_claim=false · winner_claim=false":
+          - generic: benchmark_claim=false · winner_claim=false
+        - cell "Machine Market benchmarks require robotic.sh-listed services. No robotic.sh-listed comparable route, no Machine Market benchmark. Methodology artifact schema is not benchmark evidence. Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts. No winner claim exists until explicit criteria and artifacts exist. No benchmark execution has been run by this scaffold.":
+          - generic: Machine Market benchmarks require robotic.sh-listed services. No robotic.sh-listed comparable route, no Machine Market benchmark. Methodology artifact schema is not benchmark evidence. Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts. No winner claim exists until explicit criteria and artifacts exist. No benchmark execution has been run by this scaffold.
+      - row:
+        - cell "navigation_naver_geocode machine-benchmark-navigation_naver_geocode":
+          - strong: navigation_naver_geocode
+          - generic: machine-benchmark-navigation_naver_geocode
+        - cell "Navigation / NAVER geocode"
+        - cell "naver-maps (naver_geocode_lookup)":
+          - generic: naver-maps (naver_geocode_lookup)
+        - cell "1"
+        - cell "missing_comparable_routes"
+        - cell "scaffold"
+        - cell "comparable_route_missing, comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing":
+          - generic: comparable_route_missing, comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing
+        - cell "false"
+        - cell "benchmark_claim=false · winner_claim=false":
+          - generic: benchmark_claim=false · winner_claim=false
+        - cell "Machine Market benchmarks require robotic.sh-listed services. No robotic.sh-listed comparable route, no Machine Market benchmark. Methodology artifact schema is not benchmark evidence. Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts. No winner claim exists until explicit criteria and artifacts exist. No benchmark execution has been run by this scaffold.":
+          - generic: Machine Market benchmarks require robotic.sh-listed services. No robotic.sh-listed comparable route, no Machine Market benchmark. Methodology artifact schema is not benchmark evidence. Benchmark readiness is not benchmark evidence. Repeatability is not route superiority. A single repeatable route is not a benchmark. Comparable routes are required before benchmark artifacts. No winner claim exists until explicit criteria and artifacts exist. No benchmark execution has been run by this scaffold.
+  - region "Missing requirements":
+    - paragraph: Missing requirements
+    - heading "What blocks benchmark artifacts" [level=2]
+    - paragraph:
+      - generic: machine_translation
+      - generic: comparable_route_missing, comparable_routes_missing, repeatability_missing
+    - paragraph:
+      - generic: data_query_bigquery
+      - generic: comparable_route_missing, comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing
+    - paragraph:
+      - generic: storage_stableupload
+      - generic: comparable_route_missing, comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing
+    - paragraph:
+      - generic: navigation_naver_geocode
+      - generic: comparable_route_missing, comparable_routes_missing, methodology_missing, same_task_class_required, same_input_class_required, same_output_normalization_required, same_success_criteria_required, same_run_count_target_required, comparable_latency_cost_payment_fields_required, safety_policy_compatibility_required, repeatability_missing
+  - region "Caveats / no-claim posture":
+    - paragraph: Methodology artifact schema is not benchmark evidence.
+    - paragraph: Benchmark readiness is not benchmark evidence.
+    - paragraph: Repeatability is not route superiority.
+    - paragraph: A single repeatable route is not a benchmark.
+    - paragraph: Comparable routes are required before benchmark artifacts.
+    - paragraph: No winner claim exists until explicit criteria and artifacts exist.
+    - paragraph: No benchmark execution has been run by this scaffold.
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

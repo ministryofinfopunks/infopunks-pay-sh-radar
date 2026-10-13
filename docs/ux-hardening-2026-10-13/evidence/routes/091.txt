@@ -1,0 +1,118 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: Revenue Receipts
+- paragraph:
+  - generic: "[ 04 ]"
+  - text: RECEIPTS / PROOF ARCHIVE
+- main "Infopunks Revenue Receipts":
+  - paragraph: Public commercial ledger
+  - heading "Infopunks Revenue Receipts" [level=1]
+  - heading "No receipt, no trust." [level=2]
+  - paragraph: Public receipts for permission, evidence, attribution, and continuous monitoring.
+  - paragraph: Projects can buy evaluation, not conviction.
+  - paragraph: Template receipts are examples only. They are not real revenue.
+  - link "Open evaluation slot":
+    - /url: /evaluation-request
+  - link "Open API schema":
+    - /url: /openapi.json
+  - generic "Revenue receipt counters":
+    - article:
+      - generic: settled judgments
+      - strong: —
+    - article:
+      - generic: open slots
+      - strong: "1"
+    - article:
+      - generic: templates
+      - strong: "1"
+    - article:
+      - generic: completed
+      - strong: "1"
+  - region "Settlement-backed revenue":
+    - paragraph: Verified settlement
+    - heading "Protocol revenue" [level=2]
+    - link "Open evidence ledger":
+      - /url: /v1/economics/revenue
+    - paragraph: Finalized judgment payments only. Templates are excluded. Recorded costs are partial; distributable surplus remains unestablished.
+    - paragraph: Settlement ledger unavailable.
+  - region "Use of funds policy":
+    - paragraph: Use of Funds
+    - heading "Illustrative work allocations" [level=2]
+    - paragraph: Template allocations do not establish protocol surplus or authorize treasury spending.
+    - generic: 40% Product Treasury
+    - generic: 30% Hunter Rewards
+    - generic: 20% Community Ops
+    - generic: 10% Content Design Bounties
+  - region "Open Slot receipts":
+    - paragraph: Open Slot
+    - heading "1" [level=2]
+    - paragraph: Receipt status is public so trust can be audited.
+    - article:
+      - generic: Open Slot
+      - generic: Open Slot
+      - heading "Open Unicorn Radar Evaluation Slot" [level=3]
+      - paragraph: Sponsored Radar Evaluation · Open
+      - paragraph:
+        - strong: $100
+        - text: · Unicorn Radar
+      - paragraph: Projects can buy evaluation, not conviction.
+      - paragraph: Introductory paid evaluation slot.
+      - paragraph: "Use of funds: 40% Product Treasury · 30% Hunter Rewards · 20% Community Ops · 10% Content Design Bounties"
+      - link "Open receipt":
+        - /url: /revenue-receipts/rr_open_evaluation_slot
+  - region "Pending receipts":
+    - paragraph: Pending
+    - heading "1" [level=2]
+    - paragraph: Templates and unpublished work stay explicitly marked.
+    - article:
+      - generic: Pending
+      - generic: Template
+      - heading "Revenue Receipt Template" [level=3]
+      - paragraph: Sponsored Radar Evaluation · Example
+      - paragraph:
+        - strong: $0.00
+        - text: · Unicorn Radar
+      - paragraph: This is a template showing how completed revenue receipts will be published.
+      - paragraph: Not real revenue.
+      - paragraph: "Use of funds: 40% Product Treasury · 30% Hunter Rewards · 20% Community Ops · 10% Content Design Bounties"
+      - link "Open receipt":
+        - /url: /revenue-receipts/rr_template_001
+  - region "Completed receipts":
+    - paragraph: Completed
+    - heading "1" [level=2]
+    - paragraph: Receipt status is public so trust can be audited.
+    - article:
+      - generic: Completed
+      - generic: Build Receipt
+      - heading "Unicorn Radar Internal Build Receipt" [level=3]
+      - paragraph: Internal Build · Infopunks
+      - paragraph:
+        - strong: $0.00
+        - text: · Unicorn Radar
+      - paragraph: Internal build receipt. No paid coverage.
+      - paragraph: Verified production candidates shipped before paid coverage.
+      - paragraph: "Use of funds: 40% Product Treasury · 30% Hunter Rewards · 20% Community Ops · 10% Content Design Bounties"
+      - link "Open receipt":
+        - /url: /revenue-receipts/rr_unicorn_radar_build
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

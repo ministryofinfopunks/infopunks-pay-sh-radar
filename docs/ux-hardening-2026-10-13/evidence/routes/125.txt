@@ -1,0 +1,147 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Solana / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Solana":
+    - /url: /solana
+  - generic: /
+  - generic: services
+- paragraph:
+  - generic: "[ 06 ]"
+  - text: SERVICES / SERVICE DOSSIERS
+- main "Services":
+  - paragraph: Service dossiers
+  - heading "Services" [level=1]
+  - paragraph: Service dossiers answer should this agent spend, which route is safer first, where the known blockers sit, and which receipt-backed alternatives remain available.
+  - region "Pre-spend intelligence metrics":
+    - article:
+      - text: Legacy diagnostic records
+      - strong: "3"
+    - article:
+      - text: routes indexed
+      - strong: "6"
+    - article:
+      - text: providers scored
+      - strong: "5"
+    - article:
+      - text: receipts generated
+      - strong: "11"
+    - article:
+      - text: pre-spend checks completed
+      - strong: "6"
+    - article:
+      - text: human validations submitted
+      - strong: "3"
+    - article:
+      - text: failed routes avoided
+      - strong: "0"
+    - article:
+      - text: claims challenged
+      - strong: "2"
+    - article:
+      - text: repeatable routes discovered
+      - strong: "3"
+  - region "Service dossiers":
+    - article:
+      - 'link "market_research service_market_research best observed route route_pay_sh_market_research_03 cheapest observed route route_pay_sh_market_research_01 safest first attempt route_pay_sh_market_research_03 fastest repeatable route route_pay_sh_market_research_03 benchmark readiness human_validated Known blockers: prompt quality affects result quality Use Oracle Verification Fabric first for verified pre-spend decisions. Lattice is acceptable with prompt discipline. Inspect service dossier"':
+        - /url: /services/service_market_research
+        - paragraph: market_research
+        - heading "service_market_research" [level=2]
+        - generic: best observed route route_pay_sh_market_research_03
+        - generic: cheapest observed route route_pay_sh_market_research_01
+        - generic: safest first attempt route_pay_sh_market_research_03
+        - generic: fastest repeatable route route_pay_sh_market_research_03
+        - generic: benchmark readiness human_validated
+        - paragraph: "Known blockers: prompt quality affects result quality"
+        - paragraph: Use Oracle Verification Fabric first for verified pre-spend decisions. Lattice is acceptable with prompt discipline.
+        - generic: Inspect service dossier
+    - article:
+      - 'link "token_pricing service_token_pricing best observed route route_pay_sh_token_quote_01 cheapest observed route route_pay_sh_token_quote_01 safest first attempt route_pay_sh_token_quote_01 fastest repeatable route route_pay_sh_token_quote_01 benchmark readiness human_validated Known blockers: none Verified first-choice route for low-risk quote checks. Inspect service dossier"':
+        - /url: /services/service_token_pricing
+        - paragraph: token_pricing
+        - heading "service_token_pricing" [level=2]
+        - generic: best observed route route_pay_sh_token_quote_01
+        - generic: cheapest observed route route_pay_sh_token_quote_01
+        - generic: safest first attempt route_pay_sh_token_quote_01
+        - generic: fastest repeatable route route_pay_sh_token_quote_01
+        - generic: benchmark readiness human_validated
+        - paragraph: "Known blockers: none"
+        - paragraph: Verified first-choice route for low-risk quote checks.
+        - generic: Inspect service dossier
+    - article:
+      - 'link "receipt_parsing service_receipt_parsing best observed route route_pay_sh_receipt_parse_02 cheapest observed route route_pay_sh_receipt_parse_02 safest first attempt route_pay_sh_receipt_parse_02 fastest repeatable route route_pay_sh_receipt_parse_02 benchmark readiness stale Known blockers: stale evidence window, layout-heavy documents remain mixed Use with caution until fresh human-validated receipts exist. Inspect service dossier"':
+        - /url: /services/service_receipt_parsing
+        - paragraph: receipt_parsing
+        - heading "service_receipt_parsing" [level=2]
+        - generic: best observed route route_pay_sh_receipt_parse_02
+        - generic: cheapest observed route route_pay_sh_receipt_parse_02
+        - generic: safest first attempt route_pay_sh_receipt_parse_02
+        - generic: fastest repeatable route route_pay_sh_receipt_parse_02
+        - generic: benchmark readiness stale
+        - paragraph: "Known blockers: stale evidence window, layout-heavy documents remain mixed"
+        - paragraph: Use with caution until fresh human-validated receipts exist.
+        - generic: Inspect service dossier
+    - article:
+      - 'link "compliance service_compliance_scan best observed route route_pay_sh_compliance_scan_01 cheapest observed route route_pay_sh_compliance_scan_01 safest first attempt route_pay_sh_compliance_scan_01 fastest repeatable route route_pay_sh_compliance_scan_01 benchmark readiness machine_checked Known blockers: business-context sensitivity Technically viable route, but human approval should gate spend for sensitive claims. Inspect service dossier"':
+        - /url: /services/service_compliance_scan
+        - paragraph: compliance
+        - heading "service_compliance_scan" [level=2]
+        - generic: best observed route route_pay_sh_compliance_scan_01
+        - generic: cheapest observed route route_pay_sh_compliance_scan_01
+        - generic: safest first attempt route_pay_sh_compliance_scan_01
+        - generic: fastest repeatable route route_pay_sh_compliance_scan_01
+        - generic: benchmark readiness machine_checked
+        - paragraph: "Known blockers: business-context sensitivity"
+        - paragraph: Technically viable route, but human approval should gate spend for sensitive claims.
+        - generic: Inspect service dossier
+    - article:
+      - 'link "private_profile_scrape service_private_profile_scrape best observed route n/a cheapest observed route n/a safest first attempt n/a fastest repeatable route n/a benchmark readiness disputed Known blockers: repeated failures, unresolved provider disputes Do not use until fresh successful receipts and dispute resolution exist. Inspect service dossier"':
+        - /url: /services/service_private_profile_scrape
+        - paragraph: private_profile_scrape
+        - heading "service_private_profile_scrape" [level=2]
+        - generic: best observed route n/a
+        - generic: cheapest observed route n/a
+        - generic: safest first attempt n/a
+        - generic: fastest repeatable route n/a
+        - generic: benchmark readiness disputed
+        - paragraph: "Known blockers: repeated failures, unresolved provider disputes"
+        - paragraph: Do not use until fresh successful receipts and dispute resolution exist.
+        - generic: Inspect service dossier
+  - region "Claims and validation placeholder":
+    - paragraph: Claim Primitive
+    - heading "Receipt-backed signal comes before markets" [level=2]
+    - article:
+      - strong: claim submission
+      - generic: small evidence primitive only
+    - article:
+      - strong: claim challenge
+      - generic: small evidence primitive only
+    - article:
+      - strong: human validation
+      - generic: small evidence primitive only
+    - article:
+      - strong: receipt references
+      - generic: small evidence primitive only
+    - article:
+      - strong: known blockers
+      - generic: small evidence primitive only
+    - article:
+      - strong: safer alternatives
+      - generic: small evidence primitive only
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT

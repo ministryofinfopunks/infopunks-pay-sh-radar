@@ -1,0 +1,62 @@
+- link "Skip to content":
+  - /url: "#radar-page-content"
+- banner:
+  - link "Infopunks Radar home":
+    - /url: /
+    - text: INFOPUNKS
+    - generic: RADAR / INTELLIGENCE TERMINAL
+  - button "Open navigation":
+- generic "Robinhood Chain / destinations and network context"
+- navigation "Breadcrumb":
+  - link "Radar":
+    - /url: /
+  - generic: /
+  - link "Robinhood Chain":
+    - /url: /rh-chain-signal-desk
+  - generic: /
+  - generic: attention quality
+- paragraph:
+  - generic: "[ 11 ]"
+  - text: ROBINHOOD CHAIN / ONCHAIN FINANCE
+- link "Skip to market structure":
+  - /url: "#market-structure-content"
+- main:
+  - paragraph: 4663 Market Structure
+  - heading "Paid Attention Watch" [level=1]
+  - paragraph: Paid visibility is observed without being mistaken for organic conviction.
+  - link "Read observations":
+    - /url: "#paid-attention"
+  - link "Market structure":
+    - /url: /rh-chain-signal-desk/market-structure
+  - complementary:
+    - generic "Source policy and freshness":
+      - generic: Source mode
+      - strong: Unavailable
+      - generic: Status
+      - strong: Unavailable
+      - generic: Observed
+      - strong: Jul 9, 2026, 3:45 AM UTC
+      - generic: Relative age
+      - strong: Updated 96 days ago
+      - generic: Sources
+      - strong: Source required
+      - generic: Source policy
+      - paragraph: Every volatile metric must carry a source and observed_at timestamp. Unknown market data is labeled source_pending instead of guessed.
+      - generic: Doctrine
+      - paragraph: External data gives context. Infopunks gives judgment. Receipts create memory.
+    - paragraph: A paid boost is not misconduct. A boost rank is not organic demand.
+  - paragraph: Documented API observations
+  - heading "Boosts, orders, pair context" [level=2]
+  - paragraph: source required
+  - heading "Source required" [level=2]
+  - paragraph: No current paid-attention observation is available from the public API.
+  - paragraph: Attention quality
+  - heading "History-gated, never inferred" [level=2]
+- generic "Observation → Judgment → Execution → Evaluation"
+- contentinfo:
+  - link "INFOPUNKS RADAR":
+    - /url: /
+  - generic: ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.
+  - link "API CONTRACT":
+    - /url: /openapi.json
+    - text: API CONTRACT
