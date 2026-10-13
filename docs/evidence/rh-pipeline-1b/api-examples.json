@@ -1,0 +1,943 @@
+{
+  "fixture_only": true,
+  "provider_request_attempts": 0,
+  "description": "Actual app.inject responses using the persisted PostgreSQL fixtures and explicitly fixed test clock. Public automation and publication were disabled.",
+  "before": {
+    "data": {
+      "object_type": "RH_MARKET_MOVERS",
+      "chain_id": 4663,
+      "calculation_version": "rh-market-significance-v1",
+      "canonical_path": "/v1/rh-chain/market/movers",
+      "projection_id": "rh-movers:7a59615c3706600396c3009ec8d8508a5c02558767bfbfd25543db18341cf2dc",
+      "generated_at": "2026-10-13T15:00:00.000Z",
+      "data_mode": "persisted",
+      "storage_status": "available",
+      "state": "empty",
+      "source_policy": "Deterministic replay of retained exact-contract/pair observations. No collection or reviewed publication occurs on public reads.",
+      "disclaimer": "Observed market significance is not investment return, capital flow, a safety verdict or spending authority.",
+      "policy": {
+        "chain_id": 4663,
+        "freshness_ms": 900000,
+        "window_ms": 3600000,
+        "baseline_tolerance_ms": 600000,
+        "maximum_gap_ms": 1200000,
+        "minimum_samples": 6,
+        "minimum_liquidity_usd": 10000,
+        "minimum_volume_24h_usd": 1000,
+        "minimum_transactions_24h": 10,
+        "maximum_contracts": 300,
+        "weights": {
+          "volume": 25,
+          "liquidity": 20,
+          "transactions": 20,
+          "price": 15,
+          "persistence": 10,
+          "evidence": 10
+        },
+        "delta_saturation_pct": {
+          "volume": 200,
+          "liquidity": 30,
+          "transactions": 100,
+          "price": 20
+        }
+      },
+      "assets": [],
+      "research": [],
+      "coverage": {
+        "contract_count": 0,
+        "ranked_count": 0,
+        "research_count": 0,
+        "universe_truncated": false,
+        "universe_scope": "RETAINED_RAW_OBSERVATIONS"
+      },
+      "failures": [],
+      "execution_authorized": false,
+      "storage": {
+        "adapter": "postgres",
+        "durable": true
+      },
+      "source_health": {
+        "market_storage": "available",
+        "stock_registry": "available"
+      }
+    },
+    "meta": {
+      "source_policy": "Deterministic replay of retained exact-contract/pair observations. No collection or reviewed publication occurs on public reads.",
+      "record_count": 0,
+      "provider_status": [
+        {
+          "provider_name": "DefiLlama",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "DexScreener",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "CoinGecko",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "Blockscout",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "Dune",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "X/social signals",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        }
+      ],
+      "live_indexing_enabled": false
+    },
+    "sources": [],
+    "generated_at": "2026-10-13T15:00:00.000Z",
+    "data_mode": "persisted",
+    "disclaimer": "Observed market significance is not investment return, capital flow, a safety verdict or spending authority."
+  },
+  "movers": {
+    "data": {
+      "object_type": "RH_MARKET_MOVERS",
+      "chain_id": 4663,
+      "calculation_version": "rh-market-significance-v1",
+      "canonical_path": "/v1/rh-chain/market/movers",
+      "projection_id": "rh-movers:935889e99d9247ab7e40571d3e1d0bfec7e1aa78e182cbf2286d3aa6787fbbf1",
+      "generated_at": "2026-10-13T15:00:00.000Z",
+      "data_mode": "persisted",
+      "storage_status": "available",
+      "state": "available",
+      "source_policy": "Deterministic replay of retained exact-contract/pair observations. No collection or reviewed publication occurs on public reads.",
+      "disclaimer": "Observed market significance is not investment return, capital flow, a safety verdict or spending authority.",
+      "policy": {
+        "chain_id": 4663,
+        "freshness_ms": 900000,
+        "window_ms": 3600000,
+        "baseline_tolerance_ms": 600000,
+        "maximum_gap_ms": 1200000,
+        "minimum_samples": 6,
+        "minimum_liquidity_usd": 10000,
+        "minimum_volume_24h_usd": 1000,
+        "minimum_transactions_24h": 10,
+        "maximum_contracts": 300,
+        "weights": {
+          "volume": 25,
+          "liquidity": 20,
+          "transactions": 20,
+          "price": 15,
+          "persistence": 10,
+          "evidence": 10
+        },
+        "delta_saturation_pct": {
+          "volume": 200,
+          "liquidity": 30,
+          "transactions": 100,
+          "price": 20
+        }
+      },
+      "assets": [
+        {
+          "rank": 1,
+          "chain_id": 4663,
+          "token_contract": "0x1111111111111111111111111111111111111111",
+          "pair_address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "ticker": "SAME",
+          "name": "Fixture asset",
+          "lane": "stock_token",
+          "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12",
+          "baseline_observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+          "observation_ids": [
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:1",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:2",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:3",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:4",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:5",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:6",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:7",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:8",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:9",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:10",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:11",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12"
+          ],
+          "observed_at": "2026-10-13T15:00:00.000Z",
+          "source": {
+            "source_name": "Persisted DEX Screener exact-pair observation",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T15:00:00.000Z",
+            "updated_at": "2026-10-13T15:00:00.000Z",
+            "data_mode": "persisted",
+            "confidence_level": "low",
+            "note": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+            "caveat": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+            "source": "Persisted DEX Screener exact-pair observation",
+            "url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "freshness": {
+            "state": "fresh",
+            "observed_at": "2026-10-13T15:00:00.000Z",
+            "fetched_at": "2026-10-13T15:00:00.000Z",
+            "age_ms": 0,
+            "time_basis": "provider_fetch"
+          },
+          "evidence_state": "QUALIFIED_OBSERVATION",
+          "coverage": {
+            "sample_count": 13,
+            "elapsed_ms": 3600000,
+            "maximum_gap_ms": 300000,
+            "provider_timestamp_count": 0,
+            "state": "complete"
+          },
+          "metrics": {
+            "price_usd": 2.2,
+            "liquidity_usd": 22000,
+            "rolling_volume_1h_usd": 400,
+            "rolling_volume_24h_usd": 32000,
+            "rolling_transactions_24h": 44,
+            "price_delta_pct": 10,
+            "liquidity_delta_pct": 120,
+            "volume_delta_pct": 300,
+            "transactions_delta_pct": 120,
+            "persistence_ratio": 0.58
+          },
+          "significance_score": 83.33,
+          "score_components": {
+            "volume": 25,
+            "liquidity": 20,
+            "transactions": 20,
+            "price": 7.5,
+            "persistence": 5.83,
+            "evidence": 5
+          },
+          "score_version": "rh-market-significance-v1",
+          "investigation_href": "/rh-chain-signal-desk/tokens/0x1111111111111111111111111111111111111111?observation_id=0x1111111111111111111111111111111111111111%3A0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%3A12",
+          "history_href": "/v1/rh-chain/market/snapshots/0x1111111111111111111111111111111111111111",
+          "judgment_state": "unreviewed_observation",
+          "execution_authorized": false
+        }
+      ],
+      "research": [],
+      "coverage": {
+        "contract_count": 1,
+        "ranked_count": 1,
+        "research_count": 0,
+        "universe_truncated": false,
+        "universe_scope": "RETAINED_RAW_OBSERVATIONS"
+      },
+      "failures": [],
+      "execution_authorized": false,
+      "storage": {
+        "adapter": "postgres",
+        "durable": true
+      },
+      "source_health": {
+        "market_storage": "available",
+        "stock_registry": "available"
+      }
+    },
+    "meta": {
+      "source_policy": "Deterministic replay of retained exact-contract/pair observations. No collection or reviewed publication occurs on public reads.",
+      "record_count": 1,
+      "provider_status": [
+        {
+          "provider_name": "DefiLlama",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "DexScreener",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "CoinGecko",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "Blockscout",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "Dune",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "X/social signals",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        }
+      ],
+      "live_indexing_enabled": false
+    },
+    "sources": [
+      {
+        "source_name": "Persisted DEX Screener exact-pair observation",
+        "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "observed_at": "2026-10-13T15:00:00.000Z",
+        "updated_at": "2026-10-13T15:00:00.000Z",
+        "data_mode": "persisted",
+        "confidence_level": "low",
+        "note": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+        "caveat": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+        "source": "Persisted DEX Screener exact-pair observation",
+        "url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ],
+    "generated_at": "2026-10-13T15:00:00.000Z",
+    "data_mode": "persisted",
+    "disclaimer": "Observed market significance is not investment return, capital flow, a safety verdict or spending authority."
+  },
+  "today": {
+    "data": {
+      "title": "Today on 4663",
+      "generated_at": "2026-10-13T15:00:00.000Z",
+      "source_policy": "Current cards are deterministic facts from qualified stored market observations. Campaigns, risk interpretation and reviewed Daily Receipts remain labeled historical memory; no observation creates a reviewed verdict.",
+      "disclaimer": "Today on 4663 is public intelligence context, not financial advice, endorsement, a safety determination, listing, or an official Robinhood partnership.",
+      "doctrine": "External data gives context. Infopunks gives judgment. Receipts create memory.",
+      "data_mode": "persisted",
+      "freshness_state": "fresh",
+      "storage_status": "available",
+      "caveats": [
+        "Daily Receipt is the reviewed editorial record; attention context does not override it.",
+        "Risk alerts are review cues, not definitive misconduct findings or safety determinations.",
+        "Provider-only data remains context and is never promoted to reviewed judgment.",
+        "The market score measures observed significance. Rolling volume is not capital flow. Indexed liquidity is not executable capacity."
+      ],
+      "latest_receipt": {
+        "receipt_id": "rh_daily_006",
+        "receipt_type": "daily_market_memory",
+        "date": "2026-07-19",
+        "period": "July 17 → July 19, 2026 UTC",
+        "generated_at": "2026-07-19T00:00:00.000Z",
+        "observed_at": "2026-07-19T00:00:00.000Z",
+        "chain": "Robinhood Chain",
+        "headline": "Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers",
+        "summary": "A manually reviewed Daily Receipt for July 17 → July 19, 2026 UTC: RH Chain has entered post-drama stabilization. Volume remains strong, but market behavior is separating into meme, RWA, agent, and infrastructure layers rather than moving as one launch-week trade.",
+        "top_signal": "Volume remains resilient after the NOXA disruption, but the market is now separating into meme, RWA, agent, and infrastructure layers rather than moving as one launch-week trade.",
+        "biggest_risk": "Launchpad fragmentation, duplicate tickers, paid attention, and unverified RWA or agent claims can make surface-level momentum look stronger than reviewed signal.",
+        "strongest_narrative": "RH Chain is maturing from meme rocket ship into a multi-layer attention market: memes onboard users, RWAs create institutional gravity, and agents become the next automation primitive.",
+        "liquidity_note": "Volume remains strong but below peak launch-week frenzy. Chain-wide metrics are source/timestamp dependent; no exact chain-wide values are asserted. Uniswap remains a major venue in existing source context.",
+        "stock_token_spillover_note": "Leadership messaging continues to re-center programmable real-world assets and tokenized finance, but that narrative is source_required unless primary or on-chain evidence supports the claim.",
+        "solana_base_migration_note": "Layer separation is RH Chain market-structure context, not proof of cross-chain migration, lasting usage, or token quality.",
+        "deployer_watch_note": "Launchpad market-share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless provider receipts, primary sources, or operational on-chain evidence are attached.",
+        "infopunks_verdict": "Memes onboard attention. RWAs create gravity. Agents create the next primitive. 4663 tracks which layer gains power next.",
+        "manual_context": "Human-reviewed memory for July 17 → July 19, 2026 UTC. This is a post-drama stabilization read, not a market-wide performance claim. External data gives context. Automation drafts memory. Infopunks approves judgment. Receipts create history. Do not let live data outrank this human-reviewed receipt.",
+        "source_notes": "Manual market memory with medium confidence. Chain-wide metrics are source/timestamp dependent. Provider data remains context only. Launchpad market-share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless backed by primary or on-chain evidence; provider receipts can supply context but do not replace review. The Index remains under_receipt_check where represented in Market Structure. This receipt does not imply safety, endorsement, affiliation, listing, or official Robinhood partnership.",
+        "receipt_sections": [
+          {
+            "section_id": "chain_pulse",
+            "title": "Chain Pulse",
+            "summary": "Post-drama stabilization is holding: visible volume remains strong, while the launch-week peak has cooled into more selective behavior.",
+            "fields": [
+              {
+                "label": "Phase",
+                "value": "RH Chain is in a post-drama stabilization phase."
+              },
+              {
+                "label": "Activity read",
+                "value": "Volume remains strong but below peak launch-week frenzy."
+              },
+              {
+                "label": "Venue context",
+                "value": "Uniswap remains a major venue in existing source context."
+              },
+              {
+                "label": "Metrics rule",
+                "value": "Chain-wide metrics are source/timestamp dependent; no exact chain-wide values are asserted."
+              }
+            ]
+          },
+          {
+            "section_id": "launchpad_stress_test",
+            "title": "Launchpad Pulse",
+            "summary": "The NOXA disruption still shapes behavior as newer launchpads and direct Uniswap launches gain visibility.",
+            "fields": [
+              {
+                "label": "NOXA context",
+                "value": "The NOXA disruption continues to shape launch and discovery behavior."
+              },
+              {
+                "label": "Surface visibility",
+                "value": "Newer launchpads and direct Uniswap launches are gaining visibility."
+              },
+              {
+                "label": "Market-share rule",
+                "value": "Launchpad market-share claims are source_required unless backed by provider receipts."
+              },
+              {
+                "label": "Scarcity context",
+                "value": "Older NOXA launches may gain a scarcity narrative; this is narrative context, not proof of quality."
+              }
+            ]
+          },
+          {
+            "section_id": "meme_pulse",
+            "title": "Meme Pulse",
+            "summary": "Memes remain the primary attention and liquidity engine, but rotation is more selective than the peak frenzy.",
+            "fields": [
+              {
+                "label": "Attention engine",
+                "value": "Memes remain the primary attention and liquidity engine."
+              },
+              {
+                "label": "Benchmark",
+                "value": "CASHCAT remains the benchmark attention asset."
+              },
+              {
+                "label": "Rotation",
+                "value": "Rotation is more selective than peak frenzy."
+              }
+            ]
+          },
+          {
+            "section_id": "leadership_narrative_pulse",
+            "title": "Leadership Narrative Pulse",
+            "summary": "Leadership messaging keeps programmable real-world assets, tokenized finance, and agentic economy in view without substituting message-level context for operational evidence.",
+            "fields": [
+              {
+                "label": "Tracked themes",
+                "value": "Programmable real-world assets, tokenized finance, and agentic economy."
+              },
+              {
+                "label": "Evidence rule",
+                "value": "Exact leadership claims, RWA usage, and agent activity remain source_required unless primary or on-chain evidence is attached."
+              }
+            ]
+          },
+          {
+            "section_id": "rwa_pulse",
+            "title": "RWA Pulse",
+            "summary": "Leadership messaging continues to re-center programmable real-world assets and tokenized finance without converting narrative into proof.",
+            "fields": [
+              {
+                "label": "Narrative layer",
+                "value": "Leadership messaging continues to re-center programmable real-world assets and tokenized finance."
+              },
+              {
+                "label": "Evidence rule",
+                "value": "RWA claims are source_required unless backed by primary or on-chain evidence."
+              },
+              {
+                "label": "Market Structure candidate",
+                "value": "The Index is an under_receipt_check RWA x DeFi candidate where already represented in Market Structure."
+              }
+            ]
+          },
+          {
+            "section_id": "agent_pulse",
+            "title": "Agent Pulse",
+            "summary": "The agentic economy remains a leadership-backed narrative layer, while demonstrated activity needs its own evidence.",
+            "fields": [
+              {
+                "label": "Narrative layer",
+                "value": "Agentic economy remains a leadership-backed narrative layer."
+              },
+              {
+                "label": "Activity rule",
+                "value": "AI narrative does not prove agent activity."
+              },
+              {
+                "label": "Evidence rule",
+                "value": "Agent claims remain source_required unless operational wallet or activity evidence exists."
+              }
+            ]
+          },
+          {
+            "section_id": "infrastructure_pulse",
+            "title": "Infrastructure Pulse",
+            "summary": "Launchpads, analytics, direct pools, and data and infrastructure narratives are becoming more important as the market sorts.",
+            "fields": [
+              {
+                "label": "Infrastructure read",
+                "value": "Launchpads, analytics, direct pools, and data/infrastructure narratives are becoming more important."
+              },
+              {
+                "label": "Evidence rule",
+                "value": "Oracle and data-token claims remain source_required unless operational infrastructure is verified."
+              }
+            ]
+          },
+          {
+            "section_id": "risk_wall",
+            "title": "Risk Wall",
+            "summary": "The sorting phase increases the cost of treating surface attention as reviewed memory.",
+            "fields": [
+              {
+                "label": "Launch and identity risk",
+                "value": "launchpad fragmentation, duplicate ticker confusion, and clone/pair confusion."
+              },
+              {
+                "label": "Attention risk",
+                "value": "paid attention mistaken for conviction."
+              },
+              {
+                "label": "Narrative risk",
+                "value": "RWA narrative without backing proof and AI narrative mistaken for agent activity."
+              },
+              {
+                "label": "Market and desk risk",
+                "value": "liquidity fragmentation, review overload, and source gaps."
+              }
+            ]
+          },
+          {
+            "section_id": "market_structure_note",
+            "title": "Market Structure Note",
+            "summary": "The chain is not cooling. It is sorting.",
+            "fields": [
+              {
+                "label": "Structure read",
+                "value": "The chain is not cooling. It is sorting."
+              },
+              {
+                "label": "Layer read",
+                "value": "Memes, RWAs, agents, and infrastructure are becoming distinct layers with different evidence needs."
+              }
+            ]
+          },
+          {
+            "section_id": "narrative_mutation",
+            "title": "Narrative Mutation",
+            "summary": "The edge is shifting from a single launch-week trade to tracking which layer gains power and which projects cross layers.",
+            "fields": [
+              {
+                "label": "Mutation",
+                "value": "RH Chain is maturing from meme rocket ship into a multi-layer attention market."
+              },
+              {
+                "label": "Graduation test",
+                "value": "Track whether meme liquidity graduates into RWA, agent, DeFi, or infrastructure activity."
+              }
+            ]
+          },
+          {
+            "section_id": "infopunks_verdict",
+            "title": "Infopunks Verdict",
+            "summary": "Memes onboard attention. RWAs create gravity. Agents create the next primitive. 4663 tracks which layer gains power next.",
+            "fields": [
+              {
+                "label": "Verdict",
+                "value": "Memes onboard attention. RWAs create gravity. Agents create the next primitive. 4663 tracks which layer gains power next."
+              }
+            ]
+          }
+        ],
+        "watchlist": [
+          {
+            "item": "CASHCAT attention benchmark",
+            "reason": "CASHCAT remains the benchmark attention asset while meme rotation becomes more selective.",
+            "risk_state": "medium_watch",
+            "next_thing_to_verify": "Exact contract, canonical pair, liquidity depth, holder concentration, and source timestamp."
+          },
+          {
+            "item": "The Index",
+            "reason": "RWA x DeFi candidate under_receipt_check where represented in Market Structure.",
+            "risk_state": "source_required",
+            "next_thing_to_verify": "Exact contract, primary RWA or DeFi evidence, and operational on-chain activity."
+          },
+          {
+            "item": "Agent and infrastructure claims",
+            "reason": "Leadership-backed narrative can lead evidence of operational activity.",
+            "risk_state": "source_required",
+            "next_thing_to_verify": "Operational wallet, activity, oracle, data, or infrastructure evidence with timestamps."
+          }
+        ],
+        "do_not_touch_yet": [
+          {
+            "item": "Duplicate tickers and clone/pair ambiguity",
+            "reason": "A ticker, launch label, or pair screenshot does not establish canonical identity.",
+            "risk_state": "do_not_touch_yet",
+            "next_thing_to_verify": "Exact contract, canonical pair, deployer history, and source-linked launch origin."
+          },
+          {
+            "item": "Paid attention and fragmented liquidity",
+            "reason": "Surface visibility can be paid or split across venues before conviction, depth, or provenance is reviewed.",
+            "risk_state": "source_required",
+            "next_thing_to_verify": "Attention provenance, pool reserves, LP status, holder distribution, and timestamp."
+          },
+          {
+            "item": "Unverified RWA and agent activity",
+            "reason": "Narrative claims can outrun backing proof or operational evidence.",
+            "risk_state": "source_required",
+            "next_thing_to_verify": "Primary documentation, operational wallets, activity evidence, and human review."
+          }
+        ],
+        "sources": [
+          {
+            "source_name": "Infopunks manual RH Chain stabilization watch",
+            "source_url": "https://radar.infopunks.fun/rh-chain-signal-desk/daily-receipts",
+            "observed_at": "2026-07-19T00:00:00.000Z",
+            "updated_at": "2026-07-19T00:00:00.000Z",
+            "data_mode": "manual",
+            "confidence_level": "medium",
+            "note": "Human-reviewed, manually authored market memory for July 17 → July 19, 2026 UTC. Chain-wide metrics remain source/timestamp dependent. Provider data is context only; launchpad share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless primary, provider-receipted, or operational on-chain evidence is attached.",
+            "caveat": "Human-reviewed, manually authored market memory for July 17 → July 19, 2026 UTC. Chain-wide metrics remain source/timestamp dependent. Provider data is context only; launchpad share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless primary, provider-receipted, or operational on-chain evidence is attached.",
+            "source": "Infopunks manual RH Chain stabilization watch",
+            "url": "https://radar.infopunks.fun/rh-chain-signal-desk/daily-receipts",
+            "name": "Infopunks manual RH Chain stabilization watch"
+          }
+        ],
+        "confidence_level": "medium",
+        "status": "manual",
+        "data_mode": "manual",
+        "freshness_state": "stale"
+      },
+      "cards": [
+        {
+          "id": "top_signal",
+          "title": "Stock Token observation",
+          "verdict": "SAME · observed significance 83.33/100 · price change 10% across the observed window.",
+          "href": "/rh-chain-signal-desk/tokens/0x1111111111111111111111111111111111111111?observation_id=0x1111111111111111111111111111111111111111%3A0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%3A12",
+          "source": {
+            "source_name": "Persisted DEX Screener exact-pair observation",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T15:00:00.000Z",
+            "updated_at": "2026-10-13T15:00:00.000Z",
+            "data_mode": "persisted",
+            "confidence_level": "low",
+            "note": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+            "caveat": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+            "source": "Persisted DEX Screener exact-pair observation",
+            "url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "freshness_state": "fresh",
+          "judgment_state": "observed_fact",
+          "record_scope": "current_observation",
+          "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12",
+          "observed_at": "2026-10-13T15:00:00.000Z",
+          "time_basis": "provider_fetch",
+          "coverage_state": "complete",
+          "evidence_references": [
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:1",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:2",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:3",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:4",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:5",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:6",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:7",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:8",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:9",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:10",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:11",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12"
+          ]
+        },
+        {
+          "id": "highest_attention_move",
+          "title": "Rolling volume change",
+          "verdict": "SAME · rolling 1h volume changed 300% across the observed window.",
+          "href": "/rh-chain-signal-desk/tokens/0x1111111111111111111111111111111111111111?observation_id=0x1111111111111111111111111111111111111111%3A0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%3A12",
+          "source": {
+            "source_name": "Persisted DEX Screener exact-pair observation",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T15:00:00.000Z",
+            "updated_at": "2026-10-13T15:00:00.000Z",
+            "data_mode": "persisted",
+            "confidence_level": "low",
+            "note": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+            "caveat": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+            "source": "Persisted DEX Screener exact-pair observation",
+            "url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "freshness_state": "fresh",
+          "judgment_state": "observed_fact",
+          "record_scope": "current_observation",
+          "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12",
+          "observed_at": "2026-10-13T15:00:00.000Z",
+          "time_basis": "provider_fetch",
+          "coverage_state": "complete",
+          "evidence_references": [
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:1",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:2",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:3",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:4",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:5",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:6",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:7",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:8",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:9",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:10",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:11",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12"
+          ]
+        },
+        {
+          "id": "biggest_risk",
+          "title": "Liquidity change",
+          "verdict": "SAME · provider pool liquidity changed 120% across the observed window.",
+          "href": "/rh-chain-signal-desk/tokens/0x1111111111111111111111111111111111111111?observation_id=0x1111111111111111111111111111111111111111%3A0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%3A12",
+          "source": {
+            "source_name": "Persisted DEX Screener exact-pair observation",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T15:00:00.000Z",
+            "updated_at": "2026-10-13T15:00:00.000Z",
+            "data_mode": "persisted",
+            "confidence_level": "low",
+            "note": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+            "caveat": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+            "source": "Persisted DEX Screener exact-pair observation",
+            "url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "freshness_state": "fresh",
+          "judgment_state": "observed_fact",
+          "record_scope": "current_observation",
+          "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12",
+          "observed_at": "2026-10-13T15:00:00.000Z",
+          "time_basis": "provider_fetch",
+          "coverage_state": "complete",
+          "evidence_references": [
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:1",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:2",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:3",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:4",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:5",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:6",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:7",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:8",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:9",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:10",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:11",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12"
+          ]
+        },
+        {
+          "id": "latest_receipt",
+          "title": "Reviewed receipt memory",
+          "verdict": "Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers",
+          "href": "/rh-chain-signal-desk/daily-receipts/rh_daily_006",
+          "source": {
+            "source_name": "Infopunks manual RH Chain stabilization watch",
+            "source_url": "https://radar.infopunks.fun/rh-chain-signal-desk/daily-receipts",
+            "observed_at": "2026-07-19T00:00:00.000Z",
+            "updated_at": "2026-07-19T00:00:00.000Z",
+            "data_mode": "manual",
+            "confidence_level": "medium",
+            "note": "Human-reviewed, manually authored market memory for July 17 → July 19, 2026 UTC. Chain-wide metrics remain source/timestamp dependent. Provider data is context only; launchpad share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless primary, provider-receipted, or operational on-chain evidence is attached.",
+            "caveat": "Human-reviewed, manually authored market memory for July 17 → July 19, 2026 UTC. Chain-wide metrics remain source/timestamp dependent. Provider data is context only; launchpad share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless primary, provider-receipted, or operational on-chain evidence is attached.",
+            "source": "Infopunks manual RH Chain stabilization watch",
+            "url": "https://radar.infopunks.fun/rh-chain-signal-desk/daily-receipts",
+            "name": "Infopunks manual RH Chain stabilization watch"
+          },
+          "freshness_state": "stale",
+          "judgment_state": "reviewed_memory",
+          "record_scope": "historical_reviewed_memory",
+          "observation_id": null,
+          "observed_at": "2026-07-19T00:00:00.000Z",
+          "coverage_state": "reviewed_memory",
+          "evidence_references": [
+            "rh_daily_006"
+          ]
+        }
+      ],
+      "market_projection_id": "rh-movers:935889e99d9247ab7e40571d3e1d0bfec7e1aa78e182cbf2286d3aa6787fbbf1",
+      "market_projection_href": "/v1/rh-chain/market/movers",
+      "editorial_memory": {
+        "scope": "HISTORICAL_REVIEWED_MEMORY",
+        "campaign_href": "/rh-chain-signal-desk/100-receipts",
+        "storage_status": "available",
+        "cards": [
+          {
+            "id": "top_signal",
+            "title": "Top Signal",
+            "verdict": "CASHCAT · Flagship RH Chain attention asset with strong public visibility, liquidity context, and receipt trail. Approved signal means market-memory inclusion, not endorsement or safety.",
+            "href": "/rh-chain-signal-desk/tokens/0x020bfC650A365f8BB26819deAAbF3E21291018b4",
+            "source": {
+              "source_name": "100 Receipts · Day 1 reviewed campaign memory",
+              "source_url": "/rh-chain-signal-desk/100-receipts",
+              "observed_at": "2026-07-16T00:00:00.000Z",
+              "updated_at": "2026-07-16T00:00:00.000Z",
+              "data_mode": "manual",
+              "confidence_level": "medium",
+              "note": "Day 1 is manually reviewed campaign memory. Provider context may add timestamps or market context but cannot replace evidence, classification, risk, or outcome fields.",
+              "caveat": "Day 1 is manually reviewed campaign memory. Provider context may add timestamps or market context but cannot replace evidence, classification, risk, or outcome fields.",
+              "source": "100 Receipts · Day 1 reviewed campaign memory",
+              "url": "/rh-chain-signal-desk/100-receipts"
+            },
+            "freshness_state": "stale",
+            "judgment_state": "reviewed_memory",
+            "record_scope": "historical_reviewed_memory"
+          },
+          {
+            "id": "biggest_risk",
+            "title": "Biggest Risk",
+            "verdict": "Suspected low liquidity clone pattern. Seeded dividend/yield risk marker. Claim language is high-risk and no payout mechanism receipt exists.",
+            "href": "/rh-chain-signal-desk/clone-radar",
+            "source": {
+              "source_name": "Clone & Impersonator Radar",
+              "source_url": "/rh-chain-signal-desk/clone-radar",
+              "observed_at": "2026-07-09T03:45:00.000Z",
+              "updated_at": "2026-07-09T04:34:00.000Z",
+              "data_mode": "seeded",
+              "confidence_level": "low",
+              "note": "Yield language without receipts should stay blocked from promotion. Requires review: contract, legal framing, payout mechanism receipt, liquidity source"
+            },
+            "freshness_state": "stale",
+            "judgment_state": "requires_review",
+            "record_scope": "historical_reviewed_memory"
+          },
+          {
+            "id": "latest_receipt",
+            "title": "Latest Receipt",
+            "verdict": "Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers",
+            "href": "/rh-chain-signal-desk/daily-receipts/rh_daily_006",
+            "source": {
+              "source_name": "Infopunks manual RH Chain stabilization watch",
+              "source_url": "https://radar.infopunks.fun/rh-chain-signal-desk/daily-receipts",
+              "observed_at": "2026-07-19T00:00:00.000Z",
+              "updated_at": "2026-07-19T00:00:00.000Z",
+              "data_mode": "manual",
+              "confidence_level": "medium",
+              "note": "Human-reviewed, manually authored market memory for July 17 → July 19, 2026 UTC. Chain-wide metrics remain source/timestamp dependent. Provider data is context only; launchpad share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless primary, provider-receipted, or operational on-chain evidence is attached.",
+              "caveat": "Human-reviewed, manually authored market memory for July 17 → July 19, 2026 UTC. Chain-wide metrics remain source/timestamp dependent. Provider data is context only; launchpad share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless primary, provider-receipted, or operational on-chain evidence is attached.",
+              "source": "Infopunks manual RH Chain stabilization watch",
+              "url": "https://radar.infopunks.fun/rh-chain-signal-desk/daily-receipts",
+              "name": "Infopunks manual RH Chain stabilization watch"
+            },
+            "freshness_state": "stale",
+            "judgment_state": "reviewed_memory",
+            "record_scope": "historical_reviewed_memory"
+          },
+          {
+            "id": "highest_attention_move",
+            "title": "Highest Attention Move",
+            "verdict": "ROUTE · Active speculation with usable desk memory. External receipts still required.",
+            "href": "/rh-chain-signal-desk/meme-pulse",
+            "source": {
+              "source_name": "Infopunks RH Chain Signal Desk manual research",
+              "source_url": "https://radar.infopunks.fun/rh-chain-signal-desk",
+              "observed_at": "2026-07-09T03:45:00.000Z",
+              "updated_at": "2026-07-09T03:45:00.000Z",
+              "data_mode": "manual",
+              "confidence_level": "medium",
+              "note": "Manual desk research. Not live market indexing.",
+              "caveat": "Manual desk research. Not live market indexing.",
+              "source": "Infopunks RH Chain Signal Desk manual research",
+              "url": "https://radar.infopunks.fun/rh-chain-signal-desk"
+            },
+            "freshness_state": "stale",
+            "judgment_state": "attention_context",
+            "record_scope": "historical_reviewed_memory"
+          }
+        ]
+      }
+    },
+    "meta": {
+      "source_policy": "Current cards are deterministic facts from qualified stored market observations. Campaigns, risk interpretation and reviewed Daily Receipts remain labeled historical memory; no observation creates a reviewed verdict.",
+      "record_count": null,
+      "provider_status": [
+        {
+          "provider_name": "DefiLlama",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "DexScreener",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "CoinGecko",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "Blockscout",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "Dune",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        },
+        {
+          "provider_name": "X/social signals",
+          "data_mode": "live_future",
+          "live_indexing_enabled": false
+        }
+      ],
+      "live_indexing_enabled": false
+    },
+    "sources": [
+      {
+        "source_name": "100 Receipts · Day 1 reviewed campaign memory",
+        "source_url": "/rh-chain-signal-desk/100-receipts",
+        "observed_at": "2026-07-16T00:00:00.000Z",
+        "updated_at": "2026-07-16T00:00:00.000Z",
+        "data_mode": "manual",
+        "confidence_level": "medium",
+        "note": "Day 1 is manually reviewed campaign memory. Provider context may add timestamps or market context but cannot replace evidence, classification, risk, or outcome fields.",
+        "caveat": "Day 1 is manually reviewed campaign memory. Provider context may add timestamps or market context but cannot replace evidence, classification, risk, or outcome fields.",
+        "source": "100 Receipts · Day 1 reviewed campaign memory",
+        "url": "/rh-chain-signal-desk/100-receipts"
+      },
+      {
+        "source_name": "Clone & Impersonator Radar",
+        "source_url": "/rh-chain-signal-desk/clone-radar",
+        "observed_at": "2026-07-09T03:45:00.000Z",
+        "updated_at": "2026-07-09T04:34:00.000Z",
+        "data_mode": "seeded",
+        "confidence_level": "low",
+        "note": "Yield language without receipts should stay blocked from promotion. Requires review: contract, legal framing, payout mechanism receipt, liquidity source"
+      },
+      {
+        "source_name": "Infopunks manual RH Chain stabilization watch",
+        "source_url": "https://radar.infopunks.fun/rh-chain-signal-desk/daily-receipts",
+        "observed_at": "2026-07-19T00:00:00.000Z",
+        "updated_at": "2026-07-19T00:00:00.000Z",
+        "data_mode": "manual",
+        "confidence_level": "medium",
+        "note": "Human-reviewed, manually authored market memory for July 17 → July 19, 2026 UTC. Chain-wide metrics remain source/timestamp dependent. Provider data is context only; launchpad share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless primary, provider-receipted, or operational on-chain evidence is attached.",
+        "caveat": "Human-reviewed, manually authored market memory for July 17 → July 19, 2026 UTC. Chain-wide metrics remain source/timestamp dependent. Provider data is context only; launchpad share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless primary, provider-receipted, or operational on-chain evidence is attached.",
+        "source": "Infopunks manual RH Chain stabilization watch",
+        "url": "https://radar.infopunks.fun/rh-chain-signal-desk/daily-receipts",
+        "name": "Infopunks manual RH Chain stabilization watch"
+      },
+      {
+        "source_name": "Infopunks RH Chain Signal Desk manual research",
+        "source_url": "https://radar.infopunks.fun/rh-chain-signal-desk",
+        "observed_at": "2026-07-09T03:45:00.000Z",
+        "updated_at": "2026-07-09T03:45:00.000Z",
+        "data_mode": "manual",
+        "confidence_level": "medium",
+        "note": "Manual desk research. Not live market indexing.",
+        "caveat": "Manual desk research. Not live market indexing.",
+        "source": "Infopunks RH Chain Signal Desk manual research",
+        "url": "https://radar.infopunks.fun/rh-chain-signal-desk"
+      },
+      {
+        "source_name": "Persisted DEX Screener exact-pair observation",
+        "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "observed_at": "2026-10-13T15:00:00.000Z",
+        "updated_at": "2026-10-13T15:00:00.000Z",
+        "data_mode": "persisted",
+        "confidence_level": "low",
+        "note": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+        "caveat": "One provider pool; missing provider timestamps use explicitly labeled fetch time. Observation significance only; rolling metrics are not capital flows, investment returns, reviewed classifications or executable capacity.",
+        "source": "Persisted DEX Screener exact-pair observation",
+        "url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ],
+    "generated_at": "2026-10-13T15:00:00.000Z",
+    "data_mode": "persisted",
+    "disclaimer": "Today on 4663 is public intelligence context, not financial advice, endorsement, a safety determination, listing, or an official Robinhood partnership."
+  },
+  "alias_matches_canonical_projection": true,
+  "index_active_ranking": "market_movers.assets",
+  "index_legacy_fields_scope": "HISTORICAL_EDITORIAL_MEMORY",
+  "index_projection_id": "rh-movers:935889e99d9247ab7e40571d3e1d0bfec7e1aa78e182cbf2286d3aa6787fbbf1"
+}

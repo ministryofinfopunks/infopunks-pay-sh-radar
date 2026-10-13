@@ -1,0 +1,43 @@
+{
+  "fixture_only": true,
+  "code_sha": "59aa25bd28a6e001fa52fbfa8f13eea2e3d04eac",
+  "browser": "Codex in-app browser, real rendered compiled client",
+  "scope": "Local loopback fixture with PostgreSQL-backed observations. No production or live market validation.",
+  "default_viewport": {
+    "width": 733,
+    "horizontal_page_width": 733,
+    "mover_cards": 1,
+    "historical_memory_disclosure": true
+  },
+  "mobile_viewport": {
+    "width": 390,
+    "height": 844,
+    "horizontal_page_width": 390,
+    "mover_cards": 1,
+    "observed_anchor_exists": true,
+    "index_cta_href": "#observed-movers"
+  },
+  "observed_rendered_fields": [
+    "Stock Token observation",
+    "Liquidity change",
+    "Reviewed receipt memory",
+    "Market state fresh",
+    "Observation sources 1",
+    "Persisted records",
+    "provider fetch",
+    "13 observations / 60 minute window"
+  ],
+  "current_origin_console_errors": 0,
+  "excluded_errors": "Expected request failures from earlier fixture origins after their servers were deliberately shut down.",
+  "semantic_checks": "Named regions, headings, time labels, exact-contract investigation and history links, native historical-memory disclosure.",
+  "not_claimed": [
+    "full accessibility certification",
+    "cross-browser certification",
+    "production data coverage",
+    "deployment readiness"
+  ],
+  "temporary_viewport_reset": true,
+  "temporary_tab_closed": true,
+  "provider_network_disabled": true,
+  "public_automation_enabled": false
+}
