@@ -9,7 +9,8 @@ const results=[];
 (async()=>{const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});try{
  for(const width of [390,1440])for(const routePath of ['/','/spend-terminal','/solana','/4663/share/qualification-missing-record'])for(let repeat=0;repeat<3;repeat++)for(const subject of ['before','after']){
   const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce',deviceScaleFactor:1,locale:'en-US',timezoneId:'Asia/Colombo'});const page=await context.newPage();const unknown=[],seen=[],pending=new Set();
-  await page.clock.setFixedTime(new Date('2026-10-13T04:35:52Z'));
+  // Freeze Date only. Playwright's clock also replaces Performance and hides resource timings.
+  await page.addInitScript(()=>{const NativeDate=Date,fixed=NativeDate.parse('2026-10-13T04:35:52Z');function FixedDate(...args){if(new.target)return new NativeDate(...(args.length?args:[fixed]));return new NativeDate(fixed).toString();}Object.setPrototypeOf(FixedDate,NativeDate);FixedDate.prototype=NativeDate.prototype;FixedDate.now=()=>fixed;window.Date=FixedDate;});
   await page.addInitScript(()=>{window.qaLongTasks=[];window.qaLcp=[];window.qaCls=[];for(const [type,key]of[['longtask','qaLongTasks'],['largest-contentful-paint','qaLcp'],['layout-shift','qaCls']])new PerformanceObserver(list=>window[key].push(...list.getEntries().map(e=>({start:e.startTime,duration:e.duration,value:e.value,hadRecentInput:e.hadRecentInput})))).observe({type,buffered:true});});
   await page.route('**/v1/**',async route=>{const req=route.request(),url=new URL(req.url()),key=url.pathname+url.search;let response=fixture.responses[key];
    if(key==='/v1/4663/share/qualification-missing-record')response={method:'GET',status:404,contentType:'application/json',body:'{"error":"qualification_not_found"}'};
@@ -23,6 +24,7 @@ const results=[];
   assert.deepEqual(unknown,[]);assert.equal(pending.size,0);
   if(routePath==='/solana')assert.ok((await page.locator('.solana-orientation-summary').innerText()).includes('RECORDED BENCHMARKS'));
   const metrics=await page.evaluate(()=>({heading:document.querySelector('h1')?.textContent,resources:performance.getEntriesByType('resource').filter(e=>/\.(js|css)(\?|$)/.test(e.name)).map(e=>({file:new URL(e.name).pathname.split('/').pop(),encoded_body_bytes:e.encodedBodySize,transfer_bytes:e.transferSize,duration_ms:e.duration})),LCP_ms:window.qaLcp.at(-1)?.start??null,CLS:window.qaCls.filter(e=>!e.hadRecentInput).reduce((sum,e)=>sum+e.value,0),long_tasks:window.qaLongTasks}));
+  assert.ok(metrics.resources.length>0,'Native resource timings must be recorded');assert.ok(metrics.resources.some(r=>r.encoded_body_bytes>0),'Cold navigation must include encoded resource bytes');
   results.push({subject,width,route:routePath,repeat,fixture_requests:seen,...metrics});await context.close();
  }
 }finally{await browser.close();}
