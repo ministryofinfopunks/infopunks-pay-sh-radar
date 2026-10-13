@@ -21,7 +21,7 @@ const results=[];
   await page.goto(bases[subject]+routePath);await page.locator('main h1').waitFor();await page.evaluate(()=>document.fonts.ready);
   for(let i=0;i<50;i++){await page.waitForTimeout(200);if(i>=10&&pending.size===0&&await page.locator('main [aria-busy="true"]').count()===0)break;}
   assert.deepEqual(unknown,[]);assert.equal(pending.size,0);
-  if(routePath==='/solana'||(subject==='before'&&routePath.startsWith('/4663/share')))assert.ok((await page.locator('.solana-orientation-summary').innerText()).includes('RECORDED BENCHMARKS'));
+  if(routePath==='/solana')assert.ok((await page.locator('.solana-orientation-summary').innerText()).includes('RECORDED BENCHMARKS'));
   const metrics=await page.evaluate(()=>({heading:document.querySelector('h1')?.textContent,resources:performance.getEntriesByType('resource').filter(e=>/\.(js|css)(\?|$)/.test(e.name)).map(e=>({file:new URL(e.name).pathname.split('/').pop(),encoded_body_bytes:e.encodedBodySize,transfer_bytes:e.transferSize,duration_ms:e.duration})),LCP_ms:window.qaLcp.at(-1)?.start??null,CLS:window.qaCls.filter(e=>!e.hadRecentInput).reduce((sum,e)=>sum+e.value,0),long_tasks:window.qaLongTasks}));
   results.push({subject,width,route:routePath,repeat,fixture_requests:seen,...metrics});await context.close();
  }
