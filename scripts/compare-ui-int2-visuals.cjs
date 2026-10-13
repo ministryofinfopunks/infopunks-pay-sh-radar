@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const {chromium}=require('playwright');const {PNG}=createRequire(path.resolve(process.env.RADAR_UI_TEST_RUNTIME||'/tmp/radar-ui-int2-qa','package.json'))('pngjs');
 const approval=JSON.parse(fs.readFileSync('docs/design-system/ui-int2/visual-approval-completed.json'));
 if(approval.status!=='PASS'){console.error('HOLD: completed workflow captures require explicit human approval. Homepage approval is preserved.');process.exit(2);}
-const out='docs/design-system/ui-int2/evidence/visual-comparison';fs.mkdirSync(out,{recursive:true});
+const out=process.env.RADAR_UI_VISUAL_OUTPUT||'docs/design-system/ui-int2/evidence/visual-comparison';fs.mkdirSync(out,{recursive:true});
 (async()=>{const browser=await chromium.launch({executablePath:process.env.RADAR_QA_CHROMIUM||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});const comparisons=[];
 try{for(const item of approval.approved_files){const [view,...segments]=item.file.replace(/^(?:after|loaded)-/,'').replace(/\.png$/,'').split('-');const slug=segments.join('-');const route=slug==='home'?'/':'/'+slug;const width=view==='mobile'?390:1440;const page=await browser.newPage({viewport:{width,height:width===390?844:1000},reducedMotion:'reduce'});
 const baseline=fs.readFileSync(path.join('docs/design-system/references/ui-int2-approved-completed',item.file));if(crypto.createHash('sha256').update(baseline).digest('hex')!==item.sha256)throw Error('approved_reference_changed');
