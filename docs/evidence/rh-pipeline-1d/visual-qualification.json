@@ -1,0 +1,46 @@
+{
+  "source_sha": "d6ee38f45f512957f53a8a27d30cbdf3cf337c9c",
+  "synthetic_only": true,
+  "fixture_script": "scripts/qualify-rh-daily-return-preview.ts",
+  "remote_providers_disabled": true,
+  "automatic_publication": false,
+  "fixture_publication_authorization": "SYNTHETIC_VISUAL_FIXTURE_ONLY",
+  "desktop": {
+    "height": 720,
+    "width": 1280
+  },
+  "mobile": {
+    "height": 844,
+    "width": 390
+  },
+  "mobile_no_horizontal_overflow": true,
+  "desktop_no_horizontal_overflow": true,
+  "keyboard_evidence_disclosure": {
+    "open": true,
+    "focused_label": "12 coverage gaps",
+    "outline": "rgb(157, 217, 255) solid 3px"
+  },
+  "portrait": [
+    {
+      "complete": true,
+      "naturalWidth": 533,
+      "src": "/artwork/signal-punk.webp"
+    }
+  ],
+  "degraded_research": true,
+  "empty_category_states": true,
+  "reduced_motion": "Existing scoped CSS opt-out retained; not emulated in this browser run",
+  "accessibility": "Local keyboard/DOM/contrast design review only; no assistive technology certification",
+  "static_design_audit_scope": "src/web/marketIntelligence as configured in premium-ui.json",
+  "static_design_audit": "PASS (zero findings within scope)",
+  "design_lint": "PASS (zero errors, zero warnings)",
+  "network_mobile_qualification": "HOLD",
+  "operational_slo": "HOLD",
+  "public_http_memory_preview": "EPHEMERAL version namespace, fresh origin used after restart",
+  "screenshots": [
+    "desktop.jpg",
+    "mobile-390x844.jpg",
+    "mobile-evidence-expanded.jpg",
+    "investigation.jpg"
+  ]
+}

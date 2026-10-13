@@ -1,0 +1,1041 @@
+{
+  "synthetic_only": true,
+  "original": {
+    "object_type": "AUTOMATED_OBSERVATION_RECEIPT",
+    "edition_id": "rh-observation:4663:2026-10-13",
+    "utc_day": "2026-10-13",
+    "chain_id": 4663,
+    "window": {
+      "start": "2026-10-13T00:00:00.000Z",
+      "end": "2026-10-14T00:00:00.000Z",
+      "interval": "[start,end)",
+      "timezone": "UTC"
+    },
+    "schema_version": "rh-automated-observation-v1",
+    "calculation_version": "same-pair-observed-endpoints-v1",
+    "covered_contracts": [
+      "0x1111111111111111111111111111111111111111"
+    ],
+    "markets": [
+      {
+        "contract": "0x1111111111111111111111111111111111111111",
+        "pair": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "observed_start": "2026-10-13T14:00:00.000Z",
+        "observed_end": "2026-10-13T15:00:00.000Z",
+        "metrics": {
+          "price_usd": {
+            "first": 2,
+            "last": 2.2,
+            "delta": 0.20000000000000018,
+            "delta_pct": 10.000000000000009,
+            "covered_samples": 13
+          },
+          "liquidity_usd": {
+            "first": 10000,
+            "last": 22000,
+            "delta": 12000,
+            "delta_pct": 120.00000000000001,
+            "covered_samples": 13
+          },
+          "market_cap": {
+            "first": null,
+            "last": null,
+            "delta": null,
+            "delta_pct": null,
+            "covered_samples": 0
+          },
+          "fdv": {
+            "first": null,
+            "last": null,
+            "delta": null,
+            "delta_pct": null,
+            "covered_samples": 0
+          },
+          "volume_h24": {
+            "first": 20000,
+            "last": 32000,
+            "delta": 12000,
+            "delta_pct": 60.00000000000001,
+            "covered_samples": 13
+          },
+          "volume_h6": {
+            "first": 90,
+            "last": 90,
+            "delta": 0,
+            "delta_pct": 0,
+            "covered_samples": 13
+          },
+          "volume_h1": {
+            "first": 100,
+            "last": 400,
+            "delta": 300,
+            "delta_pct": 300,
+            "covered_samples": 13
+          },
+          "txns_h24_buys": {
+            "first": 10,
+            "last": 22,
+            "delta": 12,
+            "delta_pct": 120.00000000000001,
+            "covered_samples": 13
+          },
+          "txns_h24_sells": {
+            "first": 10,
+            "last": 22,
+            "delta": 12,
+            "delta_pct": 120.00000000000001,
+            "covered_samples": 13
+          },
+          "txns_h6_buys": {
+            "first": null,
+            "last": null,
+            "delta": null,
+            "delta_pct": null,
+            "covered_samples": 0
+          },
+          "txns_h6_sells": {
+            "first": null,
+            "last": null,
+            "delta": null,
+            "delta_pct": null,
+            "covered_samples": 0
+          },
+          "price_change_h24": {
+            "first": 5,
+            "last": 5,
+            "delta": 0,
+            "delta_pct": 0,
+            "covered_samples": 13
+          },
+          "price_change_h6": {
+            "first": null,
+            "last": null,
+            "delta": null,
+            "delta_pct": null,
+            "covered_samples": 0
+          },
+          "price_change_h1": {
+            "first": null,
+            "last": null,
+            "delta": null,
+            "delta_pct": null,
+            "covered_samples": 0
+          }
+        },
+        "evidence": [
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:00:00.000Z",
+            "collected_at": "2026-10-13T14:00:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2,
+              "liquidity_usd": 10000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 20000,
+              "volume_h6": 90,
+              "volume_h1": 100,
+              "txns_h24_buys": 10,
+              "txns_h24_sells": 10,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:1",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:05:00.000Z",
+            "collected_at": "2026-10-13T14:05:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.0166666666666666,
+              "liquidity_usd": 11000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 21000,
+              "volume_h6": 90,
+              "volume_h1": 125,
+              "txns_h24_buys": 11,
+              "txns_h24_sells": 11,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:2",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:10:00.000Z",
+            "collected_at": "2026-10-13T14:10:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.033333333333333,
+              "liquidity_usd": 12000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 22000,
+              "volume_h6": 90,
+              "volume_h1": 150,
+              "txns_h24_buys": 12,
+              "txns_h24_sells": 12,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:3",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:15:00.000Z",
+            "collected_at": "2026-10-13T14:15:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.05,
+              "liquidity_usd": 13000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 23000,
+              "volume_h6": 90,
+              "volume_h1": 175,
+              "txns_h24_buys": 13,
+              "txns_h24_sells": 13,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:4",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:20:00.000Z",
+            "collected_at": "2026-10-13T14:20:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.066666666666667,
+              "liquidity_usd": 14000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 24000,
+              "volume_h6": 90,
+              "volume_h1": 200,
+              "txns_h24_buys": 14,
+              "txns_h24_sells": 14,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:5",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:25:00.000Z",
+            "collected_at": "2026-10-13T14:25:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.0833333333333335,
+              "liquidity_usd": 15000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 25000,
+              "volume_h6": 90,
+              "volume_h1": 225,
+              "txns_h24_buys": 15,
+              "txns_h24_sells": 15,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:6",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:30:00.000Z",
+            "collected_at": "2026-10-13T14:30:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.1,
+              "liquidity_usd": 16000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 26000,
+              "volume_h6": 90,
+              "volume_h1": 250,
+              "txns_h24_buys": 16,
+              "txns_h24_sells": 16,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:7",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:35:00.000Z",
+            "collected_at": "2026-10-13T14:35:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.1166666666666667,
+              "liquidity_usd": 17000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 27000,
+              "volume_h6": 90,
+              "volume_h1": 275,
+              "txns_h24_buys": 17,
+              "txns_h24_sells": 17,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:8",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:40:00.000Z",
+            "collected_at": "2026-10-13T14:40:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.1333333333333333,
+              "liquidity_usd": 18000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 28000,
+              "volume_h6": 90,
+              "volume_h1": 300,
+              "txns_h24_buys": 18,
+              "txns_h24_sells": 18,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:9",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:45:00.000Z",
+            "collected_at": "2026-10-13T14:45:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.15,
+              "liquidity_usd": 19000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 29000,
+              "volume_h6": 90,
+              "volume_h1": 325,
+              "txns_h24_buys": 19,
+              "txns_h24_sells": 19,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:10",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:50:00.000Z",
+            "collected_at": "2026-10-13T14:50:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.1666666666666665,
+              "liquidity_usd": 20000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 30000,
+              "volume_h6": 90,
+              "volume_h1": 350,
+              "txns_h24_buys": 20,
+              "txns_h24_sells": 20,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:11",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:55:00.000Z",
+            "collected_at": "2026-10-13T14:55:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.183333333333333,
+              "liquidity_usd": 21000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 31000,
+              "volume_h6": 90,
+              "volume_h1": 375,
+              "txns_h24_buys": 21,
+              "txns_h24_sells": 21,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T15:00:00.000Z",
+            "collected_at": "2026-10-13T15:00:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.2,
+              "liquidity_usd": 22000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 32000,
+              "volume_h6": 90,
+              "volume_h1": 400,
+              "txns_h24_buys": 22,
+              "txns_h24_sells": 22,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          }
+        ],
+        "coverage": {
+          "samples": 13,
+          "largest_gap_ms": 300000,
+          "start_gap_ms": 50400000,
+          "end_gap_ms": 32400000,
+          "missing": [
+            "INCOMPLETE_DAY_SAMPLING",
+            "METRIC_UNAVAILABLE:fdv",
+            "METRIC_UNAVAILABLE:market_cap",
+            "METRIC_UNAVAILABLE:price_change_h1",
+            "METRIC_UNAVAILABLE:price_change_h6",
+            "METRIC_UNAVAILABLE:txns_h6_buys",
+            "METRIC_UNAVAILABLE:txns_h6_sells"
+          ]
+        }
+      }
+    ],
+    "chain_metrics": [
+      {
+        "metric": "transactions_utc_day",
+        "value": null,
+        "observation": null
+      },
+      {
+        "metric": "dex_volume_utc_day_usd",
+        "value": null,
+        "observation": null
+      }
+    ],
+    "historical_coverage": {
+      "collection_day_aggregates": [
+        {
+          "reference": "rh-market-history:0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:2026-10-13T00:00:00.000Z",
+          "sample_count": 13,
+          "observation_ids": [
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:1",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:10",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:11",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:2",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:3",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:4",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:5",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:6",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:7",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:8",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:9"
+          ],
+          "window_start": "2026-10-13T00:00:00.000Z",
+          "window_end": "2026-10-14T00:00:00.000Z"
+        }
+      ],
+      "missing": [
+        "CORPORATE_ACTION_HISTORY_UNAVAILABLE",
+        "FINAL_METRIC_UNAVAILABLE:dex_volume_utc_day_usd",
+        "FINAL_METRIC_UNAVAILABLE:transactions_utc_day",
+        "RWA_MECHANISM_EVIDENCE_UNAVAILABLE",
+        "VERIFIED_STABLE_SUPPLY_UNAVAILABLE"
+      ],
+      "excluded_observation_ids": []
+    },
+    "publication_state": "FINALIZED_PRIVATE",
+    "correction": {
+      "supersedes": null,
+      "reason": null
+    },
+    "execution_authorized": false,
+    "content_hash": "f29a57be00818b809c75c5f2d01458c2275968e6c672689686f406f1f8a63c54",
+    "commitment_algorithm": "SHA-256"
+  },
+  "revised": {
+    "object_type": "AUTOMATED_OBSERVATION_RECEIPT",
+    "edition_id": "rh-observation:4663:2026-10-13:correction:c4ea2b860ef606211799443c2d259e8155ff8c05371328e81efd3dc21e3af23b",
+    "utc_day": "2026-10-13",
+    "chain_id": 4663,
+    "window": {
+      "start": "2026-10-13T00:00:00.000Z",
+      "end": "2026-10-14T00:00:00.000Z",
+      "interval": "[start,end)",
+      "timezone": "UTC"
+    },
+    "schema_version": "rh-automated-observation-v1",
+    "calculation_version": "same-pair-observed-endpoints-v1",
+    "covered_contracts": [
+      "0x1111111111111111111111111111111111111111"
+    ],
+    "markets": [
+      {
+        "contract": "0x1111111111111111111111111111111111111111",
+        "pair": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "observed_start": "2026-10-13T14:00:00.000Z",
+        "observed_end": "2026-10-13T23:55:00.000Z",
+        "metrics": {
+          "price_usd": {
+            "first": 2,
+            "last": 2.2,
+            "delta": 0.20000000000000018,
+            "delta_pct": 10.000000000000009,
+            "covered_samples": 14
+          },
+          "liquidity_usd": {
+            "first": 10000,
+            "last": 60000,
+            "delta": 50000,
+            "delta_pct": 500,
+            "covered_samples": 14
+          },
+          "market_cap": {
+            "first": null,
+            "last": null,
+            "delta": null,
+            "delta_pct": null,
+            "covered_samples": 0
+          },
+          "fdv": {
+            "first": null,
+            "last": null,
+            "delta": null,
+            "delta_pct": null,
+            "covered_samples": 0
+          },
+          "volume_h24": {
+            "first": 20000,
+            "last": 32000,
+            "delta": 12000,
+            "delta_pct": 60.00000000000001,
+            "covered_samples": 14
+          },
+          "volume_h6": {
+            "first": 90,
+            "last": 90,
+            "delta": 0,
+            "delta_pct": 0,
+            "covered_samples": 14
+          },
+          "volume_h1": {
+            "first": 100,
+            "last": 400,
+            "delta": 300,
+            "delta_pct": 300,
+            "covered_samples": 14
+          },
+          "txns_h24_buys": {
+            "first": 10,
+            "last": 22,
+            "delta": 12,
+            "delta_pct": 120.00000000000001,
+            "covered_samples": 14
+          },
+          "txns_h24_sells": {
+            "first": 10,
+            "last": 22,
+            "delta": 12,
+            "delta_pct": 120.00000000000001,
+            "covered_samples": 14
+          },
+          "txns_h6_buys": {
+            "first": null,
+            "last": null,
+            "delta": null,
+            "delta_pct": null,
+            "covered_samples": 0
+          },
+          "txns_h6_sells": {
+            "first": null,
+            "last": null,
+            "delta": null,
+            "delta_pct": null,
+            "covered_samples": 0
+          },
+          "price_change_h24": {
+            "first": 5,
+            "last": 5,
+            "delta": 0,
+            "delta_pct": 0,
+            "covered_samples": 14
+          },
+          "price_change_h6": {
+            "first": null,
+            "last": null,
+            "delta": null,
+            "delta_pct": null,
+            "covered_samples": 0
+          },
+          "price_change_h1": {
+            "first": null,
+            "last": null,
+            "delta": null,
+            "delta_pct": null,
+            "covered_samples": 0
+          }
+        },
+        "evidence": [
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:00:00.000Z",
+            "collected_at": "2026-10-13T14:00:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2,
+              "liquidity_usd": 10000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 20000,
+              "volume_h6": 90,
+              "volume_h1": 100,
+              "txns_h24_buys": 10,
+              "txns_h24_sells": 10,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:1",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:05:00.000Z",
+            "collected_at": "2026-10-13T14:05:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.0166666666666666,
+              "liquidity_usd": 11000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 21000,
+              "volume_h6": 90,
+              "volume_h1": 125,
+              "txns_h24_buys": 11,
+              "txns_h24_sells": 11,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:2",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:10:00.000Z",
+            "collected_at": "2026-10-13T14:10:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.033333333333333,
+              "liquidity_usd": 12000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 22000,
+              "volume_h6": 90,
+              "volume_h1": 150,
+              "txns_h24_buys": 12,
+              "txns_h24_sells": 12,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:3",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:15:00.000Z",
+            "collected_at": "2026-10-13T14:15:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.05,
+              "liquidity_usd": 13000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 23000,
+              "volume_h6": 90,
+              "volume_h1": 175,
+              "txns_h24_buys": 13,
+              "txns_h24_sells": 13,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:4",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:20:00.000Z",
+            "collected_at": "2026-10-13T14:20:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.066666666666667,
+              "liquidity_usd": 14000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 24000,
+              "volume_h6": 90,
+              "volume_h1": 200,
+              "txns_h24_buys": 14,
+              "txns_h24_sells": 14,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:5",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:25:00.000Z",
+            "collected_at": "2026-10-13T14:25:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.0833333333333335,
+              "liquidity_usd": 15000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 25000,
+              "volume_h6": 90,
+              "volume_h1": 225,
+              "txns_h24_buys": 15,
+              "txns_h24_sells": 15,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:6",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:30:00.000Z",
+            "collected_at": "2026-10-13T14:30:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.1,
+              "liquidity_usd": 16000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 26000,
+              "volume_h6": 90,
+              "volume_h1": 250,
+              "txns_h24_buys": 16,
+              "txns_h24_sells": 16,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:7",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:35:00.000Z",
+            "collected_at": "2026-10-13T14:35:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.1166666666666667,
+              "liquidity_usd": 17000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 27000,
+              "volume_h6": 90,
+              "volume_h1": 275,
+              "txns_h24_buys": 17,
+              "txns_h24_sells": 17,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:8",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:40:00.000Z",
+            "collected_at": "2026-10-13T14:40:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.1333333333333333,
+              "liquidity_usd": 18000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 28000,
+              "volume_h6": 90,
+              "volume_h1": 300,
+              "txns_h24_buys": 18,
+              "txns_h24_sells": 18,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:9",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:45:00.000Z",
+            "collected_at": "2026-10-13T14:45:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.15,
+              "liquidity_usd": 19000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 29000,
+              "volume_h6": 90,
+              "volume_h1": 325,
+              "txns_h24_buys": 19,
+              "txns_h24_sells": 19,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:10",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:50:00.000Z",
+            "collected_at": "2026-10-13T14:50:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.1666666666666665,
+              "liquidity_usd": 20000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 30000,
+              "volume_h6": 90,
+              "volume_h1": 350,
+              "txns_h24_buys": 20,
+              "txns_h24_sells": 20,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:11",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T14:55:00.000Z",
+            "collected_at": "2026-10-13T14:55:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.183333333333333,
+              "liquidity_usd": 21000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 31000,
+              "volume_h6": 90,
+              "volume_h1": 375,
+              "txns_h24_buys": 21,
+              "txns_h24_sells": 21,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T15:00:00.000Z",
+            "collected_at": "2026-10-13T15:00:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.2,
+              "liquidity_usd": 22000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 32000,
+              "volume_h6": 90,
+              "volume_h1": 400,
+              "txns_h24_buys": 22,
+              "txns_h24_sells": 22,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          },
+          {
+            "observation_id": "late-evidence",
+            "source_id": "dexscreener:robinhood:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "source_url": "https://dexscreener.com/robinhood/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "observed_at": "2026-10-13T23:55:00.000Z",
+            "collected_at": "2026-10-14T00:30:00.000Z",
+            "time_basis": "PROVIDER_OBSERVATION",
+            "metrics": {
+              "price_usd": 2.2,
+              "liquidity_usd": 60000,
+              "market_cap": null,
+              "fdv": null,
+              "volume_h24": 32000,
+              "volume_h6": 90,
+              "volume_h1": 400,
+              "txns_h24_buys": 22,
+              "txns_h24_sells": 22,
+              "txns_h6_buys": null,
+              "txns_h6_sells": null,
+              "price_change_h24": 5,
+              "price_change_h6": null,
+              "price_change_h1": null
+            }
+          }
+        ],
+        "coverage": {
+          "samples": 14,
+          "largest_gap_ms": 32100000,
+          "start_gap_ms": 50400000,
+          "end_gap_ms": 300000,
+          "missing": [
+            "INCOMPLETE_DAY_SAMPLING",
+            "METRIC_UNAVAILABLE:fdv",
+            "METRIC_UNAVAILABLE:market_cap",
+            "METRIC_UNAVAILABLE:price_change_h1",
+            "METRIC_UNAVAILABLE:price_change_h6",
+            "METRIC_UNAVAILABLE:txns_h6_buys",
+            "METRIC_UNAVAILABLE:txns_h6_sells"
+          ]
+        }
+      }
+    ],
+    "chain_metrics": [
+      {
+        "metric": "transactions_utc_day",
+        "value": null,
+        "observation": null
+      },
+      {
+        "metric": "dex_volume_utc_day_usd",
+        "value": null,
+        "observation": null
+      }
+    ],
+    "historical_coverage": {
+      "collection_day_aggregates": [
+        {
+          "reference": "rh-market-history:0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:2026-10-13T00:00:00.000Z",
+          "sample_count": 13,
+          "observation_ids": [
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:1",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:10",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:11",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:12",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:2",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:3",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:4",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:5",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:6",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:7",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:8",
+            "0x1111111111111111111111111111111111111111:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:9"
+          ],
+          "window_start": "2026-10-13T00:00:00.000Z",
+          "window_end": "2026-10-14T00:00:00.000Z"
+        }
+      ],
+      "missing": [
+        "CORPORATE_ACTION_HISTORY_UNAVAILABLE",
+        "FINAL_METRIC_UNAVAILABLE:dex_volume_utc_day_usd",
+        "FINAL_METRIC_UNAVAILABLE:transactions_utc_day",
+        "RWA_MECHANISM_EVIDENCE_UNAVAILABLE",
+        "VERIFIED_STABLE_SUPPLY_UNAVAILABLE"
+      ],
+      "excluded_observation_ids": []
+    },
+    "publication_state": "FINALIZED_PRIVATE",
+    "correction": {
+      "supersedes": "rh-observation:4663:2026-10-13",
+      "reason": "Late source evidence"
+    },
+    "execution_authorized": false,
+    "content_hash": "6d3790f99a9edd8717f30c2e818118fb52f23cacb660ead544609b61f4e67913",
+    "commitment_algorithm": "SHA-256"
+  }
+}

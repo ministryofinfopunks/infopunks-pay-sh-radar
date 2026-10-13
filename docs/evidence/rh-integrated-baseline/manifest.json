@@ -1,0 +1,30 @@
+{
+  "ancestry.json": {
+    "bytes": 3047,
+    "sha256": "3cf70159bf25be05ac41f479c42d76b546b66ba754daae9d6ba71f121a3a9712"
+  },
+  "branch-migration-ledger.json": {
+    "bytes": 147895,
+    "sha256": "afafa11cbe839754f6458e1330bd3b7d8e4adb155eeb85169cd04c126f41936f"
+  },
+  "build.log": {
+    "bytes": 3629,
+    "sha256": "c96c58ac33ce40f422f8f9139e29cadad0de29b6dece0526724ed953ee490f5e"
+  },
+  "lint.log": {
+    "bytes": 68,
+    "sha256": "d03a558579d6c5bf7d9941dab14d20d6960b6011bd01717758fa05f6a0063285"
+  },
+  "optional-postgres.json": {
+    "bytes": 7587,
+    "sha256": "a2886ec1aa2d664f2adc9871a0cf9f9cb0b96d02e3412b0f615b6a08e97afcc8"
+  },
+  "tests.json": {
+    "bytes": 712748,
+    "sha256": "a04d7ea84257d92ff88be728f1bbdb1e39db0c7ccd6bbacdc65eafb60b4794da"
+  },
+  "typecheck.log": {
+    "bytes": 58,
+    "sha256": "8c130045816136582deedcf711e910a2396c6e4c0739b0f5719548e764414970"
+  }
+}

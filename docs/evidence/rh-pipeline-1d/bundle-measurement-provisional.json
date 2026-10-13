@@ -1,0 +1,75 @@
+{
+  "method": "Static imported JavaScript closure of index and 4663 page; baseline additionally requires Radar app. Excludes CSS, images, fonts and conditional wallet imports. Not network performance evidence.",
+  "before": {
+    "files": [
+      {
+        "file": "index-CFfQ9di4.js",
+        "bytes": 201859,
+        "gzip_bytes": 62787
+      },
+      {
+        "file": "narrativeMetadata-D2V3qhe4.js",
+        "bytes": 225503,
+        "gzip_bytes": 55319
+      },
+      {
+        "file": "radarApp-CeqLFO3o.js",
+        "bytes": 1294706,
+        "gzip_bytes": 245791
+      },
+      {
+        "file": "rh4663Pages-gySTapdG.js",
+        "bytes": 97760,
+        "gzip_bytes": 23892
+      },
+      {
+        "file": "rhChain-ckB56GFL.js",
+        "bytes": 95707,
+        "gzip_bytes": 22631
+      },
+      {
+        "file": "rhChainContract-DqMVGhU1.js",
+        "bytes": 173,
+        "gzip_bytes": 161
+      },
+      {
+        "file": "rhChainMarketRevalidation-C6nhcb1w.js",
+        "bytes": 337,
+        "gzip_bytes": 229
+      },
+      {
+        "file": "rhChainPortableCard-64smOXm2.js",
+        "bytes": 1208,
+        "gzip_bytes": 550
+      },
+      {
+        "file": "rhChainUi-DOiK1mae.js",
+        "bytes": 33326,
+        "gzip_bytes": 9490
+      }
+    ],
+    "total_bytes": 1950579,
+    "total_gzip_bytes": 420850
+  },
+  "after_provisional": {
+    "files": [
+      {
+        "file": "index-BhpgXpn8.js",
+        "bytes": 202385,
+        "gzip_bytes": 62954
+      },
+      {
+        "file": "rh4663Pages-CYk_e9_U.js",
+        "bytes": 100044,
+        "gzip_bytes": 24595
+      },
+      {
+        "file": "rhChainMarketRevalidation-C6nhcb1w.js",
+        "bytes": 337,
+        "gzip_bytes": 229
+      }
+    ],
+    "total_bytes": 302766,
+    "total_gzip_bytes": 87778
+  }
+}

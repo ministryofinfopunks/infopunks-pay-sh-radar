@@ -1,0 +1,55 @@
+{
+  "details": [
+    {
+      "open": true,
+      "summary": "12 coverage gaps"
+    },
+    {
+      "open": true,
+      "summary": "Stock Tokens0 current observations · 0 scored"
+    },
+    {
+      "open": false,
+      "summary": "RWA/DeFi0 current observations · 0 scored"
+    },
+    {
+      "open": false,
+      "summary": "Memes0 current observations · 0 scored"
+    },
+    {
+      "open": false,
+      "summary": "Stables0 current observations · 0 scored"
+    },
+    {
+      "open": false,
+      "summary": "Market discovery1 current observations · 1 scored"
+    },
+    {
+      "open": false,
+      "summary": "RESOLVEDWhat evidence is still missing for SAME?INPUTS PRESENT"
+    },
+    {
+      "open": false,
+      "summary": "AWAITING CHECKPOINTWhat will dominate the next canonical 24h Robinhood Chain observation window?OCT 14"
+    },
+    {
+      "open": false,
+      "summary": "OBSERVINGWill NVDA remain AI's capital anchor through the D7 checkpoint?AWAITING EVIDENCE"
+    },
+    {
+      "open": false,
+      "summary": "BLOCKED BY DATACan the historical HIMS absorption claim be independently reproduced?AWAITING EVIDENCE"
+    },
+    {
+      "open": false,
+      "summary": "Open research"
+    }
+  ],
+  "focus": "12 coverage gaps",
+  "outline": "rgb(157, 217, 255) solid 3px",
+  "pageWidth": 390,
+  "viewport": {
+    "height": 844,
+    "width": 390
+  }
+}

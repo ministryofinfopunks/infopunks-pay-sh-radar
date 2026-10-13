@@ -1,0 +1,52 @@
+{
+  "source_sha": "d6ee38f45f512957f53a8a27d30cbdf3cf337c9c",
+  "comparison_sha": "f5713126b340faba437dfd0df34a375a46844d9b",
+  "verdict": "CODE_AND_LOCAL_POSTGRES_PASS",
+  "independent_scope": true,
+  "not_external_reviewer_certification": true,
+  "tests": {
+    "total": 2012,
+    "passed": 2012,
+    "failed": 0,
+    "skipped": 0,
+    "files": 276
+  },
+  "typecheck": "PASS",
+  "lint": "PASS",
+  "server_client_build": "PASS",
+  "changed_files": [
+    "DESIGN.md",
+    "UX-CONTRACT.md",
+    "migrations/20261013_026_rh_frontdoor_return_state.down.sql",
+    "migrations/20261013_026_rh_frontdoor_return_state.up.sql",
+    "public/artwork/signal-punk.webp",
+    "scripts/qualify-rh-daily-return-preview.ts",
+    "src/api/app.ts",
+    "src/services/rh4663FrontdoorService.ts",
+    "src/services/rh4663My4663Service.ts",
+    "src/services/rh4663ObservedMarketPresentation.ts",
+    "src/services/rh4663OpenLoopStore.ts",
+    "src/services/rhAutomatedObservationReceiptService.ts",
+    "src/services/rhChainProductionReadiness.ts",
+    "src/web/frontdoor4663.tsx",
+    "src/web/main.tsx",
+    "src/web/rh4663.css",
+    "src/web/rh4663Pages.tsx",
+    "tests/rh-4663-my4663.test.ts",
+    "tests/rh-chain-production-readiness.test.ts",
+    "tests/rh-dynamic-market-postgres.test.ts",
+    "tests/rh-frontdoor-return-postgres.test.ts",
+    "tests/rh-market-history-postgres.test.ts",
+    "tests/rh-return-intelligence-ui.test.tsx"
+  ],
+  "migrations": {
+    "migrations/20261013_025_rh_automated_observation_receipts.down.sql": "35920df129ba8775b23b3303e3075b1487878249921ed8f9a9202efd54901f28",
+    "migrations/20261013_025_rh_automated_observation_receipts.up.sql": "0c1414f9c08394a6de64e9a9e0d2e2adcfb8b0d28639fcdc624a56fd906aca1b",
+    "migrations/20261013_026_rh_frontdoor_return_state.down.sql": "0c5ff86904b584cfc30d69d4ac03db96d809bbecb7951b2580462b2fee345918",
+    "migrations/20261013_026_rh_frontdoor_return_state.up.sql": "a1030fea537a2d174ec7375df3237a556b62123c0b1f77ebdc3ea543d2dd8e39"
+  },
+  "staging": "HOLD",
+  "production": "HOLD",
+  "automatic_publication": "OFF",
+  "external_distribution": "OFF"
+}

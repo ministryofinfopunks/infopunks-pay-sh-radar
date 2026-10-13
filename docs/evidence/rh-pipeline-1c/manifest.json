@@ -1,0 +1,42 @@
+{
+  "build.log": {
+    "bytes": 3629,
+    "sha256": "ee1d56d49958ba90ab3bfa0ab63d79c868ba321ad7c1f28617af8e5e4b2f61bd"
+  },
+  "frozen-synthetic-editions.json": {
+    "bytes": 44122,
+    "sha256": "d343d91f812267e2f20e4159a5fa43df9a18911f7bbffdcac10b7519c9ca41b9"
+  },
+  "frozen-tests.json": {
+    "bytes": 716115,
+    "sha256": "7ad7633d4c88ee945206c2850d31e45cc2e06b7ec7def04bfc8ec3e31b331696"
+  },
+  "full-suite.log": {
+    "bytes": 2221003,
+    "sha256": "a3f956e82aba12a31508d38fec49fdb174f7f52691db29048e20c3580edfef00"
+  },
+  "initial-integration.json": {
+    "bytes": 12091,
+    "sha256": "f36370111141644c2729bd3b0dea031a8f9bd7d8bb687494c7a37f6f8c928971"
+  },
+  "lint.log": {
+    "bytes": 68,
+    "sha256": "d03a558579d6c5bf7d9941dab14d20d6960b6011bd01717758fa05f6a0063285"
+  },
+  "qualification.json": {
+    "bytes": 1731,
+    "sha256": "7232a27de9ef9e21c021bb3ad5336245e4f885a59a0e71a1787ec03fb4fe8598"
+  },
+  "resource-contention-full-suite.json": {
+    "bytes": 743649,
+    "sha256": "4e5beacad16cbea9cfce093e8832a3d281c0df632c954872a1c17fcc8983eb0b"
+  },
+  "synthetic-editions.json": {
+    "bytes": 44122,
+    "sha256": "d343d91f812267e2f20e4159a5fa43df9a18911f7bbffdcac10b7519c9ca41b9"
+  },
+  "typecheck.log": {
+    "bytes": 58,
+    "sha256": "8c130045816136582deedcf711e910a2396c6e4c0739b0f5719548e764414970"
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "build.log": {
+    "bytes": 3629,
+    "sha256": "6577672a8033109cd261494b49b4d0bb34f0eef6c75b33a182e78e1010041f32"
+  },
+  "bundle-measurement-provisional.json": {
+    "bytes": 1780,
+    "sha256": "d98aba814f20f93f6518a42845bf14fbb77138060b594624bcdba1ef9a66c0bb"
+  },
+  "bundle-measurement.json": {
+    "bytes": 1892,
+    "sha256": "1d5f673417aa91b5cce6395a70c04b9ae28f507f77a4371f5a56981f47072df4"
+  },
+  "candidate-ledger.json": {
+    "bytes": 8582,
+    "sha256": "2b2fc255667ab78fdb2db017de368077c7d777db6b06fa00aca5901322322905"
+  },
+  "contention-retest.json": {
+    "bytes": 15915,
+    "sha256": "440471b6ce38e7836c9c9e08d8616e4c5c57a4238532caf8e030d4dd84d9534e"
+  },
+  "design-lint.json": {
+    "bytes": 285,
+    "sha256": "d6ca5014ea07a734d7d38b24df543cefccf3dc5b11b57dd538ae9d339bbd7ef9"
+  },
+  "design-lint.txt": {
+    "bytes": 285,
+    "sha256": "d6ca5014ea07a734d7d38b24df543cefccf3dc5b11b57dd538ae9d339bbd7ef9"
+  },
+  "desktop-dom.json": {
+    "bytes": 2140,
+    "sha256": "8a092a51d6b94bd61363c62b33325942e5895ba722f0e0fb73723360a33541e5"
+  },
+  "desktop.jpg": {
+    "bytes": 71092,
+    "sha256": "eb2c91b79dc77b6a59eec7578a2126986f9b16b4e67ffca6fd83a96681e99061"
+  },
+  "investigation.jpg": {
+    "bytes": 77489,
+    "sha256": "df75b67abc6f335e35c2e853cc9fd300d4f9a2f67f28dcad5e44ba2d0ad51023"
+  },
+  "lint.log": {
+    "bytes": 68,
+    "sha256": "d03a558579d6c5bf7d9941dab14d20d6960b6011bd01717758fa05f6a0063285"
+  },
+  "mobile-390x844.jpg": {
+    "bytes": 33727,
+    "sha256": "0d7e67ad08ecfb3723bd3470ccec3892bde1848eb79fe4e98166eea3d11ffc2a"
+  },
+  "mobile-dom.json": {
+    "bytes": 1367,
+    "sha256": "4eff28f51608adb3afb70a1e2e7ad6c4645ea83c820b1d70423a7aeca194ea1c"
+  },
+  "mobile-evidence-expanded.jpg": {
+    "bytes": 49740,
+    "sha256": "565a6655400068667f3a4d753b3773d88f608df5d4a7631834f4da0605fb5a4e"
+  },
+  "portrait-provenance.json": {
+    "bytes": 256,
+    "sha256": "500a67a62ff6eec6d22bd35702ef01d57e5e8c903c5b0f9eca0b070cdb835413"
+  },
+  "premium-audit.json": {
+    "bytes": 294,
+    "sha256": "2ee4bbdb4480de49676dd6e324a555563233e013ccf5ecbdf8752c491e6b8987"
+  },
+  "qualification.json": {
+    "bytes": 2112,
+    "sha256": "6bd7c315d64aead960bd6c45b3de8c6ff5d78553828e1a3261a36549dd432e45"
+  },
+  "resource-contention-full-suite.json": {
+    "bytes": 743914,
+    "sha256": "120f2ea6fa034dea13debcc2345042a4e431d07988d358c9e23d8a548e0bdb90"
+  },
+  "synthetic-api.json": {
+    "bytes": 1759,
+    "sha256": "7c5dbdc43ae02d1d0c32e28ffcdda6f7a9c1bf3cd92cffc0ffcdbef63b5ee6ac"
+  },
+  "synthetic-return-events.json": {
+    "bytes": 119048,
+    "sha256": "08d7384095fe0ab775cc0d31624983b4e6cf93cb91601b200c7a51edf25e52f4"
+  },
+  "tests.json": {
+    "bytes": 718687,
+    "sha256": "c0b05b8c3835c94e7d9301a542b019ebc21a2c077e1d9dd939fbc2ff9cdbd75c"
+  },
+  "typecheck.log": {
+    "bytes": 58,
+    "sha256": "8c130045816136582deedcf711e910a2396c6e4c0739b0f5719548e764414970"
+  },
+  "visual-qualification.json": {
+    "bytes": 1534,
+    "sha256": "523c6cfed5f2612883bc689a5253eb53c024b8d9c38a8acbb5d9906f9f85c4af"
+  }
+}

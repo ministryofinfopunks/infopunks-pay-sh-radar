@@ -1,0 +1,43 @@
+{
+  "source_sha": "f5713126b340faba437dfd0df34a375a46844d9b",
+  "comparison_sha": "f128d4fa70076cee513745efaad7b0fd120fa9c4",
+  "verdict": "CODE_AND_LOCAL_POSTGRES_PASS",
+  "independent_scope": true,
+  "not_external_reviewer_certification": true,
+  "tests": {
+    "total": 2006,
+    "passed": 2006,
+    "failed": 0,
+    "skipped": 0,
+    "files": 274
+  },
+  "typecheck": "PASS",
+  "lint": "PASS",
+  "server_client_build": "PASS",
+  "changed_files": [
+    "docs/evidence/rh-integrated-baseline/ancestry.json",
+    "docs/evidence/rh-integrated-baseline/branch-migration-ledger.json",
+    "docs/evidence/rh-integrated-baseline/optional-postgres.json",
+    "docs/evidence/rh-integrated-baseline/tests.json",
+    "docs/evidence/rh-pipeline-1c/synthetic-editions.json",
+    "docs/rh-integrated-baseline-delivery.md",
+    "migrations/20261013_025_rh_automated_observation_receipts.down.sql",
+    "migrations/20261013_025_rh_automated_observation_receipts.up.sql",
+    "src/api/app.ts",
+    "src/config/env.ts",
+    "src/services/rhAutomatedObservationReceiptService.ts",
+    "src/services/rhChainMarketSnapshotService.ts",
+    "tests/rh-automated-observation-api.test.ts",
+    "tests/rh-automated-observations.test.ts",
+    "tests/rh-dynamic-market-postgres.test.ts",
+    "tests/rh-market-history-postgres.test.ts"
+  ],
+  "migrations": {
+    "migrations/20261013_025_rh_automated_observation_receipts.down.sql": "35920df129ba8775b23b3303e3075b1487878249921ed8f9a9202efd54901f28",
+    "migrations/20261013_025_rh_automated_observation_receipts.up.sql": "0c1414f9c08394a6de64e9a9e0d2e2adcfb8b0d28639fcdc624a56fd906aca1b"
+  },
+  "staging": "HOLD",
+  "production": "HOLD",
+  "automatic_publication": "OFF",
+  "external_distribution": "OFF"
+}

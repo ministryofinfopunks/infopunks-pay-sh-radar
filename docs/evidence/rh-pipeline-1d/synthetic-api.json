@@ -1,0 +1,64 @@
+{
+  "synthetic_only": true,
+  "not_operational_slo": true,
+  "rows": [
+    {
+      "path": "/v1/4663/frontdoor",
+      "status": 200,
+      "elapsed_ms": 56.47,
+      "headers": {
+        "ETag": "\"frontdoor-1\"",
+        "Cache-Control": "public, max-age=15, s-maxage=15, stale-while-revalidate=45, stale-if-error=300",
+        "Vary": "Accept-Encoding",
+        "X-Frontdoor-Version": "1"
+      },
+      "bytes": 37553
+    },
+    {
+      "path": "/v1/4663/frontdoor",
+      "conditional_status": 304,
+      "cache_control": "public, max-age=15, s-maxage=15, stale-while-revalidate=45, stale-if-error=300"
+    },
+    {
+      "path": "/v1/4663/daily-observations/2026-10-12",
+      "status": 200,
+      "elapsed_ms": 2.3,
+      "headers": {
+        "ETag": "\"observation-307b1bec0f4f5af2ad112d66a10d63afd7d067d0b3c9d85ddc03f1e3cd6b3720\"",
+        "Cache-Control": "public, max-age=15, s-maxage=15",
+        "Vary": "Origin",
+        "X-Frontdoor-Version": null
+      },
+      "bytes": 12495
+    },
+    {
+      "path": "/v1/4663/daily-observations/2026-10-12",
+      "conditional_status": 304,
+      "cache_control": "public, max-age=15, s-maxage=15"
+    },
+    {
+      "path": "/v1/4663/me/call",
+      "status": 200,
+      "elapsed_ms": 1.9,
+      "headers": {
+        "ETag": null,
+        "Cache-Control": "private, no-store",
+        "Vary": "X-Wallet-Address, Authorization",
+        "X-Frontdoor-Version": null
+      },
+      "bytes": 240
+    },
+    {
+      "path": "/v1/4663/me/changes",
+      "status": 200,
+      "elapsed_ms": 2.07,
+      "headers": {
+        "ETag": null,
+        "Cache-Control": "private, no-store",
+        "Vary": "X-Wallet-Address, Authorization",
+        "X-Frontdoor-Version": null
+      },
+      "bytes": 116
+    }
+  ]
+}
