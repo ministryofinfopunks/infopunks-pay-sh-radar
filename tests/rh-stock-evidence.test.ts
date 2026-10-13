@@ -28,7 +28,7 @@ async function fixture() {
     quote_contract: secondContract, base_symbol: 'PLTR', quote_symbol: 'QUOTE', relationship: 'DIRECT_PRICE_DISCOVERY',
     quote_direction_verified: true, verification_state: verified.status, liquidity_usd: 1000000, volume_24h_usd: 50000,
     transaction_count: 10, observed_at: at, source: 'fixture', freshness: 'fresh', pool_state: null,
-    depth_primitive: verified.depth_primitive, price_usd: '50' };
+    depth_primitive: verified.depth_primitive, price_usd: '50', price_source: 'VERIFIED_DIRECT_PLTR_PRICE_V1' };
   const basis = pltrBasis({ dex_price_usd: 50, underlying_price_usd: 100, multiplier: '2', dex_observed_at: at, reference_observed_at: at, session: 'OPEN' });
   const state = buildPltrPreflightState({ asset: stock, supply: { total_supply_raw: '100000000000000000000', total_supply_units: '100',
     share_equivalent_supply: '200', observed_block: 123, observed_at: at, source: 'https://private-rpc.invalid/?key=secret', freshness: 'fresh' },
@@ -103,6 +103,11 @@ describe('Stock Token evidence coverage', () => {
     const f = await fixture(); f.snapshot.pltr_preflight_states[0].direct_markets[0].depth_primitive = null; await f.store.save(f.snapshot);
     expect((await f.service.evidence(contract, 'pltr_uniswap_v4_simulation', f.poolId))?.route_evidence).toMatchObject({ coverage: 'INCOMPLETE', basis: null,
       missing_inputs: expect.arrayContaining(['VERIFIED_FRESH_ROUTE_DEPTH_REQUIRED']) });
+  });
+  it('requires verified route-price provenance instead of a provider price beside verified depth', async () => {
+    const f = await fixture(); f.snapshot.pltr_preflight_states[0].direct_markets[0].price_source = null; await f.store.save(f.snapshot);
+    const result = await f.service.evidence(contract, 'pltr_uniswap_v4_simulation', f.poolId);
+    expect(result?.route_evidence.basis).toBeNull(); expect(result?.route_evidence.missing_inputs).toContain('VERIFIED_ROUTE_PRICE_REQUIRED');
   });
   it('re-verifies the pool key instead of trusting a stored VERIFIED label', async () => {
     const f = await fixture(); f.snapshot.pltr_preflight_states[0].direct_markets[0].depth_primitive!.pool_key.fee = 3000; await f.store.save(f.snapshot);

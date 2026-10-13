@@ -111,12 +111,13 @@ export class RhChainStockEvidenceService {
       && age(depth.observed_at, now, 15 * 60_000).state === 'fresh');
     const session = underlyingPltrSession(now);
     const basisAllowed = registryFresh && corporateComplete && !adjustmentPending && referenceFresh && poolFresh
-      && session === 'OPEN' && reference?.session === 'OPEN' && positive(Number(pool?.price_usd)) && positive(reference!.midpoint / Number(asset.current_multiplier));
+      && session === 'OPEN' && reference?.session === 'OPEN' && pool?.price_source === 'VERIFIED_DIRECT_PLTR_PRICE_V1' && positive(Number(pool?.price_usd)) && positive(reference!.midpoint / Number(asset.current_multiplier));
     const basis = basisAllowed ? pltrBasis({ dex_price_usd: Number(pool!.price_usd), underlying_price_usd: reference!.midpoint,
       multiplier: asset.current_multiplier, dex_observed_at: pool!.observed_at, reference_observed_at: reference!.generated_at, session }) : null;
     const routeGaps = route === 'market_context' ? [] : [
       asset.ticker !== 'PLTR' ? 'ROUTE_NOT_SUPPORTED_FOR_ASSET' : null, !poolId ? 'EXACT_POOL_REQUIRED' : null,
-      !poolFresh ? 'VERIFIED_FRESH_ROUTE_DEPTH_REQUIRED' : null, !referenceFresh ? 'FRESH_REFERENCE_REQUIRED' : null,
+      !poolFresh ? 'VERIFIED_FRESH_ROUTE_DEPTH_REQUIRED' : null,
+      pool?.price_source !== 'VERIFIED_DIRECT_PLTR_PRICE_V1' ? 'VERIFIED_ROUTE_PRICE_REQUIRED' : null, !referenceFresh ? 'FRESH_REFERENCE_REQUIRED' : null,
       !supplyFresh ? 'FRESH_ONCHAIN_SUPPLY_REQUIRED' : supply && BigInt(supply.total_supply_raw) === 0n ? 'NONZERO_ONCHAIN_SUPPLY_REQUIRED' : null, !registryFresh ? 'FRESH_REGISTRY_REQUIRED' : null,
       !corporateComplete || adjustmentPending ? 'CORPORATE_ACTION_EVIDENCE_REQUIRED' : null,
       !basis || basis.status !== 'AVAILABLE' ? 'OPEN_SESSION_ALIGNED_ROUTE_BASIS_REQUIRED' : null,
