@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { validateReleaseRead } from '../src/web/releaseReadContracts';
 import { createApp } from '../src/api/app';
 import { renderUnicornCandidateOgSvg } from '../src/shared/narrativeOg';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
@@ -122,6 +123,7 @@ describe('unicorn radar api', () => {
     try {
       const summary = await app.inject({ method: 'GET', url: '/v1/unicorn-radar' });
       expect(summary.statusCode).toBe(200);
+      expect(() => validateReleaseRead('/v1/unicorn-radar', summary.json())).not.toThrow();
       expect(summary.json().data).toEqual(expect.objectContaining({
         counts: expect.objectContaining({
           total: 10,

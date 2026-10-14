@@ -10,3 +10,5 @@ Authority: user RADAR-R1 Track D and completed RADAR-24 audit findings 6, 7 and 
 | R24-08 | Lazy homepage root hash fails to align/focus | Align known existing root sections after mount/hashchange, no arbitrary URL decoding or new route | Root proof landing/keyboard focus; existing homepage/QA2 regressions |
 
 Canonical ownership: RadarAsyncState for recoverable reads; existing schemas for Unicorn contract; existing API helper for timeouts; native selectors/platform popups; RadarAppShell and radarTokens.css unchanged. English product UI; no Japan market/localization change. Forms and unrelated static findings are not expanded into a redesign. All new behavior remains an independent review candidate, not approved release.
+
+Post-freeze actual HTTP check exposed existing normalizeJson optional values as null (receipt.url and catalog_routes). Client validation now accepts only those established optional wire cases, with normalized-service and actual API-summary assertions. Candidate b0b03f2 is superseded despite passing 2,135 tests; it failed that realistic browser check. No server schema/exporter or authority change.

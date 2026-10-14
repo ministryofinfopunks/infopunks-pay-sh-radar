@@ -3,6 +3,7 @@ import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { validateReleaseRead, marketObservationLabel } from '../src/web/releaseReadContracts';
+import { safeJsonExport } from '../src/services/radarExportService';
 import { UniversalHomepage } from '../src/web/homepage';
 import { App } from '../src/web/radarApp';
 import { listMachineMarketServices, buildMachineMarketSummary } from '../src/services/machineMarketService';
@@ -13,7 +14,7 @@ describe('R1 bounded read-only recovery', () => {
     expect(() => validateReleaseRead('/v1/machine-market/services', payload)).toThrow('Evidence response is invalid');
   });
   it('accepts real service metadata and a genuine empty receipt array', () => {
-    expect(() => validateReleaseRead('/v1/machine-market/services', { data: { services: listMachineMarketServices() } })).not.toThrow();
+    expect(() => validateReleaseRead('/v1/machine-market/services', safeJsonExport({ data: { services: listMachineMarketServices() } }))).not.toThrow();
     expect(() => validateReleaseRead('/v1/machine-preflight/receipts/recent?limit=100', { data: { receipts: [] } })).not.toThrow();
     expect(() => validateReleaseRead('/v1/machine-preflight/receipts/recent', { data: { receipts: [{}] } })).toThrow();
   });

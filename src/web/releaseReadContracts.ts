@@ -4,16 +4,27 @@ function record(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+// The existing public exporter converts omitted optional receipt URLs to null.
+// Validate that established wire format without changing the API or inventing URLs.
+function candidateForValidation(value: unknown): unknown {
+  if (!record(value) || !Array.isArray(value.receipts)) return value;
+  return { ...value, receipts: value.receipts.map(receipt => {
+    if (!record(receipt) || receipt.url !== null) return receipt;
+    const { url: _unavailableUrl, ...rest } = receipt;
+    return rest;
+  }) };
+}
+
 /** Validate existing read contracts; do not turn invalid success into empty evidence. */
 export function validateReleaseRead(path: string, body: unknown): void {
   const endpoint = path.split('?')[0];
   const invalid = () => { throw new Error('Evidence response is invalid. Retry when the service is available.'); };
   if (endpoint === '/v1/unicorn-radar') {
-    if (!record(body) || !UnicornRadarSummarySchema.safeParse(body.data).success) invalid();
+    if (!record(body) || !UnicornRadarSummarySchema.safeParse(record(body.data) && Array.isArray(body.data.candidates) ? { ...body.data, candidates: body.data.candidates.map(candidateForValidation) } : body.data).success) invalid();
     return;
   }
   if (/^\/v1\/unicorn-radar\/candidates\/[^/]+$/.test(endpoint)) {
-    if (!record(body) || !UnicornRadarCandidateSchema.safeParse(body.data).success) invalid();
+    if (!record(body) || !UnicornRadarCandidateSchema.safeParse(candidateForValidation(body.data)).success) invalid();
     return;
   }
   if (endpoint === '/v1/machine-market/summary') {
@@ -40,8 +51,8 @@ export function validateReleaseRead(path: string, body: unknown): void {
       if (typeof item[field] !== 'string') return invalid();
     }
     if (!Array.isArray(item.caveats) || item.caveats.some(value => typeof value !== 'string')) return invalid();
-    if (item.catalog_routes !== undefined && (!Array.isArray(item.catalog_routes) || item.catalog_routes.some(route => !record(route) || ['method', 'path', 'label', 'risk'].some(field => typeof route[field] !== 'string')))) return invalid();
-    if (item.source_attribution !== undefined && (!record(item.source_attribution) || ['source', 'scope', 'observed_at', 'caveat'].some(field => typeof (item.source_attribution as Record<string, unknown>)[field] !== 'string'))) return invalid();
+    if (item.catalog_routes != null && (!Array.isArray(item.catalog_routes) || item.catalog_routes.some(route => !record(route) || ['method', 'path', 'label', 'risk'].some(field => typeof route[field] !== 'string')))) return invalid();
+    if (item.source_attribution != null && (!record(item.source_attribution) || ['source', 'scope', 'observed_at', 'caveat'].some(field => typeof (item.source_attribution as Record<string, unknown>)[field] !== 'string'))) return invalid();
   }
   if (key === 'receipts') for (const item of items as Record<string, unknown>[]) {
     if (typeof item.receipt_id !== 'string' || typeof item.decision !== 'string' || typeof item.demo_mode !== 'boolean') return invalid();
