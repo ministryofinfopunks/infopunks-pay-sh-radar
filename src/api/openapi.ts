@@ -1,3 +1,4 @@
+import { unicornReadExamples } from './publicReadExamples';
 import { DecisionViewV1Schema } from '../schemas/decisionView';
 import { JudgmentDomainContextSchema } from '../schemas/judgmentDomain';
 import { requiresOperatorProofRead } from '../security/proofReadBoundary';
@@ -2140,46 +2141,25 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       decision_state: 'signal'
     }, 'signal_hunt_not_found')
   });
+  const unicornExamples = unicornReadExamples();
   add('get', '/v1/unicorn-radar', {
     tags: ['Intelligence'],
     summary: 'Get Unicorn Radar summary',
-    description: 'Returns the flagship low-cap Solana discovery surface with candidate counts, candidate cards, revenue receipts, and disclosure copy. Projects can buy evaluation, not conviction.',
-    responses: envelopedResponses('UnicornRadarSummary', {
-      title: 'Infopunks Unicorn Radar',
-      tagline: 'Finding serious low-cap Solana projects before consensus does.',
-      counts: { total: 10 },
-      candidates: [{ id: 'ur_jotchua_money_dog', project: 'Jotchua', status: 'high_signal_lowcap' }]
-    })
+    description: 'Returns the dated authored Unicorn archive and optional public market captures. Examples are complete historical records; they do not fetch current telemetry. revenue_receipts is empty in this candidate; no settled revenue or paid service activation is established. Existing productionReady is an editorial record marker, not release or authority approval. Loading/provider failures never establish healthy live data.',
+    responses: envelopedResponses('UnicornRadarSummary', unicornExamples.summary)
   });
   add('get', '/v1/unicorn-radar/candidates', {
     tags: ['Intelligence'],
     summary: 'List Unicorn Radar candidates',
-    description: 'Returns production-shaped low-cap Solana candidate records, including shipping proof, attention quality, token survivability, risk flags, receipts, hunter attribution, paid evaluation disclosure, status, verdict, scores, and optional DexScreener market data enrichment.',
-    responses: envelopedResponses('UnicornRadarCandidateList', {
-      generated_at: '2026-07-06T08:30:00.000Z',
-      count: 10,
-      candidates: [{ id: 'ur_jotchua_money_dog', project: 'Jotchua', ticker: 'JOTCHUA', sector: 'Social / Attention Markets', chainId: 'solana', tokenAddress: 'BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump' }]
-    })
+    description: 'Returns dated authored candidate records with optional public provider captures. No server query filter is implemented; browsing filters are local UI operations. A GET may update only the process-memory provider cache. No execution, publication or economic authority is granted.',
+    responses: envelopedResponses('UnicornRadarCandidateList', unicornExamples.list)
   });
   add('get', '/v1/unicorn-radar/candidates/{candidateId}', {
     tags: ['Intelligence'],
     summary: 'Get Unicorn Radar candidate detail',
-    description: 'Returns one Unicorn Radar candidate with full thesis, proof, scores, receipts, narrative links, graph node, hunter attribution, paid evaluation disclosure, Infopunks verdict, and optional DexScreener market data. Market data via DexScreener. Infopunks verdict is independent.',
+    description: 'Returns a dated authored record and available source attribution. Recorded token identity and editorial productionReady do not establish release qualification, token safety or authority to spend. marketDataUpdatedAt is Radar cache insertion after a provider fetch, retained on cache hits; provider publication time is not available. Provider failures leave current data unavailable. The example is an archived pending-identity record, not synthetic live telemetry.',
     parameters: [pathParam('candidateId', 'Unicorn Radar candidate identifier.')],
-    responses: envelopedResponses('UnicornRadarCandidate', {
-      id: 'ur_ai_rig_complex',
-      project: 'AI Rig Complex',
-      ticker: 'ARC',
-      status: 'watchlist',
-      verdict: 'real_product_weak_attention',
-      marketDataSource: 'dexscreener_official_api',
-      dexScreenerData: {
-        marketCap: 17500000,
-        liquidityUsd: 654321.12,
-        volume24h: 123456.78,
-        priceChange24h: 18.5
-      }
-    }, 'unicorn_radar_candidate_not_found')
+    responses: envelopedResponses('UnicornRadarCandidate', unicornExamples.detail, 'unicorn_radar_candidate_not_found')
   });
   add('post', '/v1/unicorn-radar/submit', {
     tags: ['Intelligence'],
@@ -5388,7 +5368,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       label: stringSchema(),
       type: enumSchema(['shipping', 'attention', 'token', 'risk', 'market', 'payment', 'note', 'LIVE_GAME_ROUTE']),
       source: stringSchema(),
-      url: stringSchema(),
+      url: nullableString(),
       note: stringSchema(),
       observed_at: dateTimeSchema()
     }, ['id', 'label', 'type', 'source', 'note', 'observed_at']),
@@ -5396,7 +5376,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       handle: stringSchema(),
       attribution: stringSchema(),
       submitted_at: dateTimeSchema(),
-      source: enumSchema(['desk_seeded_sample', 'community', 'project', 'partner'])
+      source: enumSchema(['desk_seeded_sample', 'community', 'project', 'partner', 'infopunks_desk'])
     }, ['handle', 'attribution', 'submitted_at', 'source']),
     UnicornRadarPaidEvaluationDisclosure: objectSchema({
       is_paid: { type: 'boolean' },

@@ -27,7 +27,13 @@ export function UniversalHomepage() {
   useEffect(() => { performance.mark?.('radar_homepage_rendered'); document.title = 'Infopunks Radar — Intelligence before the wallet acts'; }, []);
   useEffect(() => {
     const align = () => {
-      const id = window.location.hash.slice(1);
+      const originalId = window.location.hash.slice(1);
+      if (originalId === 'agent-benchmark-api') {
+        window.location.replace('/solana#agent-benchmark-api');
+        return;
+      }
+      const id = originalId === 'methodology' ? 'proof' : originalId;
+      if (id !== originalId) window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}#${id}`);
       if (!['proof', 'economies', 'judgment-preview'].includes(id)) return;
       const target = document.getElementById(id);
       target?.scrollIntoView?.({ block: 'start' });

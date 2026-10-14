@@ -41,3 +41,7 @@ All eight historical QA2 assertions remain mandatory under `tests/ux-qa2-accepta
 ## R1 bounded read recovery
 
 Unicorn reads validate existing response schemas before rendering. Market observation time denotes provider capture (including cache reuse), never repeated-request time. Unavailable optional orders counts remain unknown. Machine release readers treat unusable required receipt envelopes as unavailable evidence and expose a read-only retry, rather than inventing zero proof. Existing root protocol sections align and receive focus after lazy mount/hash navigation. No backend authority or receipt policy is changed.
+
+## R2 read reference corrections
+
+Full valid-shaped summaries require internally consistent counts; invalid responses remain unavailable with existing retry. Capture time labels identify Radar cache insertion rather than inventing provider publication time. Source-note dates and verification scope remain separate. Catalogue labels express proposed scope/HOLD and exclusions, not backend authorization. Legacy methodology resolves to proof with focus; legacy agent benchmark navigation preserves Solana context. Public route-control policy remains subject to the explicit separate authorization in user R2section1.2.

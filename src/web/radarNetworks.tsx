@@ -192,6 +192,8 @@ export function navigationItemIsActive(item: NavigationItem, current: string) {
 
 function NavigationLink({ item, current, onNavigate, compactDuplicate = false, showDescription = false }: { item: NavigationItem; current: string; onNavigate?: () => void; compactDuplicate?: boolean; showDescription?: boolean }) {
   const active = navigationItemIsActive(item, current);
+  const releaseLabel = item.featured ? (['unicorn-radar', 'api', 'developer-documentation', 'methodology'].includes(item.id)
+    ? 'Proposed public read · release HOLD' : 'Outside first public release') : null;
   return <a
     href={item.href}
     role={onNavigate ? 'menuitem' : undefined}
@@ -205,6 +207,7 @@ function NavigationLink({ item, current, onNavigate, compactDuplicate = false, s
     <span className="radar-navigation-link-copy">
       <strong>{item.label}</strong>
       {showDescription && item.description && <small>{item.description}</small>}
+      {releaseLabel && <small>{releaseLabel}</small>}
     </span>
     {item.external && <span className="radar-navigation-link-state" aria-label="Opens in a new tab">↗</span>}
   </a>;

@@ -624,6 +624,7 @@ Content-Type: application/json
           <h1>Before your agent pays, it checks Infopunks.</h1>
           <p className="copy">Infopunks is the pre-spend intelligence layer before payment. It returns receipt-backed route intelligence, known blockers, safer alternatives, and validation context before economic action.</p>
           <p className="copy">Infopunks is not executing payment. The SDK calls POST /v1/pre-spend/check against https://radar.infopunks.fun.</p>
+          <p className="panel-caption">Public read reference · release HOLD. Interactive tenant checks, paid Judgment and wallet examples require a separately authorized environment. Reading this page activates no payment or execution.</p>
         </div>
         <div className="ticker" aria-label="Developer page signals">
           <span>pre-spend intelligence</span>

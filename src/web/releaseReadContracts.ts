@@ -20,7 +20,17 @@ export function validateReleaseRead(path: string, body: unknown): void {
   const endpoint = path.split('?')[0];
   const invalid = () => { throw new Error('Evidence response is invalid. Retry when the service is available.'); };
   if (endpoint === '/v1/unicorn-radar') {
-    if (!record(body) || !UnicornRadarSummarySchema.safeParse(record(body.data) && Array.isArray(body.data.candidates) ? { ...body.data, candidates: body.data.candidates.map(candidateForValidation) } : body.data).success) invalid();
+    if (!record(body)) return invalid();
+    const parsed = UnicornRadarSummarySchema.safeParse(record(body.data) && Array.isArray(body.data.candidates)
+      ? { ...body.data, candidates: body.data.candidates.map(candidateForValidation) } : body.data);
+    if (!parsed.success) return invalid();
+    const summary = parsed.data;
+    if (summary.counts.total !== summary.candidates.length) return invalid();
+    for (const [key, field] of [['by_status', 'status'], ['by_verdict', 'verdict'], ['by_sector', 'sector']] as const) {
+      for (const [value, count] of Object.entries(summary.counts[key])) {
+        if (count !== summary.candidates.filter(candidate => candidate[field] === value).length) return invalid();
+      }
+    }
     return;
   }
   if (/^\/v1\/unicorn-radar\/candidates\/[^/]+$/.test(endpoint)) {
@@ -65,6 +75,7 @@ export function validateReleaseRead(path: string, body: unknown): void {
 export function marketObservationLabel(candidate: { dexScreenerData?: unknown; marketDataUpdatedAt?: string }, now = Date.now()): string {
   const observed = Date.parse(candidate.marketDataUpdatedAt ?? '');
   if (!candidate.dexScreenerData || !Number.isFinite(observed)) return 'Market observation unavailable';
+  if (observed > now) return 'Market capture time invalid · current freshness unavailable';
   const age = now - observed;
-  return age >= 0 && age <= 90_000 ? 'Recent provider observation · may be cached up to 90 seconds' : 'Historical market observation · current refresh not established';
+  return age >= 0 && age <= 90_000 ? 'Recent Radar market capture · may be cached up to 90 seconds' : 'Historical market observation · current refresh not established';
 }

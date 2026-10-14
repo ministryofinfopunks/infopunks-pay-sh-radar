@@ -347,8 +347,8 @@ function MarketDataPanel({ candidate, compact = false }: { candidate: UnicornRad
     </div>}
     <div className="unicorn-card-meta">
       <p><span>Source</span><strong>{candidate.marketDataSource ?? 'DexScreener'}</strong></p>
-      <p><span>Observed</span><strong>{candidate.marketDataUpdatedAt ? new Date(candidate.marketDataUpdatedAt).toLocaleString() : 'n/a'}</strong></p>
-      <p className="panel-caption">{marketObservationLabel(candidate)}</p>
+      <p><span>Captured by Radar</span><strong>{candidate.marketDataUpdatedAt ? new Date(candidate.marketDataUpdatedAt).toLocaleString() : 'n/a'}</strong></p>
+      <p className="panel-caption">{marketObservationLabel(candidate)} · Capture time retained on cache hits. Provider publication time unavailable.</p>
     </div>
     {(candidate.dexScreenerUrl || data.rawUrl) && <div className="signal-hunt-card-actions">
       <a className="execute compact secondary" href={candidate.dexScreenerUrl ?? data.rawUrl ?? '#'} target="_blank" rel="noreferrer">Open DexScreener</a>
@@ -445,7 +445,7 @@ function FeaturedCallCard({ label, candidate }: { label: string; candidate: Unic
     <div className="featured-radar-footer">
       <span>{candidate.receipts.length} receipts</span>
       <a className="execute compact secondary" href={`/unicorn-radar/${encodeURIComponent(candidate.id)}`}>Open Candidate</a>
-      <a className="unicorn-og-link" href={candidateOgHref(candidate)}>Open OG Card</a>
+      <a className="unicorn-og-link" href={candidateOgHref(candidate)}>Preview card · outside public release</a>
     </div>
   </article>;
 }
@@ -545,7 +545,7 @@ function CandidateCompactCard({ candidate }: { candidate: UnicornRadarCandidate 
       </div>
       <div className="signal-hunt-card-actions">
         <a className="execute compact secondary" href={`/unicorn-radar/${encodeURIComponent(candidate.id)}`}>Open Candidate</a>
-        <a className="unicorn-og-link" href={candidateOgHref(candidate)}>Open OG Card</a>
+        <a className="unicorn-og-link" href={candidateOgHref(candidate)}>Preview card · outside public release</a>
       </div>
     </div>
   </article>;
@@ -696,10 +696,10 @@ export function UnicornRadarPage() {
             <p>{summary?.subline ?? 'Retail doesn’t need less risk. Retail needs better signal before taking risk.'}</p>
             <p>{summary?.trust_line ?? 'Projects can buy evaluation, not conviction.'}</p>
           </div>
-          <p className="panel-caption">Archived desk judgments and receipt notes · July 6, 2026. Live monitoring is not established. Provider market observations carry separate capture times.</p>
+          <p className="panel-caption">Archived desk judgments and receipt notes · July 6, 2026. Live monitoring is not established. Market data carries a separate Radar capture time; provider publication time is unavailable.</p>
           <div className="signal-hunt-hero-actions">
-            <a className="execute" href="#submit-candidate">Submit Candidate</a>
-            <a className="execute compact secondary" href="/evaluation-request">Request Paid Evaluation</a>
+            <a className="execute" href="#submit-candidate">Candidate intake · gated</a>
+            <a className="execute compact secondary" href="/evaluation-request">Evaluation request · gated</a>
           </div>
         </div>
         <RadarSnapshotPanel summary={summary} />
@@ -735,19 +735,19 @@ export function UnicornRadarPage() {
         <article className="panel unicorn-commercial-card">
           <p className="eyebrow">Revenue Receipts</p>
           <h2>Revenue Receipts</h2>
-          <p className="copy">Public ledger for open slots, templates, internal build receipts, and future paid evaluations. No receipt, no trust.</p>
+          <p className="copy">Outside the first public release. Open slots and templates do not establish settled customer revenue.</p>
           <a className="execute compact secondary" href="/revenue-receipts">Open Revenue Receipts</a>
         </article>
         <article id="request-evaluation" className="panel unicorn-commercial-card">
           <p className="eyebrow">Request Paid Evaluation</p>
           <h2>Evaluation Request</h2>
-          <p className="copy">Use <code>POST /v1/evaluation-request</code>. If automated intake is not configured, the API returns a manual delivery packet instead of pretending it stored your request.</p>
+          <p className="copy">Outside the first public release. Evaluation intake and commercial fulfillment require separate qualification and authorization.</p>
           <a className="execute compact secondary" href="/evaluation-request">Open Evaluation Request</a>
         </article>
         <article id="submit-candidate" className="panel unicorn-commercial-card">
           <p className="eyebrow">Submit Candidate</p>
           <h2>Low-cap Solana signal intake</h2>
-          <p className="copy">Use <code>POST /v1/unicorn-radar/submit</code> with thesis, sector, shipping proof, and evidence links.</p>
+          <p className="copy">Outside the first public release. This archive does not publish or independently verify a submitted claim.</p>
           <a className="execute compact secondary" href="/developers">Open Developer Surface</a>
         </article>
       </section>
@@ -863,7 +863,7 @@ export function UnicornRadarDetailPage({ candidateId }: { candidateId: string })
           {candidate.risk_flags.map((flag) => <span key={flag}>{flag}</span>)}
         </div>
         <div className="signal-hunt-card-actions">
-          <a className="execute compact secondary" href="/evaluation-request">Submit receipts for this candidate</a>
+          <a className="execute compact secondary" href="/evaluation-request">Receipt intake · outside public release</a>
         </div>
       </section>
 
@@ -910,7 +910,7 @@ export function UnicornRadarDetailPage({ candidateId }: { candidateId: string })
         <article className="panel">
           <p className="eyebrow">Linked graph node</p>
           <h2>{candidate.linked_graph_node.label}</h2>
-          <a className="execute compact secondary" href={candidate.linked_graph_node.href}>Open graph</a>
+          <a className="execute compact secondary" href={candidate.linked_graph_node.href}>Open graph · research surface</a>
         </article>
         <article className="panel">
           <p className="eyebrow">Hunter attribution</p>
