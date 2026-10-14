@@ -63,6 +63,11 @@ describe('R2 public read contracts and side effects', () => {
     if (field === 'sector') body.data.counts.by_sector['AI / Agent Rails'] = 99;
     expect(() => validateReleaseRead('/v1/unicorn-radar', body)).toThrow('Evidence response is invalid');
   });
+  it('rejects duplicated identities even when the claimed counts match', () => {
+    const body = { data: unicornReadExamples().summary } as any;
+    body.data.candidates[0].id = body.data.candidates[1].id;
+    expect(() => validateReleaseRead('/v1/unicorn-radar', body)).toThrow('Evidence response is invalid');
+  });
   it('accepts genuinely empty data only with corresponding zero counts', () => {
     const body = { data: unicornReadExamples().summary } as any;
     body.data.candidates = []; body.data.counts.total = 0;

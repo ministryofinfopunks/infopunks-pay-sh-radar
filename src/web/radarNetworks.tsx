@@ -199,6 +199,8 @@ function NavigationLink({ item, current, onNavigate, compactDuplicate = false, s
     role={onNavigate ? 'menuitem' : undefined}
     className={`${active ? 'active ' : ''}${item.featured ? 'featured-route ' : 'secondary-route '}${compactDuplicate ? 'compact-primary-duplicate' : ''}`.trim()}
     aria-current={active ? 'page' : undefined}
+    aria-label={item.label}
+    aria-description={releaseLabel ?? undefined}
     data-route-id={item.id}
     target={item.external ? '_blank' : undefined}
     rel={item.external ? 'noreferrer' : undefined}
@@ -207,8 +209,9 @@ function NavigationLink({ item, current, onNavigate, compactDuplicate = false, s
     <span className="radar-navigation-link-copy">
       <strong>{item.label}</strong>
       {showDescription && item.description && <small>{item.description}</small>}
-      {releaseLabel && <small>{releaseLabel}</small>}
+      {showDescription && releaseLabel && <small>{releaseLabel}</small>}
     </span>
+    {!showDescription && releaseLabel && <span className="radar-navigation-link-state" aria-hidden="true">{releaseLabel.startsWith('Proposed') ? 'HOLD' : 'DEFERRED'}</span>}
     {item.external && <span className="radar-navigation-link-state" aria-label="Opens in a new tab">↗</span>}
   </a>;
 }

@@ -25,7 +25,7 @@ export function validateReleaseRead(path: string, body: unknown): void {
       ? { ...body.data, candidates: body.data.candidates.map(candidateForValidation) } : body.data);
     if (!parsed.success) return invalid();
     const summary = parsed.data;
-    if (summary.counts.total !== summary.candidates.length) return invalid();
+    if (summary.counts.total !== summary.candidates.length || new Set(summary.candidates.map(candidate => candidate.id)).size !== summary.candidates.length || summary.candidates.some(candidate => !candidate.id.trim())) return invalid();
     for (const [key, field] of [['by_status', 'status'], ['by_verdict', 'verdict'], ['by_sector', 'sector']] as const) {
       for (const [value, count] of Object.entries(summary.counts[key])) {
         if (count !== summary.candidates.filter(candidate => candidate[field] === value).length) return invalid();

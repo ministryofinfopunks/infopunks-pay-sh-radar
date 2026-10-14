@@ -16,6 +16,8 @@ describe('R2 public read honesty and navigation', () => {
   it('keeps all24destinations discoverable with truthful proposed/excluded scope, not live admission', async () => {
     await mount(<SolanaRadarDirectory />, host => {
       expect(host.querySelectorAll('[data-route-id]')).toHaveLength(24);
+      expect(host.querySelector('[data-route-id=unicorn-radar]')?.getAttribute('aria-label')).toBe('Unicorn Radar');
+      expect(host.querySelector('[data-route-id=signal-hunt]')?.getAttribute('aria-description')).toBe('Outside first public release');
       expect([...host.querySelectorAll('small')].filter(x => x.textContent === 'Outside first public release')).toHaveLength(20);
       expect([...host.querySelectorAll('small')].filter(x => x.textContent === 'Proposed public read · release HOLD')).toHaveLength(4);
     });

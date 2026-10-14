@@ -318,7 +318,7 @@ function MarketDataPanel({ candidate, compact = false }: { candidate: UnicornRad
           <p className="eyebrow">Market Data</p>
           <h2>Unavailable</h2>
         </div>
-        <p className="panel-caption">Market data via DexScreener. Infopunks verdict is independent.</p>
+        <p className="panel-caption">Market capture via DexScreener. Desk judgment is a separately authored archive.</p>
       </div>
       <p className="panel-caption">No DexScreener market data is attached to this candidate yet.</p>
     </section>;
@@ -330,7 +330,7 @@ function MarketDataPanel({ candidate, compact = false }: { candidate: UnicornRad
         <p className="eyebrow">Market Data</p>
         <h2>{formatCompactMoney(data.marketCap ?? null)}</h2>
       </div>
-      <p className="panel-caption">Market data via DexScreener. Infopunks verdict is independent.</p>
+      <p className="panel-caption">Market capture via DexScreener. Desk judgment is a separately authored archive.</p>
     </div>
     <div className="unicorn-score-grid">
       <p><span>Market Cap</span><strong>{formatCompactMoney(data.marketCap ?? null)}</strong></p>
@@ -347,7 +347,7 @@ function MarketDataPanel({ candidate, compact = false }: { candidate: UnicornRad
     </div>}
     <div className="unicorn-card-meta">
       <p><span>Source</span><strong>{candidate.marketDataSource ?? 'DexScreener'}</strong></p>
-      <p><span>Captured by Radar</span><strong>{candidate.marketDataUpdatedAt ? new Date(candidate.marketDataUpdatedAt).toLocaleString() : 'n/a'}</strong></p>
+      <p><span>Captured by Radar</span><strong>{formatRadarTimestamp(candidate.marketDataUpdatedAt)}</strong></p>
       <p className="panel-caption">{marketObservationLabel(candidate)} · Capture time retained on cache hits. Provider publication time unavailable.</p>
     </div>
     {(candidate.dexScreenerUrl || data.rawUrl) && <div className="signal-hunt-card-actions">

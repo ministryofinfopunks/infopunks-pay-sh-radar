@@ -11,7 +11,7 @@ const reports = [], hash = bytes => crypto.createHash('sha256').update(bytes).di
 (async()=>{
  const browser = await chromium.launch();
  try {
-  for (const width of [390,1440]) {
+  for (const width of [320,375,390,430,768,1024,1440]) {
    const context = await browser.newContext({viewport:{width,height:1000},reducedMotion:'reduce'});
    const page = await context.newPage(); const errors=[], methods=[];
    page.on('pageerror', error=>errors.push(error.message));page.on('request',r=>{if(new URL(r.url()).pathname.startsWith('/v1/')) methods.push(r.method());});
