@@ -509,6 +509,7 @@ describe('PostgreSQL failures in background schedulers', () => {
       process.env.INGESTION_ENABLED = 'true';
       process.env.PAY_SH_INGEST_INTERVAL_MS = '5';
       process.env.MONITOR_ENABLED = 'true';
+      process.env.MONITOR_MODE = 'safe_metadata';
       process.env.MONITOR_INTERVAL_MS = '5';
       process.env.MONITOR_TIMEOUT_MS = '100';
       process.env.PAYSH_BOOTSTRAP_ENABLED = 'false';

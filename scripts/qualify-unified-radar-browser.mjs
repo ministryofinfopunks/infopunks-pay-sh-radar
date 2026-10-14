@@ -37,7 +37,7 @@ for (const [viewportName, viewport] of Object.entries({ desktop: { width: 1440, 
     await page.waitForSelector('h1, [role="alert"]', { timeout: 15000 }).catch(() => {});
     await page.waitForTimeout(1400);
     if (route === '/spend-terminal') {
-      if (process.env.RADAR_QA_TENANT_KEY) await page.getByLabel('Tenant access key').fill(process.env.RADAR_QA_TENANT_KEY);
+      if (process.env.RADAR_QA_TENANT_KEY) await page.getByLabel('Tenant access key', { exact: true }).fill(process.env.RADAR_QA_TENANT_KEY);
       await page.getByRole('button', { name: 'Run a Check' }).click();
       await page.getByRole('heading', { name: 'Insufficient evidence' }).waitFor({ timeout: 15000 });
     }
@@ -102,6 +102,8 @@ for (const scenario of ['server_failure', 'timeout']) {
     // An intentionally unanswered request exercises the real browser timeout. No success is fabricated.
   });
   await failedPage.goto(base + '/spend-terminal?subject=route_for_qualification&intent=quote');
+  if (!process.env.RADAR_QA_TENANT_KEY) throw new Error('synthetic_tenant_key_required_for_failure_recovery');
+  await failedPage.getByLabel('Tenant access key', { exact: true }).fill(process.env.RADAR_QA_TENANT_KEY);
   await failedPage.getByRole('button', { name: 'Run a Check' }).click();
   await failedPage.getByRole('alert').waitFor({ timeout: 16000 });
   failureScenarios.push({ scenario, classification: 'INJECTED_LOCAL_FAILURE_ONLY', message: await failedPage.getByRole('alert').textContent(), retry_available: await failedPage.getByRole('button', { name: 'Retry check' }).isEnabled(), deep_link_subject: await failedPage.getByLabel('Subject or route identifier').inputValue() });
@@ -134,7 +136,7 @@ for (const width of [720, 360]) {
 await fs.writeFile(path.join(output, 'zoom-and-code-scroll.json'), JSON.stringify({ source_sha: sourceSha, method: 'Equivalent CSS viewport widths at 100% browser zoom: 720px (200% of 1440 CSS px) and 360px (400% of 1440 CSS px). This is reflow coverage, not browser zoom UI automation.', reports: zoomReports }, null, 2));
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
 await page.goto(base);
-await page.waitForSelector('a.radar-home-skip', { state: 'attached', timeout: 15000 });
+await page.getByRole('link', { name: 'Skip to content', exact: true }).waitFor({ state: 'attached', timeout: 15000 });
 const keyboard=[];
 for(let i=0;i<8;i++){
   let probe = null;
