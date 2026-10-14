@@ -803,7 +803,7 @@ export function UnicornRadarDetailPage({ candidateId }: { candidateId: string })
           <VerificationBadge candidate={candidate} />
           <p className="copy">{candidate.thesis}</p>
           <p className="panel-caption">{candidate.sample_disclosure}</p>
-          <p className="panel-caption">Archived desk judgments · {formatDate(candidate.updated_at)}. Product, retention and execution claims need source review; live monitoring is not established.</p>
+          <p className="panel-caption">Archived desk judgments · {formatRadarTimestamp(candidate.updated_at)}. Product, retention and execution claims need source review; live monitoring is not established.</p>
         </div>
         <div className="panel unicorn-verdict-panel">
           <span className={`status-pill ${statusTone(candidate.status)}`}>{titleCase(candidate.status)}</span>
@@ -893,7 +893,7 @@ export function UnicornRadarDetailPage({ candidateId }: { candidateId: string })
             <p className="eyebrow">{receipt.type}</p>
             <h3>{receipt.label}</h3>
             <p>{receipt.note}</p>
-            <p className="panel-caption">{receipt.source} · Observed {formatDate(receipt.observed_at)}</p>
+            <p className="panel-caption">{receipt.source} · Observed {formatRadarTimestamp(receipt.observed_at)}</p>
             {receipt.url ? <a className="copy-chip" href={receipt.url} target="_blank" rel="noreferrer">Inspect source</a> : <p className="panel-caption">Desk note · no source link recorded</p>}
           </article>)}
         </div>
