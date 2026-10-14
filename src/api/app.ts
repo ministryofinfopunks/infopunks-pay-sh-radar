@@ -1796,17 +1796,22 @@ export async function createApp(
   const judgmentRateLimiter = new RhChainPublicRateLimiter(true, 60_000, 30);
   const handleJudgmentAssessment = async (req: FastifyRequest, reply: FastifyReply) => {
     const started = performance.now();
+    reply.header('Cache-Control', 'private, no-store');
     const rate = judgmentRateLimiter.consume(req.ip);
     if (!rate.allowed) return reply.code(429).header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).send({ error: 'judgment_rate_limited' });
-    const parsed = (req.routeOptions.url === '/v1/decide' ? PreSpendCheckRequestSchema.strict() : PreSpendCheckRequestSchema).safeParse(req.body);
+    // The canonical route and its alias must enforce the same strict request contract.
+    const parsed = PreSpendCheckRequestSchema.strict().safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_pre_spend_check_request', details: parsed.error.flatten() });
     try {
       const key = req.headers['idempotency-key'];
       const signature = req.headers['payment-signature'];
-      if ((key && typeof key !== 'string') || (signature && typeof signature !== 'string')) return reply.code(400).send({ error: 'invalid_judgment_headers' });
+      if ((key !== undefined && typeof key !== 'string') || (signature !== undefined && typeof signature !== 'string')) return reply.code(400).send({ error: 'invalid_judgment_headers' });
+      // Validate untrusted header bytes before reflecting the idempotency key.
+      if (key !== undefined && !/^[A-Za-z0-9_.:-]{1,128}$/.test(key)) return reply.code(400).send({ error: 'invalid_idempotency_key' });
+      if (signature !== undefined && (signature.length === 0 || signature.length > 16_384)) return reply.code(400).send({ error: 'invalid_payment_signature_length' });
       const stableKey = key ?? hashCanonical(parsed.data);
-      reply.header('Idempotency-Key', stableKey);
       const result = await judgments.check(parsed.data, stableKey, signature);
+      reply.header('Idempotency-Key', stableKey);
       for (const [name, value] of Object.entries(result.headers)) if (value) reply.header(name, value);
       reply.header('Server-Timing', `judgment;dur=${(performance.now() - started).toFixed(2)}`);
       // Preserve the original SDK envelope; canonical fields are also available at the top level.

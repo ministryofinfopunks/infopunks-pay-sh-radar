@@ -51,7 +51,7 @@
     "jsdom": "latest",
     "tsx": "latest",
     "typescript": "latest",
-    "vitest": "latest"
+    "vitest": "^4.1.11"
   },
   "engines": {
     "node": ">=20"
