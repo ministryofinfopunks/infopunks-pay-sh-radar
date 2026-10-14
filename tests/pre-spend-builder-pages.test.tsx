@@ -4,6 +4,7 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../src/web/radarApp';
+import { RadarAppShell } from '../src/web/radarAppShell';
 
 const route = { route_id: 'route_pay_sh_market_research_01', provider_id: 'provider_pay_sh_lattice', service_id: 'service_market_research', endpoint: 'POST /market/research', payment_method: 'stablecoin', estimated_cost: '0.25 USDC', latency_ms_p50: 900, latency_ms_p95: 1600, success_rate: 0.91, last_tested_at: '2026-06-15T10:10:00.000Z', last_successful_run: '2026-06-14T09:40:00.000Z', last_failed_run: '2026-06-10T11:05:00.000Z', confidence_score: 82, risk_level: 'medium', known_blockers: ['occasional timeout under high load'], receipt_references: ['receipt_001'], recommended_use_case: 'buy_market_research', avoid_conditions: ['strict sub-second latency required'] };
 const provider = { provider_id: 'provider_pay_sh_lattice', name: 'Lattice Research Relay', service_categories: ['market_research'], reliability_score: 89, pricing_consistency: 'mostly consistent', output_quality_notes: ['prompt-specific variability under vague requests'], uptime_notes: ['minor timeout spikes during high load'], dispute_history: [], human_validation_status: 'human_validated', known_risks: ['broad prompts widen output variance'], agent_compatibility: ['research_agents'], route_coverage: 1, recent_receipt_count: 1 };
@@ -30,7 +31,7 @@ async function render(path: string) {
   let root!: Root;
   await act(async () => {
     root = createRoot(container);
-    root.render(<App />);
+    root.render(<RadarAppShell><App /></RadarAppShell>);
   });
   await act(async () => {
     await Promise.resolve();
@@ -161,6 +162,8 @@ describe('pre-spend builder pages', () => {
   it('renders spend terminal and links result routes and receipts', async () => {
     const { root, container } = await render('/spend-terminal');
     expect(container.textContent).toContain('Should this agent spend?');
+    const key = container.querySelector('input[aria-label="Tenant access key"]') as HTMLInputElement;
+    act(() => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(key, 'synthetic-tenant-key'); key.dispatchEvent(new Event('input', { bubbles: true })); });
     const form = container.querySelector('form')!;
     await act(async () => {
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
@@ -180,6 +183,8 @@ describe('pre-spend builder pages', () => {
     expect((container.querySelector('input[maxlength="256"]') as HTMLInputElement).value).toBe('allocate_to_pltr_paired_narrative_token');
     expect((container.querySelector('input[maxlength="64"]') as HTMLInputElement).value).toBe('stablecoin');
 
+    const key = container.querySelector('input[aria-label="Tenant access key"]') as HTMLInputElement;
+    act(() => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(key, 'synthetic-tenant-key'); key.dispatchEvent(new Event('input', { bubbles: true })); });
     const form = container.querySelector('form')!;
     await act(async () => {
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));

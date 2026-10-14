@@ -193,4 +193,38 @@ describe('radar delayed malformed pricing range resilience', () => {
     expect(container.textContent).toContain('Beta Pay');
     expect(container.textContent).not.toContain('Radar UI degraded: rendering fallback shell');
   });
+  it('UX-02: distinguishes drafts, completed empty searches, IME and superseded requests', async () => {
+    installFetch();
+    const original = vi.mocked(fetch).getMockImplementation()!;
+    const pending: Array<(response: Response) => void> = [];
+    vi.mocked(fetch).mockImplementation((input, init) => String(input).includes('/v1/search') ? new Promise(resolve => pending.push(resolve)) : original(input, init));
+    await act(async () => { root = createRoot(container); root.render(<App />); });
+    const input = container.querySelector<HTMLInputElement>('#semantic-search-input')!;
+    const form = input.closest('form')!;
+    function draft(value: string) { act(() => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, value); input.dispatchEvent(new Event('input', { bubbles: true })); }); }
+    draft('older');
+    expect(container.textContent).not.toContain('No matching providers.');
+    act(() => input.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true })));
+    await act(async () => { form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
+    expect(pending).toHaveLength(0);
+    act(() => input.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true })));
+    await act(async () => { form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
+    draft('latest');
+    await act(async () => { form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
+    await act(async () => { pending[1](new Response(JSON.stringify({ data: [{ provider: {id:'latest',name:'Latest search result'} }],degraded:false }), {headers:{'content-type':'application/json'}})); });
+    await act(async () => { pending[0](new Response(JSON.stringify({ data: [],degraded:false }), {headers:{'content-type':'application/json'}})); });
+    expect(container.textContent).toContain('Latest search result');
+    expect(container.textContent).not.toContain('No matching providers.');
+    const clear = [...form.querySelectorAll('button')].find(b => b.textContent === 'Clear search')!;
+    act(() => clear.click()); expect(input.value).toBe(''); expect(document.activeElement).toBe(input);
+    draft('empty');await act(async () => { form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
+    await act(async () => { pending[2](new Response(JSON.stringify({data:[],degraded:false}), {headers:{'content-type':'application/json'}})); });
+    expect(container.textContent).toContain('No matching providers.');
+    draft('clear-pending');await act(async () => { form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
+    act(() => [...form.querySelectorAll('button')].find(b => b.textContent === 'Clear search')!.click());
+    await act(async () => { pending[3](new Response(JSON.stringify({data:[{provider:{id:'stale',name:'Stale after clear'}}]}), {headers:{'content-type':'application/json'}})); });
+    expect(container.textContent).not.toContain('Stale after clear');
+    expect(container.textContent).not.toContain('No matching providers.');
+  });
+
 });

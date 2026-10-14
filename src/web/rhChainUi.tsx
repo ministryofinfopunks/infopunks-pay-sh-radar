@@ -213,5 +213,6 @@ export function RhChainRouteState({ state, title, detail, onRetry }: { state: 'l
     <span className="rh-chain-state-mark" aria-hidden="true" />
     <div><p className="section-kicker">{state.replaceAll('_', ' ')}</p><h2>{title ?? copy[0]}</h2><p>{detail ?? copy[1]}</p></div>
     {onRetry && <button className="execute compact secondary" type="button" onClick={onRetry}>Retry</button>}
+    {state === 'unavailable' && <a href="/rh-chain-signal-desk">Return to Signal Desk ↗</a>}
   </section>;
 }

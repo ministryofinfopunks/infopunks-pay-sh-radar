@@ -2,7 +2,8 @@ import React, { useMemo, useRef, useState } from 'react';
 import { createInfopunksClient, InfopunksJudgmentError, type CanonicalJudgmentResponse } from '../sdk';
 import { getApiBaseUrl } from './apiBaseUrl';
 import './judgmentCheck.css';
-export function JudgmentCheckPanel() {
+export function JudgmentCheckPanel({ headingLevel = 1 }: { headingLevel?: 1 | 2 }) {
+  const Heading = headingLevel === 1 ? 'h1' : 'h2';
   const [apiKey,setApiKey] = useState('');
   const params = new URLSearchParams(window.location.search);
   const [intent,setIntent] = useState(params.get('intent') ?? 'buy market research');
@@ -43,7 +44,7 @@ export function JudgmentCheckPanel() {
   }
   const state = !result ? 'Awaiting your check' : result.receipt ? 'Paid Judgment' : result.payment_required ? 'Payment required · Judgment not issued' : 'Free assessment · insufficient evidence';
   return <>
-    <section className="panel judgment-hero"><p className="eyebrow">Pre-spend intelligence</p><h1>Check before you spend.</h1><p>One justified decision. Inspect the evidence before taking action.</p></section>
+    <section className="panel judgment-hero"><p className="eyebrow">Pre-spend intelligence</p><Heading>Check before you spend.</Heading><p>One justified decision. Inspect the evidence before taking action.</p></section>
     <section className="judgment-check-grid">
       <form className="panel judgment-form" onSubmit={check} aria-label="Check a spend">
         <label>Intent<input aria-label="Intent" required value={intent} onChange={e=>setIntent(e.target.value)} /></label>

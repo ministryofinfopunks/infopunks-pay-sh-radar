@@ -689,7 +689,7 @@ Content-Type: application/json
       <section className="panel builder-detail-panel" aria-label="Tenant-owned Judgment check">
         <div className="panel-head"><div><p className="section-kicker">Private Judgment</p><h2>Inspect a tenant-bound decision</h2></div></div>
         <p className="panel-caption">This browser check has no payment adapter. A quoted fee stops for explicit authorization by an SDK integration; it never triggers browser payment by default.</p>
-        <JudgmentCheckPanel />
+        <JudgmentCheckPanel headingLevel={2} />
       </section>
 
       <section className="panel builder-detail-panel" aria-label="Decision states">
@@ -1814,24 +1814,42 @@ export function ClaimDetailPage({ claimId }: { claimId: string }) {
 export function RoutesIndexPage() {
   const [routes, setRoutes] = useState<RouteIntelligence[]>([]);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
-  const [serviceFilter, setServiceFilter] = useState('all');
-  const [sort, setSort] = useState<'risk' | 'confidence'>('confidence');
+  const [serviceFilter, setServiceFilter] = useState(() => new URLSearchParams(window.location.search).get('service') ?? 'all');
+  const [sort, setSort] = useState<'risk' | 'confidence'>(() => new URLSearchParams(window.location.search).get('sort') === 'risk' ? 'risk' : 'confidence');
 
   useEffect(() => {
     document.title = 'Routes | Infopunks Builder';
     api<{ data: { routes: RouteIntelligence[]; metrics: Metrics } }>('/v1/routes').then((response) => {
       setRoutes(response.data.routes);
       setMetrics(response.data.metrics);
+      const service = new URLSearchParams(window.location.search).get('service');
+      setServiceFilter(service && response.data.routes.some(route => route.service_id === service) ? service : 'all');
     }).catch(() => undefined);
   }, []);
 
+  useEffect(() => {
+    const restore = () => {
+      const params = new URLSearchParams(window.location.search); const service = params.get('service');
+      setServiceFilter(service && routes.some(route => route.service_id === service) ? service : 'all');
+      setSort(params.get('sort') === 'risk' ? 'risk' : 'confidence');
+    };
+    window.addEventListener('popstate', restore); return () => window.removeEventListener('popstate', restore);
+  }, [routes]);
+  function commitFilters(service: string, nextSort: 'risk' | 'confidence') {
+    const url = new URL(window.location.href);
+    if (service === 'all') url.searchParams.delete('service'); else url.searchParams.set('service', service);
+    if (nextSort === 'confidence') url.searchParams.delete('sort'); else url.searchParams.set('sort', nextSort);
+    window.history.pushState(null, '', url.pathname + url.search + url.hash);
+    setServiceFilter(service); setSort(nextSort);
+  }
+  const subject = new URLSearchParams(window.location.search).get('subject');
   const visible = useMemo(() => routes
     .filter((route) => serviceFilter === 'all' || route.service_id === serviceFilter)
     .sort((a, b) => sort === 'confidence'
       ? b.confidence_score - a.confidence_score
       : ['low', 'medium', 'high', 'critical'].indexOf(a.risk_level) - ['low', 'medium', 'high', 'critical'].indexOf(b.risk_level)), [routes, serviceFilter, sort]);
 
-  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page" aria-label="Routes"><section className="panel hero builder-hero"><div><p className="eyebrow">Receipt-backed route intelligence</p><h1>Routes</h1><p className="copy">Before your agent pays, inspect the route. These cards show known blockers, safer route posture, and the receipts behind each economic action.</p></div></section><MetricsBand metrics={metrics} /><section className="panel builder-filter-panel"><label><span>service type</span><select value={serviceFilter} onChange={(event) => setServiceFilter(event.target.value)}><option value="all">all</option>{Array.from(new Set(routes.map((route) => route.service_id))).map((serviceId) => <option key={serviceId} value={serviceId}>{serviceId}</option>)}</select></label><label><span>sort</span><select value={sort} onChange={(event) => setSort(event.target.value as 'risk' | 'confidence')}><option value="confidence">confidence sorting</option><option value="risk">risk sorting</option></select></label></section><section className="builder-card-grid" aria-label="Route cards">{visible.map((route) => <article className="panel builder-card" key={route.route_id}><a className="builder-card-anchor" href={routeHref(route.route_id)}><p className="section-kicker">{route.recommended_use_case}</p><h2>{route.route_id}</h2><p>{route.endpoint}</p><div className="builder-stat-list"><span>risk {route.risk_level}</span><span>confidence {route.confidence_score}</span><span>cost {route.estimated_cost}</span><span>latency range {route.latency_ms_p50}-{route.latency_ms_p95} ms</span><span>last successful run {formatDate(route.last_successful_run)}</span></div><p className="panel-caption">Known blockers: {joined(route.known_blockers)}</p><span className="builder-card-cta">Inspect route evidence graph</span></a></article>)}</section></main></div>;
+  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page" aria-label="Routes"><section className="panel hero builder-hero"><div><p className="eyebrow">Receipt-backed route intelligence</p><h1>Routes</h1><p className="copy">Before your agent pays, inspect the route. These cards show known blockers, safer route posture, and the receipts behind each economic action.</p></div></section><MetricsBand metrics={metrics} />{subject && <p className="panel-caption">Investigating subject: <code>{subject}</code>. Catalog evidence does not establish spend authorization.</p>}<section className="panel builder-filter-panel"><label><span>service type</span><select value={serviceFilter} onChange={(event) => commitFilters(event.target.value, sort)}><option value="all">all</option>{Array.from(new Set(routes.map((route) => route.service_id))).map((serviceId) => <option key={serviceId} value={serviceId}>{serviceId}</option>)}</select></label><label><span>sort</span><select value={sort} onChange={(event) => commitFilters(serviceFilter, event.target.value === 'risk' ? 'risk' : 'confidence')}><option value="confidence">confidence sorting</option><option value="risk">risk sorting</option></select></label></section><section className="builder-card-grid" aria-label="Route cards">{visible.map((route) => <article className="panel builder-card" key={route.route_id}><a className="builder-card-anchor" href={routeHref(route.route_id)}><p className="section-kicker">{route.recommended_use_case}</p><h2>{route.route_id}</h2><p>{route.endpoint}</p><div className="builder-stat-list"><span>risk {route.risk_level}</span><span>confidence {route.confidence_score}</span><span>cost {route.estimated_cost}</span><span>latency range {route.latency_ms_p50}-{route.latency_ms_p95} ms</span><span>last successful run {formatDate(route.last_successful_run)}</span></div><p className="panel-caption">Known blockers: {joined(route.known_blockers)}</p><span className="builder-card-cta">Inspect route evidence graph</span></a></article>)}</section></main></div>;
 }
 
 export function ProvidersIndexPage() {

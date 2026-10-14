@@ -58,6 +58,7 @@ type RhChainSignalDeskV2Failures = {
 };
 
 export type RhChainSignalDeskV2Props = {
+  headingLevel?: 1 | 2;
   desk: RhChainPayload;
   envelope: RhChainEnvelope<unknown> | null;
   reviewQueue: RhChainReviewQueuePayload | null;
@@ -146,6 +147,7 @@ export function RhChainSignalDeskV2(props: RhChainSignalDeskV2Props) {
 
   return <div className={`rh-v2-desk mode-${mode}`}>
     <RhChainHero
+      headingLevel={props.headingLevel}
       desk={props.desk}
       envelope={props.envelope}
       today={today}
@@ -211,7 +213,8 @@ function RhChainViewModeControl({ mode, onChange }: { mode: RhChainDeskMode; onC
   </div>;
 }
 
-function RhChainHero({ desk, envelope, today, latestReceipt, signalIndex, reviewQueue, mode, onModeChange }: {
+function RhChainHero({ headingLevel = 1, desk, envelope, today, latestReceipt, signalIndex, reviewQueue, mode, onModeChange }: {
+  headingLevel?: 1 | 2;
   desk: RhChainPayload;
   envelope: RhChainEnvelope<unknown> | null;
   today: ReturnType<typeof selectTodayOn4663>;
@@ -221,6 +224,7 @@ function RhChainHero({ desk, envelope, today, latestReceipt, signalIndex, review
   mode: RhChainDeskMode;
   onModeChange: (mode: RhChainDeskMode) => void;
 }) {
+  const Heading = headingLevel === 1 ? 'h1' : 'h2';
   const topSignal = today.find((item) => item.id === 'top_signal');
   const topRisk = today.find((item) => item.id === 'risk_alert');
   const observedAt = today.map((item) => item.observedAt).filter((value): value is string => Boolean(value)).sort().at(-1) ?? desk.last_updated;
@@ -232,7 +236,7 @@ function RhChainHero({ desk, envelope, today, latestReceipt, signalIndex, review
         <p className="eyebrow">Public intelligence for Chain 4663</p>
         <RhChainViewModeControl mode={mode} onChange={onModeChange} />
       </div>
-      <h1 id="rh-v2-title">Know what is moving.<br /><span>Know what is real.</span></h1>
+      <Heading id="rh-v2-title">Know what is moving.<br /><span>Know what is real.</span></Heading>
       <p className="rh-v2-hero-copy">Independent intelligence, risk memory and market signals for Robinhood Chain.</p>
       <p className="rh-v2-doctrine">External data gives context. Infopunks gives judgment.</p>
       <RhChainContractCheck signalIndex={signalIndex} reviewQueue={reviewQueue} latestReceipt={latestReceipt} />
