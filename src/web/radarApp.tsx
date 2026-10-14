@@ -9646,7 +9646,8 @@ function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universa
     void api<SearchResponse>('/v1/search', { method: 'POST', body: JSON.stringify({ query, limit: 6 }) })
       .then((res) => {
         if (generation !== searchGeneration.current) return;
-        setSearchResults(Array.isArray(res.data) ? res.data : []);
+        if (!isRecord(res) || !Array.isArray(res.data) || !res.data.every(result => isRecord(result) && isRecord(result.provider) && typeof result.provider.id === 'string')) throw new Error('Invalid search response.');
+        setSearchResults(res.data);
         if (res.degraded) { setSearchStatus('unavailable'); setSearchError('Search service unavailable. Retry this query or clear it.'); return; }
         setSearchStatus('success');
       })
@@ -10050,7 +10051,7 @@ function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universa
               <h2>Semantic Search</h2>
               <p className="panel-caption">Ask across provider metadata, trust context, signal context, categories, endpoints, and receipts without leaving the radar surface.</p>
             </div>
-            <form className="semantic-search-form" onSubmit={(event) => {
+            <form noValidate className="semantic-search-form" onSubmit={(event) => {
               event.preventDefault();
               runSearch();
             }}>

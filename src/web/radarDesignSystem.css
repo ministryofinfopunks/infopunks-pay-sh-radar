@@ -274,3 +274,16 @@ body { margin: 0; }
 .radar-receipt-summary { display: grid; gap: var(--space-3, .75rem); }
 .radar-receipt-summary div { min-width: 0; }
 .radar-receipt-summary dd { margin: 0; overflow-wrap: anywhere; }
+
+/* All application-owned scroll regions inherit one operable scrollbar baseline. */
+html { scrollbar-color: var(--border-subtle) var(--surface-canvas); scrollbar-width: auto; }
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--surface-canvas); }
+::-webkit-scrollbar-thumb { background: var(--border-subtle); border: 3px solid var(--surface-canvas); border-radius: var(--radius-control); }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+::-webkit-scrollbar-thumb:active { background: var(--signal-action); }
+@media (forced-colors: active) { html { scrollbar-color: auto; } }
+.intelligent-decision-panel, .intelligent-decision-card, .intelligent-decision-evidence { display: grid; gap: var(--space-4); }
+.intelligent-decision-card-head, .intelligent-decision-controls { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.intelligent-decision-card, .intelligent-decision-evidence article { border: 1px solid var(--border-subtle); padding: var(--space-4); border-radius: var(--radius-panel); }
+.intelligent-decision-status, .intelligent-decision-warning { overflow-wrap: anywhere; }

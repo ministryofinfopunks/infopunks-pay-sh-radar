@@ -1,0 +1,16 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["src/web"],
+  "locale": "en-US",
+  "canonicalMap": "UX-CONTRACT.md",
+  "requiredCapabilities": ["Form", "Select/Listbox", "Scrollbar"],
+  "ownership": {"Select/Listbox": "native"},
+  "requiredCommands": ["unit", "typecheck", "build", "e2e"],
+  "commands": {
+    "unit": "npx vitest run tests/ux-qa2-acceptance.test.tsx tests/ux-hardening.test.tsx tests/ui-int2-receipt-inspection.test.tsx tests/private-decision-view.test.tsx",
+    "typecheck": "npm run typecheck",
+    "build": "npm run build",
+    "e2e": "node scripts/qualify-ux-qa2-browser.cjs"
+  },
+  "evidence": {"failurePaths": "tests/ux-qa2-acceptance.test.tsx"}
+}

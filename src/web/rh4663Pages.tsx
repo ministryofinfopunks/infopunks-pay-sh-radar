@@ -1,3 +1,4 @@
+import { publicShareSchema } from './publicShareSchema';
 import { RadarAsyncState } from './radarDesignSystem';
 import { ProductWayfinding } from './productPrimitives';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -34,7 +35,7 @@ function trackCampaign(event: CampaignEvent, data: CampaignData) {
   void fetch(endpoint, { method: 'POST', headers: { 'content-type': 'application/json' }, body: payload, keepalive: true }).catch(() => undefined);
 }
 
-function useApi<T>(path: string, refresh = 0) {
+function useApi<T>(path: string, refresh = 0, parse?: (data: unknown) => T) {
   const [state, setState] = useState<{ data: T | null; status: 'loading' | 'ready' | 'degraded'; message?: string }>({ data: null, status: 'loading' });
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
@@ -42,11 +43,11 @@ function useApi<T>(path: string, refresh = 0) {
     const controller = new AbortController(); const timeout = window.setTimeout(() => controller.abort(), 4_000);
     fetch(toApiUrl(API_BASE_URL, path), { signal: controller.signal, headers: { accept: 'application/json' } })
       .then(async (response) => { if (!response.ok) throw new Error(response.status === 404 || response.status === 403 ? 'This evidence is unavailable at this destination.' : 'The evidence service is temporarily unavailable.'); return response.json() as Promise<{ data: T }>; })
-      .then((body) => { if (active) setState({ data: body.data, status: body.data ? 'ready' : 'degraded', message: body.data ? undefined : 'No evidence was returned.' }); })
+      .then((body) => { const data = parse ? parse(body?.data) : body?.data; if (active) setState({ data, status: data ? 'ready' : 'degraded', message: data ? undefined : 'No evidence was returned.' }); })
       .catch(error => { if (active) setState(prior => ({ ...prior, status: 'degraded', message: controller.signal.aborted ? 'The evidence request timed out.' : error instanceof Error && ['This evidence is unavailable at this destination.', 'The evidence service is temporarily unavailable.'].includes(error.message) ? error.message : 'The evidence service is temporarily unavailable.' })); })
       .finally(() => window.clearTimeout(timeout));
     return () => { active = false; window.clearTimeout(timeout); controller.abort(); };
-  }, [path, refresh, attempt]);
+  }, [path, refresh, attempt, parse]);
   return { ...state, retry: () => setAttempt(value => value + 1) };
 }
 
@@ -72,7 +73,10 @@ export function Rh4663Page() {
   const printId = path.match(/^\/4663\/print\/([^/]+)$/)?.[1];
   const campaignId = path.match(/^\/4663\/campaign\/([^/]+)$/)?.[1];
   const view = proofWallet ? 'proof_profile' : proofId || callId || resolutionId ? 'proof' : consensusWindowId ? 'consensus' : signalId ? 'signal_detail' : printId ? 'print' : campaignId ? 'campaign' : path === '/4663/pulse' ? 'pulse' : path === '/4663/today' ? 'today' : path === '/4663/signals' ? 'signals' : path === '/4663/receipts' ? 'receipts' : 'home';
-  if (shareId) return <SocialLanding shareObjectId={decodeURIComponent(shareId)} />;
+  if (shareId) {
+    try { return <SocialLanding shareObjectId={decodeURIComponent(shareId)} />; }
+    catch { return <main className="i4663-social-shell"><h1>Shared Robinhood evidence</h1><RadarAsyncState kind="error" title="This share address is invalid."><a href="/4663">Return to Robinhood evidence ↗</a></RadarAsyncState></main>; }
+  }
   if (view === 'home') return <Home />;
   return <div className="i4663-app">
     <header className="i4663-header">
@@ -97,8 +101,10 @@ function Home() {
   return <Frontdoor data={data} status={status} message={message} />;
 }
 
+function parsePublicShare(data: unknown): Rh4663ShareObject { return publicShareSchema.parse(data); }
+
 function SocialLanding({ shareObjectId }: { shareObjectId: string }) {
-  const api = useApi<Rh4663ShareObject>(`/v1/4663/share/${encodeURIComponent(shareObjectId)}`); const object = api.data;
+  const api = useApi<Rh4663ShareObject>(`/v1/4663/share/${encodeURIComponent(shareObjectId)}`, 0, parsePublicShare); const object = api.data;
   useEffect(() => { if (object) trackCampaign('social_landing_viewed', { surface: 'social_landing', share_object_id: object.share_object_id, share_source: shareSource(object.share_type) }); }, [object]);
   if (!object) return <main className="i4663-social-shell"><h1>Shared Robinhood evidence</h1><a className="i4663-wordmark" href="/4663"><span>INFOPUNKS</span><b>//4663</b></a><DataState status={api.status} message={api.message} onRetry={api.retry} /></main>;
   const action = socialAction(object);

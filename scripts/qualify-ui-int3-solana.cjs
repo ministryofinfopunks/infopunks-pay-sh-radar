@@ -6,10 +6,10 @@ const crypto = require('node:crypto');
 const { createRequire } = require('node:module');
 const { chromium } = require('playwright');
 const { PNG } = createRequire(path.resolve(process.env.RADAR_UI_TEST_RUNTIME || '/tmp/radar-ui-int2-qa', 'package.json'))('pngjs');
-const out = 'docs/design-system/ui-int3/evidence/visual';
-const fixturePath = path.join(out, 'solana-fixture.json');
+const out = process.env.RADAR_UI_VISUAL_OUTPUT || 'output/radar-v1/ui-int3-visual';
+const fixturePath = process.env.RADAR_UI_VISUAL_FIXTURE || path.join(out, 'solana-fixture.json');
 const fixture = JSON.parse(fs.readFileSync(fixturePath));
-const approval = JSON.parse(fs.readFileSync('docs/design-system/ui-int2/visual-approval-completed.json'));
+const approval = JSON.parse(fs.readFileSync(process.env.RADAR_UI_VISUAL_APPROVAL || 'docs/design-system/ui-int2/visual-approval-completed.json'));
 if (approval.status !== 'PASS') throw Error('human_visual_approval_required');
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const urls = {

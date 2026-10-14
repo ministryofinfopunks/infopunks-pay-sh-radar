@@ -33,7 +33,7 @@ export function UniversalHomepage() {
             <p className="radar-home-eyebrow"><span aria-hidden="true">[ 01 ]</span> INFOPUNKS RADAR / TWO ECONOMIES</p>
             <h1 id="radar-home-title"><span>Before your agent</span> <span>spends, check</span> <span>the evidence.</span></h1>
             <p className="radar-home-lede">Radar evaluates routes, providers, and payment risk before funds move. Evidence-bound decisions. Inspectable reasoning. Accountable receipts.</p>
-            <form className="radar-home-route-form" action="/spend-terminal" method="get">
+            <form noValidate className="radar-home-route-form" action="/spend-terminal" method="get">
               <input type="hidden" name="settlement" value="stablecoin" />
               <div className="radar-home-route-input"><label className="radar-sr-only" htmlFor="home-route">Route, endpoint, or provider identifier</label><div><span aria-hidden="true">&gt;</span><input id="home-route" name="subject" maxLength={256} autoComplete="off" placeholder="Paste a route, endpoint, or provider…" aria-describedby="home-route-help" /></div><p id="home-route-help">Use a catalog identifier or endpoint. Review intent and policy in the Spend Terminal.</p></div>
               <div className="radar-home-actions"><button type="submit"><span aria-hidden="true">▶</span> Run Spend Check <TerminalIcon name="arrow" /></button><a href="#judgment-preview"><TerminalIcon name="receipt" /> Inspect judgment format</a></div>
