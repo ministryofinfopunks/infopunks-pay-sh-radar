@@ -167,9 +167,13 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
           policy, policy_hash: hashCanonical(policy), output });
         response.decision_context_hash = context.context_hash;
         paymentEvent('challenge');
-        record = await options.journal.quote(key, { request_hash: requestHash, state: 'quoted', response, legacy, ...(owner ? { owner } : {}),
+        try { record = await options.journal.quote(key, { request_hash: requestHash, state: 'quoted', response, legacy, ...(owner ? { owner } : {}),
           subject_type: observations[0].subject_type, subject_id: subject, intent_hash: intentHash,
           decision_context: context, challenge: await options.gateway.challenge() });
+        } catch (error) {
+          if (error instanceof Error && error.message === 'judgment_observation_ownership_conflict') throw new JudgmentError(503, 'judgment_evidence_ownership_unavailable');
+          throw error;
+        }
         if (record.request_hash !== requestHash) throw new JudgmentError(409, 'idempotency_conflict');
       }
       if (record.decision_context) {

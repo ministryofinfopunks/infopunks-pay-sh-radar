@@ -1,3 +1,5 @@
+import { registerDecisionViewRoutes } from './decisionViewRoutes';
+import { createDecisionViewService } from '../services/decisionViewService';
 import { requiresOperatorProofRead } from '../security/proofReadBoundary';
 import { controlledStagingRequestError } from '../config/controlledStaging';
 import { timingSafeEqual } from 'node:crypto';
@@ -1391,6 +1393,7 @@ export async function createApp(
   });
   const requestStartedAt = new WeakMap<FastifyRequest, number>();
   const tenantReceiptRoutes = new Set([
+    '/v1/decision-views/:id',
     '/v1/receipt-spine/:kind/:id',
     '/v1/receipt-spine/judgment/:id/context',
     '/v1/receipt-spine/judgment/:id/verify'
@@ -1401,7 +1404,8 @@ export async function createApp(
     // must pass the same ownership check before any receipt lookup.
     const rawPath = req.url.split('?')[0];
     const canonicalOwnerPath = /^\/v1\/receipt-spine\/(?:observation|judgment|execution|evaluation)\/[A-Za-z0-9_.:-]{1,200}$/.test(rawPath) ||
-      /^\/v1\/receipt-spine\/judgment\/[A-Za-z0-9_.:-]{1,200}\/(?:context|verify)$/.test(rawPath);
+      /^\/v1\/receipt-spine\/judgment\/[A-Za-z0-9_.:-]{1,200}\/(?:context|verify)$/.test(rawPath) ||
+      /^\/v1\/decision-views\/[A-Za-z0-9_.:-]{1,200}$/.test(rawPath);
     const ownerRoute = tenantReceiptRoutes.has(req.routeOptions.url ?? '') || canonicalOwnerPath;
     if (!ownerRoute && (requiresOperatorProofRead(req.routeOptions.url ?? '') || requiresOperatorProofRead(safeRequestPath(req.url)))) {
       reply.header('Cache-Control', 'private, no-store');
@@ -4548,6 +4552,8 @@ export async function createApp(
   const judgmentJournal = options.judgmentRequestJournal ?? (rhChainPostgresPool ? new PostgresJudgmentRequestRepository(rhChainPostgresPool) : new MemoryJudgmentRequestRepository());
   registerJudgmentPrivateAccess(app, identity, judgmentJournal, canonicalReceiptStore,
     authorization => isAdmin(config.adminToken, authorization), config.isProduction);
+  registerDecisionViewRoutes(app, createDecisionViewService(canonicalReceiptStore, judgmentIssuer, config.receiptProceedConfidenceThreshold),
+    new RhChainPublicRateLimiter(true, 60_000, 60));
   const requireOwner = (req: FastifyRequest, reply: FastifyReply) => {
     reply.header('Cache-Control', 'private, no-store');
     const owner = identity.authenticate(req.headers.authorization);

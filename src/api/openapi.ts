@@ -1,3 +1,4 @@
+import { DecisionViewV1Schema } from '../schemas/decisionView';
 import { JudgmentDomainContextSchema } from '../schemas/judgmentDomain';
 import { requiresOperatorProofRead } from '../security/proofReadBoundary';
 import { IpxCallRequestSchema } from '../schemas/ipxLaunch';
@@ -1637,6 +1638,17 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     description: 'Checks configured issuer trust, observation ancestry and assessment eligibility. A judgment receipt records assessment and never grants execution authority. Execution requires a separately signed infopunks.execution-authorization.v1 capability and the execution gate.',
     parameters: [pathParam('id', 'Canonical judgment identifier.')],
     responses: { '200': { description: 'Assessment verification status.', content: { 'application/json': { schema: z.toJSONSchema(z.object({ data: z.object({ judgment_id: z.string(), receipt_hash: z.string(), ancestry_valid: z.boolean(), issuer_signature_valid: z.boolean(), within_validity_window: z.boolean(), assessment_eligible: z.boolean(), execution_authorized: z.literal(false), authority_requires: z.literal('infopunks.execution-authorization.v1') }) }), { target: 'draft-2020-12' }) } } }, '404': errorResponse('canonical_receipt_not_found') }
+  });
+  add('get', '/v1/decision-views/{id}', {
+    tags: ['Pre-Spend Intelligence'], summary: 'Read a private canonical judgment presentation view',
+    description: 'Credential-bound tenant and agent ownership is required for the judgment and all ancestry. Returns a private no-store projection. This read-only view never signs, approves, pays or authorizes execution. Unbound historical ancestry remains denied.',
+    security: [{ JudgmentTenantKey: [] }],
+    parameters: [pathParam('id', 'Canonical judgment identifier.')],
+    responses: {
+      '200': { description: 'Validated read-only Decision View.', content: { 'application/json': { schema: z.toJSONSchema(z.object({ data: DecisionViewV1Schema }).strict(), { target: 'draft-2020-12' }) } } },
+      '401': errorResponse('judgment_authentication_required'), '404': errorResponse('private_receipt_not_found'),
+      '429': errorResponse('decision_view_rate_limited'), '503': errorResponse('decision_view_unavailable')
+    }
   });
   add('get', '/v1/receipt-spine/judgment/{id}/context', {
     tags: ['Pre-Spend Intelligence'], summary: 'Export frozen v2 judgment inputs and replay status',
@@ -3699,7 +3711,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('post', '/internal/rh-chain/projects/{project_id}/intelligence-receipts/{receipt_id}/reject', reviewConsole('Reject intelligence receipt draft', 'Retains the private receipt draft, but permanently prevents publication. Published receipts are never editable or rejectable.', 'RhChainIntelligenceReceiptPayload', { receipt_id: 'rhir_example', reviewer_publication_state: 'rejected' }, receiptParams, jsonRequest(objectSchema({ expected_version: { type: 'integer', minimum: 1 }, rejection_reason: stringSchema() }, ['expected_version', 'rejection_reason']), { expected_version: 1, rejection_reason: 'The draft needs stronger source support.' })));
 
   for (const [path, operations] of Object.entries(paths)) {
-    if (!requiresOperatorProofRead(path) || ['/v1/receipt-spine/{kind}/{id}', '/v1/receipt-spine/judgment/{id}/context', '/v1/receipt-spine/judgment/{id}/verify'].includes(path)) continue;
+    if (!requiresOperatorProofRead(path) || ['/v1/receipt-spine/{kind}/{id}', '/v1/receipt-spine/judgment/{id}/context', '/v1/receipt-spine/judgment/{id}/verify', '/v1/decision-views/{id}'].includes(path)) continue;
     if (!operations || typeof operations !== 'object') continue;
     for (const operation of Object.values(operations)) {
       if (!operation || typeof operation !== 'object') continue;

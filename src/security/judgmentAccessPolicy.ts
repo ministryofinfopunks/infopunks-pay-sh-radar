@@ -1,5 +1,6 @@
 /** Public metadata is separate from private request/receipt payloads. No anonymous proof projection is approved. */
 export function judgmentAccessPolicy(path: string, method: string, production: boolean): 'public' | 'owner' | 'operator' {
+  if (path.startsWith('/v1/decision-views/')) return 'owner';
   if (path.startsWith('/v1/receipt-spine/')) return /\/(tape|attempts|scores|witness)(?:\/|$)/.test(path) ? 'operator' : 'owner';
   if (['/v1/economics/revenue','/v1/attribution'].includes(path) || path.startsWith('/v1/score/')) return 'operator';
   if (path === '/v1/execute-proof') return 'owner';

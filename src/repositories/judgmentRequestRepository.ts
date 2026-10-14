@@ -26,6 +26,11 @@ export type JudgmentRequestRecord = {
 export function judgmentRequestKey(agent: string, key: string, owner?: JudgmentOwner) {
   return hashCanonical({ agent, key, ...(owner ? { tenant: owner.tenant_id } : {}) });
 }
+/** Settlement state may change; its original disclosure binding may not. */
+function ownershipBinding(record: JudgmentRequestRecord) {
+  return { owner: record.owner ?? null, request_hash: record.request_hash,
+    judgment_id: record.response.judgment_id, cited_observations: record.response.cited_observations };
+}
 export interface JudgmentRequestRepository {
   get(key: string): Promise<JudgmentRequestRecord | null>;
   quote(key: string, record: JudgmentRequestRecord): Promise<JudgmentRequestRecord>;
@@ -58,7 +63,12 @@ export class MemoryJudgmentRequestRepository implements JudgmentRequestRepositor
     return attempt;
   }
   async quote(key: string, record: JudgmentRequestRecord) {
-    if (!this.records.has(key)) this.records.set(key, structuredClone(record));
+    if (!this.records.has(key)) {
+      const cited = new Set(record.response.cited_observations);
+      if ([...this.records.values()].some(other => other.response.cited_observations.some(id => cited.has(id))
+        && hashCanonical(other.owner ?? null) !== hashCanonical(record.owner ?? null))) throw new Error('judgment_observation_ownership_conflict');
+      this.records.set(key, structuredClone(record));
+    }
     return (await this.get(key))!;
   }
   async claim(key: string, paymentHash: string, binding?: PaymentAuthorizationBinding) {
@@ -69,6 +79,8 @@ export class MemoryJudgmentRequestRepository implements JudgmentRequestRepositor
     this.payments.add(paymentHash); return true;
   }
   async save(key: string, record: JudgmentRequestRecord) {
+    const prior = this.records.get(key);
+    if (!prior || hashCanonical(ownershipBinding(prior)) !== hashCanonical(ownershipBinding(record))) throw new Error('judgment_ownership_immutable');
     if (record.settlement && [...this.records.entries()].some(([otherKey, other]) => otherKey !== key && other.settlement?.transaction === record.settlement!.transaction)) throw new Error('settlement_reference_reused');
     this.records.set(key, structuredClone(record));
   }
@@ -77,7 +89,11 @@ export class MemoryJudgmentRequestRepository implements JudgmentRequestRepositor
       free: [...this.freeAttempts.values()].filter(r => r.owner?.tenant_id === owner.tenant_id && r.owner.agent_id === owner.agent_id).slice(0, 100).map(r => structuredClone(r)) };
   }
   async ownsObservation(owner: JudgmentOwner, id: string) {
-    return [...this.records.values()].some(r => r.owner?.tenant_id === owner.tenant_id && r.owner.agent_id === owner.agent_id && r.response.cited_observations.includes(id));
+    const references = [...this.records.values()].filter(r => r.response.cited_observations.includes(id));
+    // Citation is only usable as a scoped read binding when every journal
+    // reference agrees. Shared or historical unbound evidence is not private
+    // tenant authority; a reviewed publication/admission model is still needed.
+    return references.length > 0 && references.every(r => r.owner?.tenant_id === owner.tenant_id && r.owner.agent_id === owner.agent_id);
   }
   async confirmSettlement(key: string, hash: string, settlement: SettleResponse, evidence: PaymentReconciliationEvidence) {
     const record = this.records.get(key);
@@ -116,7 +132,24 @@ export class PostgresJudgmentRequestRepository implements JudgmentRequestReposit
     return existing;
   }
   async quote(key: string, record: JudgmentRequestRecord) {
-    await this.pool.query('insert into judgment_requests(request_key,request_hash,state,record) values($1,$2,$3,$4) on conflict(request_key) do nothing', [key, record.request_hash, record.state, record]);
+    const client = await this.pool.connect();
+    try {
+      await client.query('begin');
+      // Serialize citation binding, including concurrent different-tenant quotes.
+      // This never assigns original receipt ownership or publication authority.
+      await client.query("select pg_advisory_xact_lock(hashtext('judgment_citation_binding.v1'))");
+      const prior = await client.query('select record from judgment_requests where request_key=$1', [key]);
+      if (!prior.rows.length) {
+        const conflict = await client.query(`select 1 from judgment_requests
+          where (record->'response'->'cited_observations') ?| $2::text[]
+            and coalesce(record->'owner', 'null'::jsonb) is distinct from $1::jsonb limit 1`,
+          [JSON.stringify(record.owner ?? null), record.response.cited_observations]);
+        if (conflict.rows.length) throw new Error('judgment_observation_ownership_conflict');
+        await client.query('insert into judgment_requests(request_key,request_hash,state,record) values($1,$2,$3,$4)', [key, record.request_hash, record.state, record]);
+      }
+      await client.query('commit');
+    } catch (error) { await client.query('rollback'); throw error; }
+    finally { client.release(); }
     return (await this.get(key))!;
   }
   async claim(key: string, paymentHash: string, binding?: PaymentAuthorizationBinding) {
@@ -126,7 +159,13 @@ export class PostgresJudgmentRequestRepository implements JudgmentRequestReposit
     } catch (error) { if ((error as {code?: string}).code === '23505') return false; throw error; }
   }
   async save(key: string, record: JudgmentRequestRecord) {
-    await this.pool.query('update judgment_requests set state=$2,record=$3,settlement_ref=$4 where request_key=$1', [key, record.state, record, record.settlement?.transaction ?? null]);
+    const result = await this.pool.query(`update judgment_requests set state=$2,record=$3,settlement_ref=$4 where request_key=$1
+      and record->'owner' is not distinct from $3::jsonb->'owner'
+      and record->>'request_hash' is not distinct from $3::jsonb->>'request_hash'
+      and record->'response'->>'judgment_id' is not distinct from $3::jsonb->'response'->>'judgment_id'
+      and record->'response'->'cited_observations' is not distinct from $3::jsonb->'response'->'cited_observations'
+      returning request_key`, [key, record.state, record, record.settlement?.transaction ?? null]);
+    if (result.rowCount !== 1) throw new Error('judgment_ownership_immutable');
   }
   async listOwned(owner: JudgmentOwner) {
     const [paid, free] = await Promise.all([
@@ -136,7 +175,14 @@ export class PostgresJudgmentRequestRepository implements JudgmentRequestReposit
     return { paid: paid.rows.map(r => r.record as JudgmentRequestRecord), free: free.rows.map(r => r.attempt as FreeAssessmentAttempt) };
   }
   async ownsObservation(owner: JudgmentOwner, id: string) {
-    return (await this.pool.query("select 1 from judgment_requests where record->'owner'->>'tenant_id'=$1 and record->'owner'->>'agent_id'=$2 and (record->'response'->'cited_observations') ? $3 limit 1", [owner.tenant_id, owner.agent_id, id])).rows.length > 0;
+    const result = await this.pool.query(`select exists (
+      select 1 from judgment_requests where (record->'response'->'cited_observations') ? $2
+        and record->'owner' = $1::jsonb
+    ) and not exists (
+      select 1 from judgment_requests where (record->'response'->'cited_observations') ? $2
+        and record->'owner' is distinct from $1::jsonb
+    ) as owned`, [JSON.stringify(owner), id]);
+    return result.rows[0]?.owned === true;
   }
   async confirmSettlement(key: string, hash: string, settlement: SettleResponse, evidence: PaymentReconciliationEvidence) {
     const result = await this.withSettlementLock(key, settlement.transaction, client => client.query("update judgment_requests set state='settled',settlement_ref=$3,record=record || $4::jsonb where request_key=$1 and payment_hash=$2 and state='settling' returning request_key", [key, hash, settlement.transaction, JSON.stringify({ state: 'settled', settlement, reconciliation: evidence })]));
