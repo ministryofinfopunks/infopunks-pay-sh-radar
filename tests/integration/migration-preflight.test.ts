@@ -22,6 +22,27 @@ async function catalog(pool: pg.Pool) {
 }
 
 describe.skipIf(!url)('read-only migration authority preflight', () => {
+  it('upgrades the recorded Track A 021 ledger without replacing its applied identities or checksums', async () => {
+    const db = await isolated();
+    try {
+      // Establish only the ledger, then reproduce the operator-recorded 001–021 history.
+      expect((await runPostgresMigrations(db.pool,{mode:'validate'})).valid).toBe(true);
+      const recorded: Array<{migration_id:string;migration_file:string;checksum:string}> = JSON.parse(readFileSync('tests/fixtures/historical-track-a-021-ledger.json','utf8'));
+      for (const row of recorded) {
+        await db.pool.query(readFileSync(join('migrations',row.migration_file),'utf8'));
+        const history = await db.pool.query('insert into infopunks_schema_migration_history(migration_id,migration_file,checksum,outcome,started_at,finished_at,duration_ms) values($1,$2,$3,\'applied\',now(),now(),0) returning run_id',[row.migration_id,row.migration_file,row.checksum]);
+        await db.pool.query('insert into infopunks_schema_migrations(migration_id,migration_file,checksum,applied_at,outcome,history_run_id) values($1,$2,$3,now(),\'applied\',$4)',[row.migration_id,row.migration_file,row.checksum,history.rows[0].run_id]);
+      }
+      const before = (await db.pool.query('select * from infopunks_schema_migrations order by migration_id')).rows;
+      expect(await inspectPostgresMigrationHistory(db.pool)).toMatchObject({valid:true,classification:'canonical-ledger',applied:recorded});
+      const upgraded = await runPostgresMigrations(db.pool);
+      expect(upgraded.valid).toBe(true);
+      expect(upgraded.applied).toHaveLength(22);
+      expect((await db.pool.query('select * from infopunks_schema_migrations order by migration_id')).rows.slice(0,21)).toEqual(before);
+      expect(upgraded.history.at(-1)?.migration_id).toBe('20261008_022');
+    } finally { await db.close(); }
+  },30_000);
+
   it('inspects a fresh database in a read-only transaction without creating a ledger', async () => {
     const db = await isolated(); const client = await db.pool.connect();
     try {
