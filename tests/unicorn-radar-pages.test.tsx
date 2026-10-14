@@ -543,7 +543,7 @@ describe('unicorn radar pages', () => {
     });
 
     expect(container.textContent).toContain('AI Rig Complex');
-    expect(container.textContent).toContain('Verified live market');
+    expect(container.textContent).toContain('Recorded market identity');
     expect(container.textContent).toContain('Verification');
     expect(container.textContent).toContain('Open DexScreener');
   });

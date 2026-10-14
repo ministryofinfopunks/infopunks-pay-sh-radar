@@ -1037,6 +1037,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       entries: arrayOf({ $ref: '#/components/schemas/HermesReputationLedgerEntry' })
     }), { count: 1, entries: [{ target_type: 'route', target_id: 'route_pay_sh_market_research_01', current_state: 'watchlist' }] })
   });
+  add('get', '/v1/hermes/reputation-ledger/services', { tags: ['Hermes'], summary: 'List Hermes service reputation entries', description: 'Deterministic stateless preview; not independent evaluation or durable reputation authority.', responses: envelopedResponses(objectSchema({ generated_at: dateTimeSchema(), count: integerSchema(), entries: arrayOf({ $ref: '#/components/schemas/HermesReputationLedgerEntry' }) }), { count: 0, entries: [] }) });
   add('post', '/v1/hermes/pre-spend-decision', {
     tags: ['Hermes'],
     summary: 'Create Hermes pre-spend decision',

@@ -3,6 +3,17 @@ import { createApp } from '../src/api/app';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 
 describe('openapi discovery', () => {
+  it('documents existing protected revenue and Hermes services read boundaries', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    try {
+      const spec = (await app.inject('/openapi.json')).json();
+      expect(spec.paths['/v1/economics/revenue'].get.security).toEqual([{ bearerAuth: [] }]);
+      expect(spec.paths['/v1/economics/revenue'].get.responses['401']).toBeTruthy();
+      expect(spec.paths['/v1/hermes/reputation-ledger/services'].get).toBeTruthy();
+      expect((await app.inject('/v1/economics/revenue')).statusCode).toBe(401);
+    } finally { await app.close(); }
+  });
+
   it('documents the strict paid judgment and replay contract for both routes', async () => {
     const app = await createApp(emptyIntelligenceStore());
     try {

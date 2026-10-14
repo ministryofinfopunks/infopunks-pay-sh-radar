@@ -8,6 +8,7 @@ const DEX_SCREENER_BATCH_SIZE = 30;
 const DEX_SCREENER_MARKET_DATA_SOURCE = 'dexscreener_official_api';
 
 type DexScreenerPair = {
+  observedAt: string;
   chainId: string;
   pairAddress: string | null;
   url: string | null;
@@ -86,8 +87,8 @@ function withAbortSignal(timeoutMs = DEX_SCREENER_TIMEOUT_MS) {
   return controller.signal;
 }
 
-async function fetchJson<T>(cacheKey: string, pathname: string): Promise<T> {
-  const cached = await cache.getOrSet(cacheKey, DEX_SCREENER_CACHE_TTL_MS, async () => {
+async function fetchJson<T>(cacheKey: string, pathname: string): Promise<{ value: T; observedAt: string }> {
+  const cached = await cache.getOrSet(cacheKey, { freshTtlMs: DEX_SCREENER_CACHE_TTL_MS, maxStaleMs: 0 }, async () => {
     const existing = inFlight.get(cacheKey) as Promise<T> | undefined;
     if (existing) return existing;
 
@@ -108,10 +109,10 @@ async function fetchJson<T>(cacheKey: string, pathname: string): Promise<T> {
     }
   });
 
-  return cached.value;
+  return { value: cached.value, observedAt: cached.metadata.generatedAt };
 }
 
-function parsePair(raw: unknown): DexScreenerPair | null {
+function parsePair(raw: unknown, observedAt: string): DexScreenerPair | null {
   if (!isRecord(raw)) return null;
   const txns = isRecord(raw.txns) ? raw.txns : null;
   const txns24h = txns && isRecord(txns.h24) ? txns.h24 : null;
@@ -122,6 +123,7 @@ function parsePair(raw: unknown): DexScreenerPair | null {
   const quoteToken = isRecord(raw.quoteToken) ? raw.quoteToken : null;
 
   return {
+    observedAt,
     chainId: readString(raw.chainId) ?? 'unknown',
     pairAddress: readString(raw.pairAddress),
     url: readString(raw.url),
@@ -161,27 +163,27 @@ function chunk<T>(values: T[], size: number): T[][] {
   return result;
 }
 
-async function fetchDexScreenerOrders(chainId: string, tokenAddress: string): Promise<{ boosts: number; paidOrders: number }> {
+async function fetchDexScreenerOrders(chainId: string, tokenAddress: string): Promise<{ boosts: number | null; paidOrders: number | null }> {
   try {
-    const payload = await fetchJson<DexScreenerOrdersResponse>(
+    const { value: payload } = await fetchJson<DexScreenerOrdersResponse>(
       `dexscreener:orders:${chainId}:${tokenAddress.toLowerCase()}`,
       `/orders/v1/${encodeURIComponent(chainId)}/${encodeURIComponent(tokenAddress)}`
     );
     return {
-      boosts: Array.isArray(payload.boosts) ? payload.boosts.length : 0,
-      paidOrders: Array.isArray(payload.orders) ? payload.orders.length : 0
+      boosts: Array.isArray(payload.boosts) ? payload.boosts.length : null,
+      paidOrders: Array.isArray(payload.orders) ? payload.orders.length : null
     };
   } catch {
-    return { boosts: 0, paidOrders: 0 };
+    return { boosts: null, paidOrders: null };
   }
 }
 
 export async function fetchDexScreenerTokenPairs(chainId: string, tokenAddress: string): Promise<DexScreenerPair[]> {
-  const payload = await fetchJson<DexScreenerTokenPairsResponse>(
+  const { value: payload, observedAt } = await fetchJson<DexScreenerTokenPairsResponse>(
     `dexscreener:token-pairs:${chainId}:${tokenAddress.toLowerCase()}`,
     `/token-pairs/v1/${encodeURIComponent(chainId)}/${encodeURIComponent(tokenAddress)}`
   );
-  return Array.isArray(payload) ? payload.map(parsePair).filter((pair): pair is DexScreenerPair => Boolean(pair)) : [];
+  return Array.isArray(payload) ? payload.map(raw => parsePair(raw, observedAt)).filter((pair): pair is DexScreenerPair => Boolean(pair)) : [];
 }
 
 export async function fetchDexScreenerTokenBatch(chainId: string, tokenAddresses: string[]): Promise<Record<string, DexScreenerPair[]>> {
@@ -189,11 +191,11 @@ export async function fetchDexScreenerTokenBatch(chainId: string, tokenAddresses
   const grouped: Record<string, DexScreenerPair[]> = {};
 
   await Promise.all(chunk(cleaned, DEX_SCREENER_BATCH_SIZE).map(async (batch) => {
-    const payload = await fetchJson<DexScreenerTokenPairsResponse>(
+    const { value: payload, observedAt } = await fetchJson<DexScreenerTokenPairsResponse>(
       `dexscreener:token-batch:${chainId}:${batch.map((item) => item.toLowerCase()).join(',')}`,
       `/tokens/v1/${encodeURIComponent(chainId)}/${batch.map((item) => encodeURIComponent(item)).join(',')}`
     );
-    const parsed = Array.isArray(payload) ? payload.map(parsePair).filter((pair): pair is DexScreenerPair => Boolean(pair)) : [];
+    const parsed = Array.isArray(payload) ? payload.map(raw => parsePair(raw, observedAt)).filter((pair): pair is DexScreenerPair => Boolean(pair)) : [];
     for (const pair of parsed) {
       const baseTokenAddress = pair.baseTokenAddress?.toLowerCase();
       if (!baseTokenAddress) continue;
@@ -208,14 +210,14 @@ export async function fetchDexScreenerTokenBatch(chainId: string, tokenAddresses
 export async function searchDexScreenerPairs(query: string): Promise<DexScreenerPair[]> {
   const cleaned = query.trim();
   if (!cleaned) return [];
-  const payload = await fetchJson<DexScreenerSearchResponse>(
+  const { value: payload, observedAt } = await fetchJson<DexScreenerSearchResponse>(
     `dexscreener:search:${cleaned.toLowerCase()}`,
     `/latest/dex/search?q=${encodeURIComponent(cleaned)}`
   );
-  return Array.isArray(payload.pairs) ? payload.pairs.map(parsePair).filter((pair): pair is DexScreenerPair => Boolean(pair)) : [];
+  return Array.isArray(payload.pairs) ? payload.pairs.map(raw => parsePair(raw, observedAt)).filter((pair): pair is DexScreenerPair => Boolean(pair)) : [];
 }
 
-function buildMarketData(pair: DexScreenerPair, orders: { boosts: number; paidOrders: number }): DexScreenerCandidateMarketData {
+function buildMarketData(pair: DexScreenerPair, orders: { boosts: number | null; paidOrders: number | null }): DexScreenerCandidateMarketData {
   return {
     priceUsd: pair.priceUsd,
     marketCap: pair.marketCap,
@@ -235,14 +237,14 @@ function buildMarketData(pair: DexScreenerPair, orders: { boosts: number; paidOr
   };
 }
 
-function withDexScreenerData(candidate: UnicornRadarCandidate, pair: DexScreenerPair, orders: { boosts: number; paidOrders: number }): UnicornRadarCandidate {
+function withDexScreenerData(candidate: UnicornRadarCandidate, pair: DexScreenerPair, orders: { boosts: number | null; paidOrders: number | null }): UnicornRadarCandidate {
   return {
     ...candidate,
     chainId: candidate.chainId ?? pair.chainId,
     pairAddress: pair.pairAddress ?? candidate.pairAddress,
     dexScreenerUrl: pair.url ?? candidate.dexScreenerUrl,
     marketDataSource: DEX_SCREENER_MARKET_DATA_SOURCE,
-    marketDataUpdatedAt: new Date().toISOString(),
+    marketDataUpdatedAt: pair.observedAt,
     dexScreenerData: buildMarketData(pair, orders)
   };
 }

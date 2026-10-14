@@ -37,3 +37,7 @@ Semantic draft search is transient by the existing constitution, with no URL per
 ## Release evidence
 
 All eight historical QA2 assertions remain mandatory under `tests/ux-qa2-acceptance.test.tsx`. Test placement and fixture path change only. Automated browser checks complement the probes; incomplete assistive technology, physical-device, human visual review, and native zoom checks remain HOLD.
+
+## R1 bounded read recovery
+
+Unicorn reads validate existing response schemas before rendering. Market observation time denotes provider capture (including cache reuse), never repeated-request time. Unavailable optional orders counts remain unknown. Machine release readers treat unusable required receipt envelopes as unavailable evidence and expose a read-only retry, rather than inventing zero proof. Existing root protocol sections align and receive focus after lazy mount/hash navigation. No backend authority or receipt policy is changed.

@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { RadarAsyncState } from './radarDesignSystem';
+import { validateReleaseRead, marketObservationLabel } from './releaseReadContracts';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { RadarProductNavigation } from './radarNetworks';
 
@@ -145,10 +147,13 @@ const VERDICTS: Array<'all' | UnicornRadarVerdict> = ['all', 'high_signal_early'
 
 async function api<T>(path: string): Promise<T> {
   const response = await fetch(toApiUrl(API_BASE_URL, path), {
-    headers: { Accept: 'application/json' }
+    headers: { Accept: 'application/json' },
+    signal: AbortSignal.timeout(10_000)
   });
   if (!response.ok) throw new Error(`${path} ${response.status}`);
-  return response.json() as Promise<T>;
+  const body: unknown = await response.json();
+  validateReleaseRead(path, body);
+  return body as T;
 }
 
 function titleCase(value: string) {
@@ -342,7 +347,8 @@ function MarketDataPanel({ candidate, compact = false }: { candidate: UnicornRad
     </div>}
     <div className="unicorn-card-meta">
       <p><span>Source</span><strong>{candidate.marketDataSource ?? 'DexScreener'}</strong></p>
-      <p><span>Updated</span><strong>{candidate.marketDataUpdatedAt ? new Date(candidate.marketDataUpdatedAt).toLocaleString() : 'n/a'}</strong></p>
+      <p><span>Observed</span><strong>{candidate.marketDataUpdatedAt ? new Date(candidate.marketDataUpdatedAt).toLocaleString() : 'n/a'}</strong></p>
+      <p className="panel-caption">{marketObservationLabel(candidate)}</p>
     </div>
     {(candidate.dexScreenerUrl || data.rawUrl) && <div className="signal-hunt-card-actions">
       <a className="execute compact secondary" href={candidate.dexScreenerUrl ?? data.rawUrl ?? '#'} target="_blank" rel="noreferrer">Open DexScreener</a>
@@ -355,7 +361,7 @@ function VerificationBadge({ candidate }: { candidate: UnicornRadarCandidate }) 
   if (candidate.verificationStatus === 'pending_manual_review') return <span className="status-pill warn">Pending manual review</span>;
   if (candidate.verificationStatus === 'rejected') return <span className="status-pill danger">Rejected</span>;
   if (candidate.verificationStatus === 'not_tokenized') return <span className="status-pill review">Not tokenized</span>;
-  return <span className="status-pill ok">Verified live market</span>;
+  return <span className="status-pill ok">Recorded market identity</span>;
 }
 
 function UnicornRadarNav() {
@@ -374,11 +380,11 @@ function FilterSelect<T extends string>({ label, value, values, onChange }: { la
 function RadarSnapshotPanel({ summary }: { summary: UnicornRadarSummary | null }) {
   const counts = summary?.counts;
   const rows = [
-    ['Candidates', counts?.total ?? 0],
-    ['High-Signal', counts?.by_status.high_signal_lowcap ?? 0],
-    ['Watchlist', counts?.by_status.watchlist ?? 0],
-    ['Do Not Touch', counts?.by_status.do_not_touch_yet ?? 0],
-    ['Consensus', counts?.by_status.consensus_forming ?? 0]
+    ['Candidates', counts?.total ?? '—'],
+    ['High-Signal', counts?.by_status.high_signal_lowcap ?? '—'],
+    ['Watchlist', counts?.by_status.watchlist ?? '—'],
+    ['Do Not Touch', counts?.by_status.do_not_touch_yet ?? '—'],
+    ['Consensus', counts?.by_status.consensus_forming ?? '—']
   ] as const;
 
   return <aside className="radar-snapshot-panel" aria-label="Radar Snapshot Panel">
@@ -462,7 +468,7 @@ function FeaturedRadarCalls({ candidates }: { candidates: UnicornRadarCandidate[
         <p className="eyebrow">Featured Radar Calls</p>
         <h2>Featured Radar Calls</h2>
       </div>
-      <p className="panel-caption">Four live examples of how Radar classifies signal, uncertainty, and risk.</p>
+      <p className="panel-caption">Four curated examples of how Radar classifies signal, uncertainty, and risk.</p>
     </div>
     <div className="featured-radar-grid">
       {calls.map(([label, candidate]) => <FeaturedCallCard key={`${label}-${candidate.id}`} label={label} candidate={candidate} />)}
@@ -482,6 +488,7 @@ function CompactMarketStrip({ candidate }: { candidate: UnicornRadarCandidate })
     <p><span>24h Volume</span><strong>{formatCompactMoney(data?.volume24h ?? null)}</strong></p>
     <p><span>24h</span><strong>{formatPercent(data?.priceChange24h ?? null)}</strong></p>
     <span className="unicorn-card-source-chip">Market data: {source === 'dexscreener_official_api' ? 'DexScreener' : source}</span>
+    <span className="unicorn-card-source-chip">{marketObservationLabel(candidate)}</span>
   </div>;
 }
 
@@ -564,7 +571,7 @@ function CandidateSection({ title, subtitle, candidates }: { title: string; subt
     <SectionHeaderWithMeta title={title} count={candidates.length} explainer={subtitle} action="Share-ready section" />
     {candidates.length
       ? <div className="unicorn-card-grid">{candidates.map((candidate) => <CandidateCompactCard key={candidate.id} candidate={candidate} />)}</div>
-      : <p className="panel-caption">No verified candidates yet. Submit a candidate with receipts.</p>}
+      : <p className="panel-caption">No candidates match this view. Adjust the filters or search.</p>}
   </section>;
 }
 
@@ -630,11 +637,17 @@ export function UnicornRadarPage() {
   const [query, setQuery] = useState('');
   const [shareMode, setShareMode] = useState(false);
 
+  const [retryVersion, setRetryVersion] = useState(0);
+
   useEffect(() => {
+    let active = true;
+    setSummary(null);
+    setError(null);
     api<{ data: UnicornRadarSummary }>('/v1/unicorn-radar')
-      .then((response) => setSummary(response.data))
-      .catch((err) => setError(err instanceof Error ? err.message : 'unicorn_radar_unavailable'));
-  }, []);
+      .then((response) => { if (active) setSummary(response.data); })
+      .catch((err) => { if (active) setError(err instanceof Error ? err.message : 'unicorn_radar_unavailable'); });
+    return () => { active = false; };
+  }, [retryVersion]);
 
   const filtered = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -691,8 +704,10 @@ export function UnicornRadarPage() {
         <RadarSnapshotPanel summary={summary} />
       </section>
 
-      {error && <section className="panel"><p className="route-state error">{error}</p></section>}
+      {error && <RadarAsyncState kind="unavailable" title="Market intelligence unavailable" onRetry={() => setRetryVersion(value => value + 1)}>The service did not return a valid market-intelligence response. No candidate count or current market state is established.</RadarAsyncState>}
+      {!error && !summary && <RadarAsyncState kind="loading" title="Loading market intelligence" />}
 
+      {summary && !error && <>
       <FeaturedRadarCalls candidates={summary?.candidates ?? []} />
       <DropSummaryCard />
       <UnicornFilterBar
@@ -735,6 +750,7 @@ export function UnicornRadarPage() {
           <a className="execute compact secondary" href="/developers">Open Developer Surface</a>
         </article>
       </section>
+      </>}
     </main>
   </div>;
 }
@@ -753,21 +769,27 @@ export function UnicornRadarDetailPage({ candidateId }: { candidateId: string })
   const [missing, setMissing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [retryVersion, setRetryVersion] = useState(0);
   useEffect(() => {
+    let active = true;
+    setCandidate(null); setMissing(false); setError(null);
     api<{ data: UnicornRadarCandidate }>(`/v1/unicorn-radar/candidates/${encodeURIComponent(candidateId)}`)
       .then((response) => {
+        if (!active) return;
         setCandidate(response.data);
         setMissing(false);
       })
       .catch((err) => {
+        if (!active) return;
         if (err instanceof Error && err.message.endsWith(' 404')) setMissing(true);
         else setError(err instanceof Error ? err.message : 'unicorn_radar_candidate_unavailable');
       });
-  }, [candidateId]);
+    return () => { active = false; };
+  }, [candidateId, retryVersion]);
 
   if (missing) return <div className="shell builder-shell proof-feed-shell unicorn-radar-shell"><UnicornRadarNav /><main className="builder-page unicorn-radar-page"><section className="panel hero"><h1>Candidate not found.</h1><p className="copy">No Unicorn Radar candidate exists for <code>{candidateId}</code>.</p><a className="execute compact secondary" href="/unicorn-radar">Back to Unicorn Radar</a></section></main></div>;
-  if (error) return <div className="shell builder-shell proof-feed-shell unicorn-radar-shell"><UnicornRadarNav /><main className="builder-page unicorn-radar-page"><section className="panel hero"><h1>Unicorn Radar unavailable.</h1><p className="copy">{error}</p></section></main></div>;
-  if (!candidate) return <div className="shell builder-shell proof-feed-shell unicorn-radar-shell"><UnicornRadarNav /><main className="builder-page unicorn-radar-page"><section className="panel hero"><h1>Loading candidate...</h1></section></main></div>;
+  if (error) return <div className="shell builder-shell proof-feed-shell unicorn-radar-shell"><UnicornRadarNav /><main className="builder-page unicorn-radar-page"><RadarAsyncState kind="unavailable" title="Unicorn Radar unavailable" onRetry={() => setRetryVersion(value => value + 1)}>{error}</RadarAsyncState></main></div>;
+  if (!candidate) return <div className="shell builder-shell proof-feed-shell unicorn-radar-shell"><UnicornRadarNav /><main className="builder-page unicorn-radar-page"><RadarAsyncState kind="loading" title="Loading candidate" /></main></div>;
 
   return <div className="shell builder-shell proof-feed-shell unicorn-radar-shell">
     <UnicornRadarNav />

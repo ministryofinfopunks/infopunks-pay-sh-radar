@@ -25,6 +25,18 @@ function JudgmentPreview() {
 
 export function UniversalHomepage() {
   useEffect(() => { performance.mark?.('radar_homepage_rendered'); document.title = 'Infopunks Radar — Intelligence before the wallet acts'; }, []);
+  useEffect(() => {
+    const align = () => {
+      const id = window.location.hash.slice(1);
+      if (!['proof', 'economies', 'judgment-preview'].includes(id)) return;
+      const target = document.getElementById(id);
+      target?.scrollIntoView?.({ block: 'start' });
+      target?.focus({ preventScroll: true });
+    };
+    const frame = window.requestAnimationFrame(align);
+    window.addEventListener('hashchange', align);
+    return () => { window.cancelAnimationFrame(frame); window.removeEventListener('hashchange', align); };
+  }, []);
   return <div className="radar-homepage">
     <div className="radar-home-frame">
       <main className="radar-home-shell" id="radar-home-content" tabIndex={-1}>
@@ -43,12 +55,12 @@ export function UniversalHomepage() {
           <div className="radar-signal-portrait" aria-hidden="true"><picture><source media="(min-width: 1024px)" srcSet="/artwork/signal-punk.webp" /><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" width="533" height="800" fetchPriority="high" /></picture><span className="portrait-note">INTELLIGENCE<br />BEFORE<br />THE WALLET<br />ACTS.</span><span className="portrait-note portrait-note-bottom">VERIFIABLE<br />EVIDENCE.<br />ACCOUNTABLE<br />DECISIONS.</span></div>
           <JudgmentPreview />
         </section>
-        <section className="radar-home-proof terminal-panel" id="proof" aria-labelledby="radar-home-proof-title">
+        <section className="radar-home-proof terminal-panel" id="proof" aria-labelledby="radar-home-proof-title" tabIndex={-1}>
           <div className="radar-home-section-heading"><div><p className="radar-home-eyebrow">[ 02 ]</p><h2 id="radar-home-proof-title">One Judgment Protocol</h2><p>From evidence to accountable action.</p></div><div className="radar-protocol-note"><span>ONE CANONICAL RECEIPT ARCHITECTURE.<br />DIFFERENT EVIDENCE ADAPTERS. SAME STANDARD.</span><a href="/developers">Learn more <TerminalIcon name="arrow" /></a></div></div>
           <RadarReceiptLifecycle reference />
           <p className="radar-protocol-boundary">Execution and Evaluation receipts appear only when their proof exists.</p>
         </section>
-        <section className="radar-home-entry" id="economies" aria-label="Two economies and one standard of proof">
+        <section className="radar-home-entry" id="economies" aria-label="Two economies and one standard of proof" tabIndex={-1}>
           <div className="radar-home-cards">{ECONOMY_ENTRIES.map((entry, index) => <article className={`${entry.id} terminal-panel`} key={entry.id}>
             <p className="radar-home-eyebrow">[ {String(index + 3).padStart(2, '0')} ] <span>{index === 0 ? 'PRIMARY UTILITY' : 'MARKET INTELLIGENCE'}</span></p>
             <div className="radar-entry-title"><span className="terminal-symbol"><TerminalIcon name={entry.id === 'solana' ? 'solana' : 'rh'} /></span><div><h2>{entry.label}</h2><p>{entry.title}</p></div><a className="radar-entry-arrow" href={entry.href} aria-label={entry.action}><TerminalIcon name="arrow" /></a></div>

@@ -1,5 +1,6 @@
 import { RadarShellContext } from './radarShellContext';
 import { RadarAsyncState } from './radarDesignSystem';
+import { validateReleaseRead } from './releaseReadContracts';
 import React, { lazy, Suspense, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { EvidenceScope } from './productPrimitives';
 import { MethodologyDrawer } from './methodology';
@@ -1699,9 +1700,11 @@ async function api<T>(path: string, init?: RequestInit, timeoutOverrideMs?: numb
       }));
     }
     try {
-      return await response.json() as T;
+      const body: unknown = await response.json();
+      validateReleaseRead(path, body);
+      return body as T;
     } catch {
-      throw new ApiRequestError(`Invalid JSON from ${path}`, withDefaultFixHint({
+      throw new ApiRequestError(`Invalid evidence response from ${path}`, withDefaultFixHint({
         endpoint: path,
         request_url: url,
         method,
@@ -4442,6 +4445,8 @@ function MachineMarketPage() {
     status: 'all'
   });
 
+  const [retryVersion, setRetryVersion] = useState(0);
+
   useEffect(() => {
     document.title = 'Machine Market | Infopunks Pay.sh Radar';
     setMetaTag('name', 'description', 'Machine Economy module for robotic.sh service policy, evidence, and receipt intelligence inside Infopunks Radar.');
@@ -4451,10 +4456,10 @@ function MachineMarketPage() {
     Promise.all([
       api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
       api<{ data: MachineMarketSummary }>('/v1/machine-market/summary'),
-      api<{ data: { runs: MachinePreflightCoverageRun[] } }>('/v1/machine-preflight/coverage-runs/recent?limit=1').catch(() => null),
-      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=25').catch(() => null),
-      api<{ data: AlibabaMachineExecutionRepeatabilityArtifact }>('/v1/machine-execution/alibaba-machine-translation-general/repeatability').catch(() => null),
-      api<{ data: AlibabaMachineExecutionBenchmarkReadinessArtifact }>('/v1/machine-execution/alibaba-machine-translation-general/benchmark-readiness').catch(() => null)
+      api<{ data: { runs: MachinePreflightCoverageRun[] } }>('/v1/machine-preflight/coverage-runs/recent?limit=1'),
+      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=25'),
+      api<{ data: AlibabaMachineExecutionRepeatabilityArtifact }>('/v1/machine-execution/alibaba-machine-translation-general/repeatability'),
+      api<{ data: AlibabaMachineExecutionBenchmarkReadinessArtifact }>('/v1/machine-execution/alibaba-machine-translation-general/benchmark-readiness')
     ]).then(([servicesResponse, summaryResponse, latestRunResponse, latestExecutionResponse, repeatabilityResponse, benchmarkReadinessResponse]) => {
       if (cancelled) return;
       setServices(servicesResponse.data.services);
@@ -4479,7 +4484,7 @@ function MachineMarketPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [retryVersion]);
 
   const visibleServices = useMemo(() => services.filter((service) =>
     (filters.marketType === 'all' || service.market_type === filters.marketType)
@@ -4535,6 +4540,7 @@ function MachineMarketPage() {
     </header>
     <main id="machine-market-content" className="machine-market-page" aria-label="Machine Market">
       <MachineMarketHero />
+      {!loading && !error && <>
       <MachineMarketSummaryCards
         summary={summary}
         loading={loading}
@@ -4570,7 +4576,7 @@ function MachineMarketPage() {
       <MachineMarketBrief latestRun={latestCoverageRun} selectedControlledActionName={selectedControlledAction?.service.name ?? 'Cloud Translation'} />
       <section className="panel machine-market-caveat" aria-label="Coverage caveat">
         <p>Infopunks Radar mapped the entire listed robotic.sh machine-service market.</p>
-        <p>Coverage refers to the 13 services visible in the observed robotic.sh market snapshot. 0 market-wide execution claims. Service-specific execution receipts are scoped to the recorded route.</p>
+        <p>Historical catalog snapshot observed 22 May 2026. Coverage refers to the 13 services visible in the observed robotic.sh market snapshot. 0 market-wide execution claims. Service-specific execution receipts are scoped to the recorded route.</p>
         <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-benchmark-methodology">View benchmark methodology</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a> <a className="execute compact secondary" href="/machine-translation-evidence">View translation evidence plan</a> <a className="execute compact secondary" href="/machine-proof-ladder">View proof ladder</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
       </section>
       <MachineEvidenceMethodologyDrawer />
@@ -4578,8 +4584,9 @@ function MachineMarketPage() {
       <CoveragePanel latestRun={latestCoverageRun} loading={coverageLoading || loading} running={coverageRunning} error={coverageError} onRun={runCoveragePreflight} />
       <FirstExecutionCard anyTransReceipt={latestAnyTransExecutionReceipt} machineTranslationGeneralReceipt={latestMachineTranslationGeneralExecutionReceipt} repeatability={machineTranslationGeneralRepeatability} benchmarkReadiness={machineTranslationGeneralBenchmarkReadiness} />
       <Filters filters={filters} onChange={setFilters} />
+      </>}
       {loading && <section className="panel" role="status" aria-live="polite"><p className="route-state">Loading Machine Market services...</p></section>}
-      {error && !loading && <section className="panel" role="alert"><p className="route-state error">Machine Market API unavailable: {error}</p><p className="panel-caption">No local fixture data is shown on this page.</p></section>}
+      {error && !loading && <RadarAsyncState kind="unavailable" title="Evidence unavailable" onRetry={() => setRetryVersion(value => value + 1)}>The service did not return usable evidence. Counts and route proof cannot be established. Retry the read-only request.</RadarAsyncState>}
       {!loading && !error && services.length === 0 && <section className="panel"><EmptyState title="No machine services found." body="The Machine Market registry returned no services." /></section>}
       {!loading && !error && services.length > 0 && <section className="machine-market-grid">
         <MachineServiceTable services={visibleServices} selectedId={selectedService?.id ?? null} onSelect={setSelectedService} />
@@ -5048,6 +5055,8 @@ function MachineRouteRiskMatrixPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [retryVersion, setRetryVersion] = useState(0);
+
   useEffect(() => {
     document.title = 'Machine Route-Level Risk Matrix | Infopunks Pay.sh Radar';
     setMetaTag('name', 'description', 'Read-only machine route-level risk matrix derived from robotic.sh-visible service metadata tracked by Infopunks Radar.');
@@ -5056,7 +5065,7 @@ function MachineRouteRiskMatrixPage() {
     setError(null);
     Promise.all([
       api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
-      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=100').catch(() => null)
+      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=100')
     ]).then(([servicesResponse, receiptsResponse]) => {
       if (cancelled) return;
       setServices(servicesResponse.data.services);
@@ -5070,7 +5079,7 @@ function MachineRouteRiskMatrixPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [retryVersion]);
 
   const rows = useMemo(() => buildMachineRouteRiskRows(services, receipts), [services, receipts]);
   const summary = useMemo(() => buildMachineRouteRiskSummary(rows), [rows]);
@@ -5098,12 +5107,12 @@ function MachineRouteRiskMatrixPage() {
           <span>first-safe routes identified</span>
           <span>avoid-first routes flagged</span>
           <span>0 robotic.sh market-wide execution claims</span>
-          <span>{serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}</span>
+          <span>{loading ? 'Receipt evidence loading' : error ? 'Receipt evidence unavailable' : serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}</span>
           <span>receipt-driven</span>
         </div>
       </section>
       {loading && <section className="panel" role="status"><p className="route-state">Loading machine route risk matrix...</p></section>}
-      {error && <section className="panel" role="alert"><p className="route-state error">Machine route risk matrix unavailable: {error}</p></section>}
+      {error && !loading && <RadarAsyncState kind="unavailable" title="Evidence unavailable" onRetry={() => setRetryVersion(value => value + 1)}>No usable evidence response was received. Counts and route proof cannot be established. Retry the read-only request.</RadarAsyncState>}
       {!loading && !error && <>
         <section className="grid four machine-market-summary" aria-label="Machine route risk summary">
           <article className="panel metric"><span>Route rows tracked</span><strong>{summary.totalRoutesMapped}</strong><small>route rows, not execution receipts</small></article>
@@ -5219,6 +5228,8 @@ function MachineRailCoveragePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [retryVersion, setRetryVersion] = useState(0);
+
   useEffect(() => {
     document.title = 'Machine Rail Coverage | Infopunks Pay.sh Radar';
     setMetaTag('name', 'description', 'Read-only machine execution rail coverage for the 13 robotic.sh-visible services tracked by Infopunks Radar.');
@@ -5227,7 +5238,7 @@ function MachineRailCoveragePage() {
     setError(null);
     Promise.all([
       api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
-      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=100').catch(() => null)
+      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=100')
     ]).then(([servicesResponse, receiptsResponse]) => {
       if (cancelled) return;
       setServices(servicesResponse.data.services);
@@ -5241,7 +5252,7 @@ function MachineRailCoveragePage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [retryVersion]);
 
   const summary = useMemo(() => buildMachineRailCoverageSummary(services, receipts), [services, receipts]);
   const evidenceCounts = useMemo(() => machineEvidenceCounts(receipts), [receipts]);
@@ -5269,12 +5280,12 @@ function MachineRailCoveragePage() {
           <span>access rails classified</span>
           <span>route surfaces separated</span>
           <span>0 robotic.sh market-wide execution claims</span>
-          <span>{serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}</span>
+          <span>{loading ? 'Receipt evidence loading' : error ? 'Receipt evidence unavailable' : serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}</span>
           <span>receipt-driven</span>
         </div>
       </section>
       {loading && <section className="panel" role="status"><p className="route-state">Loading machine rail coverage...</p></section>}
-      {error && <section className="panel" role="alert"><p className="route-state error">Machine rail coverage unavailable: {error}</p></section>}
+      {error && !loading && <RadarAsyncState kind="unavailable" title="Evidence unavailable" onRetry={() => setRetryVersion(value => value + 1)}>No usable evidence response was received. Counts and route proof cannot be established. Retry the read-only request.</RadarAsyncState>}
       {!loading && !error && <>
         <section className="grid four machine-market-summary" aria-label="Machine rail coverage summary">
           <article className="panel metric"><span>Services mapped</span><strong>{summary.totalServices}</strong><small>robotic.sh-listed services mirrored into rail metadata</small></article>
@@ -5379,6 +5390,8 @@ function MachineFirstSafeRoutesPage() {
   const [error, setError] = useState<string | null>(null);
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
+  const [retryVersion, setRetryVersion] = useState(0);
+
   useEffect(() => {
     document.title = 'Machine First Safe Route Queue | Infopunks Pay.sh Radar';
     setMetaTag('name', 'description', 'Read-only first safe route queue for future robotic.sh proof attempts inside Infopunks Radar.');
@@ -5387,7 +5400,7 @@ function MachineFirstSafeRoutesPage() {
     setError(null);
     Promise.all([
       api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
-      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=100').catch(() => null)
+      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=100')
     ]).then(([servicesResponse, receiptsResponse]) => {
       if (cancelled) return;
       setServices(servicesResponse.data.services);
@@ -5401,7 +5414,7 @@ function MachineFirstSafeRoutesPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [retryVersion]);
 
   const rows = useMemo(() => buildMachineFirstSafeRouteQueueRows(services, receipts), [services, receipts]);
   const summary = useMemo(() => buildMachineFirstSafeRouteQueueSummary(rows), [rows]);
@@ -5435,12 +5448,12 @@ function MachineFirstSafeRoutesPage() {
           <span>first-safe candidates</span>
           <span>planning only</span>
           <span>0 robotic.sh market-wide execution claims</span>
-          <span>{serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}</span>
+          <span>{loading ? 'Receipt evidence loading' : error ? 'Receipt evidence unavailable' : serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}</span>
           <span>receipt-driven</span>
         </div>
       </section>
       {loading && <section className="panel" role="status"><p className="route-state">Loading machine first safe route queue...</p></section>}
-      {error && <section className="panel" role="alert"><p className="route-state error">Machine first safe route queue unavailable: {error}</p></section>}
+      {error && !loading && <RadarAsyncState kind="unavailable" title="Evidence unavailable" onRetry={() => setRetryVersion(value => value + 1)}>No usable evidence response was received. Counts and route proof cannot be established. Retry the read-only request.</RadarAsyncState>}
       {!loading && !error && <>
         <section className="grid four machine-market-summary" aria-label="Machine first safe route queue summary">
           <article className="panel metric"><span>Queue entries</span><strong>{summary.queueEntries}</strong><small>ranked planning rows only</small></article>
@@ -5467,7 +5480,7 @@ function MachineFirstSafeRoutesPage() {
           </div>
         </section>
         <section className="panel machine-market-caveat" aria-label="Machine first safe route caveats">
-          <p>0 robotic.sh market-wide execution claims. {serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}.</p>
+          <p>0 robotic.sh market-wide execution claims. {loading ? 'Receipt evidence loading' : error ? 'Receipt evidence unavailable' : serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}.</p>
           <p>{paymentSuccessClaimLabel(evidenceCounts.payment_success_claims)}. {benchmarkClaimLabel(evidenceCounts.benchmark_claims)}. {winnerClaimLabel(evidenceCounts.winner_claims)}. No provider quality claim.</p>
           <p>Payment is not confirmed unless payment evidence exists. Route metadata does not imply execution.</p>
           <p>First-safe does not mean executed. Rank does not mean winner. Execution requires service-specific receipts.</p>
@@ -5720,6 +5733,8 @@ function MachineBenchmarkReadinessPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [retryVersion, setRetryVersion] = useState(0);
+
   useEffect(() => {
     document.title = 'Machine Benchmark Readiness | Infopunks Pay.sh Radar';
     setMetaTag('name', 'description', 'Machine benchmark readiness state only. No benchmark execution, no winner claims.');
@@ -5743,7 +5758,7 @@ function MachineBenchmarkReadinessPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [retryVersion]);
 
   return <div className="shell machine-market-shell">
     <a className="skip-link" href="#machine-benchmark-readiness-content">Skip to content</a>
@@ -5776,7 +5791,7 @@ function MachineBenchmarkReadinessPage() {
         <p><a className="execute compact secondary" href="/machine-market">Back to Machine Market</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-benchmark-methodology">View benchmark methodology</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a> <a className="execute compact secondary" href="/machine-translation-evidence">View translation evidence plan</a> <a className="execute compact secondary" href="/machine-receipts">View receipts</a></p>
       </section>
       {loading && <section className="panel" role="status"><p className="route-state">Loading machine benchmark readiness...</p></section>}
-      {error && <section className="panel" role="alert"><p className="route-state error">Machine benchmark readiness unavailable: {error}</p></section>}
+      {error && !loading && <RadarAsyncState kind="unavailable" title="Evidence unavailable" onRetry={() => setRetryVersion(value => value + 1)}>No usable evidence response was received. Counts and route proof cannot be established. Retry the read-only request.</RadarAsyncState>}
       {!loading && !error && report && <>
         {gate && <MachineBenchmarkGatePanel gate={gate} />}
         <section className="grid four machine-market-summary" aria-label="Machine benchmark readiness summary">
