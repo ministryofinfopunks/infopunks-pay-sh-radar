@@ -758,7 +758,28 @@ export async function createApp(
   const identity = createJudgmentIdentity(process.env.JUDGMENT_API_KEYS_JSON);
   if (config.adminToken && identity.authenticate('Bearer ' + config.adminToken)) throw new Error('judgment_operator_credential_reused');
   if (config.isProduction && config.judgmentPaymentEnabled && !identity.configured) throw new Error('judgment_identity_unavailable');
-  const app = Fastify({ logger: config.isProduction ? { redact: ['req.headers.authorization', 'req.headers.payment-signature'] } : false, disableRequestLogging: true });
+  const app = Fastify({
+    logger: config.isProduction ? { redact: ['req.headers.authorization', 'req.headers.payment-signature'] } : false,
+    disableRequestLogging: true,
+    frameworkErrors: (error, request, genericReply) => {
+      // Framework errors precede route schemas, so use the unscoped reply type.
+      const reply = genericReply as FastifyReply;
+      if (error.code !== 'FST_ERR_BAD_URL') return reply.send(error);
+      const rawPath = (request.raw.url ?? '').split('?')[0];
+      // Router decoding happens before application hooks. Only a public reader
+      // navigation may recover through the fixed client shell; APIs stay JSON.
+      if (request.method === 'GET' && /^\/4663\/share\/[^/]+$/.test(rawPath)
+        && request.headers.accept?.includes('text/html') && clientIndexPath && existsSync(clientIndexPath)) {
+        void readFile(clientIndexPath, 'utf8').then(html => {
+          reply.code(400).header('Cache-Control', 'no-store').header('X-Content-Type-Options', 'nosniff')
+            .header('Referrer-Policy', 'no-referrer').header('X-Frame-Options', 'SAMEORIGIN')
+            .type('text/html; charset=utf-8').send(html);
+        }).catch(() => reply.code(400).send({ error: 'invalid_request_path', code: 'FST_ERR_BAD_URL' }));
+        return;
+      }
+      return reply.code(400).header('Cache-Control', 'no-store').send({ error: 'invalid_request_path', code: 'FST_ERR_BAD_URL' });
+    }
+  });
   app.addHook('onRequest', async (req, reply) => {
     if (!config.controlledStaging) return;
     const error = controlledStagingRequestError(req.method, req.routeOptions.url ?? '');
