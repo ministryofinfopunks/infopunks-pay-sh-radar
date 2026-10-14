@@ -165,14 +165,26 @@
     "M\ttests/web-accessibility.test.tsx",
     "M\ttests/web-boot-loading.test.tsx"
   ],
-  "qualification_followup": {
-    "source_commit": "8c3ef30",
-    "integrated_commit": "ef7e5ff675ec8995500177ac1e8ead62068df429",
-    "scope": [
-      "scripts/qualify-unified-radar-browser.mjs",
-      "tests/postgres-resilience-failure-matrix.test.ts"
-    ],
-    "reason": "Explicit safe_metadata mode in mocked monitor failure case; exact credential selector; credential-bearing failure probes and canonical skip-link selector. Assertions unchanged."
-  },
-  "final_source_binding": "The generated exact-SHA qualification manifest and external source-diff ledger bind the final HEAD, including this evidence file. Initial fields preserve the pre-qualification convergence snapshot."
+  "final_source_binding": "The generated exact-SHA qualification manifest and external source-diff ledger bind the final HEAD, including this evidence file. Initial fields preserve the pre-qualification convergence snapshot.",
+  "qualification_followups": [
+    {
+      "source_commit": "8c3ef30",
+      "integrated_commit": "ef7e5ff675ec8995500177ac1e8ead62068df429",
+      "scope": [
+        "scripts/qualify-unified-radar-browser.mjs",
+        "tests/postgres-resilience-failure-matrix.test.ts"
+      ],
+      "reason": "Explicit safe_metadata mode in mocked monitor failure case; exact credential selector; credential-bearing failure probes and canonical skip-link selector. Assertions unchanged."
+    },
+    {
+      "source_commit": "49f500c",
+      "scope": [
+        "Dockerfile",
+        "scripts/qualify-unified-radar-local.py",
+        "scripts/qualify-unified-radar-recovery.mjs"
+      ],
+      "reason": "Consistent loopback-only disposable recovery targets; external generated evidence; production graph pruned offline from same pinned Linux build dependencies without a second network install. No dependency versions changed.",
+      "acceptance": "Actual PostgreSQL16 migrate/seed/dump/restore/verify pass; Linux production dependency pruning pass,0production vulnerabilities."
+    }
+  ]
 }
