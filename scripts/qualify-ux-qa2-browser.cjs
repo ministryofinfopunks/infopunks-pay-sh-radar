@@ -19,9 +19,8 @@ const results = [];
    await page.route('**/*', route => {
     const url = new URL(route.request().url());
     if (!['localhost', '127.0.0.1'].includes(url.hostname)) return route.abort();
-    // Vite rejects invalid percent encodings before serving the SPA. Replay the
-    // built entry document here to qualify the client's owning-family recovery.
-    if (route.request().isNavigationRequest() && ['%E0%A4%A', '%FF'].some(id => url.pathname.endsWith(id))) return route.fulfill({status:200,contentType:'text/html',body:fs.readFileSync('dist/client/index.html','utf8')});
+    // Optional client-only preview replay. Required CI uses the actual API router.
+    if (process.env.RADAR_UI_REPLAY_MALFORMED_NAVIGATION === 'true' && route.request().isNavigationRequest() && ['%E0%A4%A', '%FF'].some(id => url.pathname.endsWith(id))) return route.fulfill({status:200,contentType:'text/html',body:fs.readFileSync('dist/client/index.html','utf8')});
     if (url.pathname === '/v1/search') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(searchPayload)});
     if (url.pathname.startsWith('/v1/4663/share/')) { shareRequests++; return route.fulfill({status:url.pathname.endsWith('bad-contract') ? 200 : 404,contentType:'application/json',body:url.pathname.endsWith('bad-contract') ? '{"data":{}}' : '{}'}); }
     if (url.pathname.startsWith('/v1/receipt-spine/')) return route.fulfill({status:401,contentType:'application/json',body:'{}'});
@@ -37,7 +36,11 @@ const results = [];
     results.push({id:'UX-02:'+id,width,pass:true});
    }
    for (const id of ['unknown','%E0%A4%A','%FF']) {
-    await page.goto(base+'/4663/share/'+id+(id==='unknown'?'?source=watch':''));
+    const navigation = await page.goto(base+'/4663/share/'+id+(id==='unknown'?'?source=watch':''));
+    if (id !== 'unknown' && process.env.RADAR_UI_REPLAY_MALFORMED_NAVIGATION !== 'true') {
+     assert.equal(navigation.status(), 400);
+     assert.ok(navigation.headers()['content-type'].includes('text/html'));
+    }
     await page.getByRole('heading',{name:'Shared Robinhood evidence',exact:true}).waitFor();
     assert.ok(await page.locator('main a[href="/4663"]').count());
     assert.ok(!(await page.locator('main').innerText()).includes('Solana'));
@@ -67,6 +70,6 @@ const results = [];
   }
  } finally { await browser.close(); }
  const source_sha = execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
- fs.writeFileSync(path.join(out,'results.json'),JSON.stringify({source_sha,scope:'Automated Chromium client regression; 8 QA2 assertions at 390/1440 CSS pixels; controlled synthetic HTTP responses, not deployed API or device/assistive-technology approval',results},null,2));
+ fs.writeFileSync(path.join(out,'results.json'),JSON.stringify({source_sha,scope:'Automated Chromium client regression; 8 QA2 assertions at 390/1440 CSS pixels; controlled synthetic data responses; malformed navigation uses actual local API HTTP routing unless explicit preview replay is enabled; not device/assistive-technology approval',results},null,2));
  assert.equal(results.length,16); console.log('PASS: 16 browser QA2 cases (8 probes at 2 widths)');
 })().catch(error => { fs.writeFileSync(path.join(out,'failure.json'),JSON.stringify({error:String(error),results},null,2)); console.error(error); process.exitCode=1; });
