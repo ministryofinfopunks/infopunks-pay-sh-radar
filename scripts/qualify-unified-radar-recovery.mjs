@@ -1,6 +1,6 @@
 // Reproducible local-only qualification; never run against staging/production.
 import { createRequire } from 'node:module';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { generateKeyPairSync } from 'node:crypto';
 import { resolve } from 'node:path';
 import fixtures from '../tests/helpers/canonicalReceipts.ts';
@@ -18,8 +18,9 @@ const { hashCanonical } = require(resolve('dist/server/services/receiptIntegrity
 const mode = process.argv[2], url = process.env.CANONICAL_RECEIPT_TEST_URL;
 if (process.env.NODE_ENV !== 'test' || !url) throw new Error('local_test_environment_required');
 const target = new URL(url);
-if (target.hostname !== 'localhost' || !/^\/unified_radar_[a-f0-9]{12}_(migration|restore)$/.test(target.pathname)) throw new Error('disposable_local_target_required');
-const out = resolve('docs/evidence/unified-radar/system');
+if (!['postgres:', 'postgresql:'].includes(target.protocol) || !['localhost', '127.0.0.1', '[::1]'].includes(target.hostname) || target.search || target.hash || !/^\/unified_radar_[a-f0-9]{12}_(migration|restore)$/.test(target.pathname)) throw new Error('disposable_local_target_required');
+const out = resolve(process.env.RADAR_RECOVERY_OUTPUT_DIR || 'output/radar-v1/recovery');
+mkdirSync(out, { recursive: true });
 let signer;
 if (mode === 'seed') {
   const pair = generateKeyPairSync('ed25519');

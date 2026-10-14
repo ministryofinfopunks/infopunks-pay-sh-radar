@@ -132,7 +132,7 @@ run('runtime-config', ['npm', 'run', 'verify:runtime-config'], dict(migration_en
 for label, extra in [('migration-first', []), ('migration-check', ['--validate']), ('migration-repeat', [])]:
     log = run(label, ['node', 'dist/server/cli/runPostgresMigrations.js'] + extra, migration_env)
     shutil.copyfile(log, out / (label + '.json'))
-recovery_env = dict(env, CANONICAL_RECEIPT_TEST_URL=migration_env['DATABASE_URL'])
+recovery_env = dict(env, CANONICAL_RECEIPT_TEST_URL=migration_env['DATABASE_URL'], RADAR_RECOVERY_OUTPUT_DIR=str(out.resolve()))
 run('recovery-seed', ['node', '--import', 'tsx', 'scripts/qualify-unified-radar-recovery.mjs', 'seed'], recovery_env)
 # pg_dump and pg_restore never see an existing database or production connection string.
 backup = logs / 'local-recovery.dump'
