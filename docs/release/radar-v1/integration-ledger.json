@@ -185,6 +185,19 @@
       ],
       "reason": "Consistent loopback-only disposable recovery targets; external generated evidence; production graph pruned offline from same pinned Linux build dependencies without a second network install. No dependency versions changed.",
       "acceptance": "Actual PostgreSQL16 migrate/seed/dump/restore/verify pass; Linux production dependency pruning pass,0production vulnerabilities."
+    },
+    {
+      "stream": "security",
+      "source_commit": "cca80c9aaf86932d308a2d783abc2cffaf3f27de",
+      "integrated_commit": "892bbe8",
+      "acceptance": "11 scoped HTTP/private boundary cases pass; typecheck pass. Fixed client shell on malformed public HTML navigation only, generic JSON on malformed private APIs."
+    },
+    {
+      "stream": "ux",
+      "source_commit": "2bb6756ff4d9c040b2df84a2c514265f8bd42bf0",
+      "integrated_commit": "f9915c0",
+      "acceptance": "Required browser probes use actual API malformed-path routing; explicit preview replay is optional and not qualification evidence."
     }
-  ]
+  ],
+  "final_binding": "External exact-head qualification manifest binds final source, all test reports and artifact hashes. Missing evidence remains HOLD."
 }
