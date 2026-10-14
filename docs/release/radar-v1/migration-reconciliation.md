@@ -1,0 +1,13 @@
+# Migration reconciliation — supported-source checks PASS; deployment HOLD
+
+Baseline: `2c2fe64db173c63048e70353ae926aa199792d1b`. All canonical migration 001–022 up/down bytes remain unchanged; the SHA-256 manifest is adjacent.
+
+The two dirty UI-SEC2 checkouts contain byte-identical `20261011_022_canonical_access.up.sql`, SHA-256 `135a7ca8dd21b036b939c34a39b3e389a8dca9cd25a4801c0e1fa19cff979ee6`. It adds immutable canonical ownership/publication metadata and rate counters. R2's canonical `20261008_022_publication_boundaries` instead adds receipt acceptance and monotone publication positions. These are different schema histories, not substitute filenames.
+
+The alternative SQL is preserved verbatim only under `tests/fixtures/historical-022-canonical-access.up.sql` to reproduce rejection against an actual PostgreSQL schema. It is outside canonical migration discovery. No migration was renumbered, overwritten or adopted. R2's existing journal bindings support the bounded security work without creating a new ownership schema; original Observation admission remains a separate authority gate.
+
+`runPostgresMigrations` now inspects applied identities, checksums, ledger ancestry and competing canonical-access tables before ledger DDL. Unknown/partial/conflicting history, checksum drift and unsupported historical adoption fail before mutation. The new `--preflight` CLI performs a SELECT-only read-only transaction; it never creates a ledger or adopts history. Fresh and canonical-ledger states can be inspected; unledgered history exits unsuccessfully until its operator-approved baseline is reconciled.
+
+Focused tests on disposable PostgreSQL 16 cover clean/repeat, concurrent serialization, pinned 017/020 adoption, failure recovery, drift, unknown/reordered history, ledger immutability, read-only preflight and the exact competing 022. The full integrated candidate must rerun these and backup/restore/replay; focused results are not final-source qualification.
+
+**Deployed history remains unknown.** No shared/staging/production database was accessed. Do not allocate a successor migration or apply changes until an operator supplies the actual applied IDs/checksums, schema and source provenance. If canonical-access 022 was applied, the runner intentionally holds; a reviewed forward-only bridge must preserve that original ledger and map its behavior to the canonical spine. No arbitrary 023 is justified by this packet. Least-privilege deployed migration role and actual recovery path require independent approval.

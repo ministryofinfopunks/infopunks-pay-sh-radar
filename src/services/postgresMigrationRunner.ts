@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import type { Pool, PoolClient } from 'pg';
 import { inspectMigrationDirectory, type MigrationFileEntry, validateMigrationEntries } from './migrationInventory';
 import { inspectRhChainMigrationLedger } from './rhChainProductionReadiness';
+import { inspectPostgresMigrationHistory } from './postgresMigrationPreflight';
 
 const LOCK_NAME = 'infopunks.track-a.schema-migrations.v1';
 const HISTORY_TABLE = 'infopunks_schema_migration_history';
@@ -103,6 +104,19 @@ export async function runPostgresMigrations(pool: Pool, options: { mode?: 'valid
   let locked = false;
   try {
     await client.query('select pg_advisory_lock(hashtextextended($1,0))', [LOCK_NAME]); locked = true;
+    report.database = 'reachable';
+    const preflight = await inspectPostgresMigrationHistory(client, options.directory);
+    if (!preflight.valid) {
+      report.failures.push(...preflight.failures);
+      report.valid = false;
+      return report;
+    }
+    if (preflight.classification === 'unledgered-history' && !options.adoptBaseline) throw new MigrationRunnerError('unledgered_existing_database_refused');
+    if (options.adoptBaseline && preflight.applied.length === 0) {
+      const baselineEntries = inventory.entries.filter(entry => sequence(entry) <= Number(options.adoptBaseline));
+      if (migrationManifestChecksum(baselineEntries) !== SUPPORTED_BASELINE_MANIFESTS[options.adoptBaseline as typeof SUPPORTED_BASELINES[number]]) throw new MigrationRunnerError('historical_baseline_manifest_drift');
+      if (!await schemaMatchesBaseline(client, options.adoptBaseline)) throw new MigrationRunnerError('historical_baseline_schema_mismatch');
+    }
     await ensureLedger(client);
     report.database = 'reachable';
     const rows = await client.query<{ migration_id: string; migration_file: string; checksum: string; outcome: string }>(`select migration_id,migration_file,checksum,outcome from ${APPLIED_TABLE} order by migration_id`);
