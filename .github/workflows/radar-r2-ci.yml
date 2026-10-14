@@ -1,16 +1,16 @@
-name: Radar R2 release gates
+name: Radar v1 release gates
 
 on:
   pull_request:
-    branches: [codex/track-a-release-candidate, main]
+    branches: [main, release/radar-v1-rc, codex/track-a-release-candidate]
   push:
-    branches: [codex/radar-release-integration-r2]
+    branches: [main, release/radar-v1-rc, codex/radar-release-integration-r2]
 
 permissions:
   contents: read
 
 concurrency:
-  group: radar-r2-${{ github.event.pull_request.number || github.ref }}
+  group: radar-v1-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -37,6 +37,9 @@ jobs:
       CANONICAL_RECEIPT_TEST_URL: postgresql://radar:radar-local-only@localhost:5432/radar_ci
       ECONOMIC_ENGINE_TEST_URL: postgresql://radar:radar-local-only@localhost:5432/radar_ci
       POSTGRES_RESILIENCE_TEST_URL: postgresql://radar:radar-local-only@localhost:5432/radar_ci
+      RADAR_QUALIFICATION_ALLOW_DISPOSABLE_POSTGRES: "true"
+      RADAR_QUALIFICATION_OUTPUT_DIR: output/ci-system
+      RADAR_QUALIFICATION_LOG_DIR: output/ci-system/logs
       RADAR_QUALIFICATION_DATABASE_URL: postgresql://radar:radar-local-only@localhost:5432
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -45,6 +48,8 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24.21.0
+      - name: Verify exact source and supported runtime
+        run: node scripts/qualify-radar-source.mjs
       - run: npm ci
       - name: Generate CycloneDX dependency SBOMs
         run: |
@@ -59,14 +64,22 @@ jobs:
           node --version | tee -a "$GITHUB_STEP_SUMMARY"
           npm --version | tee -a "$GITHUB_STEP_SUMMARY"
           psql "$CANONICAL_RECEIPT_TEST_URL" -Atc 'show server_version' | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Required eight adversarial QA2 regressions
+        run: npx vitest run tests/ux-qa2-acceptance.test.tsx
       - name: Full reproducible PostgreSQL qualification
         run: python3 scripts/qualify-unified-radar-local.py
+      - name: Bind retained artifacts to source SHA
+        if: always()
+        env:
+          RADAR_JOB_STATUS: ${{ job.status }}
+        run: node scripts/seal-radar-evidence.mjs output/ci-source output/ci-system output/ci-sbom
       - if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: radar-system-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
-            docs/evidence/radar-r2/2026-10-12/r2-1/system/
+            output/ci-source/
+            output/ci-system/
             output/ci-sbom/
           if-no-files-found: ignore
 
@@ -115,6 +128,8 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24.21.0
+      - name: Verify exact source and supported runtime
+        run: node scripts/qualify-radar-source.mjs
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run build
@@ -122,18 +137,20 @@ jobs:
       - name: Linux Node 24 non-root container startup
         run: |
           mkdir -p output/ci-browser
-          docker build --tag radar-r2-browser:${RADAR_CANDIDATE_SHA} .
+          docker build --label org.opencontainers.image.revision=${RADAR_CANDIDATE_SHA} --iidfile output/ci-browser/container-image-id.txt --tag radar-r2-browser:${RADAR_CANDIDATE_SHA} .
+          docker image inspect radar-r2-browser:${RADAR_CANDIDATE_SHA} > output/ci-browser/container-image-inspect.json
+          docker save radar-r2-browser:${RADAR_CANDIDATE_SHA} --output output/ci-browser/container-image.tar
+          sha256sum output/ci-browser/container-image.tar > output/ci-browser/container-archive-sha256.txt
           docker image inspect radar-r2-browser:${RADAR_CANDIDATE_SHA} --format 'os={{.Os}} architecture={{.Architecture}} configured_user={{.Config.User}}' | tee output/ci-browser/container-image.txt
-          docker run --rm --entrypoint /bin/sh radar-r2-browser:${RADAR_CANDIDATE_SHA} -c 'set -eu; . /etc/os-release; test "$ID" = debian; test "$VERSION_CODENAME" = bookworm; printf "os=%s version=%s codename=%s\\n" "$ID" "$VERSION_ID" "$VERSION_CODENAME"; node --version; test "$(id -u)" != 0; dpkg-query -W | sort' > output/ci-browser/container-os-packages.txt
-          docker run --detach --name radar-r2-container-smoke --add-host=host.docker.internal:host-gateway --publish 127.0.0.1:10000:10000 --env NODE_ENV=production --env PORT=10000 --env DATABASE_URL=postgresql://radar:radar-local-only@host.docker.internal:5432/radar_ci --env PAYSH_CATALOG_SOURCE=live --env PAY_SH_CATALOG_URL=https://catalog.invalid/providers --env PAYSH_ALLOW_FIXTURE_FALLBACK=false --env PAYSH_BOOTSTRAP_ENABLED=false --env INGESTION_ENABLED=false radar-r2-browser:${RADAR_CANDIDATE_SHA}
+          docker run --rm --entrypoint /bin/sh radar-r2-browser:${RADAR_CANDIDATE_SHA} -c 'set -eu; . /etc/os-release; test "$ID" = debian; test "$VERSION_CODENAME" = bookworm; printf "os=%s version=%s codename=%s\\n" "$ID" "$VERSION_ID" "$VERSION_CODENAME"; test "$(node --version)" = v24.21.0; node --version; test "$(id -u)" != 0; dpkg-query -W | sort' > output/ci-browser/container-os-packages.txt
+          docker run --detach --name radar-r2-container-smoke --add-host=host.docker.internal:host-gateway --publish 127.0.0.1:10000:10000 --env NODE_ENV=production --env RADAR_CONTROLLED_STAGING=true --env JUDGMENT_API_KEYS_JSON --env JUDGMENT_PAYMENT_ENABLED=false --env MACHINE_EXECUTION_ENABLED=false --env MONITOR_ENABLED=false --env MONITOR_MODE=disabled --env PORT=10000 --env DATABASE_URL=postgresql://radar:radar-local-only@host.docker.internal:5432/radar_ci --env PAYSH_CATALOG_SOURCE=live --env PAY_SH_CATALOG_URL=https://catalog.invalid/providers --env PAYSH_ALLOW_FIXTURE_FALLBACK=false --env PAYSH_BOOTSTRAP_ENABLED=false --env INGESTION_ENABLED=false radar-r2-browser:${RADAR_CANDIDATE_SHA}
           trap 'docker rm --force radar-r2-container-smoke >/dev/null 2>&1 || true' EXIT
           test "$(docker exec radar-r2-container-smoke id -u)" != "0"
           for attempt in $(seq 1 60); do
-            if curl --fail --silent http://127.0.0.1:10000/healthz >/dev/null; then exit 0; fi
+            if curl --fail --silent http://127.0.0.1:10000/healthz >/dev/null; then break; fi
             sleep 1
           done
-          docker logs radar-r2-container-smoke
-          exit 1
+          RADAR_SMOKE_BASE_URL=http://127.0.0.1:10000 RADAR_SMOKE_ALLOW_LOCAL_HTTP=true RADAR_SMOKE_EXPECT_IDENTITY_CONFIGURED=true RADAR_SMOKE_EXPECT_DEGRADED_CATALOG=true RADAR_SMOKE_OUTPUT_DIR=output/ci-browser/production node scripts/smoke-radar-read-only.mjs
       - name: Generate container OS and runtime SBOM
         uses: anchore/sbom-action@0b8327a2637811e512362912957ffefab15470c6 # Syft image scan, pinned commit
         with:
@@ -143,6 +160,17 @@ jobs:
           syft-version: v1.54.1
           upload-artifact: false
           upload-release-assets: false
+      - name: Scan immutable local image dependencies and OS packages
+        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7.4.0
+        with:
+          image: radar-r2-browser:${{ env.RADAR_CANDIDATE_SHA }}
+          grype-version: v0.110.0
+          output-format: json
+          output-file: output/ci-browser/container-vulnerabilities.json
+          severity-cutoff: high
+          only-fixed: false
+          fail-build: true
+          cache-db: false
       - name: Start local compiled app
         run: |
           npm start > /tmp/radar-server.log 2>&1 & echo $! > /tmp/radar-server.pid
@@ -152,11 +180,20 @@ jobs:
           done
           cat /tmp/radar-server.log
           exit 1
+      - name: Required QA2 desktop and mobile browser regressions
+        run: RADAR_UI_BASE_URL=$RADAR_QA_URL RADAR_UI_OUTPUT=output/ci-browser/qa2 node scripts/qualify-ux-qa2-browser.cjs
       - name: Desktop, tablet, mobile, overflow, a11y and async browser qualification
         run: node scripts/qualify-unified-radar-browser.mjs
+      - name: Bind browser and image artifacts to source SHA
+        if: always()
+        env:
+          RADAR_JOB_STATUS: ${{ job.status }}
+        run: node scripts/seal-radar-evidence.mjs output/ci-source output/ci-browser
       - if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: radar-browser-${{ github.event.pull_request.head.sha || github.sha }}
-          path: output/ci-browser/
+          path: |
+            output/ci-source/
+            output/ci-browser/
           if-no-files-found: ignore
