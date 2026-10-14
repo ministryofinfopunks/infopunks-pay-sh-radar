@@ -45,7 +45,7 @@
     }
   ],
   "excluded": "Uncommitted UI-SEC2 schema and alternate022, newIPX economics, token operations, RH experimentalpipelines and bulk generated evidence",
-  "integrated_commits": [
+  "initial_integrated_commits": [
     "14458ce0d0a755739e025867c1a5c9da41b68700 Repair QA2 recovery and protect private Decision View inspection",
     "9e6a7dd13f8e6266b5992d32d89aff8c2711e8af Reconcile scoped cyan terminal and UX hardening from verified donors",
     "ac39a9ee3679a1d15616a83b2de8a054657b8109 Protect private Decision Views and fail closed on ambiguous receipt ancestry",
@@ -54,7 +54,7 @@
     "ce42efef5b6796e42120d15b9733787a0d9ddb9d test(migrations): preserve recorded Track A 021 upgrade history",
     "0fb2791384462881ccb9c7624f37b11ca98f7b53 fix(migrations): reject ambiguous history before schema writes"
   ],
-  "source_diff": [
+  "initial_source_diff": [
     "A\t.github/dependabot.yml",
     "M\t.github/workflows/radar-r2-ci.yml",
     "A\tDESIGN.md",
@@ -164,5 +164,15 @@
     "A\ttests/ux-qa2-acceptance.test.tsx",
     "M\ttests/web-accessibility.test.tsx",
     "M\ttests/web-boot-loading.test.tsx"
-  ]
+  ],
+  "qualification_followup": {
+    "source_commit": "8c3ef30",
+    "integrated_commit": "ef7e5ff675ec8995500177ac1e8ead62068df429",
+    "scope": [
+      "scripts/qualify-unified-radar-browser.mjs",
+      "tests/postgres-resilience-failure-matrix.test.ts"
+    ],
+    "reason": "Explicit safe_metadata mode in mocked monitor failure case; exact credential selector; credential-bearing failure probes and canonical skip-link selector. Assertions unchanged."
+  },
+  "final_source_binding": "The generated exact-SHA qualification manifest and external source-diff ledger bind the final HEAD, including this evidence file. Initial fields preserve the pre-qualification convergence snapshot."
 }
