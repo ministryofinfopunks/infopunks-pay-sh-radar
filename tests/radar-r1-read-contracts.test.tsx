@@ -56,6 +56,7 @@ describe('R1 bounded read-only recovery', () => {
       await act(async () => { [...host.querySelectorAll('button')].find(button => button.textContent === 'Retry')!.click(); });
       expect(host.textContent).not.toContain('Evidence unavailable');
       expect(host.querySelector('[role="table"]')).not.toBeNull();
+      expect(host.textContent).not.toContain('Service-specific execution evidence exists');
       expect(methods.length).toBeGreaterThan(2);
       expect(methods.every(method => method === 'GET')).toBe(true);
     } finally { act(() => root.unmount()); host.remove(); }

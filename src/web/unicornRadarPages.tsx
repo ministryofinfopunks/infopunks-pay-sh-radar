@@ -696,6 +696,7 @@ export function UnicornRadarPage() {
             <p>{summary?.subline ?? 'Retail doesn’t need less risk. Retail needs better signal before taking risk.'}</p>
             <p>{summary?.trust_line ?? 'Projects can buy evaluation, not conviction.'}</p>
           </div>
+          <p className="panel-caption">Archived desk judgments and receipt notes · July 6, 2026. Live monitoring is not established. Provider market observations carry separate capture times.</p>
           <div className="signal-hunt-hero-actions">
             <a className="execute" href="#submit-candidate">Submit Candidate</a>
             <a className="execute compact secondary" href="/evaluation-request">Request Paid Evaluation</a>
@@ -802,6 +803,7 @@ export function UnicornRadarDetailPage({ candidateId }: { candidateId: string })
           <VerificationBadge candidate={candidate} />
           <p className="copy">{candidate.thesis}</p>
           <p className="panel-caption">{candidate.sample_disclosure}</p>
+          <p className="panel-caption">Archived desk judgments · {formatDate(candidate.updated_at)}. Product, retention and execution claims need source review; live monitoring is not established.</p>
         </div>
         <div className="panel unicorn-verdict-panel">
           <span className={`status-pill ${statusTone(candidate.status)}`}>{titleCase(candidate.status)}</span>
@@ -871,7 +873,7 @@ export function UnicornRadarDetailPage({ candidateId }: { candidateId: string })
             <p className="eyebrow">Tags</p>
             <h2>{candidate.tags?.length ?? 0}</h2>
           </div>
-          <p className="panel-caption">Operational labels for current Radar review state.</p>
+          <p className="panel-caption">Authored labels from the dated desk review.</p>
         </div>
         <div className="proof-flag-list unicorn-risk-list">
           {candidate.tags?.map((tag) => <span key={tag}>{tag}</span>)}
@@ -891,7 +893,8 @@ export function UnicornRadarDetailPage({ candidateId }: { candidateId: string })
             <p className="eyebrow">{receipt.type}</p>
             <h3>{receipt.label}</h3>
             <p>{receipt.note}</p>
-            <p className="panel-caption">{receipt.source}</p>
+            <p className="panel-caption">{receipt.source} · Observed {formatDate(receipt.observed_at)}</p>
+            {receipt.url ? <a className="copy-chip" href={receipt.url} target="_blank" rel="noreferrer">Inspect source</a> : <p className="panel-caption">Desk note · no source link recorded</p>}
           </article>)}
         </div>
       </section>

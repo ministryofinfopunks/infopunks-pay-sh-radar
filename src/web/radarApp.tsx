@@ -5163,7 +5163,7 @@ function MachineRouteRiskMatrixPage() {
             <div className="panel-head"><div><p className="section-kicker">Guidance</p><h2>Why route-level policy matters</h2></div></div>
             <div className="machine-usage-list">
               <p><span>NAVER Maps</span><small>Geocode lookup is first-safe candidate / review. Driving directions is avoid-first / high risk because of physical-world routing risk. Execution status remains not_attempted.</small></p>
-              <p><span>Machine Translation</span><small>Service-specific execution evidence exists for one machine-translation route only. Payment not confirmed unless payment evidence exists. Benchmark and winner claims remain false without artifacts.</small></p>
+              <p><span>Machine Translation</span><small>Inspect service-specific receipts before any machine-translation execution claim. Payment not confirmed unless payment evidence exists. Benchmark and winner claims remain false without artifacts.</small></p>
               <p><span>BigQuery</span><small>BigQuery should begin with bounded public/synthetic queries.</small></p>
               <p><span>Stableupload</span><small>Stableupload should begin with tiny non-sensitive fixtures.</small></p>
               <p><span>Execution</span><small>Execution remains receipt-driven.</small></p>
