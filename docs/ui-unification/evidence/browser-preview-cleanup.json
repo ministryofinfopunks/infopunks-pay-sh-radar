@@ -1,0 +1,34 @@
+{
+  "completedAt": "2026-10-15T07:57:39.083177+00:00",
+  "scope": "Only the three temporary preview services owned by finish_browser were stopped. Evidence, immutable source snapshot, frozen manifests and other services were retained.",
+  "services": [
+    {
+      "name": "fixture API",
+      "port": 8787,
+      "ownedSessionId": 7597,
+      "termination": "SIGINT through owned session",
+      "sessionExitCode": 0,
+      "listenerRemaining": false,
+      "listenerCheckExitCode": 1
+    },
+    {
+      "name": "candidate frontend",
+      "port": 5173,
+      "ownedSessionId": 84775,
+      "termination": "SIGINT through owned session",
+      "sessionExitCode": 130,
+      "listenerRemaining": false,
+      "listenerCheckExitCode": 1
+    },
+    {
+      "name": "immutable baseline frontend",
+      "port": 5174,
+      "ownedSessionId": 13610,
+      "termination": "SIGINT through owned session",
+      "sessionExitCode": 130,
+      "listenerRemaining": false,
+      "listenerCheckExitCode": 1
+    }
+  ],
+  "success": true
+}

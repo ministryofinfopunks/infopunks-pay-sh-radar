@@ -1,0 +1,7086 @@
+{
+  "src/web/homepage.tsx": [
+    {
+      "line": 14,
+      "attribute": "id",
+      "value": "\"judgment-preview\""
+    },
+    {
+      "line": 15,
+      "attribute": "id",
+      "value": "\"judgment-preview-title\""
+    },
+    {
+      "line": 15,
+      "attribute": "name",
+      "value": "\"judgment\""
+    },
+    {
+      "line": 16,
+      "attribute": "name",
+      "value": "\"solana\""
+    },
+    {
+      "line": 17,
+      "attribute": "name",
+      "value": "\"judgment\""
+    },
+    {
+      "line": 17,
+      "attribute": "aria-label",
+      "value": "\"Confidence not assessed\""
+    },
+    {
+      "line": 20,
+      "attribute": "name",
+      "value": "\"unknown\""
+    },
+    {
+      "line": 21,
+      "attribute": "name",
+      "value": "\"receipt\""
+    },
+    {
+      "line": 30,
+      "attribute": "id",
+      "value": "\"radar-home-content\""
+    },
+    {
+      "line": 34,
+      "attribute": "id",
+      "value": "\"radar-home-title\""
+    },
+    {
+      "line": 36,
+      "attribute": "action",
+      "value": "\"/spend-terminal\""
+    },
+    {
+      "line": 36,
+      "attribute": "method",
+      "value": "\"get\""
+    },
+    {
+      "line": 37,
+      "attribute": "name",
+      "value": "\"settlement\""
+    },
+    {
+      "line": 38,
+      "attribute": "id",
+      "value": "\"home-route\""
+    },
+    {
+      "line": 38,
+      "attribute": "name",
+      "value": "\"subject\""
+    },
+    {
+      "line": 38,
+      "attribute": "aria-describedby",
+      "value": "\"home-route-help\""
+    },
+    {
+      "line": 38,
+      "attribute": "id",
+      "value": "\"home-route-help\""
+    },
+    {
+      "line": 39,
+      "attribute": "name",
+      "value": "\"arrow\""
+    },
+    {
+      "line": 39,
+      "attribute": "href",
+      "value": "\"#judgment-preview\""
+    },
+    {
+      "line": 39,
+      "attribute": "name",
+      "value": "\"receipt\""
+    },
+    {
+      "line": 46,
+      "attribute": "id",
+      "value": "\"proof\""
+    },
+    {
+      "line": 47,
+      "attribute": "id",
+      "value": "\"radar-home-proof-title\""
+    },
+    {
+      "line": 47,
+      "attribute": "href",
+      "value": "\"/developers\""
+    },
+    {
+      "line": 47,
+      "attribute": "name",
+      "value": "\"arrow\""
+    },
+    {
+      "line": 51,
+      "attribute": "id",
+      "value": "\"economies\""
+    },
+    {
+      "line": 51,
+      "attribute": "aria-label",
+      "value": "\"Two economies and one standard of proof\""
+    },
+    {
+      "line": 54,
+      "attribute": "name",
+      "value": "{entry.id === 'solana' ? 'solana' : 'rh'}"
+    },
+    {
+      "line": 54,
+      "attribute": "href",
+      "value": "{entry.href}"
+    },
+    {
+      "line": 54,
+      "attribute": "aria-label",
+      "value": "{entry.action}"
+    },
+    {
+      "line": 54,
+      "attribute": "name",
+      "value": "\"arrow\""
+    },
+    {
+      "line": 57,
+      "attribute": "aria-label",
+      "value": "{`${entry.label} coverage`}"
+    },
+    {
+      "line": 59,
+      "attribute": "name",
+      "value": "\"receipt\""
+    },
+    {
+      "line": 59,
+      "attribute": "href",
+      "value": "\"/receipts\""
+    },
+    {
+      "line": 59,
+      "attribute": "name",
+      "value": "\"arrow\""
+    },
+    {
+      "line": 62,
+      "attribute": "id",
+      "value": "\"radar-home-developers-title\""
+    },
+    {
+      "line": 62,
+      "attribute": "href",
+      "value": "\"/developers\""
+    },
+    {
+      "line": 62,
+      "attribute": "name",
+      "value": "\"arrow\""
+    },
+    {
+      "line": 63,
+      "attribute": "aria-label",
+      "value": "\"Minimal advisory check request\""
+    }
+  ],
+  "src/web/radarApp.tsx": [
+    {
+      "line": 73,
+      "attribute": "id",
+      "value": "\"radar-home-title\""
+    },
+    {
+      "line": 76,
+      "attribute": "href",
+      "value": "\"/solana\""
+    },
+    {
+      "line": 77,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk\""
+    },
+    {
+      "line": 80,
+      "attribute": "aria-label",
+      "value": "\"Radar system architecture\""
+    },
+    {
+      "line": 92,
+      "attribute": "id",
+      "value": "\"radar-home-title\""
+    },
+    {
+      "line": 95,
+      "attribute": "href",
+      "value": "\"/spend-terminal\""
+    },
+    {
+      "line": 96,
+      "attribute": "href",
+      "value": "\"#explore-solana-radar\""
+    },
+    {
+      "line": 100,
+      "attribute": "aria-label",
+      "value": "\"Solana Radar doctrine\""
+    },
+    {
+      "line": 113,
+      "attribute": "id",
+      "value": "\"radar-network-entry-title\""
+    },
+    {
+      "line": 126,
+      "attribute": "aria-label",
+      "value": "{`${network.label} capabilities`}"
+    },
+    {
+      "line": 129,
+      "attribute": "href",
+      "value": "{network.href}"
+    },
+    {
+      "line": 2551,
+      "attribute": "aria-label",
+      "value": "\"Proof metrics\""
+    },
+    {
+      "line": 2555,
+      "attribute": "aria-label",
+      "value": "\"Proof metrics\""
+    },
+    {
+      "line": 2627,
+      "attribute": "aria-label",
+      "value": "\"Agent Evidence benchmark summary demo\""
+    },
+    {
+      "line": 2660,
+      "attribute": "href",
+      "value": "\"/benchmarks\""
+    },
+    {
+      "line": 2660,
+      "attribute": "href",
+      "value": "{`/radar/cards/benchmark/${encodeURIComponent(benchmark.benchmark_id)}`}"
+    },
+    {
+      "line": 2692,
+      "attribute": "href",
+      "value": "\"/solana#mapping-targets\""
+    },
+    {
+      "line": 2835,
+      "attribute": "aria-label",
+      "value": "\"Benchmarks unavailable\""
+    },
+    {
+      "line": 2836,
+      "attribute": "aria-label",
+      "value": "\"Benchmarks loading\""
+    },
+    {
+      "line": 2859,
+      "attribute": "aria-label",
+      "value": "\"Public benchmark registry\""
+    },
+    {
+      "line": 2866,
+      "attribute": "aria-label",
+      "value": "\"Radar evidence ledger metrics\""
+    },
+    {
+      "line": 2873,
+      "attribute": "aria-label",
+      "value": "\"Radar evidence ledger metrics\""
+    },
+    {
+      "line": 2880,
+      "attribute": "aria-label",
+      "value": "\"Benchmark evidence summary\""
+    },
+    {
+      "line": 2888,
+      "attribute": "aria-label",
+      "value": "\"Recorded Pay.sh benchmarks\""
+    },
+    {
+      "line": 2903,
+      "attribute": "href",
+      "value": "{`/benchmarks/${encodeURIComponent(benchmark.benchmark_id)}`}"
+    },
+    {
+      "line": 2926,
+      "attribute": "aria-label",
+      "value": "\"Planned benchmark scaffolds\""
+    },
+    {
+      "line": 2932,
+      "attribute": "href",
+      "value": "{`/benchmarks/${encodeURIComponent(benchmark.benchmark_id)}`}"
+    },
+    {
+      "line": 2951,
+      "attribute": "aria-label",
+      "value": "\"Agent route timeline API\""
+    },
+    {
+      "line": 2978,
+      "attribute": "aria-label",
+      "value": "\"Benchmark History\""
+    },
+    {
+      "line": 3006,
+      "attribute": "aria-label",
+      "value": "\"Recorded benchmark summary\""
+    },
+    {
+      "line": 3021,
+      "attribute": "href",
+      "value": "{href}"
+    },
+    {
+      "line": 3085,
+      "attribute": "aria-label",
+      "value": "\"Benchmark not found\""
+    },
+    {
+      "line": 3086,
+      "attribute": "aria-label",
+      "value": "\"Benchmark loading\""
+    },
+    {
+      "line": 3087,
+      "attribute": "aria-label",
+      "value": "\"Public benchmark proof page\""
+    },
+    {
+      "line": 3115,
+      "attribute": "aria-label",
+      "value": "\"Agent Spend Readiness Card\""
+    },
+    {
+      "line": 3117,
+      "attribute": "aria-label",
+      "value": "\"Agent Spend Readiness Card\""
+    },
+    {
+      "line": 3117,
+      "attribute": "href",
+      "value": "\"/\""
+    },
+    {
+      "line": 3129,
+      "attribute": "aria-label",
+      "value": "\"Agent Spend Readiness Card\""
+    },
+    {
+      "line": 3130,
+      "attribute": "aria-label",
+      "value": "\"Screenshot-ready Agent Spend Readiness Card\""
+    },
+    {
+      "line": 3139,
+      "attribute": "href",
+      "value": "\"/\""
+    },
+    {
+      "line": 3147,
+      "attribute": "aria-label",
+      "value": "\"readiness chips\""
+    },
+    {
+      "line": 3152,
+      "attribute": "aria-label",
+      "value": "\"What this means\""
+    },
+    {
+      "line": 3156,
+      "attribute": "aria-label",
+      "value": "\"Evidence counts row\""
+    },
+    {
+      "line": 3184,
+      "attribute": "aria-label",
+      "value": "\"Proof Links\""
+    },
+    {
+      "line": 3189,
+      "attribute": "href",
+      "value": "{link.href}"
+    },
+    {
+      "line": 3193,
+      "attribute": "aria-label",
+      "value": "\"Agent Guidance\""
+    },
+    {
+      "line": 3208,
+      "attribute": "aria-label",
+      "value": "\"Agent Decision Summary\""
+    },
+    {
+      "line": 3223,
+      "attribute": "aria-label",
+      "value": "\"Review reasons\""
+    },
+    {
+      "line": 3906,
+      "attribute": "aria-label",
+      "value": "{ariaLabel}"
+    },
+    {
+      "line": 4525,
+      "attribute": "href",
+      "value": "\"#machine-market-content\""
+    },
+    {
+      "line": 4527,
+      "attribute": "aria-label",
+      "value": "\"Machine Market navigation\""
+    },
+    {
+      "line": 4529,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 4534,
+      "attribute": "id",
+      "value": "\"machine-market-content\""
+    },
+    {
+      "line": 4534,
+      "attribute": "aria-label",
+      "value": "\"Machine Market\""
+    },
+    {
+      "line": 4569,
+      "attribute": "aria-label",
+      "value": "\"Coverage caveat\""
+    },
+    {
+      "line": 4572,
+      "attribute": "href",
+      "value": "\"/machine-market-map\""
+    },
+    {
+      "line": 4572,
+      "attribute": "href",
+      "value": "\"/machine-readiness-matrix\""
+    },
+    {
+      "line": 4572,
+      "attribute": "href",
+      "value": "\"/machine-economy-snapshot\""
+    },
+    {
+      "line": 4572,
+      "attribute": "href",
+      "value": "\"/machine-rail-coverage\""
+    },
+    {
+      "line": 4572,
+      "attribute": "href",
+      "value": "\"/machine-route-risk-matrix\""
+    },
+    {
+      "line": 4572,
+      "attribute": "href",
+      "value": "\"/machine-first-safe-routes\""
+    },
+    {
+      "line": 4572,
+      "attribute": "href",
+      "value": "\"/machine-benchmark-readiness\""
+    },
+    {
+      "line": 4572,
+      "attribute": "href",
+      "value": "\"/machine-benchmark-methodology\""
+    },
+    {
+      "line": 4572,
+      "attribute": "href",
+      "value": "\"/machine-comparable-routes\""
+    },
+    {
+      "line": 4572,
+      "attribute": "href",
+      "value": "\"/machine-translation-evidence\""
+    },
+    {
+      "line": 4572,
+      "attribute": "href",
+      "value": "\"/machine-proof-ladder\""
+    },
+    {
+      "line": 4572,
+      "attribute": "href",
+      "value": "\"/machine-execution-shortlist\""
+    },
+    {
+      "line": 4578,
+      "attribute": "onChange",
+      "value": "{setFilters}"
+    },
+    {
+      "line": 4579,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 4580,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 4611,
+      "attribute": "aria-label",
+      "value": "\"Machine Market Mission Control\""
+    },
+    {
+      "line": 4649,
+      "attribute": "href",
+      "value": "{`/machine-execution-plan/${encodeURIComponent(topCandidateId)}`}"
+    },
+    {
+      "line": 4650,
+      "attribute": "href",
+      "value": "\"/machine-readiness-matrix\""
+    },
+    {
+      "line": 4651,
+      "attribute": "href",
+      "value": "\"/machine-execution-shortlist\""
+    },
+    {
+      "line": 4687,
+      "attribute": "aria-label",
+      "value": "\"13-Service Market Cohort\""
+    },
+    {
+      "line": 4693,
+      "attribute": "aria-label",
+      "value": "\"Cohort status summary\""
+    },
+    {
+      "line": 4704,
+      "attribute": "aria-label",
+      "value": "\"Next Controlled Action strip\""
+    },
+    {
+      "line": 4709,
+      "attribute": "aria-label",
+      "value": "\"Machine market flow\""
+    },
+    {
+      "line": 4733,
+      "attribute": "onClick",
+      "value": "{() => onInspect(service)}"
+    },
+    {
+      "line": 4734,
+      "attribute": "aria-expanded",
+      "value": "{inspectedServiceId === service.id}"
+    },
+    {
+      "line": 4773,
+      "attribute": "id",
+      "value": "\"machine-service-inspector\""
+    },
+    {
+      "line": 4773,
+      "attribute": "aria-label",
+      "value": "\"Service inspector drawer\""
+    },
+    {
+      "line": 4779,
+      "attribute": "onClick",
+      "value": "{onClose}"
+    },
+    {
+      "line": 4796,
+      "attribute": "href",
+      "value": "{`/machine-service/${encodeURIComponent(service.id)}`}"
+    },
+    {
+      "line": 4797,
+      "attribute": "href",
+      "value": "{`/machine-execution-plan/${encodeURIComponent(service.id)}`}"
+    },
+    {
+      "line": 4820,
+      "attribute": "aria-label",
+      "value": "\"Machine Market Brief\""
+    },
+    {
+      "line": 4826,
+      "attribute": "onClick",
+      "value": "{copyBrief}"
+    },
+    {
+      "line": 4870,
+      "attribute": "href",
+      "value": "\"#machine-snapshot-content\""
+    },
+    {
+      "line": 4872,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy Snapshot navigation\""
+    },
+    {
+      "line": 4874,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 4879,
+      "attribute": "id",
+      "value": "\"machine-snapshot-content\""
+    },
+    {
+      "line": 4879,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy Public Snapshot\""
+    },
+    {
+      "line": 4887,
+      "attribute": "aria-label",
+      "value": "\"Machine economy snapshot hero chips\""
+    },
+    {
+      "line": 4896,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 4897,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 4899,
+      "attribute": "aria-label",
+      "value": "\"Machine economy snapshot stat grid\""
+    },
+    {
+      "line": 4913,
+      "attribute": "aria-label",
+      "value": "\"Machine snapshot additions\""
+    },
+    {
+      "line": 4935,
+      "attribute": "aria-label",
+      "value": "\"Machine economy story strip\""
+    },
+    {
+      "line": 4943,
+      "attribute": "aria-label",
+      "value": "\"Machine economy story flow\""
+    },
+    {
+      "line": 4954,
+      "attribute": "aria-label",
+      "value": "\"Machine economy snapshot caveats\""
+    },
+    {
+      "line": 4960,
+      "attribute": "href",
+      "value": "\"/machine-rail-coverage\""
+    },
+    {
+      "line": 4960,
+      "attribute": "href",
+      "value": "\"/machine-route-risk-matrix\""
+    },
+    {
+      "line": 4960,
+      "attribute": "href",
+      "value": "\"/machine-first-safe-routes\""
+    },
+    {
+      "line": 4977,
+      "attribute": "aria-label",
+      "value": "\"Machine economy cohort band\""
+    },
+    {
+      "line": 5001,
+      "attribute": "aria-label",
+      "value": "\"Machine economy category summary\""
+    },
+    {
+      "line": 5010,
+      "attribute": "aria-label",
+      "value": "{`${summary.label} summary`}"
+    },
+    {
+      "line": 5030,
+      "attribute": "aria-label",
+      "value": "\"Machine economy public brief\""
+    },
+    {
+      "line": 5036,
+      "attribute": "onClick",
+      "value": "{copyBrief}"
+    },
+    {
+      "line": 5078,
+      "attribute": "href",
+      "value": "\"#machine-route-risk-content\""
+    },
+    {
+      "line": 5080,
+      "attribute": "aria-label",
+      "value": "\"Machine Route Risk Matrix navigation\""
+    },
+    {
+      "line": 5082,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 5087,
+      "attribute": "id",
+      "value": "\"machine-route-risk-content\""
+    },
+    {
+      "line": 5087,
+      "attribute": "aria-label",
+      "value": "\"Machine Route-Level Risk Matrix\""
+    },
+    {
+      "line": 5094,
+      "attribute": "aria-label",
+      "value": "\"Machine route risk hero chips\""
+    },
+    {
+      "line": 5103,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 5104,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 5106,
+      "attribute": "aria-label",
+      "value": "\"Machine route risk summary\""
+    },
+    {
+      "line": 5114,
+      "attribute": "aria-label",
+      "value": "\"Machine route interpretation strip\""
+    },
+    {
+      "line": 5122,
+      "attribute": "aria-label",
+      "value": "\"Machine route interpretation statements\""
+    },
+    {
+      "line": 5129,
+      "attribute": "aria-label",
+      "value": "\"Machine route risk caveats\""
+    },
+    {
+      "line": 5135,
+      "attribute": "aria-label",
+      "value": "\"Route-risk attribution\""
+    },
+    {
+      "line": 5148,
+      "attribute": "href",
+      "value": "\"/machine-rail-coverage\""
+    },
+    {
+      "line": 5148,
+      "attribute": "href",
+      "value": "\"/machine-economy-snapshot\""
+    },
+    {
+      "line": 5148,
+      "attribute": "href",
+      "value": "\"/machine-first-safe-routes\""
+    },
+    {
+      "line": 5150,
+      "attribute": "aria-label",
+      "value": "\"Machine route guidance\""
+    },
+    {
+      "line": 5161,
+      "attribute": "aria-label",
+      "value": "\"Machine route risk methodology\""
+    },
+    {
+      "line": 5178,
+      "attribute": "aria-label",
+      "value": "\"Machine route risk matrix table panel\""
+    },
+    {
+      "line": 5186,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 5186,
+      "attribute": "aria-label",
+      "value": "\"Machine route risk matrix table\""
+    },
+    {
+      "line": 5187,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 5188,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 5193,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 5194,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5195,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5196,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5197,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5198,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5199,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5200,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5201,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5202,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5203,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5204,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5204,
+      "attribute": "href",
+      "value": "{`/machine-execution-plan/${encodeURIComponent(row.service_id)}`}"
+    },
+    {
+      "line": 5248,
+      "attribute": "href",
+      "value": "\"#machine-rail-coverage-content\""
+    },
+    {
+      "line": 5250,
+      "attribute": "aria-label",
+      "value": "\"Machine Rail Coverage navigation\""
+    },
+    {
+      "line": 5252,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 5257,
+      "attribute": "id",
+      "value": "\"machine-rail-coverage-content\""
+    },
+    {
+      "line": 5257,
+      "attribute": "aria-label",
+      "value": "\"Machine Rail Coverage\""
+    },
+    {
+      "line": 5265,
+      "attribute": "aria-label",
+      "value": "\"Machine rail coverage hero chips\""
+    },
+    {
+      "line": 5274,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 5275,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 5277,
+      "attribute": "aria-label",
+      "value": "\"Machine rail coverage summary\""
+    },
+    {
+      "line": 5288,
+      "attribute": "aria-label",
+      "value": "\"Machine rail doctrine snapshot cards\""
+    },
+    {
+      "line": 5295,
+      "attribute": "aria-label",
+      "value": "\"Machine rail interpretation strip\""
+    },
+    {
+      "line": 5303,
+      "attribute": "aria-label",
+      "value": "\"Machine rail interpretation statements\""
+    },
+    {
+      "line": 5311,
+      "attribute": "aria-label",
+      "value": "\"Machine rail coverage caveats\""
+    },
+    {
+      "line": 5318,
+      "attribute": "aria-label",
+      "value": "\"Rail metadata attribution\""
+    },
+    {
+      "line": 5331,
+      "attribute": "href",
+      "value": "\"/machine-market\""
+    },
+    {
+      "line": 5331,
+      "attribute": "href",
+      "value": "\"/machine-route-risk-matrix\""
+    },
+    {
+      "line": 5331,
+      "attribute": "href",
+      "value": "\"/machine-first-safe-routes\""
+    },
+    {
+      "line": 5331,
+      "attribute": "href",
+      "value": "\"/machine-execution-blockers\""
+    },
+    {
+      "line": 5331,
+      "attribute": "href",
+      "value": "\"/machine-market-changelog\""
+    },
+    {
+      "line": 5331,
+      "attribute": "href",
+      "value": "\"/machine-no-claim-ledger\""
+    },
+    {
+      "line": 5336,
+      "attribute": "aria-label",
+      "value": "\"Machine rail coverage table panel\""
+    },
+    {
+      "line": 5344,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 5344,
+      "attribute": "aria-label",
+      "value": "\"Machine rail coverage table\""
+    },
+    {
+      "line": 5345,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 5346,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 5352,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 5353,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5353,
+      "attribute": "href",
+      "value": "{`/machine-execution-plan/${encodeURIComponent(service.id)}`}"
+    },
+    {
+      "line": 5354,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5355,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5356,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5357,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5358,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5359,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5360,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5361,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5362,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5363,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5415,
+      "attribute": "href",
+      "value": "\"#machine-first-safe-routes-content\""
+    },
+    {
+      "line": 5417,
+      "attribute": "aria-label",
+      "value": "\"Machine First Safe Route Queue navigation\""
+    },
+    {
+      "line": 5419,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 5424,
+      "attribute": "id",
+      "value": "\"machine-first-safe-routes-content\""
+    },
+    {
+      "line": 5424,
+      "attribute": "aria-label",
+      "value": "\"Machine First Safe Route Queue\""
+    },
+    {
+      "line": 5431,
+      "attribute": "aria-label",
+      "value": "\"Machine first safe route hero chips\""
+    },
+    {
+      "line": 5440,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 5441,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 5443,
+      "attribute": "aria-label",
+      "value": "\"Machine first safe route queue summary\""
+    },
+    {
+      "line": 5452,
+      "attribute": "aria-label",
+      "value": "\"Machine first safe route interpretation strip\""
+    },
+    {
+      "line": 5460,
+      "attribute": "aria-label",
+      "value": "\"Machine first safe route interpretation statements\""
+    },
+    {
+      "line": 5467,
+      "attribute": "aria-label",
+      "value": "\"Machine first safe route caveats\""
+    },
+    {
+      "line": 5473,
+      "attribute": "href",
+      "value": "\"/machine-route-risk-matrix\""
+    },
+    {
+      "line": 5473,
+      "attribute": "href",
+      "value": "\"/machine-rail-coverage\""
+    },
+    {
+      "line": 5473,
+      "attribute": "href",
+      "value": "\"/machine-benchmark-readiness\""
+    },
+    {
+      "line": 5473,
+      "attribute": "href",
+      "value": "\"/machine-comparable-routes\""
+    },
+    {
+      "line": 5473,
+      "attribute": "href",
+      "value": "\"/machine-translation-evidence\""
+    },
+    {
+      "line": 5475,
+      "attribute": "aria-label",
+      "value": "\"Machine first safe route brief\""
+    },
+    {
+      "line": 5481,
+      "attribute": "onClick",
+      "value": "{copyBrief}"
+    },
+    {
+      "line": 5485,
+      "attribute": "aria-label",
+      "value": "\"Machine first safe route queue table panel\""
+    },
+    {
+      "line": 5493,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 5493,
+      "attribute": "aria-label",
+      "value": "\"Machine first safe route queue table\""
+    },
+    {
+      "line": 5494,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 5495,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 5497,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 5498,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5499,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5500,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5501,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5502,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5503,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5504,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5504,
+      "attribute": "href",
+      "value": "{`/machine-execution/${encodeURIComponent(row.execution_receipt_id)}`}"
+    },
+    {
+      "line": 5505,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5505,
+      "attribute": "href",
+      "value": "{row.proof_plan_href}"
+    },
+    {
+      "line": 5509,
+      "attribute": "aria-label",
+      "value": "\"Machine first safe route methodology and warnings\""
+    },
+    {
+      "line": 5516,
+      "attribute": "aria-label",
+      "value": "\"Machine first safe route methodology\""
+    },
+    {
+      "line": 5563,
+      "attribute": "aria-label",
+      "value": "\"Machine No-Claim Ledger\""
+    },
+    {
+      "line": 5571,
+      "attribute": "aria-label",
+      "value": "\"Machine no-claim doctrine\""
+    },
+    {
+      "line": 5579,
+      "attribute": "role",
+      "value": "\"list\""
+    },
+    {
+      "line": 5580,
+      "attribute": "role",
+      "value": "\"listitem\""
+    },
+    {
+      "line": 5619,
+      "attribute": "href",
+      "value": "\"#machine-execution-blockers-content\""
+    },
+    {
+      "line": 5621,
+      "attribute": "aria-label",
+      "value": "\"Machine Execution Blockers navigation\""
+    },
+    {
+      "line": 5623,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 5628,
+      "attribute": "id",
+      "value": "\"machine-execution-blockers-content\""
+    },
+    {
+      "line": 5628,
+      "attribute": "aria-label",
+      "value": "\"Machine Execution Blockers\""
+    },
+    {
+      "line": 5635,
+      "attribute": "aria-label",
+      "value": "\"Machine execution blocker hero chips\""
+    },
+    {
+      "line": 5642,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 5643,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 5645,
+      "attribute": "aria-label",
+      "value": "\"Machine execution blocker summary\""
+    },
+    {
+      "line": 5653,
+      "attribute": "aria-label",
+      "value": "\"Machine execution blocker groups\""
+    },
+    {
+      "line": 5669,
+      "attribute": "aria-label",
+      "value": "\"Machine execution blocker table panel\""
+    },
+    {
+      "line": 5674,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 5674,
+      "attribute": "aria-label",
+      "value": "\"Machine execution blocker table\""
+    },
+    {
+      "line": 5675,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 5676,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 5678,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 5679,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5680,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5681,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5682,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5683,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5684,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5685,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5685,
+      "attribute": "href",
+      "value": "{`/machine-execution-plan/${encodeURIComponent(row.service_id)}`}"
+    },
+    {
+      "line": 5696,
+      "attribute": "aria-label",
+      "value": "\"Machine benchmark gate check\""
+    },
+    {
+      "line": 5747,
+      "attribute": "href",
+      "value": "\"#machine-benchmark-readiness-content\""
+    },
+    {
+      "line": 5749,
+      "attribute": "aria-label",
+      "value": "\"Machine Benchmark Readiness navigation\""
+    },
+    {
+      "line": 5751,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 5756,
+      "attribute": "id",
+      "value": "\"machine-benchmark-readiness-content\""
+    },
+    {
+      "line": 5756,
+      "attribute": "aria-label",
+      "value": "\"Machine Benchmark Readiness\""
+    },
+    {
+      "line": 5764,
+      "attribute": "aria-label",
+      "value": "\"Machine benchmark readiness caveats\""
+    },
+    {
+      "line": 5774,
+      "attribute": "href",
+      "value": "\"/machine-market\""
+    },
+    {
+      "line": 5774,
+      "attribute": "href",
+      "value": "\"/machine-first-safe-routes\""
+    },
+    {
+      "line": 5774,
+      "attribute": "href",
+      "value": "\"/machine-benchmark-methodology\""
+    },
+    {
+      "line": 5774,
+      "attribute": "href",
+      "value": "\"/machine-comparable-routes\""
+    },
+    {
+      "line": 5774,
+      "attribute": "href",
+      "value": "\"/machine-translation-evidence\""
+    },
+    {
+      "line": 5774,
+      "attribute": "href",
+      "value": "\"/machine-receipts\""
+    },
+    {
+      "line": 5776,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 5777,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 5780,
+      "attribute": "aria-label",
+      "value": "\"Machine benchmark readiness summary\""
+    },
+    {
+      "line": 5786,
+      "attribute": "aria-label",
+      "value": "\"Benchmark readiness lanes\""
+    },
+    {
+      "line": 5788,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 5788,
+      "attribute": "aria-label",
+      "value": "\"Machine benchmark readiness lane table\""
+    },
+    {
+      "line": 5789,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 5790,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 5792,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 5793,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5794,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5795,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5796,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5797,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5798,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5799,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5800,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5801,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5838,
+      "attribute": "href",
+      "value": "\"#machine-comparable-routes-content\""
+    },
+    {
+      "line": 5840,
+      "attribute": "aria-label",
+      "value": "\"Machine Comparable Routes navigation\""
+    },
+    {
+      "line": 5842,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 5847,
+      "attribute": "id",
+      "value": "\"machine-comparable-routes-content\""
+    },
+    {
+      "line": 5847,
+      "attribute": "aria-label",
+      "value": "\"Machine Comparable Routes\""
+    },
+    {
+      "line": 5856,
+      "attribute": "aria-label",
+      "value": "\"Machine comparable route caveats\""
+    },
+    {
+      "line": 5863,
+      "attribute": "href",
+      "value": "\"/machine-benchmark-readiness\""
+    },
+    {
+      "line": 5863,
+      "attribute": "href",
+      "value": "\"/machine-benchmark-methodology\""
+    },
+    {
+      "line": 5863,
+      "attribute": "href",
+      "value": "\"/machine-translation-evidence\""
+    },
+    {
+      "line": 5863,
+      "attribute": "href",
+      "value": "\"/machine-market\""
+    },
+    {
+      "line": 5863,
+      "attribute": "href",
+      "value": "\"/machine-first-safe-routes\""
+    },
+    {
+      "line": 5865,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 5866,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 5868,
+      "attribute": "aria-label",
+      "value": "\"Machine comparable routes summary\""
+    },
+    {
+      "line": 5874,
+      "attribute": "aria-label",
+      "value": "\"Machine comparable route lanes\""
+    },
+    {
+      "line": 5876,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 5876,
+      "attribute": "aria-label",
+      "value": "\"Machine comparable route table\""
+    },
+    {
+      "line": 5877,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 5878,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 5880,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 5881,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5882,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5883,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5884,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5885,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5886,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5892,
+      "attribute": "aria-label",
+      "value": "\"Machine translation evidence requirements\""
+    },
+    {
+      "line": 5937,
+      "attribute": "href",
+      "value": "\"#machine-translation-evidence-content\""
+    },
+    {
+      "line": 5939,
+      "attribute": "aria-label",
+      "value": "\"Machine Translation Evidence navigation\""
+    },
+    {
+      "line": 5941,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 5946,
+      "attribute": "id",
+      "value": "\"machine-translation-evidence-content\""
+    },
+    {
+      "line": 5946,
+      "attribute": "aria-label",
+      "value": "\"Machine Translation Evidence Acquisition Plan\""
+    },
+    {
+      "line": 5954,
+      "attribute": "aria-label",
+      "value": "\"Machine translation evidence caveats\""
+    },
+    {
+      "line": 5963,
+      "attribute": "href",
+      "value": "\"/machine-market\""
+    },
+    {
+      "line": 5963,
+      "attribute": "href",
+      "value": "\"/machine-comparable-routes\""
+    },
+    {
+      "line": 5963,
+      "attribute": "href",
+      "value": "\"/machine-benchmark-readiness\""
+    },
+    {
+      "line": 5963,
+      "attribute": "href",
+      "value": "\"/machine-benchmark-methodology\""
+    },
+    {
+      "line": 5963,
+      "attribute": "href",
+      "value": "\"/machine-proof-ladder\""
+    },
+    {
+      "line": 5965,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 5966,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 5969,
+      "attribute": "aria-label",
+      "value": "\"Machine translation evidence summary\""
+    },
+    {
+      "line": 5975,
+      "attribute": "aria-label",
+      "value": "\"Machine translation evidence route table\""
+    },
+    {
+      "line": 5977,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 5977,
+      "attribute": "aria-label",
+      "value": "\"Machine translation evidence routes\""
+    },
+    {
+      "line": 5978,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 5979,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 5981,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 5982,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5983,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5984,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5985,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5986,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5987,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5988,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5989,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5990,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5991,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 5995,
+      "attribute": "aria-label",
+      "value": "\"Machine translation evidence acquisition ctas\""
+    },
+    {
+      "line": 6103,
+      "attribute": "href",
+      "value": "\"#machine-proof-ladder-content\""
+    },
+    {
+      "line": 6105,
+      "attribute": "aria-label",
+      "value": "\"Machine Proof Ladder navigation\""
+    },
+    {
+      "line": 6107,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 6112,
+      "attribute": "id",
+      "value": "\"machine-proof-ladder-content\""
+    },
+    {
+      "line": 6112,
+      "attribute": "aria-label",
+      "value": "\"Machine Market Proof Ladder\""
+    },
+    {
+      "line": 6121,
+      "attribute": "aria-label",
+      "value": "\"Machine proof ladder doctrine\""
+    },
+    {
+      "line": 6132,
+      "attribute": "href",
+      "value": "\"/machine-translation-evidence\""
+    },
+    {
+      "line": 6135,
+      "attribute": "aria-label",
+      "value": "\"Machine proof ladder stages\""
+    },
+    {
+      "line": 6137,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 6137,
+      "attribute": "aria-label",
+      "value": "\"Machine proof ladder stage table\""
+    },
+    {
+      "line": 6138,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 6139,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 6141,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 6142,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6143,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6144,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6145,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6146,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6147,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6147,
+      "attribute": "href",
+      "value": "{item.href}"
+    },
+    {
+      "line": 6151,
+      "attribute": "aria-label",
+      "value": "\"Machine benchmark-later gate\""
+    },
+    {
+      "line": 6194,
+      "attribute": "href",
+      "value": "\"#machine-benchmark-methodology-content\""
+    },
+    {
+      "line": 6196,
+      "attribute": "aria-label",
+      "value": "\"Machine Benchmark Methodology navigation\""
+    },
+    {
+      "line": 6198,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 6203,
+      "attribute": "id",
+      "value": "\"machine-benchmark-methodology-content\""
+    },
+    {
+      "line": 6203,
+      "attribute": "aria-label",
+      "value": "\"Machine Benchmark Methodology\""
+    },
+    {
+      "line": 6212,
+      "attribute": "aria-label",
+      "value": "\"Machine benchmark methodology posture\""
+    },
+    {
+      "line": 6220,
+      "attribute": "href",
+      "value": "\"/machine-market\""
+    },
+    {
+      "line": 6220,
+      "attribute": "href",
+      "value": "\"/machine-benchmark-readiness\""
+    },
+    {
+      "line": 6220,
+      "attribute": "href",
+      "value": "\"/machine-comparable-routes\""
+    },
+    {
+      "line": 6220,
+      "attribute": "href",
+      "value": "\"/machine-translation-evidence\""
+    },
+    {
+      "line": 6222,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 6223,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 6226,
+      "attribute": "aria-label",
+      "value": "\"Global benchmark gate\""
+    },
+    {
+      "line": 6232,
+      "attribute": "aria-label",
+      "value": "\"Artifact schema fields\""
+    },
+    {
+      "line": 6236,
+      "attribute": "aria-label",
+      "value": "\"Lane methodology scaffolds\""
+    },
+    {
+      "line": 6238,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 6238,
+      "attribute": "aria-label",
+      "value": "\"Machine benchmark methodology artifact table\""
+    },
+    {
+      "line": 6239,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 6240,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 6242,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 6243,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6244,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6245,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6246,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6247,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6248,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6249,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6250,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6251,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6252,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6256,
+      "attribute": "aria-label",
+      "value": "\"Missing requirements\""
+    },
+    {
+      "line": 6265,
+      "attribute": "aria-label",
+      "value": "\"Caveats / no-claim posture\""
+    },
+    {
+      "line": 6312,
+      "attribute": "href",
+      "value": "\"#machine-market-changelog-content\""
+    },
+    {
+      "line": 6314,
+      "attribute": "aria-label",
+      "value": "\"Machine Market Changelog navigation\""
+    },
+    {
+      "line": 6316,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 6321,
+      "attribute": "id",
+      "value": "\"machine-market-changelog-content\""
+    },
+    {
+      "line": 6321,
+      "attribute": "aria-label",
+      "value": "\"Machine Market Changelog\""
+    },
+    {
+      "line": 6329,
+      "attribute": "aria-label",
+      "value": "\"Machine market changelog hero chips\""
+    },
+    {
+      "line": 6336,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 6337,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 6340,
+      "attribute": "aria-label",
+      "value": "\"Machine market changelog table panel\""
+    },
+    {
+      "line": 6345,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 6345,
+      "attribute": "aria-label",
+      "value": "\"Machine market changelog table\""
+    },
+    {
+      "line": 6346,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 6347,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 6349,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 6350,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6351,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6352,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6353,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6354,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6355,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6355,
+      "attribute": "href",
+      "value": "{row.receipt_href}"
+    },
+    {
+      "line": 6387,
+      "attribute": "href",
+      "value": "\"#machine-no-claim-ledger-content\""
+    },
+    {
+      "line": 6389,
+      "attribute": "aria-label",
+      "value": "\"Machine No-Claim Ledger navigation\""
+    },
+    {
+      "line": 6391,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 6396,
+      "attribute": "id",
+      "value": "\"machine-no-claim-ledger-content\""
+    },
+    {
+      "line": 6396,
+      "attribute": "aria-label",
+      "value": "\"Machine No-Claim Ledger\""
+    },
+    {
+      "line": 6403,
+      "attribute": "aria-label",
+      "value": "\"Machine no-claim ledger hero chips\""
+    },
+    {
+      "line": 6427,
+      "attribute": "aria-label",
+      "value": "\"Machine rail methodology\""
+    },
+    {
+      "line": 6483,
+      "attribute": "href",
+      "value": "\"#machine-readiness-content\""
+    },
+    {
+      "line": 6485,
+      "attribute": "aria-label",
+      "value": "\"Machine Readiness Matrix navigation\""
+    },
+    {
+      "line": 6487,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 6492,
+      "attribute": "id",
+      "value": "\"machine-readiness-content\""
+    },
+    {
+      "line": 6492,
+      "attribute": "aria-label",
+      "value": "\"Machine Readiness Matrix\""
+    },
+    {
+      "line": 6500,
+      "attribute": "aria-label",
+      "value": "\"Readiness matrix principles\""
+    },
+    {
+      "line": 6506,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 6507,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 6510,
+      "attribute": "aria-label",
+      "value": "\"Readiness matrix caveats\""
+    },
+    {
+      "line": 6514,
+      "attribute": "href",
+      "value": "\"/machine-market-map\""
+    },
+    {
+      "line": 6514,
+      "attribute": "href",
+      "value": "\"/machine-economy-snapshot\""
+    },
+    {
+      "line": 6514,
+      "attribute": "href",
+      "value": "\"/machine-rail-coverage\""
+    },
+    {
+      "line": 6517,
+      "attribute": "aria-label",
+      "value": "\"Machine readiness matrix table\""
+    },
+    {
+      "line": 6522,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 6522,
+      "attribute": "aria-label",
+      "value": "\"Machine readiness matrix\""
+    },
+    {
+      "line": 6523,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 6524,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 6526,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 6527,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6528,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6529,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6530,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6554,
+      "attribute": "aria-label",
+      "value": "\"Readiness Matrix Brief\""
+    },
+    {
+      "line": 6560,
+      "attribute": "onClick",
+      "value": "{copyBrief}"
+    },
+    {
+      "line": 6608,
+      "attribute": "href",
+      "value": "\"#machine-market-map-content\""
+    },
+    {
+      "line": 6610,
+      "attribute": "aria-label",
+      "value": "\"Machine Market Map navigation\""
+    },
+    {
+      "line": 6612,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 6617,
+      "attribute": "id",
+      "value": "\"machine-market-map-content\""
+    },
+    {
+      "line": 6617,
+      "attribute": "aria-label",
+      "value": "\"Machine Market Map\""
+    },
+    {
+      "line": 6625,
+      "attribute": "aria-label",
+      "value": "\"Machine market map summary\""
+    },
+    {
+      "line": 6635,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 6636,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 6638,
+      "attribute": "aria-label",
+      "value": "\"Machine market map hero summary\""
+    },
+    {
+      "line": 6644,
+      "attribute": "aria-label",
+      "value": "\"Machine market map caveats\""
+    },
+    {
+      "line": 6647,
+      "attribute": "href",
+      "value": "\"/machine-economy-snapshot\""
+    },
+    {
+      "line": 6647,
+      "attribute": "href",
+      "value": "\"/machine-rail-coverage\""
+    },
+    {
+      "line": 6649,
+      "attribute": "aria-label",
+      "value": "\"Category map\""
+    },
+    {
+      "line": 6650,
+      "attribute": "aria-label",
+      "value": "{`${summary.label} category`}"
+    },
+    {
+      "line": 6663,
+      "attribute": "aria-label",
+      "value": "{`${summary.label} services`}"
+    },
+    {
+      "line": 6664,
+      "attribute": "href",
+      "value": "{`/machine-service/${encodeURIComponent(service.id)}`}"
+    },
+    {
+      "line": 6673,
+      "attribute": "href",
+      "value": "\"/machine-execution-plan/naver-maps\""
+    },
+    {
+      "line": 6677,
+      "attribute": "aria-label",
+      "value": "\"Market interpretation panel\""
+    },
+    {
+      "line": 6721,
+      "attribute": "aria-label",
+      "value": "\"Machine Translation Execution Candidates\""
+    },
+    {
+      "line": 6731,
+      "attribute": "href",
+      "value": "\"/machine-execution/alibaba-machine-translation-general\""
+    },
+    {
+      "line": 6812,
+      "attribute": "href",
+      "value": "\"#machine-execution-content\""
+    },
+    {
+      "line": 6814,
+      "attribute": "aria-label",
+      "value": "\"Machine Execution navigation\""
+    },
+    {
+      "line": 6816,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 6821,
+      "attribute": "id",
+      "value": "\"machine-execution-content\""
+    },
+    {
+      "line": 6821,
+      "attribute": "aria-label",
+      "value": "\"Alibaba machine execution detail\""
+    },
+    {
+      "line": 6836,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 6837,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 6840,
+      "attribute": "aria-label",
+      "value": "\"Latest execution receipt\""
+    },
+    {
+      "line": 6861,
+      "attribute": "aria-label",
+      "value": "\"Input and output summary\""
+    },
+    {
+      "line": 6868,
+      "attribute": "aria-label",
+      "value": "\"Payment status\""
+    },
+    {
+      "line": 6872,
+      "attribute": "aria-label",
+      "value": "\"Machine Execution Repeatability Artifact\""
+    },
+    {
+      "line": 6894,
+      "attribute": "aria-label",
+      "value": "\"Repeatability receipt list\""
+    },
+    {
+      "line": 6896,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 6896,
+      "attribute": "aria-label",
+      "value": "\"Repeatability receipts\""
+    },
+    {
+      "line": 6897,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 6898,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 6899,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 6900,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 6901,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 6902,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 6904,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 6905,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6906,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6907,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6908,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6909,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6913,
+      "attribute": "aria-label",
+      "value": "\"Repeatability input output\""
+    },
+    {
+      "line": 6925,
+      "attribute": "aria-label",
+      "value": "\"Benchmark-Ready Criteria\""
+    },
+    {
+      "line": 6939,
+      "attribute": "aria-label",
+      "value": "\"Benchmark criteria checklist\""
+    },
+    {
+      "line": 6941,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 6941,
+      "attribute": "aria-label",
+      "value": "\"Benchmark readiness criteria\""
+    },
+    {
+      "line": 6942,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 6943,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 6944,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 6945,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 6946,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 6948,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 6949,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6950,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6951,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6952,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 6956,
+      "attribute": "aria-label",
+      "value": "\"Missing benchmark criteria\""
+    },
+    {
+      "line": 6961,
+      "attribute": "aria-label",
+      "value": "\"Future benchmark schema preview\""
+    },
+    {
+      "line": 6968,
+      "attribute": "aria-label",
+      "value": "\"Evidence caveats\""
+    },
+    {
+      "line": 6978,
+      "attribute": "aria-label",
+      "value": "\"AnyTrans relationship\""
+    },
+    {
+      "line": 6999,
+      "attribute": "aria-label",
+      "value": "\"Preflight Coverage\""
+    },
+    {
+      "line": 7005,
+      "attribute": "onClick",
+      "value": "{onRun}"
+    },
+    {
+      "line": 7030,
+      "attribute": "aria-label",
+      "value": "\"Machine Market principles\""
+    },
+    {
+      "line": 7055,
+      "attribute": "aria-label",
+      "value": "\"Machine Market summary\""
+    },
+    {
+      "line": 7080,
+      "attribute": "aria-label",
+      "value": "\"Evidence ladder\""
+    },
+    {
+      "line": 7102,
+      "attribute": "aria-label",
+      "value": "\"Machine Market filters\""
+    },
+    {
+      "line": 7103,
+      "attribute": "onChange",
+      "value": "{(value) => update('marketType', value as MachineMarketFilters['marketType'])}"
+    },
+    {
+      "line": 7104,
+      "attribute": "onChange",
+      "value": "{(value) => update('category', value as MachineMarketFilters['category'])}"
+    },
+    {
+      "line": 7105,
+      "attribute": "onChange",
+      "value": "{(value) => update('sourceMarket', value as MachineMarketFilters['sourceMarket'])}"
+    },
+    {
+      "line": 7106,
+      "attribute": "onChange",
+      "value": "{(value) => update('chain', value as MachineMarketFilters['chain'])}"
+    },
+    {
+      "line": 7107,
+      "attribute": "onChange",
+      "value": "{(value) => update('evidenceStage', value as MachineMarketFilters['evidenceStage'])}"
+    },
+    {
+      "line": 7108,
+      "attribute": "onChange",
+      "value": "{(value) => update('status', value as MachineMarketFilters['status'])}"
+    },
+    {
+      "line": 7115,
+      "attribute": "aria-label",
+      "value": "{label}"
+    },
+    {
+      "line": 7115,
+      "attribute": "onChange",
+      "value": "{(event) => onChange(event.target.value)}"
+    },
+    {
+      "line": 7122,
+      "attribute": "aria-label",
+      "value": "\"Machine services\""
+    },
+    {
+      "line": 7131,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 7131,
+      "attribute": "aria-label",
+      "value": "\"Machine Market service table\""
+    },
+    {
+      "line": 7132,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 7133,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 7135,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 7136,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7136,
+      "attribute": "onClick",
+      "value": "{() => onSelect(service)}"
+    },
+    {
+      "line": 7137,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7138,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7139,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7140,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7141,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7142,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7143,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7144,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7144,
+      "attribute": "href",
+      "value": "{`/machine-service/${encodeURIComponent(service.id)}`}"
+    },
+    {
+      "line": 7152,
+      "attribute": "aria-label",
+      "value": "\"Service policy profile\""
+    },
+    {
+      "line": 7178,
+      "attribute": "aria-label",
+      "value": "\"Selected service next action\""
+    },
+    {
+      "line": 7181,
+      "attribute": "href",
+      "value": "{`/machine-execution-plan/${encodeURIComponent(service.id)}`}"
+    },
+    {
+      "line": 7196,
+      "attribute": "href",
+      "value": "{`/machine-service/${encodeURIComponent(service.id)}`}"
+    },
+    {
+      "line": 7266,
+      "attribute": "href",
+      "value": "\"#machine-shortlist-content\""
+    },
+    {
+      "line": 7268,
+      "attribute": "aria-label",
+      "value": "\"Machine Execution Shortlist navigation\""
+    },
+    {
+      "line": 7270,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 7275,
+      "attribute": "id",
+      "value": "\"machine-shortlist-content\""
+    },
+    {
+      "line": 7275,
+      "attribute": "aria-label",
+      "value": "\"Robotic.sh Execution Candidate Shortlist\""
+    },
+    {
+      "line": 7283,
+      "attribute": "aria-label",
+      "value": "\"Shortlist principles\""
+    },
+    {
+      "line": 7289,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 7290,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 7292,
+      "attribute": "aria-label",
+      "value": "\"Pay.sh separation note\""
+    },
+    {
+      "line": 7298,
+      "attribute": "aria-label",
+      "value": "\"Execution candidate ranking\""
+    },
+    {
+      "line": 7304,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 7304,
+      "attribute": "aria-label",
+      "value": "\"Robotic.sh execution candidate table\""
+    },
+    {
+      "line": 7305,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 7306,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 7317,
+      "attribute": "aria-label",
+      "value": "\"Top execution candidate\""
+    },
+    {
+      "line": 7330,
+      "attribute": "href",
+      "value": "{`/machine-execution-plan/${encodeURIComponent(candidate.service.id)}`}"
+    },
+    {
+      "line": 7337,
+      "attribute": "aria-label",
+      "value": "\"Shortlist methodology\""
+    },
+    {
+      "line": 7354,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 7355,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7356,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7357,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7358,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7359,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7360,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7361,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7362,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7363,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7364,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7365,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7366,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7367,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 7367,
+      "attribute": "href",
+      "value": "{`/machine-service/${encodeURIComponent(service.id)}`}"
+    },
+    {
+      "line": 7367,
+      "attribute": "href",
+      "value": "{`/machine-execution-plan/${encodeURIComponent(service.id)}`}"
+    },
+    {
+      "line": 7538,
+      "attribute": "href",
+      "value": "\"#machine-execution-plan-content\""
+    },
+    {
+      "line": 7540,
+      "attribute": "aria-label",
+      "value": "\"Execution proof plan navigation\""
+    },
+    {
+      "line": 7542,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 7547,
+      "attribute": "id",
+      "value": "\"machine-execution-plan-content\""
+    },
+    {
+      "line": 7547,
+      "attribute": "aria-label",
+      "value": "\"Machine Execution Proof Plan\""
+    },
+    {
+      "line": 7548,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 7549,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 7550,
+      "attribute": "aria-label",
+      "value": "\"Unknown machine service\""
+    },
+    {
+      "line": 7552,
+      "attribute": "href",
+      "value": "\"/machine-execution-shortlist\""
+    },
+    {
+      "line": 7561,
+      "attribute": "aria-label",
+      "value": "\"Execution proof planning state\""
+    },
+    {
+      "line": 7567,
+      "attribute": "aria-label",
+      "value": "\"Execution proof planning caveat\""
+    },
+    {
+      "line": 7570,
+      "attribute": "href",
+      "value": "\"/machine-rail-coverage\""
+    },
+    {
+      "line": 7574,
+      "attribute": "aria-label",
+      "value": "\"Execution candidate identity\""
+    },
+    {
+      "line": 7592,
+      "attribute": "aria-label",
+      "value": "\"Readiness rationale\""
+    },
+    {
+      "line": 7604,
+      "attribute": "aria-label",
+      "value": "\"Pre-execution checklist\""
+    },
+    {
+      "line": 7610,
+      "attribute": "aria-label",
+      "value": "\"Rail-aware proof planning\""
+    },
+    {
+      "line": 7655,
+      "attribute": "aria-label",
+      "value": "\"Rail execution gate\""
+    },
+    {
+      "line": 7666,
+      "attribute": "aria-label",
+      "value": "\"Safe test input\""
+    },
+    {
+      "line": 7680,
+      "attribute": "aria-label",
+      "value": "\"Candidate route surface\""
+    },
+    {
+      "line": 7698,
+      "attribute": "aria-label",
+      "value": "\"Physical-world routing risk\""
+    },
+    {
+      "line": 7707,
+      "attribute": "aria-label",
+      "value": "\"Success and failure criteria\""
+    },
+    {
+      "line": 7731,
+      "attribute": "aria-label",
+      "value": "\"Public demo context\""
+    },
+    {
+      "line": 7736,
+      "attribute": "aria-label",
+      "value": "\"Evidence to collect\""
+    },
+    {
+      "line": 7809,
+      "attribute": "href",
+      "value": "\"#machine-service-content\""
+    },
+    {
+      "line": 7811,
+      "attribute": "aria-label",
+      "value": "\"Machine Service Dossier navigation\""
+    },
+    {
+      "line": 7813,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 7818,
+      "attribute": "id",
+      "value": "\"machine-service-content\""
+    },
+    {
+      "line": 7818,
+      "attribute": "aria-label",
+      "value": "\"Machine Service Dossier\""
+    },
+    {
+      "line": 7819,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 7820,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 7821,
+      "attribute": "aria-label",
+      "value": "\"Unknown machine service\""
+    },
+    {
+      "line": 7824,
+      "attribute": "href",
+      "value": "\"/machine-market\""
+    },
+    {
+      "line": 7833,
+      "attribute": "href",
+      "value": "{`/machine-market/cards/${encodeURIComponent(service.id)}`}"
+    },
+    {
+      "line": 7835,
+      "attribute": "aria-label",
+      "value": "\"Machine service dossier status\""
+    },
+    {
+      "line": 7841,
+      "attribute": "aria-label",
+      "value": "\"Pay.sh separation note\""
+    },
+    {
+      "line": 7843,
+      "attribute": "href",
+      "value": "\"/machine-execution-shortlist\""
+    },
+    {
+      "line": 7844,
+      "attribute": "href",
+      "value": "{`/machine-execution-plan/${encodeURIComponent(service.id)}`}"
+    },
+    {
+      "line": 7856,
+      "attribute": "aria-label",
+      "value": "\"Service execution receipts\""
+    },
+    {
+      "line": 7861,
+      "attribute": "href",
+      "value": "{`/machine-execution/${encodeURIComponent(receipt.receipt_id)}`}"
+    },
+    {
+      "line": 7876,
+      "attribute": "aria-label",
+      "value": "\"Service identity\""
+    },
+    {
+      "line": 7900,
+      "attribute": "aria-label",
+      "value": "\"Catalog route surface\""
+    },
+    {
+      "line": 7931,
+      "attribute": "aria-label",
+      "value": "\"Policy and readiness\""
+    },
+    {
+      "line": 7957,
+      "attribute": "aria-label",
+      "value": "\"Execution status\""
+    },
+    {
+      "line": 7974,
+      "attribute": "aria-label",
+      "value": "\"Service evidence health\""
+    },
+    {
+      "line": 8098,
+      "attribute": "href",
+      "value": "\"#machine-preflight-content\""
+    },
+    {
+      "line": 8100,
+      "attribute": "aria-label",
+      "value": "\"Machine Preflight navigation\""
+    },
+    {
+      "line": 8102,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 8107,
+      "attribute": "id",
+      "value": "\"machine-preflight-content\""
+    },
+    {
+      "line": 8107,
+      "attribute": "aria-label",
+      "value": "\"Machine Preflight\""
+    },
+    {
+      "line": 8115,
+      "attribute": "aria-label",
+      "value": "\"Machine Preflight principles\""
+    },
+    {
+      "line": 8121,
+      "attribute": "aria-label",
+      "value": "\"Quick examples\""
+    },
+    {
+      "line": 8124,
+      "attribute": "onClick",
+      "value": "{() => setForm((current) => ({ ...current, ...example.state, policy_id: normalizeTemplateId(example.state.policy_id ?? ''), requires_receipt: example.state.requires_receipt ?? true }))}"
+    },
+    {
+      "line": 8129,
+      "attribute": "aria-label",
+      "value": "\"Machine preflight form\""
+    },
+    {
+      "line": 8129,
+      "attribute": "onSubmit",
+      "value": "{submit}"
+    },
+    {
+      "line": 8131,
+      "attribute": "aria-label",
+      "value": "\"machine_id\""
+    },
+    {
+      "line": 8131,
+      "attribute": "onChange",
+      "value": "{(event) => updateForm('machine_id', event.target.value)}"
+    },
+    {
+      "line": 8132,
+      "attribute": "aria-label",
+      "value": "\"intent\""
+    },
+    {
+      "line": 8132,
+      "attribute": "onChange",
+      "value": "{(event) => updateForm('intent', event.target.value)}"
+    },
+    {
+      "line": 8134,
+      "attribute": "onChange",
+      "value": "{(value) => updateForm('category', value as MachineMarketCategory)}"
+    },
+    {
+      "line": 8135,
+      "attribute": "aria-label",
+      "value": "\"max_cost_usd\""
+    },
+    {
+      "line": 8135,
+      "attribute": "onChange",
+      "value": "{(event) => updateForm('max_cost_usd', event.target.value)}"
+    },
+    {
+      "line": 8136,
+      "attribute": "onChange",
+      "value": "{(value) => updateForm('risk_tolerance', value as MachinePreflightFormState['risk_tolerance'])}"
+    },
+    {
+      "line": 8137,
+      "attribute": "aria-label",
+      "value": "\"policy template\""
+    },
+    {
+      "line": 8137,
+      "attribute": "onChange",
+      "value": "{(event) => applyTemplate(event.target.value)}"
+    },
+    {
+      "line": 8139,
+      "attribute": "onChange",
+      "value": "{(values) => updateForm('allowed_markets', values)}"
+    },
+    {
+      "line": 8140,
+      "attribute": "onChange",
+      "value": "{(values) => updateForm('allowed_chains', values)}"
+    },
+    {
+      "line": 8141,
+      "attribute": "aria-label",
+      "value": "\"requires_receipt\""
+    },
+    {
+      "line": 8141,
+      "attribute": "onChange",
+      "value": "{(event) => updateForm('requires_receipt', event.target.checked)}"
+    },
+    {
+      "line": 8146,
+      "attribute": "aria-label",
+      "value": "\"Policy summary\""
+    },
+    {
+      "line": 8170,
+      "attribute": "aria-label",
+      "value": "{label}"
+    },
+    {
+      "line": 8172,
+      "attribute": "onChange",
+      "value": "{() => toggle(value)}"
+    },
+    {
+      "line": 8177,
+      "attribute": "aria-label",
+      "value": "\"Machine preflight result\""
+    },
+    {
+      "line": 8202,
+      "attribute": "href",
+      "value": "\"/solana#methodology\""
+    },
+    {
+      "line": 8220,
+      "attribute": "aria-label",
+      "value": "\"Evidence methodology drawer\""
+    },
+    {
+      "line": 8298,
+      "attribute": "href",
+      "value": "\"#machine-receipts-content\""
+    },
+    {
+      "line": 8300,
+      "attribute": "aria-label",
+      "value": "\"Machine Receipts navigation\""
+    },
+    {
+      "line": 8302,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 8307,
+      "attribute": "id",
+      "value": "\"machine-receipts-content\""
+    },
+    {
+      "line": 8307,
+      "attribute": "aria-label",
+      "value": "\"Machine Receipts\""
+    },
+    {
+      "line": 8315,
+      "attribute": "aria-label",
+      "value": "\"Machine Receipts principles\""
+    },
+    {
+      "line": 8322,
+      "attribute": "aria-label",
+      "value": "\"Machine receipt source caveats\""
+    },
+    {
+      "line": 8325,
+      "attribute": "href",
+      "value": "\"/machine-benchmark-readiness\""
+    },
+    {
+      "line": 8332,
+      "attribute": "onChange",
+      "value": "{setFilters}"
+    },
+    {
+      "line": 8333,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 8334,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 8337,
+      "attribute": "href",
+      "value": "\"/machine-preflight\""
+    },
+    {
+      "line": 8357,
+      "attribute": "aria-label",
+      "value": "\"Machine receipt summary\""
+    },
+    {
+      "line": 8375,
+      "attribute": "aria-label",
+      "value": "\"Receipt filters\""
+    },
+    {
+      "line": 8376,
+      "attribute": "onChange",
+      "value": "{(value) => update('decision', value as MachineReceiptFiltersState['decision'])}"
+    },
+    {
+      "line": 8377,
+      "attribute": "aria-label",
+      "value": "\"machine_id filter\""
+    },
+    {
+      "line": 8377,
+      "attribute": "onChange",
+      "value": "{(event) => update('machine_id', event.target.value)}"
+    },
+    {
+      "line": 8378,
+      "attribute": "aria-label",
+      "value": "\"service_id filter\""
+    },
+    {
+      "line": 8378,
+      "attribute": "onChange",
+      "value": "{(event) => update('service_id', event.target.value)}"
+    },
+    {
+      "line": 8379,
+      "attribute": "onChange",
+      "value": "{(value) => update('source_market', value as MachineReceiptFiltersState['source_market'])}"
+    },
+    {
+      "line": 8380,
+      "attribute": "onChange",
+      "value": "{(value) => update('chain', value as MachineReceiptFiltersState['chain'])}"
+    },
+    {
+      "line": 8393,
+      "attribute": "aria-label",
+      "value": "\"Receipts timeline\""
+    },
+    {
+      "line": 8395,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 8395,
+      "attribute": "aria-label",
+      "value": "\"Machine receipt timeline table\""
+    },
+    {
+      "line": 8396,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 8397,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 8399,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 8400,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 8401,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 8402,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 8402,
+      "attribute": "href",
+      "value": "{`/machine-dossier/${encodeURIComponent(receipt.machine_id)}`}"
+    },
+    {
+      "line": 8403,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 8404,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 8405,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 8406,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 8407,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 8408,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 8409,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 8409,
+      "attribute": "onClick",
+      "value": "{() => onSelect(receipt.receipt_id)}"
+    },
+    {
+      "line": 8409,
+      "attribute": "href",
+      "value": "{`/machine-execution/${encodeURIComponent(receipt.receipt_id)}`}"
+    },
+    {
+      "line": 8429,
+      "attribute": "aria-label",
+      "value": "\"Receipt detail drawer\""
+    },
+    {
+      "line": 8457,
+      "attribute": "aria-label",
+      "value": "\"Policy check summary\""
+    },
+    {
+      "line": 8467,
+      "attribute": "onClick",
+      "value": "{onRawToggle}"
+    },
+    {
+      "line": 8515,
+      "attribute": "href",
+      "value": "\"#machine-execution-receipt-content\""
+    },
+    {
+      "line": 8516,
+      "attribute": "id",
+      "value": "\"machine-execution-receipt-content\""
+    },
+    {
+      "line": 8516,
+      "attribute": "aria-label",
+      "value": "\"Machine execution receipt detail page\""
+    },
+    {
+      "line": 8517,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 8518,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 8528,
+      "attribute": "aria-label",
+      "value": "\"Receipt core fields\""
+    },
+    {
+      "line": 8535,
+      "attribute": "href",
+      "value": "{`/v1/machine-execution/repeatability/${encodeURIComponent((receipt.execution_service_id ?? receipt.selected_service_id) ?? '')}`}"
+    },
+    {
+      "line": 8538,
+      "attribute": "aria-label",
+      "value": "\"BigQuery bounded query receipt summary\""
+    },
+    {
+      "line": 8555,
+      "attribute": "aria-label",
+      "value": "\"Stableupload tiny fixture receipt summary\""
+    },
+    {
+      "line": 8567,
+      "attribute": "aria-label",
+      "value": "\"NAVER geocode non-operational receipt summary\""
+    },
+    {
+      "line": 8580,
+      "attribute": "aria-label",
+      "value": "\"Execution receipt caveats\""
+    },
+    {
+      "line": 8606,
+      "attribute": "href",
+      "value": "\"#machine-dossier-content\""
+    },
+    {
+      "line": 8608,
+      "attribute": "aria-label",
+      "value": "\"Machine Dossier navigation\""
+    },
+    {
+      "line": 8610,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy navigation\""
+    },
+    {
+      "line": 8615,
+      "attribute": "id",
+      "value": "\"machine-dossier-content\""
+    },
+    {
+      "line": 8615,
+      "attribute": "aria-label",
+      "value": "\"Machine Dossier\""
+    },
+    {
+      "line": 8623,
+      "attribute": "aria-label",
+      "value": "\"Machine dossier status\""
+    },
+    {
+      "line": 8630,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 8631,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 8633,
+      "attribute": "href",
+      "value": "\"/machine-preflight\""
+    },
+    {
+      "line": 8642,
+      "attribute": "aria-label",
+      "value": "\"Machine dossier recent receipts\""
+    },
+    {
+      "line": 8653,
+      "attribute": "aria-label",
+      "value": "\"Machine authority card\""
+    },
+    {
+      "line": 8668,
+      "attribute": "aria-label",
+      "value": "\"Machine dossier decision summary\""
+    },
+    {
+      "line": 8679,
+      "attribute": "aria-label",
+      "value": "\"Machine usage maps\""
+    },
+    {
+      "line": 8694,
+      "attribute": "aria-label",
+      "value": "\"Machine dossier evidence summary\""
+    },
+    {
+      "line": 8744,
+      "attribute": "aria-label",
+      "value": "\"Provider not found\""
+    },
+    {
+      "line": 8754,
+      "attribute": "aria-label",
+      "value": "\"Provider dossier loading\""
+    },
+    {
+      "line": 8761,
+      "attribute": "id",
+      "value": "\"terminal-content\""
+    },
+    {
+      "line": 8761,
+      "attribute": "aria-label",
+      "value": "\"Public provider intelligence dossier\""
+    },
+    {
+      "line": 8770,
+      "attribute": "onClick",
+      "value": "{copyShareUrl}"
+    },
+    {
+      "line": 8770,
+      "attribute": "aria-label",
+      "value": "\"Copy share URL\""
+    },
+    {
+      "line": 8773,
+      "attribute": "href",
+      "value": "{`/radar/cards/provider/${encodeURIComponent(providerId)}`}"
+    },
+    {
+      "line": 8774,
+      "attribute": "href",
+      "value": "\"/solana#terminal-content\""
+    },
+    {
+      "line": 8775,
+      "attribute": "href",
+      "value": "\"/solana#terminal-content\""
+    },
+    {
+      "line": 8775,
+      "attribute": "onClick",
+      "value": "{(event) => {\n              event.preventDefault();\n              window.location.href = '/solana#terminal-content';\n            }}"
+    },
+    {
+      "line": 8858,
+      "attribute": "href",
+      "value": "\"/solana#terminal-content\""
+    },
+    {
+      "line": 8901,
+      "attribute": "aria-label",
+      "value": "\"Receipt not found\""
+    },
+    {
+      "line": 8909,
+      "attribute": "aria-label",
+      "value": "\"Receipt loading\""
+    },
+    {
+      "line": 8912,
+      "attribute": "id",
+      "value": "\"terminal-content\""
+    },
+    {
+      "line": 8912,
+      "attribute": "aria-label",
+      "value": "\"Public event receipt page\""
+    },
+    {
+      "line": 8921,
+      "attribute": "onClick",
+      "value": "{copyReceiptUrl}"
+    },
+    {
+      "line": 8924,
+      "attribute": "href",
+      "value": "{receipt.links.provider_dossier}"
+    },
+    {
+      "line": 8948,
+      "attribute": "href",
+      "value": "{receipt.links.provider.url}"
+    },
+    {
+      "line": 8949,
+      "attribute": "href",
+      "value": "{receipt.links.provider_dossier}"
+    },
+    {
+      "line": 8950,
+      "attribute": "href",
+      "value": "{item.url}"
+    },
+    {
+      "line": 8951,
+      "attribute": "href",
+      "value": "{receipt.links.propagation_cluster.url}"
+    },
+    {
+      "line": 9798,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 9798,
+      "attribute": "aria-label",
+      "value": "\"Infopunks Radar loading state\""
+    },
+    {
+      "line": 9799,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 9799,
+      "attribute": "aria-label",
+      "value": "\"Infopunks Radar initialization delayed\""
+    },
+    {
+      "line": 9811,
+      "attribute": "href",
+      "value": "\"#terminal-content\""
+    },
+    {
+      "line": 9827,
+      "attribute": "id",
+      "value": "\"terminal-content\""
+    },
+    {
+      "line": 9831,
+      "attribute": "aria-label",
+      "value": "\"Terminal session metadata\""
+    },
+    {
+      "line": 9838,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 9840,
+      "attribute": "onClick",
+      "value": "{() => window.location.reload()}"
+    },
+    {
+      "line": 9842,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 9845,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 9848,
+      "attribute": "onToggle",
+      "value": "{(event) => setShowDeveloperDiagnostics((event.currentTarget as HTMLDetailsElement).open)}"
+    },
+    {
+      "line": 9863,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 9864,
+      "attribute": "onClick",
+      "value": "{() => setShowDeveloperDiagnostics(true)}"
+    },
+    {
+      "line": 9873,
+      "attribute": "id",
+      "value": "\"solana-evidence-title\""
+    },
+    {
+      "line": 9876,
+      "attribute": "aria-label",
+      "value": "\"Preflight card index call to action\""
+    },
+    {
+      "line": 9883,
+      "attribute": "href",
+      "value": "\"/radar/cards\""
+    },
+    {
+      "line": 9888,
+      "attribute": "aria-label",
+      "value": "\"Radar orientation\""
+    },
+    {
+      "line": 9894,
+      "attribute": "aria-label",
+      "value": "\"Solana Radar metrics and monitoring state\""
+    },
+    {
+      "line": 9895,
+      "attribute": "aria-label",
+      "value": "\"Solana Radar evidence stats\""
+    },
+    {
+      "line": 9909,
+      "attribute": "href",
+      "value": "\"#preflight\""
+    },
+    {
+      "line": 9913,
+      "attribute": "aria-label",
+      "value": "\"Secondary Solana Radar actions\""
+    },
+    {
+      "line": 9914,
+      "attribute": "href",
+      "value": "\"#compare\""
+    },
+    {
+      "line": 9915,
+      "attribute": "href",
+      "value": "\"#benchmark-readiness\""
+    },
+    {
+      "line": 9916,
+      "attribute": "href",
+      "value": "\"#route-mapping-registry\""
+    },
+    {
+      "line": 9917,
+      "attribute": "href",
+      "value": "\"/claim\""
+    },
+    {
+      "line": 9918,
+      "attribute": "href",
+      "value": "\"#agent-benchmark-api\""
+    },
+    {
+      "line": 9922,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy Module\""
+    },
+    {
+      "line": 9929,
+      "attribute": "href",
+      "value": "\"/machine-market\""
+    },
+    {
+      "line": 9932,
+      "attribute": "aria-label",
+      "value": "\"Signal Graph teaser\""
+    },
+    {
+      "line": 9938,
+      "attribute": "href",
+      "value": "\"/graph\""
+    },
+    {
+      "line": 9944,
+      "attribute": "id",
+      "value": "\"global-pulse\""
+    },
+    {
+      "line": 9947,
+      "attribute": "aria-label",
+      "value": "\"Global intelligence layout\""
+    },
+    {
+      "line": 9952,
+      "attribute": "aria-label",
+      "value": "\"Ecosystem summary metrics\""
+    },
+    {
+      "line": 9968,
+      "attribute": "id",
+      "value": "\"events\""
+    },
+    {
+      "line": 9977,
+      "attribute": "aria-label",
+      "value": "\"Catalog timing\""
+    },
+    {
+      "line": 9985,
+      "attribute": "aria-label",
+      "value": "\"Catalog event categories\""
+    },
+    {
+      "line": 9988,
+      "attribute": "aria-label",
+      "value": "\"Filter and sort events\""
+    },
+    {
+      "line": 9989,
+      "attribute": "onChange",
+      "value": "{(event) => setEventFilter(event.target.value as EventFilter)}"
+    },
+    {
+      "line": 9997,
+      "attribute": "onChange",
+      "value": "{(event) => setEventSort(event.target.value as EventSort)}"
+    },
+    {
+      "line": 10025,
+      "attribute": "id",
+      "value": "\"leaderboards\""
+    },
+    {
+      "line": 10045,
+      "attribute": "onSubmit",
+      "value": "{(event) => {\n              event.preventDefault();\n              runSearch();\n            }}"
+    },
+    {
+      "line": 10051,
+      "attribute": "id",
+      "value": "\"semantic-search-input\""
+    },
+    {
+      "line": 10051,
+      "attribute": "onChange",
+      "value": "{(event) => setSearchQuery(event.target.value)}"
+    },
+    {
+      "line": 10051,
+      "attribute": "aria-label",
+      "value": "\"Search Pay.sh ecosystem intelligence\""
+    },
+    {
+      "line": 10058,
+      "attribute": "aria-label",
+      "value": "\"Semantic search examples\""
+    },
+    {
+      "line": 10059,
+      "attribute": "onClick",
+      "value": "{() => applySemanticSearchExample(query)}"
+    },
+    {
+      "line": 10093,
+      "attribute": "id",
+      "value": "\"dossier\""
+    },
+    {
+      "line": 10095,
+      "attribute": "aria-label",
+      "value": "\"Selected provider context\""
+    },
+    {
+      "line": 10105,
+      "attribute": "id",
+      "value": "\"providers\""
+    },
+    {
+      "line": 10116,
+      "attribute": "onChange",
+      "value": "{(event) => setDirectoryQuery(event.target.value)}"
+    },
+    {
+      "line": 10116,
+      "attribute": "aria-label",
+      "value": "\"Filter providers by name tag FQN or category\""
+    },
+    {
+      "line": 10118,
+      "attribute": "onChange",
+      "value": "{(event) => setDirectorySort(event.target.value)}"
+    },
+    {
+      "line": 10118,
+      "attribute": "aria-label",
+      "value": "\"Sort providers\""
+    },
+    {
+      "line": 10126,
+      "attribute": "role",
+      "value": "\"group\""
+    },
+    {
+      "line": 10126,
+      "attribute": "aria-label",
+      "value": "\"Filter providers by category\""
+    },
+    {
+      "line": 10127,
+      "attribute": "aria-pressed",
+      "value": "{directoryCategory === 'all'}"
+    },
+    {
+      "line": 10127,
+      "attribute": "onClick",
+      "value": "{() => setDirectoryCategory('all')}"
+    },
+    {
+      "line": 10128,
+      "attribute": "aria-pressed",
+      "value": "{directoryCategory === category}"
+    },
+    {
+      "line": 10128,
+      "attribute": "onClick",
+      "value": "{() => setDirectoryCategory(category)}"
+    },
+    {
+      "line": 10132,
+      "attribute": "aria-pressed",
+      "value": "{provider.id === selectedProvider?.id}"
+    },
+    {
+      "line": 10132,
+      "attribute": "onClick",
+      "value": "{() => selectProviderManually(provider.id)}"
+    },
+    {
+      "line": 10146,
+      "attribute": "aria-label",
+      "value": "\"Featured provider auto-rotate control\""
+    },
+    {
+      "line": 10151,
+      "attribute": "aria-label",
+      "value": "\"Toggle featured provider rotation\""
+    },
+    {
+      "line": 10151,
+      "attribute": "onChange",
+      "value": "{(event) => toggleAutoRotation(event.target.checked)}"
+    },
+    {
+      "line": 10154,
+      "attribute": "onClick",
+      "value": "{resumeAutoRotation}"
+    },
+    {
+      "line": 10177,
+      "attribute": "aria-label",
+      "value": "\"Selected provider summary strip\""
+    },
+    {
+      "line": 10197,
+      "attribute": "href",
+      "value": "{selectedProvider.serviceUrl}"
+    },
+    {
+      "line": 10202,
+      "attribute": "id",
+      "value": "\"route-decision-panel\""
+    },
+    {
+      "line": 10205,
+      "attribute": "aria-label",
+      "value": "\"Selected provider route context\""
+    },
+    {
+      "line": 10214,
+      "attribute": "aria-label",
+      "value": "\"Route task text\""
+    },
+    {
+      "line": 10214,
+      "attribute": "onChange",
+      "value": "{(event) => setRouteTask(event.target.value)}"
+    },
+    {
+      "line": 10219,
+      "attribute": "aria-label",
+      "value": "\"Route category filter\""
+    },
+    {
+      "line": 10219,
+      "attribute": "onChange",
+      "value": "{(event) => setRouteCategory(event.target.value)}"
+    },
+    {
+      "line": 10226,
+      "attribute": "aria-label",
+      "value": "\"Route maximum price\""
+    },
+    {
+      "line": 10226,
+      "attribute": "onChange",
+      "value": "{(event) => setRouteMaxPrice(event.target.value)}"
+    },
+    {
+      "line": 10230,
+      "attribute": "aria-label",
+      "value": "\"Route minimum trust score\""
+    },
+    {
+      "line": 10230,
+      "attribute": "onChange",
+      "value": "{(event) => setRouteMinTrust(Number(event.target.value))}"
+    },
+    {
+      "line": 10234,
+      "attribute": "aria-label",
+      "value": "\"Route preference\""
+    },
+    {
+      "line": 10234,
+      "attribute": "onChange",
+      "value": "{(event) => setRoutePreference(event.target.value as RoutePreference)}"
+    },
+    {
+      "line": 10243,
+      "attribute": "aria-label",
+      "value": "\"Include selected provider as preferred route input\""
+    },
+    {
+      "line": 10243,
+      "attribute": "onChange",
+      "value": "{(event) => setIncludeSelectedProvider(event.target.checked)}"
+    },
+    {
+      "line": 10247,
+      "attribute": "onClick",
+      "value": "{runRoute}"
+    },
+    {
+      "line": 10248,
+      "attribute": "onClick",
+      "value": "{() => recommendProvider(selectedProvider)}"
+    },
+    {
+      "line": 10335,
+      "attribute": "id",
+      "value": "\"endpoints\""
+    },
+    {
+      "line": 10431,
+      "attribute": "aria-label",
+      "value": "\"Catalog-backed ecosystem intelligence sidebar\""
+    },
+    {
+      "line": 10452,
+      "attribute": "aria-pressed",
+      "value": "{pulseWindow === windowName}"
+    },
+    {
+      "line": 10452,
+      "attribute": "aria-label",
+      "value": "{`Show provider activity for ${windowName}`}"
+    },
+    {
+      "line": 10452,
+      "attribute": "onClick",
+      "value": "{() => setPulseWindow(windowName)}"
+    },
+    {
+      "line": 10465,
+      "attribute": "id",
+      "value": "\"recent-degradations\""
+    },
+    {
+      "line": 10488,
+      "attribute": "aria-label",
+      "value": "\"Radar catalog source status\""
+    },
+    {
+      "line": 10498,
+      "attribute": "id",
+      "value": "{id}"
+    },
+    {
+      "line": 10503,
+      "attribute": "id",
+      "value": "{id ? `${id}-title` : undefined}"
+    },
+    {
+      "line": 10506,
+      "attribute": "aria-expanded",
+      "value": "{open}"
+    },
+    {
+      "line": 10506,
+      "attribute": "onClick",
+      "value": "{() => setOpen((current) => !current)}"
+    },
+    {
+      "line": 10521,
+      "attribute": "aria-label",
+      "value": "\"Radar Freshness\""
+    },
+    {
+      "line": 10549,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 10552,
+      "attribute": "id",
+      "value": "\"ecosystem-status-title\""
+    },
+    {
+      "line": 10556,
+      "attribute": "aria-label",
+      "value": "\"Current radar command metrics\""
+    },
+    {
+      "line": 10566,
+      "attribute": "aria-label",
+      "value": "\"System reading\""
+    },
+    {
+      "line": 10574,
+      "attribute": "aria-label",
+      "value": "\"Agent Mode\""
+    },
+    {
+      "line": 10582,
+      "attribute": "onClick",
+      "value": "{onOpenApiDocs}"
+    },
+    {
+      "line": 10584,
+      "attribute": "onClick",
+      "value": "{onExit}"
+    },
+    {
+      "line": 10649,
+      "attribute": "role",
+      "value": "\"presentation\""
+    },
+    {
+      "line": 10652,
+      "attribute": "role",
+      "value": "\"dialog\""
+    },
+    {
+      "line": 10652,
+      "attribute": "aria-label",
+      "value": "\"Command palette\""
+    },
+    {
+      "line": 10658,
+      "attribute": "onChange",
+      "value": "{(event) => setQuery(event.target.value)}"
+    },
+    {
+      "line": 10681,
+      "attribute": "aria-label",
+      "value": "\"Search commands\""
+    },
+    {
+      "line": 10686,
+      "attribute": "id",
+      "value": "\"command-palette-list\""
+    },
+    {
+      "line": 10686,
+      "attribute": "role",
+      "value": "\"listbox\""
+    },
+    {
+      "line": 10686,
+      "attribute": "aria-label",
+      "value": "\"Commands\""
+    },
+    {
+      "line": 10689,
+      "attribute": "id",
+      "value": "{`command-${command.id}`}"
+    },
+    {
+      "line": 10691,
+      "attribute": "role",
+      "value": "\"option\""
+    },
+    {
+      "line": 10693,
+      "attribute": "aria-label",
+      "value": "{`${command.label}. ${command.hint}`}"
+    },
+    {
+      "line": 10696,
+      "attribute": "onClick",
+      "value": "{() => activate(command)}"
+    },
+    {
+      "line": 10742,
+      "attribute": "id",
+      "value": "\"preflight\""
+    },
+    {
+      "line": 10747,
+      "attribute": "id",
+      "value": "\"preflight-title\""
+    },
+    {
+      "line": 10750,
+      "attribute": "aria-label",
+      "value": "\"Agent preflight API actions\""
+    },
+    {
+      "line": 10751,
+      "attribute": "href",
+      "value": "{toApiUrl(API_BASE_URL, OPENAPI_PATH)}"
+    },
+    {
+      "line": 10756,
+      "attribute": "aria-label",
+      "value": "\"Preflight examples\""
+    },
+    {
+      "line": 10757,
+      "attribute": "onClick",
+      "value": "{() => onExample(example.body)}"
+    },
+    {
+      "line": 10762,
+      "attribute": "onChange",
+      "value": "{(event) => onInputChange(event.target.value)}"
+    },
+    {
+      "line": 10762,
+      "attribute": "aria-label",
+      "value": "\"Agent preflight JSON input\""
+    },
+    {
+      "line": 10769,
+      "attribute": "onClick",
+      "value": "{onRun}"
+    },
+    {
+      "line": 10774,
+      "attribute": "aria-label",
+      "value": "\"Preflight loading\""
+    },
+    {
+      "line": 10864,
+      "attribute": "id",
+      "value": "\"compare\""
+    },
+    {
+      "line": 10864,
+      "attribute": "aria-label",
+      "value": "\"Provider endpoint comparison engine\""
+    },
+    {
+      "line": 10872,
+      "attribute": "onChange",
+      "value": "{(event) => {\n          onModeChange(event.target.value === 'endpoint' ? 'endpoint' : 'provider');\n          onSelectionChange([]);\n        }}"
+    },
+    {
+      "line": 10880,
+      "attribute": "aria-label",
+      "value": "\"Comparison selection\""
+    },
+    {
+      "line": 10891,
+      "attribute": "onChange",
+      "value": "{(event) => toggleComparisonSelection(option.id, event.currentTarget.checked)}"
+    },
+    {
+      "line": 10898,
+      "attribute": "onClick",
+      "value": "{() => onCompare(selectedIds, mode)}"
+    },
+    {
+      "line": 10900,
+      "attribute": "aria-label",
+      "value": "\"Filter and sort comparison results\""
+    },
+    {
+      "line": 10901,
+      "attribute": "onChange",
+      "value": "{(event) => setResultQuery(event.target.value)}"
+    },
+    {
+      "line": 10901,
+      "attribute": "aria-label",
+      "value": "\"Filter comparison results\""
+    },
+    {
+      "line": 10902,
+      "attribute": "onChange",
+      "value": "{(event) => setResultFilter(event.target.value as typeof resultFilter)}"
+    },
+    {
+      "line": 10902,
+      "attribute": "aria-label",
+      "value": "\"Filter comparison route state\""
+    },
+    {
+      "line": 10910,
+      "attribute": "onChange",
+      "value": "{(event) => setResultSort(event.target.value as typeof resultSort)}"
+    },
+    {
+      "line": 10910,
+      "attribute": "aria-label",
+      "value": "\"Sort comparison results\""
+    },
+    {
+      "line": 10921,
+      "attribute": "role",
+      "value": "\"region\""
+    },
+    {
+      "line": 10921,
+      "attribute": "aria-label",
+      "value": "\"Comparison results\""
+    },
+    {
+      "line": 10944,
+      "attribute": "aria-label",
+      "value": "\"Comparison Policy panel\""
+    },
+    {
+      "line": 10996,
+      "attribute": "id",
+      "value": "\"cost-performance\""
+    },
+    {
+      "line": 10996,
+      "attribute": "aria-label",
+      "value": "\"Cost and performance intelligence\""
+    },
+    {
+      "line": 11001,
+      "attribute": "role",
+      "value": "\"region\""
+    },
+    {
+      "line": 11001,
+      "attribute": "aria-label",
+      "value": "\"Comparison results\""
+    },
+    {
+      "line": 11023,
+      "attribute": "aria-label",
+      "value": "{`Status ${labels[state]}`}"
+    },
+    {
+      "line": 11036,
+      "attribute": "role",
+      "value": "{state === 'critical' ? 'alert' : 'status'}"
+    },
+    {
+      "line": 11045,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 11083,
+      "attribute": "onClick",
+      "value": "{copy}"
+    },
+    {
+      "line": 11083,
+      "attribute": "aria-label",
+      "value": "{label}"
+    },
+    {
+      "line": 11103,
+      "attribute": "aria-label",
+      "value": "\"Radar exports\""
+    },
+    {
+      "line": 11112,
+      "attribute": "href",
+      "value": "{toApiUrl(API_BASE_URL, OPENAPI_PATH)}"
+    },
+    {
+      "line": 11117,
+      "attribute": "aria-label",
+      "value": "{title}"
+    },
+    {
+      "line": 11122,
+      "attribute": "aria-label",
+      "value": "{`Copy ${title} API URLs`}"
+    },
+    {
+      "line": 11128,
+      "attribute": "onClick",
+      "value": "{() => openExportRoute(path)}"
+    },
+    {
+      "line": 11140,
+      "attribute": "id",
+      "value": "\"benchmark-readiness\""
+    },
+    {
+      "line": 11140,
+      "attribute": "aria-label",
+      "value": "\"Benchmark Readiness panel\""
+    },
+    {
+      "line": 11167,
+      "attribute": "aria-label",
+      "value": "\"Agent Spend Readiness Cards\""
+    },
+    {
+      "line": 11174,
+      "attribute": "href",
+      "value": "\"/radar/cards\""
+    },
+    {
+      "line": 11187,
+      "attribute": "aria-label",
+      "value": "{title}"
+    },
+    {
+      "line": 11206,
+      "attribute": "aria-label",
+      "value": "\"readiness chips\""
+    },
+    {
+      "line": 11213,
+      "attribute": "aria-label",
+      "value": "\"evidence counts\""
+    },
+    {
+      "line": 11223,
+      "attribute": "href",
+      "value": "{`/radar/readiness/${encodeURIComponent(card.provider_id)}`}"
+    },
+    {
+      "line": 11224,
+      "attribute": "href",
+      "value": "{`/radar/readiness/${encodeURIComponent(card.provider_id)}`}"
+    },
+    {
+      "line": 11253,
+      "attribute": "aria-label",
+      "value": "\"Evidence Ledger Snapshot panel\""
+    },
+    {
+      "line": 11266,
+      "attribute": "aria-label",
+      "value": "\"Recorded benchmark lanes\""
+    },
+    {
+      "line": 11276,
+      "attribute": "aria-label",
+      "value": "\"Latest Recorded Benchmark\""
+    },
+    {
+      "line": 11293,
+      "attribute": "aria-label",
+      "value": "\"Explored, Not Promoted\""
+    },
+    {
+      "line": 11360,
+      "attribute": "id",
+      "value": "\"route-mapping-registry\""
+    },
+    {
+      "line": 11360,
+      "attribute": "aria-label",
+      "value": "\"Route Evidence Registry panel\""
+    },
+    {
+      "line": 11370,
+      "attribute": "aria-label",
+      "value": "\"Route mapping status filter\""
+    },
+    {
+      "line": 11370,
+      "attribute": "onChange",
+      "value": "{(event) => onStatusFilterChange(event.target.value as RouteMappingStatusFilter)}"
+    },
+    {
+      "line": 11377,
+      "attribute": "aria-label",
+      "value": "\"Route mapping category filter\""
+    },
+    {
+      "line": 11377,
+      "attribute": "onChange",
+      "value": "{(event) => onCategoryFilterChange(event.target.value)}"
+    },
+    {
+      "line": 11381,
+      "attribute": "aria-label",
+      "value": "\"Route mapping intent filter\""
+    },
+    {
+      "line": 11381,
+      "attribute": "onChange",
+      "value": "{(event) => onIntentFilterChange(event.target.value)}"
+    },
+    {
+      "line": 11459,
+      "attribute": "id",
+      "value": "\"mapping-targets\""
+    },
+    {
+      "line": 11459,
+      "attribute": "aria-label",
+      "value": "\"Mapping Targets panel\""
+    },
+    {
+      "line": 11718,
+      "attribute": "id",
+      "value": "\"agent-benchmark-api\""
+    },
+    {
+      "line": 11718,
+      "attribute": "aria-label",
+      "value": "\"Agent benchmark API\""
+    },
+    {
+      "line": 11728,
+      "attribute": "href",
+      "value": "{toApiUrl(API_BASE_URL, OPENAPI_PATH)}"
+    },
+    {
+      "line": 11733,
+      "attribute": "aria-label",
+      "value": "\"Agent API Surface endpoint groups\""
+    },
+    {
+      "line": 11746,
+      "attribute": "aria-label",
+      "value": "\"Bundle planner examples\""
+    },
+    {
+      "line": 11751,
+      "attribute": "aria-label",
+      "value": "\"Bundle planner loading\""
+    },
+    {
+      "line": 11778,
+      "attribute": "aria-label",
+      "value": "\"Bundle run ledger\""
+    },
+    {
+      "line": 11788,
+      "attribute": "aria-label",
+      "value": "\"Bundle run ledger loading\""
+    },
+    {
+      "line": 11811,
+      "attribute": "aria-label",
+      "value": "\"Bundle Run Ledger summary chips\""
+    },
+    {
+      "line": 11820,
+      "attribute": "aria-label",
+      "value": "\"Run History\""
+    },
+    {
+      "line": 11850,
+      "attribute": "aria-label",
+      "value": "\"Agent Readiness Summary\""
+    },
+    {
+      "line": 11887,
+      "attribute": "aria-label",
+      "value": "\"Agent benchmark curl examples\""
+    },
+    {
+      "line": 11889,
+      "attribute": "aria-label",
+      "value": "\"Copy benchmark curl examples\""
+    },
+    {
+      "line": 11890,
+      "attribute": "onClick",
+      "value": "{() => setActiveCurlIndex(index)}"
+    },
+    {
+      "line": 11896,
+      "attribute": "aria-label",
+      "value": "\"Agent benchmark response snippet\""
+    },
+    {
+      "line": 11901,
+      "attribute": "aria-label",
+      "value": "\"Agent benchmark interpretation guidance\""
+    },
+    {
+      "line": 11918,
+      "attribute": "aria-label",
+      "value": "\"Provider degraded warning\""
+    },
+    {
+      "line": 11975,
+      "attribute": "aria-label",
+      "value": "\"Filter and sort endpoint intelligence\""
+    },
+    {
+      "line": 11976,
+      "attribute": "onChange",
+      "value": "{(event) => onQueryChange(event.target.value)}"
+    },
+    {
+      "line": 11976,
+      "attribute": "aria-label",
+      "value": "\"Filter endpoints by name provider path or category\""
+    },
+    {
+      "line": 11977,
+      "attribute": "onChange",
+      "value": "{(event) => onSortChange(event.target.value as EndpointSort)}"
+    },
+    {
+      "line": 11977,
+      "attribute": "aria-label",
+      "value": "\"Sort endpoint intelligence\""
+    },
+    {
+      "line": 11986,
+      "attribute": "role",
+      "value": "\"group\""
+    },
+    {
+      "line": 11986,
+      "attribute": "aria-label",
+      "value": "\"Filter endpoint intelligence\""
+    },
+    {
+      "line": 11987,
+      "attribute": "aria-pressed",
+      "value": "{filter === value}"
+    },
+    {
+      "line": 11987,
+      "attribute": "onClick",
+      "value": "{() => onFilterChange(value)}"
+    },
+    {
+      "line": 12034,
+      "attribute": "onClick",
+      "value": "{() => copyEndpoint(copyKey, json, 'json')}"
+    },
+    {
+      "line": 12038,
+      "attribute": "onClick",
+      "value": "{() => copyEndpoint(`${copyKey}:curl`, curl.command!, 'curl')}"
+    },
+    {
+      "line": 12083,
+      "attribute": "aria-label",
+      "value": "{label}"
+    },
+    {
+      "line": 12103,
+      "attribute": "id",
+      "value": "\"ecosystem-interpretation-title\""
+    },
+    {
+      "line": 12116,
+      "attribute": "aria-label",
+      "value": "\"Secondary ecosystem interpretations\""
+    },
+    {
+      "line": 12148,
+      "attribute": "href",
+      "value": "{interpretation.view_full_receipts_url}"
+    },
+    {
+      "line": 12197,
+      "attribute": "aria-label",
+      "value": "\"Top affected providers\""
+    },
+    {
+      "line": 12208,
+      "attribute": "href",
+      "value": "{current.view_full_receipts_url}"
+    },
+    {
+      "line": 12226,
+      "attribute": "id",
+      "value": "\"anomaly-watch\""
+    },
+    {
+      "line": 12226,
+      "attribute": "aria-label",
+      "value": "\"Anomaly Watch panel\""
+    },
+    {
+      "line": 12237,
+      "attribute": "aria-label",
+      "value": "\"Advisory risk summary counts\""
+    },
+    {
+      "line": 12238,
+      "attribute": "aria-label",
+      "value": "{`low ${ecosystemRisk.summary.providers_by_risk_level.low}`}"
+    },
+    {
+      "line": 12239,
+      "attribute": "aria-label",
+      "value": "{`watch ${ecosystemRisk.summary.providers_by_risk_level.watch}`}"
+    },
+    {
+      "line": 12240,
+      "attribute": "aria-label",
+      "value": "{`elevated ${ecosystemRisk.summary.providers_by_risk_level.elevated}`}"
+    },
+    {
+      "line": 12241,
+      "attribute": "aria-label",
+      "value": "{`critical ${ecosystemRisk.summary.providers_by_risk_level.critical}`}"
+    },
+    {
+      "line": 12242,
+      "attribute": "aria-label",
+      "value": "{`unknown ${ecosystemRisk.summary.providers_by_risk_level.unknown}`}"
+    },
+    {
+      "line": 12247,
+      "attribute": "id",
+      "value": "\"anomaly-watch-list\""
+    },
+    {
+      "line": 12247,
+      "attribute": "aria-label",
+      "value": "{showAll ? 'All advisory risk anomalies' : 'Top advisory risk anomalies'}"
+    },
+    {
+      "line": 12260,
+      "attribute": "aria-label",
+      "value": "{`Severity ${item.severity}, confidence ${item.confidence}`}"
+    },
+    {
+      "line": 12286,
+      "attribute": "aria-expanded",
+      "value": "{showAll}"
+    },
+    {
+      "line": 12288,
+      "attribute": "onClick",
+      "value": "{() => setShowAll((value) => !value)}"
+    },
+    {
+      "line": 12299,
+      "attribute": "aria-label",
+      "value": "\"History enrichment status\""
+    },
+    {
+      "line": 12318,
+      "attribute": "id",
+      "value": "{id}"
+    },
+    {
+      "line": 12401,
+      "attribute": "aria-label",
+      "value": "{`Trend ${direction}${typeof delta === 'number' ? ` delta ${delta}` : ''}`}"
+    },
+    {
+      "line": 12402,
+      "attribute": "role",
+      "value": "\"img\""
+    },
+    {
+      "line": 12488,
+      "attribute": "aria-label",
+      "value": "{`Provider state ${title}`}"
+    },
+    {
+      "line": 12504,
+      "attribute": "aria-expanded",
+      "value": "{open}"
+    },
+    {
+      "line": 12504,
+      "attribute": "onClick",
+      "value": "{() => setOpen((current) => !current)}"
+    },
+    {
+      "line": 12530,
+      "attribute": "onChange",
+      "value": "{(event) => setQuery(event.target.value)}"
+    },
+    {
+      "line": 12530,
+      "attribute": "aria-label",
+      "value": "{`Filter ${title}`}"
+    },
+    {
+      "line": 12531,
+      "attribute": "onChange",
+      "value": "{(event) => setSort(event.target.value === 'name' ? 'name' : 'score')}"
+    },
+    {
+      "line": 12531,
+      "attribute": "aria-label",
+      "value": "{`Sort ${title}`}"
+    },
+    {
+      "line": 12609,
+      "attribute": "onClick",
+      "value": "{copyShareUrl}"
+    },
+    {
+      "line": 12629,
+      "attribute": "href",
+      "value": "{item.href}"
+    },
+    {
+      "line": 12633,
+      "attribute": "href",
+      "value": "{item.href}"
+    },
+    {
+      "line": 12637,
+      "attribute": "href",
+      "value": "{item.href}"
+    },
+    {
+      "line": 12645,
+      "attribute": "id",
+      "value": "{`event-${event.event_id}`}"
+    },
+    {
+      "line": 12650,
+      "attribute": "href",
+      "value": "{`/v1/events/${event.event_id}`}"
+    },
+    {
+      "line": 13528,
+      "attribute": "href",
+      "value": "{link.href}"
+    },
+    {
+      "line": 13531,
+      "attribute": "aria-label",
+      "value": "\"More Machine Economy control surfaces\""
+    },
+    {
+      "line": 13532,
+      "attribute": "aria-label",
+      "value": "\"Secondary Machine Economy navigation\""
+    },
+    {
+      "line": 13535,
+      "attribute": "href",
+      "value": "{link.href}"
+    },
+    {
+      "line": 13543,
+      "attribute": "aria-label",
+      "value": "\"Machine Economy Control Surfaces\""
+    },
+    {
+      "line": 13553,
+      "attribute": "href",
+      "value": "\"/machine-market\""
+    },
+    {
+      "line": 13554,
+      "attribute": "href",
+      "value": "\"/machine-rail-coverage\""
+    },
+    {
+      "line": 13555,
+      "attribute": "href",
+      "value": "\"/machine-route-risk-matrix\""
+    },
+    {
+      "line": 13556,
+      "attribute": "href",
+      "value": "\"/machine-first-safe-routes\""
+    },
+    {
+      "line": 13557,
+      "attribute": "href",
+      "value": "\"/machine-benchmark-readiness\""
+    },
+    {
+      "line": 13558,
+      "attribute": "href",
+      "value": "\"/machine-benchmark-methodology\""
+    },
+    {
+      "line": 13559,
+      "attribute": "href",
+      "value": "\"/machine-comparable-routes\""
+    },
+    {
+      "line": 13560,
+      "attribute": "href",
+      "value": "\"/machine-translation-evidence\""
+    },
+    {
+      "line": 13561,
+      "attribute": "href",
+      "value": "\"/machine-proof-ladder\""
+    },
+    {
+      "line": 13562,
+      "attribute": "href",
+      "value": "\"/machine-execution-shortlist\""
+    },
+    {
+      "line": 13563,
+      "attribute": "href",
+      "value": "\"/machine-readiness-matrix\""
+    },
+    {
+      "line": 13564,
+      "attribute": "href",
+      "value": "\"/machine-market-map\""
+    },
+    {
+      "line": 13565,
+      "attribute": "href",
+      "value": "\"/machine-execution-blockers\""
+    },
+    {
+      "line": 13566,
+      "attribute": "href",
+      "value": "\"/machine-market-changelog\""
+    },
+    {
+      "line": 13567,
+      "attribute": "href",
+      "value": "\"/machine-no-claim-ledger\""
+    },
+    {
+      "line": 13568,
+      "attribute": "href",
+      "value": "\"/machine-receipts\""
+    },
+    {
+      "line": 13569,
+      "attribute": "href",
+      "value": "\"/machine-economy-snapshot\""
+    },
+    {
+      "line": 14022,
+      "attribute": "href",
+      "value": "\"#graph-content\""
+    },
+    {
+      "line": 14027,
+      "attribute": "id",
+      "value": "\"graph-content\""
+    },
+    {
+      "line": 14039,
+      "attribute": "href",
+      "value": "\"#graph-canvas\""
+    },
+    {
+      "line": 14040,
+      "attribute": "href",
+      "value": "\"#graph-ripples\""
+    },
+    {
+      "line": 14044,
+      "attribute": "aria-label",
+      "value": "\"Proof state legend\""
+    },
+    {
+      "line": 14053,
+      "attribute": "aria-label",
+      "value": "\"Signal Graph totals\""
+    },
+    {
+      "line": 14071,
+      "attribute": "id",
+      "value": "\"signal-graph-check-title\""
+    },
+    {
+      "line": 14077,
+      "attribute": "onSubmit",
+      "value": "{submitSignalCheck}"
+    },
+    {
+      "line": 14081,
+      "attribute": "name",
+      "value": "\"label\""
+    },
+    {
+      "line": 14083,
+      "attribute": "onChange",
+      "value": "{(event) => {\n                  setSignalCheckLabel(event.target.value);\n                  if (signalCheckValidationError) setSignalCheckValidationError(null);\n                }}"
+    },
+    {
+      "line": 14089,
+      "attribute": "aria-describedby",
+      "value": "{signalCheckValidationError ? 'signal-check-label-error' : undefined}"
+    },
+    {
+      "line": 14092,
+      "attribute": "id",
+      "value": "\"signal-check-label-error\""
+    },
+    {
+      "line": 14092,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 14097,
+      "attribute": "name",
+      "value": "\"summary\""
+    },
+    {
+      "line": 14099,
+      "attribute": "onChange",
+      "value": "{(event) => setSignalCheckSummary(event.target.value)}"
+    },
+    {
+      "line": 14109,
+      "attribute": "name",
+      "value": "\"source_url\""
+    },
+    {
+      "line": 14112,
+      "attribute": "onChange",
+      "value": "{(event) => setSignalCheckSourceUrl(event.target.value)}"
+    },
+    {
+      "line": 14119,
+      "attribute": "name",
+      "value": "\"cluster_id\""
+    },
+    {
+      "line": 14119,
+      "attribute": "onChange",
+      "value": "{(event) => setSignalCheckClusterId(event.target.value)}"
+    },
+    {
+      "line": 14129,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 14136,
+      "attribute": "id",
+      "value": "\"signal-graph-check-result-title\""
+    },
+    {
+      "line": 14184,
+      "attribute": "role",
+      "value": "\"status\""
+    },
+    {
+      "line": 14189,
+      "attribute": "aria-label",
+      "value": "\"Cluster filters and graph stats\""
+    },
+    {
+      "line": 14192,
+      "attribute": "role",
+      "value": "\"group\""
+    },
+    {
+      "line": 14192,
+      "attribute": "aria-label",
+      "value": "\"Filter graph by cluster\""
+    },
+    {
+      "line": 14193,
+      "attribute": "onClick",
+      "value": "{() => setActiveClusterId('all')}"
+    },
+    {
+      "line": 14194,
+      "attribute": "onClick",
+      "value": "{() => setActiveClusterId(cluster.id)}"
+    },
+    {
+      "line": 14200,
+      "attribute": "onClick",
+      "value": "{() => setActiveClusterId(cluster.id)}"
+    },
+    {
+      "line": 14212,
+      "attribute": "id",
+      "value": "\"graph-canvas\""
+    },
+    {
+      "line": 14216,
+      "attribute": "id",
+      "value": "\"signal-graph-canvas-title\""
+    },
+    {
+      "line": 14224,
+      "attribute": "role",
+      "value": "\"group\""
+    },
+    {
+      "line": 14224,
+      "attribute": "aria-label",
+      "value": "\"Signal Graph cluster and node map\""
+    },
+    {
+      "line": 14261,
+      "attribute": "role",
+      "value": "\"button\""
+    },
+    {
+      "line": 14262,
+      "attribute": "aria-label",
+      "value": "{`${node.label}, ${graphNodeTypeLabel(node.type)}, ${graphProofStateLabel(node.proof_state)}`}"
+    },
+    {
+      "line": 14263,
+      "attribute": "onClick",
+      "value": "{() => setSelectedNodeId(node.id)}"
+    },
+    {
+      "line": 14280,
+      "attribute": "aria-label",
+      "value": "\"Selected node details\""
+    },
+    {
+      "line": 14309,
+      "attribute": "onClick",
+      "value": "{() => setSelectedNodeId(node.id)}"
+    },
+    {
+      "line": 14320,
+      "attribute": "href",
+      "value": "{href}"
+    },
+    {
+      "line": 14330,
+      "attribute": "href",
+      "value": "{url}"
+    },
+    {
+      "line": 14350,
+      "attribute": "id",
+      "value": "\"graph-ripples\""
+    },
+    {
+      "line": 14354,
+      "attribute": "id",
+      "value": "\"signal-graph-ripples-title\""
+    },
+    {
+      "line": 14393,
+      "attribute": "id",
+      "value": "{radarCard.id}"
+    },
+    {
+      "line": 14395,
+      "attribute": "id",
+      "value": "{machineMarketCardId}"
+    }
+  ],
+  "src/web/radarNetworks.tsx": [
+    {
+      "line": 105,
+      "attribute": "aria-label",
+      "value": "{triggerAriaLabel}"
+    },
+    {
+      "line": 107,
+      "attribute": "aria-expanded",
+      "value": "{open}"
+    },
+    {
+      "line": 109,
+      "attribute": "onClick",
+      "value": "{(event) => {\n        const willOpen = !open;\n        setMenuMotion(willOpen && event.detail > 0 ? 'anchored' : 'instant');\n        setOpen(willOpen);\n      }}"
+    },
+    {
+      "line": 124,
+      "attribute": "id",
+      "value": "{menuId}"
+    },
+    {
+      "line": 126,
+      "attribute": "role",
+      "value": "\"menu\""
+    },
+    {
+      "line": 127,
+      "attribute": "aria-label",
+      "value": "{menuLabel}"
+    },
+    {
+      "line": 168,
+      "attribute": "href",
+      "value": "{network.href}"
+    },
+    {
+      "line": 169,
+      "attribute": "role",
+      "value": "\"menuitem\""
+    },
+    {
+      "line": 171,
+      "attribute": "onClick",
+      "value": "{close}"
+    },
+    {
+      "line": 196,
+      "attribute": "href",
+      "value": "{item.href}"
+    },
+    {
+      "line": 197,
+      "attribute": "role",
+      "value": "{onNavigate ? 'menuitem' : undefined}"
+    },
+    {
+      "line": 203,
+      "attribute": "onClick",
+      "value": "{onNavigate}"
+    },
+    {
+      "line": 209,
+      "attribute": "aria-label",
+      "value": "\"Opens in a new tab\""
+    },
+    {
+      "line": 214,
+      "attribute": "role",
+      "value": "\"group\""
+    },
+    {
+      "line": 214,
+      "attribute": "aria-label",
+      "value": "{group.label}"
+    },
+    {
+      "line": 221,
+      "attribute": "role",
+      "value": "\"presentation\""
+    },
+    {
+      "line": 228,
+      "attribute": "id",
+      "value": "\"explore-solana-radar\""
+    },
+    {
+      "line": 232,
+      "attribute": "id",
+      "value": "\"explore-solana-radar-title\""
+    },
+    {
+      "line": 242,
+      "attribute": "id",
+      "value": "{groupTitleId}"
+    },
+    {
+      "line": 249,
+      "attribute": "href",
+      "value": "{featuredItems[0].href}"
+    },
+    {
+      "line": 263,
+      "attribute": "href",
+      "value": "{homeHref}"
+    },
+    {
+      "line": 263,
+      "attribute": "aria-label",
+      "value": "\"Infopunks Radar home\""
+    },
+    {
+      "line": 306,
+      "attribute": "onClick",
+      "value": "{onOpenCommandPalette}"
+    },
+    {
+      "line": 307,
+      "attribute": "aria-pressed",
+      "value": "{viewSettings.agentMode}"
+    },
+    {
+      "line": 307,
+      "attribute": "onClick",
+      "value": "{viewSettings.onToggleAgentMode}"
+    },
+    {
+      "line": 307,
+      "attribute": "aria-pressed",
+      "value": "{viewSettings.densityMode === 'dense'}"
+    },
+    {
+      "line": 307,
+      "attribute": "onClick",
+      "value": "{viewSettings.onToggleDensity}"
+    },
+    {
+      "line": 309,
+      "attribute": "aria-label",
+      "value": "{`${context === 'universal' ? 'Infopunks Radar' : RADAR_NETWORKS[context].contextLabel} navigation`}"
+    },
+    {
+      "line": 311,
+      "attribute": "aria-label",
+      "value": "\"Primary destinations\""
+    },
+    {
+      "line": 325,
+      "attribute": "role",
+      "value": "\"group\""
+    },
+    {
+      "line": 325,
+      "attribute": "aria-label",
+      "value": "\"Collapsed primary destinations\""
+    },
+    {
+      "line": 347,
+      "attribute": "aria-label",
+      "value": "\"Interface controls\""
+    },
+    {
+      "line": 351,
+      "attribute": "onClick",
+      "value": "{onOpenCommandPalette}"
+    },
+    {
+      "line": 352,
+      "attribute": "aria-label",
+      "value": "\"Open command palette (Command K or Control K)\""
+    },
+    {
+      "line": 365,
+      "attribute": "role",
+      "value": "\"group\""
+    },
+    {
+      "line": 365,
+      "attribute": "aria-label",
+      "value": "\"View Settings\""
+    },
+    {
+      "line": 367,
+      "attribute": "role",
+      "value": "\"menuitemcheckbox\""
+    },
+    {
+      "line": 367,
+      "attribute": "onClick",
+      "value": "{() => { viewSettings.onToggleAgentMode(); close(); }}"
+    },
+    {
+      "line": 370,
+      "attribute": "role",
+      "value": "\"menuitemcheckbox\""
+    },
+    {
+      "line": 370,
+      "attribute": "onClick",
+      "value": "{() => { viewSettings.onToggleDensity(); close(); }}"
+    }
+  ],
+  "src/web/radarAppShell.tsx": [
+    {
+      "line": 16,
+      "attribute": "href",
+      "value": "\"#radar-page-content\""
+    },
+    {
+      "line": 20,
+      "attribute": "aria-label",
+      "value": "\"Breadcrumb\""
+    },
+    {
+      "line": 20,
+      "attribute": "href",
+      "value": "\"/\""
+    },
+    {
+      "line": 20,
+      "attribute": "href",
+      "value": "{context === 'robinhood-chain' ? '/rh-chain-signal-desk' : '/solana'}"
+    },
+    {
+      "line": 23,
+      "attribute": "id",
+      "value": "\"radar-page-content\""
+    }
+  ],
+  "src/web/productPrimitives.tsx": [
+    {
+      "line": 10,
+      "attribute": "id",
+      "value": "{id}"
+    },
+    {
+      "line": 10,
+      "attribute": "aria-label",
+      "value": "\"Infopunks product navigation\""
+    },
+    {
+      "line": 11,
+      "attribute": "href",
+      "value": "{link.href}"
+    },
+    {
+      "line": 22,
+      "attribute": "href",
+      "value": "\"/\""
+    },
+    {
+      "line": 22,
+      "attribute": "aria-label",
+      "value": "\"Infopunks Radar home\""
+    },
+    {
+      "line": 22,
+      "attribute": "name",
+      "value": "\"skull\""
+    },
+    {
+      "line": 23,
+      "attribute": "aria-label",
+      "value": "{open ? 'Close navigation' : 'Open navigation'}"
+    },
+    {
+      "line": 23,
+      "attribute": "aria-expanded",
+      "value": "{open}"
+    },
+    {
+      "line": 23,
+      "attribute": "onClick",
+      "value": "{() => setOpen(!open)}"
+    },
+    {
+      "line": 23,
+      "attribute": "name",
+      "value": "{open ? 'close' : 'menu'}"
+    },
+    {
+      "line": 24,
+      "attribute": "id",
+      "value": "{id}"
+    },
+    {
+      "line": 29,
+      "attribute": "role",
+      "value": "\"note\""
+    },
+    {
+      "line": 35,
+      "attribute": "href",
+      "value": "\"/\""
+    },
+    {
+      "line": 35,
+      "attribute": "href",
+      "value": "\"/openapi.json\""
+    },
+    {
+      "line": 35,
+      "attribute": "name",
+      "value": "\"arrow\""
+    }
+  ],
+  "src/web/rhChainSignalDeskV2.tsx": [
+    {
+      "line": 204,
+      "attribute": "role",
+      "value": "\"group\""
+    },
+    {
+      "line": 204,
+      "attribute": "aria-label",
+      "value": "\"Signal Desk view mode\""
+    },
+    {
+      "line": 208,
+      "attribute": "aria-pressed",
+      "value": "{mode === value}"
+    },
+    {
+      "line": 209,
+      "attribute": "onClick",
+      "value": "{() => onChange(value)}"
+    },
+    {
+      "line": 233,
+      "attribute": "onChange",
+      "value": "{onModeChange}"
+    },
+    {
+      "line": 235,
+      "attribute": "id",
+      "value": "\"rh-v2-title\""
+    },
+    {
+      "line": 240,
+      "attribute": "aria-label",
+      "value": "\"Today on 4663 summary\""
+    },
+    {
+      "line": 303,
+      "attribute": "onSubmit",
+      "value": "{submit}"
+    },
+    {
+      "line": 307,
+      "attribute": "id",
+      "value": "\"rh-chain-contract-checker\""
+    },
+    {
+      "line": 309,
+      "attribute": "onChange",
+      "value": "{(event) => { setContract(event.target.value); if (status === 'error') { setError(null); setStatus('idle'); } }}"
+    },
+    {
+      "line": 313,
+      "attribute": "aria-describedby",
+      "value": "{error ? 'rh-v2-contract-error' : 'rh-v2-contract-help'}"
+    },
+    {
+      "line": 318,
+      "attribute": "id",
+      "value": "\"rh-v2-contract-help\""
+    },
+    {
+      "line": 319,
+      "attribute": "id",
+      "value": "\"rh-v2-contract-error\""
+    },
+    {
+      "line": 319,
+      "attribute": "role",
+      "value": "\"alert\""
+    },
+    {
+      "line": 322,
+      "attribute": "aria-label",
+      "value": "\"Contract check result\""
+    },
+    {
+      "line": 333,
+      "attribute": "href",
+      "value": "{rhChainTokenDossierRoute(result.resolved_context?.contract ?? result.contract)!}"
+    },
+    {
+      "line": 334,
+      "attribute": "href",
+      "value": "{`/rh-chain-signal-desk/daily-receipts/${encodeURIComponent(latestReceipt.receipt_id)}`}"
+    },
+    {
+      "line": 335,
+      "attribute": "href",
+      "value": "{result.token_pair.dex_url}"
+    },
+    {
+      "line": 336,
+      "attribute": "href",
+      "value": "{result.explorer.explorer_url}"
+    },
+    {
+      "line": 344,
+      "attribute": "id",
+      "value": "{titleId}"
+    },
+    {
+      "line": 359,
+      "attribute": "href",
+      "value": "{card.href}"
+    },
+    {
+      "line": 366,
+      "attribute": "id",
+      "value": "\"latest-receipt\""
+    },
+    {
+      "line": 372,
+      "attribute": "id",
+      "value": "\"rh-v2-receipt-title\""
+    },
+    {
+      "line": 392,
+      "attribute": "href",
+      "value": "{`/rh-chain-signal-desk/daily-receipts/${encodeURIComponent(receipt.receipt_id)}`}"
+    },
+    {
+      "line": 450,
+      "attribute": "aria-expanded",
+      "value": "{open}"
+    },
+    {
+      "line": 450,
+      "attribute": "onClick",
+      "value": "{() => setOpen((value) => !value)}"
+    },
+    {
+      "line": 451,
+      "attribute": "id",
+      "value": "{menuId}"
+    },
+    {
+      "line": 451,
+      "attribute": "aria-label",
+      "value": "\"Receipt sharing options\""
+    },
+    {
+      "line": 452,
+      "attribute": "onClick",
+      "value": "{() => void copy(createRhChainDailyReceiptXPost(receipt), 'x')}"
+    },
+    {
+      "line": 453,
+      "attribute": "href",
+      "value": "{`${permanentPath}/card`}"
+    },
+    {
+      "line": 454,
+      "attribute": "onClick",
+      "value": "{() => void copy(permanentUrl, 'url')}"
+    },
+    {
+      "line": 455,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/distribution-pack\""
+    },
+    {
+      "line": 458,
+      "attribute": "onClick",
+      "value": "{() => relayPacket && void copy(relayCopy(relayPacket), surface)}"
+    },
+    {
+      "line": 469,
+      "attribute": "action",
+      "value": "{<a href=\"/rh-chain-signal-desk/4663-index\">View Full 4663 Index</a>}"
+    },
+    {
+      "line": 469,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/4663-index\""
+    },
+    {
+      "line": 490,
+      "attribute": "role",
+      "value": "\"img\""
+    },
+    {
+      "line": 490,
+      "attribute": "aria-label",
+      "value": "{`Signal score ${asset.signal_score} out of 100`}"
+    },
+    {
+      "line": 494,
+      "attribute": "href",
+      "value": "{href}"
+    },
+    {
+      "line": 494,
+      "attribute": "onClick",
+      "value": "{copyLink}"
+    },
+    {
+      "line": 512,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/clone-radar\""
+    },
+    {
+      "line": 527,
+      "attribute": "action",
+      "value": "{<a href=\"/rh-chain-signal-desk/meme-pulse\">Open Meme Pulse</a>}"
+    },
+    {
+      "line": 527,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/meme-pulse\""
+    },
+    {
+      "line": 529,
+      "attribute": "role",
+      "value": "\"group\""
+    },
+    {
+      "line": 529,
+      "attribute": "aria-label",
+      "value": "\"Filter Meme Pulse\""
+    },
+    {
+      "line": 530,
+      "attribute": "aria-pressed",
+      "value": "{filter === value}"
+    },
+    {
+      "line": 530,
+      "attribute": "onClick",
+      "value": "{() => setFilter(value)}"
+    },
+    {
+      "line": 532,
+      "attribute": "onChange",
+      "value": "{(event) => setQuery(event.target.value)}"
+    },
+    {
+      "line": 533,
+      "attribute": "role",
+      "value": "\"group\""
+    },
+    {
+      "line": 533,
+      "attribute": "aria-label",
+      "value": "\"Meme Pulse presentation\""
+    },
+    {
+      "line": 534,
+      "attribute": "aria-pressed",
+      "value": "{!tableMode}"
+    },
+    {
+      "line": 534,
+      "attribute": "onClick",
+      "value": "{() => setView('cards')}"
+    },
+    {
+      "line": 535,
+      "attribute": "aria-pressed",
+      "value": "{tableMode}"
+    },
+    {
+      "line": 535,
+      "attribute": "onClick",
+      "value": "{() => setView('table')}"
+    },
+    {
+      "line": 561,
+      "attribute": "onClick",
+      "value": "{copyContract}"
+    },
+    {
+      "line": 562,
+      "attribute": "href",
+      "value": "{dossier}"
+    },
+    {
+      "line": 562,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/submit\""
+    },
+    {
+      "line": 577,
+      "attribute": "action",
+      "value": "{<a href=\"/rh-chain-signal-desk/launch-surfaces\">Open Launch Surface Watch</a>}"
+    },
+    {
+      "line": 577,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/launch-surfaces\""
+    },
+    {
+      "line": 593,
+      "attribute": "action",
+      "value": "{<a href=\"/rh-chain-signal-desk/review-queue\">View Review Queue</a>}"
+    },
+    {
+      "line": 593,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/review-queue\""
+    },
+    {
+      "line": 600,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/review-queue\""
+    },
+    {
+      "line": 611,
+      "attribute": "action",
+      "value": "{<a href=\"/rh-chain-signal-desk/live-snapshot\">Open Live Snapshot</a>}"
+    },
+    {
+      "line": 611,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/live-snapshot\""
+    },
+    {
+      "line": 649,
+      "attribute": "href",
+      "value": "{source.source_url}"
+    },
+    {
+      "line": 654,
+      "attribute": "id",
+      "value": "\"rh-v2-method-title\""
+    },
+    {
+      "line": 661,
+      "attribute": "aria-label",
+      "value": "\"RH Chain methodology links\""
+    },
+    {
+      "line": 661,
+      "attribute": "href",
+      "value": "\"/methodology\""
+    },
+    {
+      "line": 661,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/daily-receipts\""
+    },
+    {
+      "line": 661,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/distribution-pack\""
+    },
+    {
+      "line": 661,
+      "attribute": "href",
+      "value": "\"/v1/rh-chain\""
+    }
+  ],
+  "src/web/rhChainSignalDeskPages.tsx": [
+    {
+      "line": 240,
+      "attribute": "href",
+      "value": "\"#rh-chain-content\""
+    },
+    {
+      "line": 244,
+      "attribute": "id",
+      "value": "\"rh-chain-content\""
+    },
+    {
+      "line": 256,
+      "attribute": "href",
+      "value": "{reviewQueueRoute && reviewQueueFailure ? '/rh-chain-signal-desk' : isDailyReceiptRoute ? '#latest-receipt' : indexRoute ? '#ranked-index' : reviewQueueRoute ? '#queue-board' : '#meme-pulse'}"
+    },
+    {
+      "line": 257,
+      "attribute": "href",
+      "value": "{submitRoute ? '/rh-chain-signal-desk/review-queue' : '/rh-chain-signal-desk/submit'}"
+    },
+    {
+      "line": 260,
+      "attribute": "aria-label",
+      "value": "\"Desk policy\""
+    },
+    {
+      "line": 274,
+      "attribute": "aria-label",
+      "value": "\"Today on 4663\""
+    },
+    {
+      "line": 277,
+      "attribute": "href",
+      "value": "\"/v1/rh-chain/today-on-4663\""
+    },
+    {
+      "line": 285,
+      "attribute": "href",
+      "value": "{card.href}"
+    },
+    {
+      "line": 293,
+      "attribute": "aria-label",
+      "value": "\"Clone and Risk Alerts\""
+    },
+    {
+      "line": 294,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/clone-radar\""
+    },
+    {
+      "line": 295,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/clone-radar\""
+    },
+    {
+      "line": 296,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/distribution-pack\""
+    },
+    {
+      "line": 301,
+      "attribute": "aria-label",
+      "value": "\"How to use this desk and source policy\""
+    },
+    {
+      "line": 303,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/submit\""
+    },
+    {
+      "line": 303,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/daily-receipts\""
+    },
+    {
+      "line": 303,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/distribution-pack\""
+    },
+    {
+      "line": 310,
+      "attribute": "aria-label",
+      "value": "\"Weekly State of 4663 Card\""
+    },
+    {
+      "line": 329,
+      "attribute": "aria-label",
+      "value": "\"Chain Pulse\""
+    },
+    {
+      "line": 390,
+      "attribute": "aria-label",
+      "value": "\"Metric provenance footer\""
+    },
+    {
+      "line": 391,
+      "attribute": "href",
+      "value": "{sourceUrl}"
+    },
+    {
+      "line": 401,
+      "attribute": "aria-label",
+      "value": "\"Daily RH Chain Receipts Preview\""
+    },
+    {
+      "line": 408,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/daily-receipts\""
+    },
+    {
+      "line": 430,
+      "attribute": "aria-label",
+      "value": "\"Launchpad Observatory Preview\""
+    },
+    {
+      "line": 430,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/launchpad-observatory\""
+    },
+    {
+      "line": 435,
+      "attribute": "aria-label",
+      "value": "\"Launch Surface Watch\""
+    },
+    {
+      "line": 436,
+      "attribute": "aria-label",
+      "value": "\"Known Launch Surfaces\""
+    },
+    {
+      "line": 437,
+      "attribute": "aria-label",
+      "value": "\"Access Surface Watch\""
+    },
+    {
+      "line": 438,
+      "attribute": "aria-label",
+      "value": "\"Launch Context Fields\""
+    },
+    {
+      "line": 439,
+      "attribute": "aria-label",
+      "value": "\"Launch Surface Risk Notes\""
+    },
+    {
+      "line": 440,
+      "attribute": "aria-label",
+      "value": "\"Launch Surface Doctrine\""
+    },
+    {
+      "line": 448,
+      "attribute": "aria-label",
+      "value": "\"RH Chain Scout Agent\""
+    },
+    {
+      "line": 448,
+      "attribute": "onClick",
+      "value": "{() => ask(prompt)}"
+    },
+    {
+      "line": 448,
+      "attribute": "onSubmit",
+      "value": "{(event) => { event.preventDefault(); void ask(); }}"
+    },
+    {
+      "line": 448,
+      "attribute": "onChange",
+      "value": "{(event) => setQuery(event.target.value)}"
+    },
+    {
+      "line": 448,
+      "attribute": "aria-label",
+      "value": "\"Ask the RH Chain Scout\""
+    },
+    {
+      "line": 453,
+      "attribute": "aria-label",
+      "value": "\"Receipt freshness\""
+    },
+    {
+      "line": 460,
+      "attribute": "aria-label",
+      "value": "\"Daily RH Chain Receipts Disclaimer\""
+    },
+    {
+      "line": 474,
+      "attribute": "id",
+      "value": "\"latest-receipt\""
+    },
+    {
+      "line": 474,
+      "attribute": "aria-label",
+      "value": "\"Latest Daily RH Chain Receipt\""
+    },
+    {
+      "line": 483,
+      "attribute": "href",
+      "value": "{`/rh-chain-signal-desk/daily-receipts/${receipt.receipt_id}`}"
+    },
+    {
+      "line": 484,
+      "attribute": "href",
+      "value": "{`/rh-chain-signal-desk/daily-receipts/${receipt.receipt_id}/card`}"
+    },
+    {
+      "line": 485,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/daily-receipts\""
+    },
+    {
+      "line": 526,
+      "attribute": "onClick",
+      "value": "{copyPost}"
+    },
+    {
+      "line": 552,
+      "attribute": "onClick",
+      "value": "{copySummary}"
+    },
+    {
+      "line": 566,
+      "attribute": "onClick",
+      "value": "{copyLink}"
+    },
+    {
+      "line": 571,
+      "attribute": "aria-label",
+      "value": "\"Daily Receipt Intelligence Memo\""
+    },
+    {
+      "line": 614,
+      "attribute": "aria-label",
+      "value": "\"Daily receipt not found\""
+    },
+    {
+      "line": 614,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/daily-receipts\""
+    },
+    {
+      "line": 618,
+      "attribute": "id",
+      "value": "\"latest-receipt\""
+    },
+    {
+      "line": 618,
+      "attribute": "aria-label",
+      "value": "{`RH Chain Receipt ${receipt.receipt_id} share card`}"
+    },
+    {
+      "line": 622,
+      "attribute": "href",
+      "value": "{`/rh-chain-signal-desk/daily-receipts/${receipt.receipt_id}`}"
+    },
+    {
+      "line": 629,
+      "attribute": "aria-label",
+      "value": "\"Copy X post\""
+    },
+    {
+      "line": 634,
+      "attribute": "aria-label",
+      "value": "\"X post copy\""
+    },
+    {
+      "line": 661,
+      "attribute": "href",
+      "value": "{`/rh-chain-signal-desk/daily-receipts/${receipt.receipt_id}`}"
+    },
+    {
+      "line": 667,
+      "attribute": "aria-label",
+      "value": "\"Daily Receipt Timeline\""
+    },
+    {
+      "line": 674,
+      "attribute": "href",
+      "value": "\"/v1/rh-chain/daily-receipts\""
+    },
+    {
+      "line": 681,
+      "attribute": "href",
+      "value": "{`/rh-chain-signal-desk/daily-receipts/${receipt.receipt_id}`}"
+    },
+    {
+      "line": 696,
+      "attribute": "aria-label",
+      "value": "\"Daily Receipt Watchlist\""
+    },
+    {
+      "line": 711,
+      "attribute": "aria-label",
+      "value": "\"Daily Receipt Do Not Touch Yet\""
+    },
+    {
+      "line": 737,
+      "attribute": "aria-label",
+      "value": "\"Daily Receipt Source Notes\""
+    },
+    {
+      "line": 748,
+      "attribute": "href",
+      "value": "{source.source_url}"
+    },
+    {
+      "line": 757,
+      "attribute": "aria-label",
+      "value": "\"4663 Signal Index Preview\""
+    },
+    {
+      "line": 765,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/4663-index\""
+    },
+    {
+      "line": 780,
+      "attribute": "href",
+      "value": "{`/rh-chain-signal-desk/tokens/${encodeURIComponent(asset.token_contract)}`}"
+    },
+    {
+      "line": 780,
+      "attribute": "href",
+      "value": "{`/rh-chain-signal-desk/tokens/${encodeURIComponent(asset.token_contract)}`}"
+    },
+    {
+      "line": 789,
+      "attribute": "aria-label",
+      "value": "\"Index freshness\""
+    },
+    {
+      "line": 790,
+      "attribute": "aria-label",
+      "value": "\"4663 Signal Card\""
+    },
+    {
+      "line": 797,
+      "attribute": "aria-label",
+      "value": "\"4663 Signal Index Disclaimer\""
+    },
+    {
+      "line": 807,
+      "attribute": "aria-label",
+      "value": "\"100 Receipts campaign context\""
+    },
+    {
+      "line": 808,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/100-receipts\""
+    },
+    {
+      "line": 809,
+      "attribute": "href",
+      "value": "{asset.dossier_route}"
+    },
+    {
+      "line": 842,
+      "attribute": "aria-label",
+      "value": "\"4663 Index Overview\""
+    },
+    {
+      "line": 849,
+      "attribute": "href",
+      "value": "\"/v1/rh-chain/4663-index\""
+    },
+    {
+      "line": 862,
+      "attribute": "id",
+      "value": "\"ranked-index\""
+    },
+    {
+      "line": 862,
+      "attribute": "aria-label",
+      "value": "\"Ranked 4663 Signal Index\""
+    },
+    {
+      "line": 870,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 870,
+      "attribute": "aria-label",
+      "value": "\"4663 Signal Index ranked assets\""
+    },
+    {
+      "line": 871,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 872,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 873,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 874,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 875,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 876,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 877,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 878,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 879,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 880,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 882,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 883,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 884,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 885,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 886,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 887,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 888,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 889,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 890,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 891,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 898,
+      "attribute": "aria-label",
+      "value": "\"4663 Score Breakdown\""
+    },
+    {
+      "line": 940,
+      "attribute": "aria-label",
+      "value": "\"4663 Narrative Classes\""
+    },
+    {
+      "line": 966,
+      "attribute": "aria-label",
+      "value": "\"4663 Methodology\""
+    },
+    {
+      "line": 992,
+      "attribute": "aria-label",
+      "value": "\"Review Queue Preview\""
+    },
+    {
+      "line": 999,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/review-queue\""
+    },
+    {
+      "line": 1017,
+      "attribute": "aria-label",
+      "value": "\"Live Snapshot Preview\""
+    },
+    {
+      "line": 1018,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/market\""
+    },
+    {
+      "line": 1018,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/live-snapshot\""
+    },
+    {
+      "line": 1039,
+      "attribute": "aria-label",
+      "value": "\"DEX Screener Provider Status\""
+    },
+    {
+      "line": 1040,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/market\""
+    },
+    {
+      "line": 1048,
+      "attribute": "aria-label",
+      "value": "\"Blockscout Onchain Evidence Status\""
+    },
+    {
+      "line": 1058,
+      "attribute": "aria-label",
+      "value": "\"Provider Status\""
+    },
+    {
+      "line": 1062,
+      "attribute": "aria-label",
+      "value": "\"Chain Metrics Snapshot\""
+    },
+    {
+      "line": 1063,
+      "attribute": "aria-label",
+      "value": "\"Meme Category Snapshot\""
+    },
+    {
+      "line": 1064,
+      "attribute": "aria-label",
+      "value": "\"Token Lookup Tool\""
+    },
+    {
+      "line": 1064,
+      "attribute": "onSubmit",
+      "value": "{lookup}"
+    },
+    {
+      "line": 1064,
+      "attribute": "onChange",
+      "value": "{(event) => setContract(event.target.value)}"
+    },
+    {
+      "line": 1064,
+      "attribute": "aria-label",
+      "value": "\"Live snapshot contract address\""
+    },
+    {
+      "line": 1064,
+      "attribute": "href",
+      "value": "{result.token_pair.dex_url}"
+    },
+    {
+      "line": 1064,
+      "attribute": "href",
+      "value": "{result.explorer.explorer_url}"
+    },
+    {
+      "line": 1076,
+      "attribute": "aria-label",
+      "value": "\"Review Queue Disclaimer\""
+    },
+    {
+      "line": 1092,
+      "attribute": "aria-label",
+      "value": "\"Review Status Overview\""
+    },
+    {
+      "line": 1111,
+      "attribute": "id",
+      "value": "\"queue-board\""
+    },
+    {
+      "line": 1111,
+      "attribute": "aria-label",
+      "value": "\"Queue Board\""
+    },
+    {
+      "line": 1118,
+      "attribute": "href",
+      "value": "\"/v1/rh-chain/review-queue\""
+    },
+    {
+      "line": 1121,
+      "attribute": "aria-label",
+      "value": "{formatLabel(state)}"
+    },
+    {
+      "line": 1180,
+      "attribute": "aria-label",
+      "value": "\"Review item links\""
+    },
+    {
+      "line": 1181,
+      "attribute": "href",
+      "value": "{link.href}"
+    },
+    {
+      "line": 1209,
+      "attribute": "id",
+      "value": "\"meme-pulse\""
+    },
+    {
+      "line": 1209,
+      "attribute": "aria-label",
+      "value": "\"Meme Pulse\""
+    },
+    {
+      "line": 1219,
+      "attribute": "onChange",
+      "value": "{(event) => onQuery(event.target.value)}"
+    },
+    {
+      "line": 1219,
+      "attribute": "aria-label",
+      "value": "\"Search meme pulse\""
+    },
+    {
+      "line": 1223,
+      "attribute": "onChange",
+      "value": "{(event) => onRisk(event.target.value as RhChainRiskState | 'all')}"
+    },
+    {
+      "line": 1223,
+      "attribute": "aria-label",
+      "value": "\"Filter risk state\""
+    },
+    {
+      "line": 1232,
+      "attribute": "aria-label",
+      "value": "\"Meme Pulse context priority\""
+    },
+    {
+      "line": 1239,
+      "attribute": "role",
+      "value": "\"table\""
+    },
+    {
+      "line": 1239,
+      "attribute": "aria-label",
+      "value": "\"Robinhood Chain meme token watchlist\""
+    },
+    {
+      "line": 1240,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 1241,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 1242,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 1243,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 1244,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 1245,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 1246,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 1247,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 1248,
+      "attribute": "role",
+      "value": "\"columnheader\""
+    },
+    {
+      "line": 1256,
+      "attribute": "role",
+      "value": "\"row\""
+    },
+    {
+      "line": 1257,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 1258,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 1259,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 1260,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 1261,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 1262,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 1263,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 1264,
+      "attribute": "role",
+      "value": "\"cell\""
+    },
+    {
+      "line": 1275,
+      "attribute": "aria-label",
+      "value": "\"Signal Classifier\""
+    },
+    {
+      "line": 1296,
+      "attribute": "aria-label",
+      "value": "\"Risk Wall\""
+    },
+    {
+      "line": 1322,
+      "attribute": "aria-label",
+      "value": "\"Stock Token Spillover Map\""
+    },
+    {
+      "line": 1455,
+      "attribute": "id",
+      "value": "\"submit-signal\""
+    },
+    {
+      "line": 1455,
+      "attribute": "aria-label",
+      "value": "\"Submit Signal\""
+    },
+    {
+      "line": 1465,
+      "attribute": "onSubmit",
+      "value": "{handleSubmit}"
+    },
+    {
+      "line": 1466,
+      "attribute": "name",
+      "value": "\"token_contract\""
+    },
+    {
+      "line": 1466,
+      "attribute": "aria-label",
+      "value": "\"Token contract address\""
+    },
+    {
+      "line": 1466,
+      "attribute": "onChange",
+      "value": "{(event) => setField('token_contract', event.target.value)}"
+    },
+    {
+      "line": 1467,
+      "attribute": "name",
+      "value": "\"ticker\""
+    },
+    {
+      "line": 1467,
+      "attribute": "aria-label",
+      "value": "\"Ticker\""
+    },
+    {
+      "line": 1467,
+      "attribute": "onChange",
+      "value": "{(event) => setField('ticker', event.target.value)}"
+    },
+    {
+      "line": 1468,
+      "attribute": "name",
+      "value": "\"chain\""
+    },
+    {
+      "line": 1468,
+      "attribute": "aria-label",
+      "value": "\"Chain\""
+    },
+    {
+      "line": 1468,
+      "attribute": "onChange",
+      "value": "{(event) => setField('chain', event.target.value)}"
+    },
+    {
+      "line": 1469,
+      "attribute": "name",
+      "value": "\"x_twitter_link\""
+    },
+    {
+      "line": 1469,
+      "attribute": "aria-label",
+      "value": "\"X or Twitter link\""
+    },
+    {
+      "line": 1469,
+      "attribute": "onChange",
+      "value": "{(event) => setField('x_twitter_link', event.target.value)}"
+    },
+    {
+      "line": 1470,
+      "attribute": "name",
+      "value": "\"website_link\""
+    },
+    {
+      "line": 1470,
+      "attribute": "aria-label",
+      "value": "\"Website link\""
+    },
+    {
+      "line": 1470,
+      "attribute": "onChange",
+      "value": "{(event) => setField('website_link', event.target.value)}"
+    },
+    {
+      "line": 1471,
+      "attribute": "name",
+      "value": "\"liquidity_link\""
+    },
+    {
+      "line": 1471,
+      "attribute": "aria-label",
+      "value": "\"Liquidity link\""
+    },
+    {
+      "line": 1471,
+      "attribute": "onChange",
+      "value": "{(event) => setField('liquidity_link', event.target.value)}"
+    },
+    {
+      "line": 1472,
+      "attribute": "name",
+      "value": "\"deployer_notes\""
+    },
+    {
+      "line": 1472,
+      "attribute": "aria-label",
+      "value": "\"Deployer notes\""
+    },
+    {
+      "line": 1472,
+      "attribute": "onChange",
+      "value": "{(event) => setField('deployer_notes', event.target.value)}"
+    },
+    {
+      "line": 1473,
+      "attribute": "name",
+      "value": "\"submitter_notes\""
+    },
+    {
+      "line": 1473,
+      "attribute": "aria-label",
+      "value": "\"Submitter notes\""
+    },
+    {
+      "line": 1473,
+      "attribute": "onChange",
+      "value": "{(event) => setField('submitter_notes', event.target.value)}"
+    },
+    {
+      "line": 1474,
+      "attribute": "aria-label",
+      "value": "\"Scout handle\""
+    },
+    {
+      "line": 1474,
+      "attribute": "onChange",
+      "value": "{(event) => setField('scout_handle', event.target.value)}"
+    },
+    {
+      "line": 1474,
+      "attribute": "aria-label",
+      "value": "\"Scout contact\""
+    },
+    {
+      "line": 1474,
+      "attribute": "onChange",
+      "value": "{(event) => setField('scout_contact', event.target.value)}"
+    },
+    {
+      "line": 1474,
+      "attribute": "onChange",
+      "value": "{(event) => setField('public_attribution_consent', event.target.checked)}"
+    },
+    {
+      "line": 1475,
+      "attribute": "aria-label",
+      "value": "\"Launch source\""
+    },
+    {
+      "line": 1475,
+      "attribute": "onChange",
+      "value": "{(event) => setField('launch_source', event.target.value)}"
+    },
+    {
+      "line": 1475,
+      "attribute": "aria-label",
+      "value": "\"LP status claim\""
+    },
+    {
+      "line": 1475,
+      "attribute": "onChange",
+      "value": "{(event) => setField('lp_status_claim', event.target.value)}"
+    },
+    {
+      "line": 1475,
+      "attribute": "aria-label",
+      "value": "\"Launch surface URL\""
+    },
+    {
+      "line": 1475,
+      "attribute": "onChange",
+      "value": "{(event) => setField('launch_surface_url', event.target.value)}"
+    },
+    {
+      "line": 1475,
+      "attribute": "aria-label",
+      "value": "\"Pair address\""
+    },
+    {
+      "line": 1475,
+      "attribute": "onChange",
+      "value": "{(event) => setField('pair_address', event.target.value)}"
+    },
+    {
+      "line": 1475,
+      "attribute": "aria-label",
+      "value": "\"Deployer address\""
+    },
+    {
+      "line": 1475,
+      "attribute": "onChange",
+      "value": "{(event) => setField('deployer_address', event.target.value)}"
+    },
+    {
+      "line": 1477,
+      "attribute": "onChange",
+      "value": "{(event) => setField('disclosure_confirmed', event.target.checked)}"
+    },
+    {
+      "line": 1494,
+      "attribute": "onClick",
+      "value": "{copyPacket}"
+    },
+    {
+      "line": 1503,
+      "attribute": "href",
+      "value": "\"/rh-chain-signal-desk/review-queue\""
+    },
+    {
+      "line": 1516,
+      "attribute": "aria-label",
+      "value": "\"Receipts\""
+    },
+    {
+      "line": 1543,
+      "attribute": "href",
+      "value": "{sourceUrl}"
+    }
+  ]
+}

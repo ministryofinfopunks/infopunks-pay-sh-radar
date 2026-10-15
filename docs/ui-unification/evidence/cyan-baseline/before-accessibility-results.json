@@ -1,0 +1,3075 @@
+{
+  "phase": "before",
+  "sourceCommit": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "base": "http://127.0.0.1:5174",
+  "axeVersion": "4.14.0",
+  "results": [
+    {
+      "route": "/",
+      "width": 390,
+      "state": "default",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-prohibited-attr",
+          "nodes": [
+            {
+              "target": [
+                "strong[aria-label=\"Confidence not assessed\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"strong\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "div[aria-label=\"Solana Radar coverage\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "div[aria-label=\"Robinhood Chain coverage\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "pre"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"pre\" elements with no valid role attribute."
+            }
+          ]
+        }
+      ],
+      "passes": 24
+    },
+    {
+      "route": "/",
+      "width": 1440,
+      "state": "default",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-prohibited-attr",
+          "nodes": [
+            {
+              "target": [
+                "strong[aria-label=\"Confidence not assessed\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"strong\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "div[aria-label=\"Solana Radar coverage\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "div[aria-label=\"Robinhood Chain coverage\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "pre"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"pre\" elements with no valid role attribute."
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "nodes": [
+            {
+              "target": [
+                ".portrait-note:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+            },
+            {
+              "target": [
+                ".portrait-note-bottom"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+            },
+            {
+              "target": [
+                ".radar-principles > .radar-home-eyebrow"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".radar-entry-title > h2"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".radar-principles > p:nth-child(3)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".radar-principles > a[href$=\"receipts\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            }
+          ]
+        }
+      ],
+      "passes": 24
+    },
+    {
+      "route": "/solana",
+      "width": 390,
+      "state": "default",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-prohibited-attr",
+          "nodes": [
+            {
+              "target": [
+                ".proof-metrics-strip"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".orientation-panel"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".ticker"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(1) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(1) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(2) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(2) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(3) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(3) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(4) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(4) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(5) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(5) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(6) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(6) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(1) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(1) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(2) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(2) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(3) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(3) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(4) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(4) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(5) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(5) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(6) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(6) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".status-grid"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".timing-strip"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".event-groups"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".event-controls"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".example-chips"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".preflight-header-actions"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".status-pill"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".preflight-examples"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".run-summary-chips"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".bundle-run-history"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".agent-readiness-summary-card"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".provider-ribbon"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".auto-rotate-control"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".dossier-summary-strip"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".route-context-summary"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".endpoint-table-controls"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".affected-provider-list"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".anomaly-summary"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"low 0\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"watch 0\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"elevated 0\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"critical 0\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"unknown 12\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".footer-status"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "nodes": [
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"signal-hunt\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"check\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"memory-loop\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"evaluation-request\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"machine-market\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"openapi.json\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".terminal-meta-strip > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element has a 1:1 contrast ratio with the background"
+            },
+            {
+              "target": [
+                ".solana-priority-link > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(6) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(7) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(8) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(9) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(10) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(11) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(12) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                "article:nth-child(2) > b"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                "article:nth-child(4) > b"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                "#providers > .panel-head > div > .global.scope-label"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                "#providers > .panel-head > div > .section-kicker"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "#providers > .panel-head > div > h2"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "#providers > .panel-head > div > .panel-caption"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "#providers > .panel-head > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".directory-controls > input[value=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element has no value; test color contrast with a value entered"
+            },
+            {
+              "target": [
+                "select[aria-label=\"Sort providers\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".category-chips > .selected[type=\"button\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".category-chips > button[type=\"button\"]:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".category-chips > button[type=\"button\"]:nth-child(3)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".category-chips > button[type=\"button\"]:nth-child(4)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".category-chips > button[type=\"button\"]:nth-child(5)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".category-chips > button[type=\"button\"]:nth-child(6)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".category-chips > button[type=\"button\"]:nth-child(7)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".category-chips > button[type=\"button\"]:nth-child(8)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".active.row[type=\"button\"] > span:nth-child(1)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".active.row[type=\"button\"] > .directory-state-badge.state-watch"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".active.row[type=\"button\"] > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(2) > span:nth-child(1)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(2) > .directory-state-badge.state-watch"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(2) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(3) > span:nth-child(1)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(3) > .directory-state-badge.state-watch"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(3) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".dossier-summary-strip > span:nth-child(3)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".dossier-summary-strip > span:nth-child(3) > b"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".assessment.panel:nth-child(1) > .provider.scope-label"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".assessment.panel:nth-child(2) > .provider.scope-label"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".assessment.panel:nth-child(3) > .provider.scope-label"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".two.provider-analysis-grid.grid > .panel:nth-child(1) > .provider.scope-label"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".two.provider-analysis-grid.grid > .panel:nth-child(2) > .provider.scope-label"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "passes": 27
+    },
+    {
+      "route": "/solana",
+      "width": 390,
+      "state": "expanded-navigation-and-controls",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-prohibited-attr",
+          "nodes": [
+            {
+              "target": [
+                ".proof-metrics-strip"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".orientation-panel"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".ticker"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(1) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(1) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(2) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(2) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(3) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(3) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(4) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(4) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(5) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(5) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(6) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(6) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(1) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(1) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(2) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(2) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(3) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(3) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(4) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(4) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(5) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(5) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(6) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(6) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".status-grid"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".timing-strip"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".event-groups"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".event-controls"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".example-chips"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".preflight-header-actions"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".status-pill"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".preflight-examples"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".run-summary-chips"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".bundle-run-history"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".agent-readiness-summary-card"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".provider-ribbon"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".auto-rotate-control"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".dossier-summary-strip"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".route-context-summary"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".endpoint-table-controls"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".affected-provider-list"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".anomaly-summary"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"low 0\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"watch 0\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"elevated 0\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"critical 0\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"unknown 12\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".footer-status"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            }
+          ]
+        },
+        {
+          "id": "aria-valid-attr-value",
+          "nodes": [
+            {
+              "target": [
+                ".radar-network-trigger"
+              ],
+              "summary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"_r_1_\""
+            },
+            {
+              "target": [
+                ".radar-mobile-menu-trigger"
+              ],
+              "summary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"_r_3_\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "nodes": [
+            {
+              "target": [
+                ".radar-network-chevron"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-mobile-menu-trigger > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"signal-hunt\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"check\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"memory-loop\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"evaluation-request\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"machine-market\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"openapi.json\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".terminal-meta-strip > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element has a 1:1 contrast ratio with the background"
+            },
+            {
+              "target": [
+                ".solana-priority-link > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(6) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(7) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(8) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(9) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(10) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(11) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(12) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                "article:nth-child(2) > b"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                "article:nth-child(4) > b"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                "#providers > .panel-head > div > .global.scope-label"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                "#providers > .panel-head > div > .section-kicker"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "#providers > .panel-head > div > h2"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "#providers > .panel-head > div > .panel-caption"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "#providers > .panel-head > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".directory-controls > input[value=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element has no value; test color contrast with a value entered"
+            },
+            {
+              "target": [
+                "select[aria-label=\"Sort providers\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".category-chips > .selected[type=\"button\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".category-chips > button[type=\"button\"]:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".category-chips > button[type=\"button\"]:nth-child(3)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".category-chips > button[type=\"button\"]:nth-child(4)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".category-chips > button[type=\"button\"]:nth-child(5)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".category-chips > button[type=\"button\"]:nth-child(6)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".category-chips > button[type=\"button\"]:nth-child(7)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".category-chips > button[type=\"button\"]:nth-child(8)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".active.row[type=\"button\"] > span:nth-child(1)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".active.row[type=\"button\"] > .directory-state-badge.state-watch"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".active.row[type=\"button\"] > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(2) > span:nth-child(1)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(2) > .directory-state-badge.state-watch"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(2) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(3) > span:nth-child(1)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(3) > .directory-state-badge.state-watch"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(3) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".dossier-summary-strip > span:nth-child(3)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".dossier-summary-strip > span:nth-child(3) > b"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".assessment.panel:nth-child(1) > .provider.scope-label"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".assessment.panel:nth-child(2) > .provider.scope-label"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".assessment.panel:nth-child(3) > .provider.scope-label"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".two.provider-analysis-grid.grid > .panel:nth-child(1) > .provider.scope-label"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".two.provider-analysis-grid.grid > .panel:nth-child(2) > .provider.scope-label"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "passes": 27
+    },
+    {
+      "route": "/solana",
+      "width": 1440,
+      "state": "default",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-prohibited-attr",
+          "nodes": [
+            {
+              "target": [
+                ".proof-metrics-strip"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".orientation-panel"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".ticker"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(1) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(1) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(2) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(2) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(3) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(3) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(4) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(4) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(5) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(5) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(6) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(6) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(1) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(1) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(2) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(2) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(3) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(3) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(4) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(4) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(5) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(5) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(6) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(6) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".status-grid"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".timing-strip"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".event-groups"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".event-controls"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".example-chips"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".preflight-header-actions"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".status-pill"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".preflight-examples"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".run-summary-chips"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".bundle-run-history"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".agent-readiness-summary-card"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".provider-ribbon"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".auto-rotate-control"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".dossier-summary-strip"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".route-context-summary"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".endpoint-table-controls"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".affected-provider-list"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".anomaly-summary"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"low 0\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"watch 0\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"elevated 0\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"critical 0\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"unknown 12\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".footer-status"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "nodes": [
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"signal-hunt\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"check\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"memory-loop\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"evaluation-request\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"machine-market\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"openapi.json\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".terminal-meta-strip > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element has a 1:1 contrast ratio with the background"
+            },
+            {
+              "target": [
+                ".solana-priority-link > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".status-warning > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".status-critical.status-chip > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".status-critical.status-chip > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".status-info > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".status-stable > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".zone-header > .global.scope-label"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(7) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(8) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(9) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(10) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(11) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(12) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".zone-header > .provider.scope-label"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".active.row[type=\"button\"] > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(2) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(3) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(4) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(5) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(6) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(7) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".route-decision-section > .dossier-section-head > .dossier-section-actions > .collapse-toggle[type=\"button\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".route-context-summary > span:nth-child(1) > b"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".route-context-summary > span:nth-child(2) > b"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".route-context-summary > span:nth-child(3) > b"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".route-context-summary > span:nth-child(4) > b"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".route-context-summary > span:nth-child(5) > b"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".route-check > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".route-secondary-action"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            }
+          ]
+        }
+      ],
+      "passes": 27
+    },
+    {
+      "route": "/solana",
+      "width": 1440,
+      "state": "expanded-navigation-and-controls",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-prohibited-attr",
+          "nodes": [
+            {
+              "target": [
+                ".terminal-nav"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".proof-metrics-strip"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".orientation-panel"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".ticker"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(1) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(1) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(2) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(2) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(3) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(3) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(4) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(4) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(5) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(5) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(6) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Artifact-backed cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(6) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(1) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(1) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(2) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(2) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(3) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(3) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(4) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(4) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(5) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(5) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(6) > .agent-readiness-card-head > .readiness-chip-row[aria-label=\"readiness chips\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "section[aria-label=\"Explored / catalog-only cards\"] > .agent-readiness-grid > .agent-readiness-card:nth-child(6) > .agent-readiness-counts[aria-label=\"evidence counts\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".status-grid"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".timing-strip"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".event-groups"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".event-controls"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".example-chips"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".preflight-header-actions"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".status-pill"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".preflight-examples"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".run-summary-chips"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".bundle-run-history"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".agent-readiness-summary-card"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".provider-ribbon"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".auto-rotate-control"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".dossier-summary-strip"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".route-context-summary"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".endpoint-table-controls"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".affected-provider-list"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".anomaly-summary"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"low 0\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"watch 0\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"elevated 0\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"critical 0\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                "span[aria-label=\"unknown 12\"]"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"span\" elements with no valid role attribute."
+            },
+            {
+              "target": [
+                ".footer-status"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            }
+          ]
+        },
+        {
+          "id": "aria-valid-attr-value",
+          "nodes": [
+            {
+              "target": [
+                ".radar-network-trigger"
+              ],
+              "summary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"_r_1_\""
+            },
+            {
+              "target": [
+                ".radar-menu-trigger"
+              ],
+              "summary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"_r_2_\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "nodes": [
+            {
+              "target": [
+                ".radar-network-chevron"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-menu-trigger > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"signal-hunt\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"check\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"memory-loop\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"evaluation-request\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"machine-market\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-directory-explore-action[href$=\"openapi.json\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".terminal-meta-strip > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element has a 1:1 contrast ratio with the background"
+            },
+            {
+              "target": [
+                ".solana-priority-link > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".status-warning > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".status-critical.status-chip > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".status-critical.status-chip > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".status-info > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".status-stable > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".zone-header > .global.scope-label"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(7) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(8) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(9) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(10) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(11) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".comparison-option:nth-child(12) > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".zone-header > .provider.scope-label"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".active.row[type=\"button\"] > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(2) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(3) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(4) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(5) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(6) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".row[type=\"button\"]:nth-child(7) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".route-decision-section > .dossier-section-head > .dossier-section-actions > .collapse-toggle[type=\"button\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".route-context-summary > span:nth-child(1) > b"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".route-context-summary > span:nth-child(2) > b"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".route-context-summary > span:nth-child(3) > b"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".route-context-summary > span:nth-child(4) > b"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".route-context-summary > span:nth-child(5) > b"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".route-check > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "target": [
+                ".route-secondary-action"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            }
+          ]
+        }
+      ],
+      "passes": 27
+    },
+    {
+      "route": "/rh-chain-signal-desk",
+      "width": 390,
+      "state": "default",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            {
+              "target": [
+                "button[aria-controls=\"receipt-share-rh_daily_006\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".rh-v2-route-flow > i:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "i:nth-child(4)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "i:nth-child(6)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            }
+          ]
+        }
+      ],
+      "passes": 30
+    },
+    {
+      "route": "/rh-chain-signal-desk",
+      "width": 390,
+      "state": "expanded-navigation-and-controls",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-valid-attr-value",
+          "nodes": [
+            {
+              "target": [
+                ".radar-network-trigger"
+              ],
+              "summary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"_r_1_\""
+            },
+            {
+              "target": [
+                ".radar-mobile-menu-trigger"
+              ],
+              "summary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"_r_3_\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "nodes": [
+            {
+              "target": [
+                ".radar-network-chevron"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-mobile-menu-trigger > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "button[aria-controls=\"receipt-share-rh_daily_006\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".rh-v2-route-flow > i:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "i:nth-child(4)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "i:nth-child(6)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            }
+          ]
+        }
+      ],
+      "passes": 30
+    },
+    {
+      "route": "/rh-chain-signal-desk",
+      "width": 390,
+      "state": "analyst-expanded",
+      "violations": [
+        {
+          "id": "scrollable-region-focusable",
+          "impact": "serious",
+          "help": "Scrollable region must have keyboard access",
+          "nodes": [
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap"
+              ],
+              "summary": "Fix any of the following:\n  Element should have focusable content\n  Element should be focusable",
+              "html": "<div class=\"rh-v2-table-wrap\">"
+            }
+          ]
+        }
+      ],
+      "incomplete": [
+        {
+          "id": "aria-valid-attr-value",
+          "nodes": [
+            {
+              "target": [
+                ".radar-network-trigger"
+              ],
+              "summary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"_r_1_\""
+            },
+            {
+              "target": [
+                ".radar-mobile-menu-trigger"
+              ],
+              "summary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"_r_3_\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "nodes": [
+            {
+              "target": [
+                ".radar-network-chevron"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-mobile-menu-trigger > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "button[aria-controls=\"receipt-share-rh_daily_006\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > thead > tr > th:nth-child(5)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > thead > tr > th:nth-child(6)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > thead > tr > th:nth-child(7)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(1) > td:nth-child(4)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(1) > td:nth-child(5)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(1) > td:nth-child(6)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                "tr:nth-child(1) > td:nth-child(6) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(1) > td:nth-child(7)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(2) > td:nth-child(5)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(2) > td:nth-child(6)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                "tr:nth-child(2) > td:nth-child(6) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(2) > td:nth-child(7)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(3) > td:nth-child(4)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(3) > td:nth-child(5)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(3) > td:nth-child(6)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                "tr:nth-child(3) > td:nth-child(6) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(3) > td:nth-child(7)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(4) > td:nth-child(4)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(4) > td:nth-child(5)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(4) > td:nth-child(6)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                "tr:nth-child(4) > td:nth-child(6) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(4) > td:nth-child(7)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(5) > td:nth-child(4)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(5) > td:nth-child(5)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(5) > td:nth-child(6)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                "tr:nth-child(5) > td:nth-child(6) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(5) > td:nth-child(7)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(6) > td:nth-child(5)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(6) > td:nth-child(6)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                "tr:nth-child(6) > td:nth-child(6) > small"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(6) > td:nth-child(7)"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "target": [
+                ".rh-v2-route-flow > i:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "i:nth-child(4)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "i:nth-child(6)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "article:nth-child(7) > header > .state-rejected_low_receipt_quality.rh-v2-evidence-state"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "passes": 32
+    },
+    {
+      "route": "/rh-chain-signal-desk",
+      "width": 1440,
+      "state": "default",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            {
+              "target": [
+                "button[aria-controls=\"receipt-share-rh_daily_006\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".rh-v2-route-flow > i:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "i:nth-child(4)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "i:nth-child(6)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            }
+          ]
+        }
+      ],
+      "passes": 29
+    },
+    {
+      "route": "/rh-chain-signal-desk",
+      "width": 1440,
+      "state": "expanded-navigation-and-controls",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-prohibited-attr",
+          "nodes": [
+            {
+              "target": [
+                ".terminal-nav"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            }
+          ]
+        },
+        {
+          "id": "aria-valid-attr-value",
+          "nodes": [
+            {
+              "target": [
+                ".radar-network-trigger"
+              ],
+              "summary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"_r_1_\""
+            },
+            {
+              "target": [
+                ".radar-menu-trigger"
+              ],
+              "summary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"_r_2_\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "nodes": [
+            {
+              "target": [
+                ".radar-network-chevron"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-menu-trigger > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "button[aria-controls=\"receipt-share-rh_daily_006\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".rh-v2-route-flow > i:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "i:nth-child(4)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "i:nth-child(6)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            }
+          ]
+        }
+      ],
+      "passes": 29
+    },
+    {
+      "route": "/rh-chain-signal-desk",
+      "width": 1440,
+      "state": "analyst-expanded",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-prohibited-attr",
+          "nodes": [
+            {
+              "target": [
+                ".terminal-nav"
+              ],
+              "summary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            }
+          ]
+        },
+        {
+          "id": "aria-valid-attr-value",
+          "nodes": [
+            {
+              "target": [
+                ".radar-network-trigger"
+              ],
+              "summary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"_r_1_\""
+            },
+            {
+              "target": [
+                ".radar-menu-trigger"
+              ],
+              "summary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"_r_2_\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "nodes": [
+            {
+              "target": [
+                ".radar-network-chevron"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".radar-menu-trigger > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "button[aria-controls=\"receipt-share-rh_daily_006\"] > span[aria-hidden=\"true\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                ".rh-v2-route-flow > i:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "i:nth-child(4)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "target": [
+                "i:nth-child(6)"
+              ],
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters"
+            }
+          ]
+        }
+      ],
+      "passes": 31
+    }
+  ],
+  "violations": 1,
+  "limitations": [
+    "Automated axe checks do not replace manual screen-reader or complete accessibility evaluation.",
+    "Incomplete axe results require human assessment and are retained in full."
+  ]
+}

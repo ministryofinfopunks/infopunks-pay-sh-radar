@@ -1,0 +1,146 @@
+{
+  "baseline_commit": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "branch": "codex/radar-subpages-ui-unification",
+  "source": "complete exact git archive before edits",
+  "runtime": {
+    "node": "v24.21.0",
+    "postgresql": "16.15",
+    "dependency_lock_sha256": "42cc2afd6cf52d6a3b30b0af1ec74f8d4126f0aa867135204c6e4f35e4044c00"
+  },
+  "static_checks": [
+    {
+      "name": "runtime",
+      "command": [
+        "node",
+        "--version"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.065
+    },
+    {
+      "name": "lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 18.252
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 16.845
+    },
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 7.014
+    },
+    {
+      "name": "design",
+      "command": [
+        "npm",
+        "run",
+        "check:design"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.504
+    }
+  ],
+  "test_commands": [
+    {
+      "name": "frontend",
+      "command": [
+        "npm",
+        "test",
+        "--",
+        "tests/homepage-performance.test.tsx",
+        "tests/radar-network-navigation.test.tsx",
+        "tests/radar-navigation-responsive.test.ts",
+        "tests/rh-chain-pages.test.tsx",
+        "tests/rh-chain-signal-desk-selectors.test.ts",
+        "tests/radar-endpoint-intelligence.test.tsx",
+        "tests/web-accessibility.test.tsx",
+        "tests/render-spa-routing.test.ts",
+        "tests/frontend-evidence.test.tsx",
+        "--maxWorkers=2",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile.json=/private/tmp/radar-ui-cyan-baseline/frontend-tests.json"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 7.089
+    },
+    {
+      "name": "full",
+      "command": [
+        "npm",
+        "test",
+        "--",
+        "--maxWorkers=2",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile.json=/private/tmp/radar-ui-cyan-baseline/full-tests.json"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 107.806
+    }
+  ],
+  "frontend": {
+    "files": 9,
+    "tests": 92,
+    "passed": 92,
+    "failed": 0,
+    "skipped": 0,
+    "file_names": [
+      "tests/frontend-evidence.test.tsx",
+      "tests/homepage-performance.test.tsx",
+      "tests/radar-endpoint-intelligence.test.tsx",
+      "tests/radar-navigation-responsive.test.ts",
+      "tests/radar-network-navigation.test.tsx",
+      "tests/render-spa-routing.test.ts",
+      "tests/rh-chain-pages.test.tsx",
+      "tests/rh-chain-signal-desk-selectors.test.ts",
+      "tests/web-accessibility.test.tsx"
+    ]
+  },
+  "full": {
+    "files": 282,
+    "nested_suites": 567,
+    "tests": 2047,
+    "passed": 2047,
+    "failed": 0,
+    "skipped": 0,
+    "success": true
+  },
+  "database": {
+    "scope": "new disposable test cluster only; no existing/production databases accessed",
+    "host": "127.0.0.1",
+    "port": 55452,
+    "cluster_directory": "/private/tmp/radar-ui-cyan-baseline/pg",
+    "databases": [
+      "radar_ui_cyan_baseline",
+      "radar_ui_cyan_resilience"
+    ],
+    "test_variables": [
+      "CANONICAL_RECEIPT_TEST_URL",
+      "ECONOMIC_ENGINE_TEST_URL",
+      "POSTGRES_RESILIENCE_TEST_URL"
+    ],
+    "status": "left running temporarily for final branch regression; stop after parent confirms no reuse required"
+  },
+  "warning": "Existing Vite >500 kB chunk warning; baseline radarApp JS 1,562.51 kB, 313.25 kB gzip. React act environment warnings in existing jsdom tests; no failing assertions.",
+  "production_actions": "none",
+  "browser_checks": "This worker did not perform browser/visual/manual screen-reader qualification. Parent browser worker owns that evidence."
+}

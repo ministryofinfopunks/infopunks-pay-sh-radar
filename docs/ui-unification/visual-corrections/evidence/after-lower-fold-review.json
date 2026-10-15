@@ -1,0 +1,203 @@
+[
+  {
+    "route": "/solana",
+    "selector": ".radar-route-directory",
+    "box": {
+      "top": 1387.171875,
+      "height": 2845.390625,
+      "width": 370
+    },
+    "viewportTiles": 2
+  },
+  {
+    "route": "/solana",
+    "selector": ".solana-evidence-brief",
+    "box": {
+      "top": 4477.90625,
+      "height": 2040.484375,
+      "width": 370
+    },
+    "viewportTiles": 2
+  },
+  {
+    "route": "/solana",
+    "selector": "#benchmark-readiness",
+    "box": {
+      "top": 43588.09375,
+      "height": 1267.890625,
+      "width": 336
+    },
+    "viewportTiles": 2
+  },
+  {
+    "route": "/solana",
+    "selector": "#preflight",
+    "box": {
+      "top": 41338.078125,
+      "height": 1154.703125,
+      "width": 336
+    },
+    "viewportTiles": 2
+  },
+  {
+    "route": "/solana",
+    "selector": "#route-mapping-registry",
+    "box": {
+      "top": 44873.984375,
+      "height": 70.59375,
+      "width": 336
+    },
+    "viewportTiles": 1
+  },
+  {
+    "route": "/solana",
+    "selector": "#agent-benchmark-api",
+    "box": {
+      "top": 47374.671875,
+      "height": 7009.171875,
+      "width": 336
+    },
+    "viewportTiles": 2
+  },
+  {
+    "route": "/solana",
+    "selector": ".machine-module-card",
+    "box": {
+      "top": 6532.390625,
+      "height": 285.65625,
+      "width": 370
+    },
+    "viewportTiles": 1
+  },
+  {
+    "route": "/solana",
+    "selector": ".signal-graph-teaser-card",
+    "box": {
+      "top": 6832.046875,
+      "height": 226.46875,
+      "width": 370
+    },
+    "viewportTiles": 1
+  },
+  {
+    "route": "/solana",
+    "heroButtons": {
+      "width": 336,
+      "gridTemplateColumns": "336px",
+      "children": [
+        {
+          "width": 336,
+          "height": 44
+        },
+        {
+          "width": 336,
+          "height": 44
+        }
+      ]
+    },
+    "hiddenOverflow": [
+      {
+        "tag": "SPAN",
+        "class": "",
+        "width": 228,
+        "scrollWidth": 277,
+        "text": "Generative Language API (Gemini)"
+      }
+    ]
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-today",
+    "box": {
+      "top": 1748.625,
+      "height": 1349.078125,
+      "width": 370
+    },
+    "viewportTiles": 2
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-receipt",
+    "box": {
+      "top": 3109.703125,
+      "height": 1740.65625,
+      "width": 370
+    },
+    "viewportTiles": 2
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-movers",
+    "box": {
+      "top": 4862.359375,
+      "height": 1265.671875,
+      "width": 370
+    },
+    "viewportTiles": 2
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-risk-radar",
+    "box": {
+      "top": 6140.03125,
+      "height": 1036.875,
+      "width": 370
+    },
+    "viewportTiles": 2
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-memes",
+    "box": {
+      "top": 7188.90625,
+      "height": 2366.109375,
+      "width": 370
+    },
+    "viewportTiles": 2
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-routes",
+    "box": {
+      "top": 9567.015625,
+      "height": 930.203125,
+      "width": 370
+    },
+    "viewportTiles": 2
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-review",
+    "box": {
+      "top": 10509.21875,
+      "height": 1195.453125,
+      "width": 370
+    },
+    "viewportTiles": 2
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-chain-pulse",
+    "box": {
+      "top": 11716.671875,
+      "height": 892.765625,
+      "width": 370
+    },
+    "viewportTiles": 2
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-methodology",
+    "box": {
+      "top": 12621.4375,
+      "height": 550.484375,
+      "width": 370
+    },
+    "viewportTiles": 1
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "heroButtons": null,
+    "hiddenOverflow": []
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "baseline_commit": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "git_head_at_capture": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "source": "frozen working tree overlay over exact selected baseline archive",
+  "snapshot": "/private/tmp/radar-ui-cyan-final/repo",
+  "overlaid_files": [
+    "src/web/radarApp.tsx",
+    "src/web/radarNetworks.tsx",
+    "src/web/rhChainSignalDeskPages.tsx",
+    "src/web/rhChainSignalDeskV2.tsx",
+    "src/web/styles.css",
+    "tests/radar-endpoint-intelligence.test.tsx",
+    "DESIGN.md",
+    "scripts/browser-radar-ui-accessibility.cjs",
+    "scripts/browser-radar-ui-compare.cjs",
+    "scripts/browser-radar-ui-evidence.cjs",
+    "scripts/browser-radar-ui-homepage-control.cjs",
+    "scripts/browser-radar-ui-interactions.cjs",
+    "scripts/browser-radar-ui-sections.cjs",
+    "scripts/browser-radar-ui-zoom.cjs",
+    "scripts/verify-radar-subpage-boundary.cjs",
+    "src/web/radarSubpages.css",
+    "src/web/rhChainTerminal.css",
+    "tests/radar-subpage-presentation.test.tsx"
+  ],
+  "application_manifest_sha256": "287c69769f69446d062ce0eb65b7fbef84704834b84acfb93dc87741d07bf47b",
+  "git_metadata": "read-only pointer to original repository solely for existing script revision lookup; application bytes bound by immutable source hashes"
+}

@@ -1,0 +1,5 @@
+
+> infopunks-pay-sh-radar@0.1.0 check:design
+> node scripts/radar-design-inventory.mjs --check
+
+Design drift check passed: 130 router patterns; no workflow root tokens.

@@ -1,0 +1,10 @@
+Inventory: 139 concrete route/alias/detail examples from 130 router patterns
+{
+  "source_sha": "7f44417fcad683a48397dad251f5d4245aa34643",
+  "previous_routes": 137,
+  "current_routes": 139,
+  "viewport_checks": 28,
+  "chromium": 4,
+  "webkit": 0,
+  "failures": []
+}

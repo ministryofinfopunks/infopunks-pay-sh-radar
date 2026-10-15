@@ -1,0 +1,12 @@
+{
+  "original_script": "scripts/qualify-ui-int2-journeys.cjs",
+  "original_script_sha256": "af69d181e48709bbc15384975b4261ecea3c85c2c600136fffafd6fd2efa1fd6",
+  "temporary_adapter": "/private/tmp/radar-ui-cyan-final/repo/scripts/qualify-ui-int2-journeys-scoped.cjs",
+  "adapter_sha256": "7603e67928d5faa97f791bdac2ecc5c1ad45a6d08409cf3469978c7c8bc425e1",
+  "only_change": {
+    "before": "await page.getByRole('button',{name:'Search',exact:true}).click();",
+    "after": "await page.locator('.semantic-search-form').getByRole('button',{name:'Search',exact:true}).click();"
+  },
+  "reason": "Existing exact Search role query resolves both semantic form submit and legitimate Search provider category button; scoped to original semantic-search-form; no assertion or timeout changes",
+  "repository_script_unchanged": true
+}

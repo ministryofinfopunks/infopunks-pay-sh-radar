@@ -1,4 +1,5 @@
 import { ProductWayfinding } from './productPrimitives';
+import { RadarSectionHeader } from './radarDesignSystem';
 import React, { useContext, useEffect, useId, useRef, useState } from 'react';
 import { RadarShellContext } from './radarShellContext';
 import { radarNetworkForPath, type RadarNavigationContext, type RadarNetworkId } from './bootContext';
@@ -224,11 +225,11 @@ function SolanaExploreMenuIntro() {
   </div>;
 }
 
-export function SolanaRadarDirectory({ current = currentLocation() }: { current?: string }) {
+export function SolanaRadarDirectory({ current = currentLocation(), terminal = false }: { current?: string; terminal?: boolean }) {
   return <section className="radar-route-directory" id="explore-solana-radar" aria-labelledby="explore-solana-radar-title">
     <div className="radar-route-directory-head">
       <div>
-        <p className="section-kicker">Featured product surfaces</p>
+        {terminal ? <RadarSectionHeader index="03" title="Featured product surfaces" subtitle="Solana directory" level="label" /> : <p className="section-kicker">Featured product surfaces</p>}
         <h2 id="explore-solana-radar-title">Explore Solana Radar</h2>
       </div>
       <p>A map of the intelligence, evidence and execution surfaces available across the Solana environment.</p>
@@ -240,7 +241,7 @@ export function SolanaRadarDirectory({ current = currentLocation() }: { current?
         return <article className="radar-directory-card" key={group.id} aria-labelledby={groupTitleId} data-group-id={group.id}>
           <div className="radar-directory-card-head">
             <h3 id={groupTitleId}>{group.label}</h3>
-            <span>{featuredItems.length.toString().padStart(2, '0')}</span>
+            <span>{featuredItems.length.toString().padStart(2, '0')}{terminal && ' surfaces'}</span>
           </div>
           <p>{group.description}</p>
           <div className="radar-directory-featured-routes">

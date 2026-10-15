@@ -1,0 +1,85 @@
+{
+  "checkedAt": "2026-10-15T09:02:25.988431+00:00",
+  "reviewedParent": "7f44417fcad683a48397dad251f5d4245aa34643",
+  "branch": "codex/radar-ui-visual-corrections",
+  "release": "HOLD",
+  "changedPageBaselines": "REVIEW_REQUIRED",
+  "frozenSource": {
+    "manifest": "source-hashes.json",
+    "manifestSha256": "0fbccfa8bd549c705034bdc24c9765549bfedaed91c4c00129fd0222a9269208",
+    "files": 722,
+    "differences": []
+  },
+  "finalBrowser": {
+    "manifest": "evidence/final-browser-provenance.json",
+    "manifestSha256": "f0abde8e07ce77ddd6da6138dd0e62e06068919268e480cddc18381f4f18df7f",
+    "sourceFiles": 341,
+    "drivers": 9,
+    "artifacts": 99,
+    "differences": [],
+    "allEightChecksPassed": true
+  },
+  "supplementaryNativeReceiptCaptures": {
+    "receipt-native-after-mobile.png": "6698b7ee3dab19909c30b0d2d172add003d8afa2367397df75e06c7b9bd30ff4",
+    "receipt-native-before-mobile.png": "f205e9fe09fdfb2bb54c6a35fc751ff101c29a23b16861912b6231a59af52ecc",
+    "receipt-native-capture.json": "8a298eb98e1c10dab9b11d9215c850949209954758fd134f03691ee17e483935"
+  },
+  "nativeReceiptCaptureDriverSha256": "dbe8b3ac1391c34d285c23f83f76b67c25e6df410525aaaff71ec79de608dd3a",
+  "approvedReferences": [
+    {
+      "file": "docs/design-system/references/ui-int2-approved-completed/loaded-desktop-home.png",
+      "match": true
+    },
+    {
+      "file": "docs/design-system/references/ui-int2-approved-completed/loaded-desktop-receipts.png",
+      "match": true
+    },
+    {
+      "file": "docs/design-system/references/ui-int2-approved-completed/loaded-desktop-rh-chain-signal-desk.png",
+      "match": true
+    },
+    {
+      "file": "docs/design-system/references/ui-int2-approved-completed/loaded-desktop-solana.png",
+      "match": true
+    },
+    {
+      "file": "docs/design-system/references/ui-int2-approved-completed/loaded-desktop-spend-terminal.png",
+      "match": true
+    },
+    {
+      "file": "docs/design-system/references/ui-int2-approved-completed/loaded-mobile-home.png",
+      "match": true
+    },
+    {
+      "file": "docs/design-system/references/ui-int2-approved-completed/loaded-mobile-receipts.png",
+      "match": true
+    },
+    {
+      "file": "docs/design-system/references/ui-int2-approved-completed/loaded-mobile-rh-chain-signal-desk.png",
+      "match": true
+    },
+    {
+      "file": "docs/design-system/references/ui-int2-approved-completed/loaded-mobile-solana.png",
+      "match": true
+    },
+    {
+      "file": "docs/design-system/references/ui-int2-approved-completed/loaded-mobile-spend-terminal.png",
+      "match": true
+    },
+    {
+      "file": "docs/design-system/references/ui-int2-approved-completed/inspected-judgment-390.png",
+      "match": true
+    },
+    {
+      "file": "docs/design-system/references/ui-int2-approved-completed/inspected-execution-390.png",
+      "match": true
+    },
+    {
+      "file": "docs/design-system/references/ui-int2-approved-completed/inspected-evaluation-390.png",
+      "match": true
+    }
+  ],
+  "approvedReferencesAllMatch": true,
+  "sourceUnchangedAfterChecks": true,
+  "productionActions": []
+}

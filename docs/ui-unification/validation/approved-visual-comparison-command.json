@@ -1,0 +1,18 @@
+{
+  "name": "approved-visual-comparison",
+  "command": [
+    "node",
+    "scripts/compare-ui-int2-visuals.cjs"
+  ],
+  "exit_code": 1,
+  "duration_seconds": 28.57,
+  "url": "http://127.0.0.1:8812",
+  "runtime": "Node24.21.0",
+  "qa_pngjs": "7.0.0 from existing offline cache, temp QA only",
+  "snapshot": "/private/tmp/radar-ui-cyan-final/repo",
+  "source_manifest": "source-hashes-final.json",
+  "environment": "Local fixture backend+finaldist, dynamic observations/timestamps preserved",
+  "candidate_outputs": "docs/ui-unification/validation/approved-visual-comparison",
+  "approved_evidence_unchanged": true,
+  "approval_manifest_sha256": "d40d31fe25c1ed6c14c00a98de16493c96248d75fba4de3b866a56058ed8fe00"
+}

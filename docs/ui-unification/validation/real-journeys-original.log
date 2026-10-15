@@ -1,0 +1,4 @@
+(node:11356) UnhandledPromiseRejectionWarning: page.waitForResponse: Target page, context or browser has been closed
+    at /private/tmp/radar-ui-cyan-final/repo/scripts/qualify-ui-int2-journeys.cjs:21:211
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11356) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). To terminate the node process on unhandled promise rejection, use the CLI flag `--unhandled-rejections=strict` (see https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode). (rejection id: 6)

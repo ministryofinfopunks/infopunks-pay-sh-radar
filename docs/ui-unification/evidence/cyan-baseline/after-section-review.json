@@ -1,0 +1,802 @@
+[
+  {
+    "route": "/solana",
+    "selector": ".radar-universal-actions",
+    "metrics": {
+      "rect": [
+        27,
+        558.03125,
+        336,
+        96
+      ],
+      "display": "grid",
+      "width": "336px",
+      "maxWidth": "none",
+      "alignItems": "stretch",
+      "justifyItems": "normal",
+      "children": [
+        {
+          "tag": "A",
+          "class": "execute compact",
+          "width": 165.5625,
+          "height": 44,
+          "display": "flex",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "165.562px"
+        },
+        {
+          "tag": "A",
+          "class": "execute compact secondary",
+          "width": 165.5625,
+          "height": 44,
+          "display": "flex",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "165.562px"
+        }
+      ]
+    }
+  },
+  {
+    "route": "/solana",
+    "selector": ".radar-route-directory",
+    "metrics": {
+      "rect": [
+        10,
+        -895.078125,
+        370,
+        2845.390625
+      ],
+      "display": "block",
+      "width": "370px",
+      "maxWidth": "100%",
+      "alignItems": "normal",
+      "justifyItems": "normal",
+      "children": [
+        {
+          "tag": "DIV",
+          "class": "radar-route-directory-head",
+          "width": 344,
+          "height": 162.140625,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "DIV",
+          "class": "radar-route-directory-grid",
+          "width": 344,
+          "height": 2641.25,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        }
+      ]
+    }
+  },
+  {
+    "route": "/solana",
+    "selector": ".solana-evidence-brief",
+    "metrics": {
+      "rect": [
+        10,
+        -537.34375,
+        370,
+        2040.484375
+      ],
+      "display": "grid",
+      "width": "370px",
+      "maxWidth": "100%",
+      "alignItems": "start",
+      "justifyItems": "normal",
+      "children": [
+        {
+          "tag": "DIV",
+          "class": "solana-evidence-primary",
+          "width": 336,
+          "height": 1782.421875,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "cssWidth": "336px"
+        },
+        {
+          "tag": "NAV",
+          "class": "terminal-quick-actions solana-secondary-actions",
+          "width": 336,
+          "height": 208.0625,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "cssWidth": "336px"
+        }
+      ]
+    }
+  },
+  {
+    "route": "/solana",
+    "selector": "#benchmark-readiness",
+    "metrics": {
+      "rect": [
+        27,
+        -151.15625,
+        336,
+        1267.890625
+      ],
+      "display": "block",
+      "width": "336px",
+      "maxWidth": "100%",
+      "alignItems": "normal",
+      "justifyItems": "normal",
+      "children": [
+        {
+          "tag": "DIV",
+          "class": "phase3-panel-head",
+          "width": 302,
+          "height": 66.390625,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "cssWidth": "302px"
+        },
+        {
+          "tag": "P",
+          "class": "panel-caption",
+          "width": 302,
+          "height": 88.75,
+          "display": "block",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "cssWidth": "302px"
+        },
+        {
+          "tag": "DIV",
+          "class": "readiness-list-grid",
+          "width": 302,
+          "height": 1066.75,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "cssWidth": "302px"
+        }
+      ]
+    }
+  },
+  {
+    "route": "/solana",
+    "selector": "#preflight",
+    "metrics": {
+      "rect": [
+        27,
+        -94.171875,
+        336,
+        1154.703125
+      ],
+      "display": "block",
+      "width": "336px",
+      "maxWidth": "100%",
+      "alignItems": "normal",
+      "justifyItems": "normal",
+      "children": [
+        {
+          "tag": "DIV",
+          "class": "panel-head",
+          "width": 302,
+          "height": 371.171875,
+          "display": "flex",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "cssWidth": "302px"
+        },
+        {
+          "tag": "DIV",
+          "class": "preflight-examples",
+          "width": 302,
+          "height": 198,
+          "display": "flex",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "cssWidth": "302px"
+        },
+        {
+          "tag": "DIV",
+          "class": "preflight-form",
+          "width": 302,
+          "height": 436,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "cssWidth": "302px"
+        },
+        {
+          "tag": "DIV",
+          "class": "empty-state polished-empty",
+          "width": 302,
+          "height": 86.53125,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "cssWidth": "302px"
+        }
+      ]
+    }
+  },
+  {
+    "route": "/solana",
+    "selector": "#route-mapping-registry",
+    "metrics": {
+      "rect": [
+        27,
+        447.734375,
+        336,
+        70.59375
+      ],
+      "display": "block",
+      "width": "336px",
+      "maxWidth": "100%",
+      "alignItems": "normal",
+      "justifyItems": "normal",
+      "children": [
+        {
+          "tag": "DETAILS",
+          "class": "compact-chip-details",
+          "width": 302,
+          "height": 27.59375,
+          "display": "block",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "cssWidth": "302px"
+        }
+      ]
+    }
+  },
+  {
+    "route": "/solana",
+    "selector": "#agent-benchmark-api",
+    "metrics": {
+      "rect": [
+        27,
+        -3021.578125,
+        336,
+        7009.171875
+      ],
+      "display": "grid",
+      "width": "336px",
+      "maxWidth": "100%",
+      "alignItems": "stretch",
+      "justifyItems": "normal",
+      "children": [
+        {
+          "tag": "DIV",
+          "class": "radar-export-head",
+          "width": 302,
+          "height": 298.578125,
+          "display": "flex",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "cssWidth": "302px"
+        },
+        {
+          "tag": "DIV",
+          "class": "agent-api-stack",
+          "width": 302,
+          "height": 6640.59375,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "cssWidth": "302px"
+        }
+      ]
+    }
+  },
+  {
+    "route": "/solana",
+    "hiddenOverflow": [
+      {
+        "tag": "SPAN",
+        "class": "",
+        "width": 228,
+        "scrollWidth": 277,
+        "text": "Generative Language API (Gemini)"
+      },
+      {
+        "tag": "DIV",
+        "class": "dossier-body",
+        "width": 302,
+        "scrollWidth": 344,
+        "text": "Capability BriefCatalog-supplied description, tags, and service URL. This does not imply e"
+      },
+      {
+        "tag": "SECTION",
+        "class": "dossier-section tier-2 route-decision-section",
+        "width": 300,
+        "scrollWidth": 343,
+        "text": "Route Decision PanelUses the existing route recommendation API with selected provider as o"
+      }
+    ]
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-today",
+    "metrics": {
+      "rect": [
+        10,
+        -145.96875,
+        370,
+        1273.28125
+      ],
+      "display": "block",
+      "width": "370px",
+      "maxWidth": "100%",
+      "alignItems": "normal",
+      "justifyItems": "normal",
+      "children": [
+        {
+          "tag": "DIV",
+          "class": "rh-v2-section-heading",
+          "width": 344,
+          "height": 94.75,
+          "display": "flex",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "DIV",
+          "class": "rh-v2-today-grid",
+          "width": 344,
+          "height": 1136.53125,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        }
+      ]
+    }
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-receipt",
+    "metrics": {
+      "rect": [
+        10,
+        -321.6875,
+        370,
+        1624.90625
+      ],
+      "display": "block",
+      "width": "370px",
+      "maxWidth": "100%",
+      "alignItems": "normal",
+      "justifyItems": "normal",
+      "children": [
+        {
+          "tag": "HEADER",
+          "class": "rh-v2-receipt-head",
+          "width": 344,
+          "height": 130.765625,
+          "display": "flex",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "DIV",
+          "class": "rh-v2-receipt-lede",
+          "width": 344,
+          "height": 253.359375,
+          "display": "flex",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "DIV",
+          "class": "rh-v2-receipt-intelligence",
+          "width": 344,
+          "height": 542,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "DIV",
+          "class": "rh-v2-receipt-secondary",
+          "width": 344,
+          "height": 581.59375,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "FOOTER",
+          "class": "rh-v2-receipt-foot",
+          "width": 344,
+          "height": 91.1875,
+          "display": "flex",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "cssWidth": "344px"
+        }
+      ]
+    }
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-movers",
+    "metrics": {
+      "rect": [
+        10,
+        -141.78125,
+        370,
+        1265.671875
+      ],
+      "display": "block",
+      "width": "370px",
+      "maxWidth": "100%",
+      "alignItems": "normal",
+      "justifyItems": "normal",
+      "children": [
+        {
+          "tag": "DIV",
+          "class": "rh-v2-section-heading",
+          "width": 344,
+          "height": 150.75,
+          "display": "flex",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "DIV",
+          "class": "rh-v2-mover-grid",
+          "width": 344,
+          "height": 1072.921875,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        }
+      ]
+    }
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-risk-radar",
+    "metrics": {
+      "rect": [
+        10,
+        -27.109375,
+        370,
+        1036.875
+      ],
+      "display": "block",
+      "width": "370px",
+      "maxWidth": "100%",
+      "alignItems": "normal",
+      "justifyItems": "normal",
+      "children": [
+        {
+          "tag": "DIV",
+          "class": "rh-v2-section-heading",
+          "width": 344,
+          "height": 113.953125,
+          "display": "flex",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "DIV",
+          "class": "rh-v2-risk-grid",
+          "width": 344,
+          "height": 880.921875,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        }
+      ]
+    }
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-memes",
+    "metrics": {
+      "rect": [
+        10,
+        -692.234375,
+        370,
+        2366.109375
+      ],
+      "display": "block",
+      "width": "370px",
+      "maxWidth": "100%",
+      "alignItems": "normal",
+      "justifyItems": "normal",
+      "children": [
+        {
+          "tag": "DIV",
+          "class": "rh-v2-section-heading",
+          "width": 344,
+          "height": 195.140625,
+          "display": "flex",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "DIV",
+          "class": "rh-v2-meme-controls",
+          "width": 344,
+          "height": 207.5625,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "DIV",
+          "class": "rh-v2-meme-grid",
+          "width": 344,
+          "height": 1909.40625,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        }
+      ]
+    }
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-routes",
+    "metrics": {
+      "rect": [
+        10,
+        25.875,
+        370,
+        930.203125
+      ],
+      "display": "block",
+      "width": "370px",
+      "maxWidth": "100%",
+      "alignItems": "normal",
+      "justifyItems": "normal",
+      "children": [
+        {
+          "tag": "DIV",
+          "class": "rh-v2-section-heading",
+          "width": 344,
+          "height": 169.953125,
+          "display": "flex",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "DIV",
+          "class": "rh-v2-route-flow",
+          "width": 344,
+          "height": 582.703125,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "FOOTER",
+          "class": "rh-v2-route-foot",
+          "width": 344,
+          "height": 123.546875,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "cssWidth": "344px"
+        }
+      ]
+    }
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-review-queue",
+    "missing": true
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-chain-pulse",
+    "metrics": {
+      "rect": [
+        10,
+        44.53125,
+        370,
+        892.765625
+      ],
+      "display": "block",
+      "width": "370px",
+      "maxWidth": "100%",
+      "alignItems": "normal",
+      "justifyItems": "normal",
+      "children": [
+        {
+          "tag": "DIV",
+          "class": "rh-v2-section-heading",
+          "width": 344,
+          "height": 195.140625,
+          "display": "flex",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "DIV",
+          "class": "rh-v2-chain-grid",
+          "width": 344,
+          "height": 442.703125,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "DIV",
+          "class": "rh-v2-protocol-strip",
+          "width": 344,
+          "height": 200.921875,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        }
+      ]
+    }
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "selector": ".rh-v2-methodology",
+    "metrics": {
+      "rect": [
+        10,
+        215.296875,
+        370,
+        550.484375
+      ],
+      "display": "grid",
+      "width": "370px",
+      "maxWidth": "100%",
+      "alignItems": "normal",
+      "justifyItems": "normal",
+      "children": [
+        {
+          "tag": "DIV",
+          "class": "",
+          "width": 344,
+          "height": 113.953125,
+          "display": "block",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "auto",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "DIV",
+          "class": "rh-v2-principles",
+          "width": 344,
+          "height": 181.5625,
+          "display": "grid",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "auto",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "NAV",
+          "class": "",
+          "width": 344,
+          "height": 96,
+          "display": "flex",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "auto",
+          "maxWidth": "none",
+          "cssWidth": "344px"
+        },
+        {
+          "tag": "FOOTER",
+          "class": "",
+          "width": 344,
+          "height": 84.96875,
+          "display": "flex",
+          "alignSelf": "auto",
+          "justifySelf": "auto",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "cssWidth": "344px"
+        }
+      ]
+    }
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "hiddenOverflow": []
+  }
+]

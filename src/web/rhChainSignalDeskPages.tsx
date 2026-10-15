@@ -220,6 +220,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
     else {
       const todayFallback = dailyReceipts && signalIndex ? assembleRhChainTodayOn4663({ dailyReceipts, index: signalIndex, memePulse: memePulse ?? undefined }) : null;
       routeContent = <RhChainSignalDeskV2
+        terminalHome={!narrativeRoute}
         desk={desk}
         envelope={routeEnvelope}
         reviewQueue={reviewQueue}
@@ -236,7 +237,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
 
   const isDeskHome = !scoutRoute && !liveSnapshotRoute && !launchSurfacesRoute && !isDailyReceiptRoute && !indexRoute && !reviewQueueRoute && !submitRoute && !narrativeRoute;
 
-  return <div className="shell narrative-shell rh-chain-shell">
+  return <div className={`shell narrative-shell rh-chain-shell${isDeskHome ? ' radar-terminal-page' : ''}`}>
     <a className="skip-link" href="#rh-chain-content">Skip to content</a>
     <header className="site-header">
       <RhChainSuiteNav current={currentPath === '/narratives/robinhood-chain' ? '/rh-chain-signal-desk' : currentPath} />

@@ -1,0 +1,25 @@
+{
+  "name": "real-journeys",
+  "command": [
+    "node",
+    "scripts/qualify-ui-int2-journeys-scoped.cjs"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 6.293,
+  "url": "http://127.0.0.1:8812",
+  "runtime": "Node24.21.0",
+  "snapshot": "/private/tmp/radar-ui-cyan-final/repo",
+  "source_manifest": "source-hashes-final.json",
+  "environment": "SYNTHETIC_LOCAL_AUTHORIZED_FIXTURE; disposable localhost PG16.15; real API; payments/execution/jobs disabled",
+  "fixture_identifiers": {
+    "classification": "SYNTHETIC_LOCAL_AUTHORIZED_FIXTURE",
+    "judgment": "judgment_bf5bda24d2e154573f1f302b1cf8b1015dd579b43aefbf2c7f23f538ae3e1b22",
+    "observation": "ui_int2_observation",
+    "pendingExecution": "ui_int2_pending_execution",
+    "evaluation": "ui_int2_evaluation",
+    "issuerSignatureValid": true
+  },
+  "candidate_outputs": "docs/ui-unification/validation/real-journeys",
+  "approved_evidence_unchanged": true,
+  "script_note": "Temporary selector-scoped harness; see journey-harness-adaptation.json; original assertions and timeouts unchanged"
+}

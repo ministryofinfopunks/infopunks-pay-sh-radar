@@ -1,0 +1,21 @@
+Solana terminal view disclosure keyboard true
+Solana density control true
+Solana Agent Mode control preserves terminal true
+Solana command palette keyboard and dismiss true
+Solana provider filter and sort true
+Solana route registry filters true
+Solana preflight validation and example input true
+Solana evidence disclosure keyboard true
+Solana semantic search input and form true
+Solana mobile product navigation keyboard true
+Robinhood Brief / Analyst keyboard modes true
+Robinhood invalid contract validation and edit reset true
+Robinhood valid exact-contract read-only request true
+Robinhood receipt sharing URL copy and Escape focus true
+Robinhood receipt sharing outside click dismiss true
+Robinhood moving card share true
+Robinhood Meme Pulse filters, search, cards / table true
+Robinhood source policy disclosure keyboard true
+Robinhood stale source state remains visible true
+Robinhood mobile navigation keyboard true
+{"phase":"after","failed":[],"audit":[{"route":"/","unlabelledInputs":0,"unnamedControls":0,"smallTargets":1},{"route":"/solana","unlabelledInputs":0,"unnamedControls":0,"smallTargets":61},{"route":"/rh-chain-signal-desk","unlabelledInputs":0,"unnamedControls":0,"smallTargets":1}]}

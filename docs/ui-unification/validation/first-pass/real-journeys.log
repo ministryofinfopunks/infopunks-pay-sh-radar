@@ -1,0 +1,10 @@
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+page.waitForResponse: Target page, context or browser has been closed
+    at /private/tmp/radar-ui-cyan-final/repo/scripts/qualify-ui-int2-journeys.cjs:21:211 {
+  log: []
+}
+
+Node.js v24.21.0

@@ -20,6 +20,7 @@ import type { RhChainLiveSnapshot } from '../services/rhChainLiveSnapshotService
 import type { RhChainTodayOn4663Payload } from '../services/rhChainTodayOn4663Service';
 import { formatUtcCompact } from '../shared/timestamps';
 import { isRhChainContractAddress, rhChainTokenDossierRoute } from './rhChainContract';
+import { RadarSectionHeader } from './radarDesignSystem';
 import {
   fetchRhChain,
   RhChainModuleDegradedNotice,
@@ -41,6 +42,14 @@ import {
 
 type RhChainDeskMode = 'brief' | 'analyst';
 
+const RhChainTerminalVisualContext = React.createContext(false);
+
+function TerminalSectionLabel({ index, title, fallback = null }: { index: string; title: string; fallback?: React.ReactNode }) {
+  return React.useContext(RhChainTerminalVisualContext)
+    ? <RadarSectionHeader index={index} title={title} subtitle="" level="label" />
+    : fallback;
+}
+
 export type RhChainLaunchSurfacesPayload = {
   title: string;
   subtitle: string;
@@ -58,6 +67,7 @@ type RhChainSignalDeskV2Failures = {
 };
 
 export type RhChainSignalDeskV2Props = {
+  terminalHome?: boolean;
   desk: RhChainPayload;
   envelope: RhChainEnvelope<unknown> | null;
   reviewQueue: RhChainReviewQueuePayload | null;
@@ -144,7 +154,7 @@ export function RhChainSignalDeskV2(props: RhChainSignalDeskV2Props) {
   const chainPulse = useMemo(() => selectChainPulseSummary(props.desk), [props.desk]);
   const launchRoute = useMemo(() => selectLaunchRoute(props.reviewQueue, props.launchSurfaces?.launch_surfaces ?? [], props.launchSurfaces?.access_surfaces ?? []), [props.reviewQueue, props.launchSurfaces]);
 
-  return <div className={`rh-v2-desk mode-${mode}`}>
+  return <RhChainTerminalVisualContext.Provider value={Boolean(props.terminalHome)}><div className={`rh-v2-desk mode-${mode}`}>
     <RhChainHero
       desk={props.desk}
       envelope={props.envelope}
@@ -156,7 +166,7 @@ export function RhChainSignalDeskV2(props: RhChainSignalDeskV2Props) {
       onModeChange={setMode}
     />
 
-    <TodayOn4663 cards={today} />
+    <TodayOn4663 cards={today} latestReceipt={props.dailyReceipts?.latest_receipt ?? null} fallbackObservedAt={props.desk.last_updated} />
 
     {props.dailyReceipts
       ? <DailyReceiptFeature receipt={props.dailyReceipts.latest_receipt} />
@@ -197,7 +207,7 @@ export function RhChainSignalDeskV2(props: RhChainSignalDeskV2Props) {
     />}
 
     <RhChainMethodologyFooter envelope={props.envelope} analyst={mode === 'analyst'} />
-  </div>;
+  </div></RhChainTerminalVisualContext.Provider>;
 }
 
 function RhChainViewModeControl({ mode, onChange }: { mode: RhChainDeskMode; onChange: (mode: RhChainDeskMode) => void }) {
@@ -239,6 +249,7 @@ function RhChainHero({ desk, envelope, today, latestReceipt, signalIndex, review
     </div>
     <aside className="rh-v2-intelligence-rail" aria-label="Today on 4663 summary">
       <div className="rh-v2-rail-heading"><span>Today on 4663</span><i aria-hidden="true" /></div>
+      <MarketObservationStatus state={latestReceipt?.freshness_state} observedAt={observedAt} />
       <dl>
         <div><dt>Market state</dt><dd>{latestReceipt?.freshness_state ? formatLabel(latestReceipt.freshness_state) : 'source required'}</dd></div>
         <div><dt>Top signal</dt><dd>{topSignal?.verdict ?? 'Unavailable'}</dd></div>
@@ -340,17 +351,28 @@ function RhChainContractCheck({ signalIndex, reviewQueue, latestReceipt }: {
   </div>;
 }
 
-function SectionHeading({ kicker, title, copy, action, titleId }: { kicker: string; title: string; copy: string; action?: React.ReactNode; titleId?: string }) {
-  return <div className="rh-v2-section-heading"><div><p>{kicker}</p><h2 id={titleId}>{title}</h2><span>{copy}</span></div>{action}</div>;
+function SectionHeading({ index, kicker, title, copy, action, titleId }: { index?: string; kicker: string; title: string; copy: string; action?: React.ReactNode; titleId?: string }) {
+  return <div className="rh-v2-section-heading"><div>{index ? <TerminalSectionLabel index={index} title={kicker} fallback={<p>{kicker}</p>} /> : <p>{kicker}</p>}<h2 id={titleId}>{title}</h2><span>{copy}</span></div>{action}</div>;
 }
 
 function EvidenceStateBadge({ state }: { state: string }) {
   return <span className={`rh-v2-evidence-state state-${state.replaceAll(' ', '_')}`}>{formatLabel(state)}</span>;
 }
 
-function TodayOn4663({ cards }: { cards: ReturnType<typeof selectTodayOn4663> }) {
+function MarketObservationStatus({ state, observedAt }: { state: RhChainDailyReceipt['freshness_state']; observedAt: string }) {
+  if (!React.useContext(RhChainTerminalVisualContext)) return null;
+  return <div className="rh-v2-observation-status" data-state={state ?? 'source_required'}>
+    <span>Market state <EvidenceStateBadge state={state ?? 'source_required'} /></span>
+    {state === 'stale' && <strong>Historical observation</strong>}
+    <span>Observed <time dateTime={observedAt}>{formatTimestamp(observedAt)}</time></span>
+  </div>;
+}
+
+function TodayOn4663({ cards, latestReceipt, fallbackObservedAt }: { cards: ReturnType<typeof selectTodayOn4663>; latestReceipt: RhChainDailyReceipt | null; fallbackObservedAt: string }) {
+  const observedAt = cards.map((item) => item.observedAt).filter((value): value is string => Boolean(value)).sort().at(-1) ?? fallbackObservedAt;
   return <section className="rh-v2-section rh-v2-today" aria-labelledby="rh-v2-today-title">
-    <SectionHeading titleId="rh-v2-today-title" kicker="Daily pulse" title="Today on 4663" copy="Four decisions. One minute. Every claim keeps its evidence state." />
+    <SectionHeading index="12" titleId="rh-v2-today-title" kicker="Daily pulse" title="Today on 4663" copy="Four decisions. One minute. Every claim keeps its evidence state." />
+    <MarketObservationStatus state={latestReceipt?.freshness_state} observedAt={observedAt} />
     <div className="rh-v2-today-grid">
       {cards.map((card) => <article key={card.id} className={`rh-v2-today-card card-${card.id}`}>
         <div><p>{card.title}</p><EvidenceStateBadge state={card.evidenceState} /></div>
@@ -365,7 +387,7 @@ function TodayOn4663({ cards }: { cards: ReturnType<typeof selectTodayOn4663> })
 function DailyReceiptFeature({ receipt }: { receipt: RhChainDailyReceipt }) {
   return <section id="latest-receipt" className="rh-v2-section rh-v2-receipt" aria-labelledby="rh-v2-receipt-title">
     <header className="rh-v2-receipt-head">
-      <div><p>Daily Receipt {dailyReceiptNumber(receipt.receipt_id)}</p><span>{receipt.date} · {formatLabel(receipt.status)}</span></div>
+      <div><TerminalSectionLabel index="13" title="Daily receipt" /><p>Daily Receipt {dailyReceiptNumber(receipt.receipt_id)}</p><span>{receipt.date} · {formatLabel(receipt.status)}</span></div>
       <RhChainShareMenu receipt={receipt} />
     </header>
     <div className="rh-v2-receipt-lede">
@@ -466,7 +488,7 @@ function RhChainShareMenu({ receipt }: { receipt: RhChainDailyReceipt }) {
 
 function MoversSection({ movers }: { movers: RhChain4663Asset[] }) {
   return <section className="rh-v2-section rh-v2-movers" aria-labelledby="rh-v2-movers-title">
-    <SectionHeading titleId="rh-v2-movers-title" kicker="4663 movers" title="What is moving" copy="Ranked attention with the caveat still attached." action={<a href="/rh-chain-signal-desk/4663-index">View Full 4663 Index</a>} />
+    <SectionHeading index="14" titleId="rh-v2-movers-title" kicker="4663 movers" title="What is moving" copy="Ranked attention with the caveat still attached." action={<a href="/rh-chain-signal-desk/4663-index">View Full 4663 Index</a>} />
     <div className="rh-v2-mover-grid">
       {movers.length ? movers.map((asset) => <MoverCard key={`${asset.rank}-${asset.ticker}-${asset.token_contract}`} asset={asset} />) : <p className="rh-v2-empty">No ranked mover is available. Nothing has been inferred.</p>}
     </div>
@@ -565,7 +587,7 @@ function MemeDossierCard({ item }: { item: BriefMemeSelection }) {
 }
 
 function MemePulseAnalystTable({ items }: { items: BriefMemeSelection[] }) {
-  return <div className="rh-v2-table-wrap"><table className="rh-v2-table">
+  return <div className="rh-v2-table-wrap" role="region" aria-label="Meme Pulse analyst fields; scroll horizontally for all columns" tabIndex={0}><table className="rh-v2-table">
     <caption>RH Chain Meme Pulse analyst fields</caption>
     <thead><tr><th>Ticker</th><th>State</th><th>Contract</th><th>Risk</th><th>Signal</th><th>Source / observed</th><th>Verdict</th></tr></thead>
     <tbody>{items.map((item, index) => <tr key={`${item.contract ?? item.ticker}-${index}`}><th scope="row">{item.ticker}<small>{item.name}</small></th><td>{item.observedState}</td><td>{item.contract ?? 'source required'}</td><td>{formatLabel(item.riskState)}</td><td>{item.signalScore ?? 'unavailable'}</td><td>{item.source.source_name}<small>{formatTimestamp(item.source.observed_at)}</small></td><td>{item.verdict}</td></tr>)}</tbody>
@@ -638,7 +660,7 @@ function RhChainAnalystPanel({ desk, index, queue, receipts, memePulse, liveSnap
 }
 
 function AnalystIndexTable({ assets }: { assets: RhChain4663Asset[] }) {
-  return <div className="rh-v2-table-wrap"><table className="rh-v2-table"><caption>Full 4663 ranked index and scoring fields</caption><thead><tr><th>Rank</th><th>Asset</th><th>Score</th><th>Attention</th><th>Volume</th><th>Holders</th><th>Durability</th><th>Deployer</th><th>Risk</th><th>Updated</th></tr></thead><tbody>{assets.map((asset) => <tr key={asset.token_contract}><td>{asset.rank}</td><th scope="row">{asset.ticker}<small>{asset.name}</small></th><td>{asset.signal_score}</td><td>{asset.attention_score}/25</td><td>{asset.volume_score}/25</td><td>{asset.holder_score}/20</td><td>{asset.durability_score}/20</td><td>{asset.deployer_trust_score}/10</td><td>{formatLabel(asset.risk_state)}</td><td>{formatTimestamp(asset.last_updated)}</td></tr>)}</tbody></table></div>;
+  return <div className="rh-v2-table-wrap" role="region" aria-label="Full 4663 index; scroll horizontally for all columns" tabIndex={0}><table className="rh-v2-table"><caption>Full 4663 ranked index and scoring fields</caption><thead><tr><th>Rank</th><th>Asset</th><th>Score</th><th>Attention</th><th>Volume</th><th>Holders</th><th>Durability</th><th>Deployer</th><th>Risk</th><th>Updated</th></tr></thead><tbody>{assets.map((asset) => <tr key={asset.token_contract}><td>{asset.rank}</td><th scope="row">{asset.ticker}<small>{asset.name}</small></th><td>{asset.signal_score}</td><td>{asset.attention_score}/25</td><td>{asset.volume_score}/25</td><td>{asset.holder_score}/20</td><td>{asset.durability_score}/20</td><td>{asset.deployer_trust_score}/10</td><td>{formatLabel(asset.risk_state)}</td><td>{formatTimestamp(asset.last_updated)}</td></tr>)}</tbody></table></div>;
 }
 
 function AnalystReviewItem({ item }: { item: RhChainReviewItem }) {

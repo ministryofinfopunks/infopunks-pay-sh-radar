@@ -1,0 +1,21 @@
+{
+  "phase": "before",
+  "capturedAt": "2026-10-15T08:35:40.288Z",
+  "sourceCommit": "7f44417fcad683a48397dad251f5d4245aa34643",
+  "sourceBranch": "codex/radar-ui-visual-corrections",
+  "browserVersion": "155.0.8059.40",
+  "base": "http://127.0.0.1:5173",
+  "viewportSizes": {
+    "desktop": [
+      1440,
+      1000
+    ],
+    "mobile": [
+      390,
+      844
+    ]
+  },
+  "reducedMotion": "reduce",
+  "fixtureApiReplay": false,
+  "qualification": "Local development fixture-backed UI only; no production or manual screen-reader qualification"
+}

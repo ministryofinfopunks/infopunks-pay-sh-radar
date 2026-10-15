@@ -1,0 +1,9 @@
+{
+  "baselineCommit": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "frozenManifest": "source-hashes-final.json",
+  "manifestFileSha256": "090372043ac151a3f037734787e0be9a0f2d7f7e1695503037862473072a9b61",
+  "frozenFilesChecked": 704,
+  "differences": [],
+  "passed": true,
+  "source": "Final working-tree application bytes, after comfortable-density Copy target adjustment. Commit metadata recorded separately on handoff."
+}

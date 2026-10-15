@@ -1,0 +1,168 @@
+[
+  {
+    "label": "desktop",
+    "width": 1440,
+    "screenshots": [
+      "after-solana-evidence-desktop.png",
+      "after-solana-directory-desktop.png",
+      "after-robinhood-hero-status-desktop.png",
+      "after-robinhood-pulse-desktop.png",
+      "after-robinhood-receipt-desktop.png"
+    ],
+    "solana": {
+      "heading": "Radar coverage / source state",
+      "metrics": [
+        [
+          "Providers",
+          "12"
+        ],
+        [
+          "Endpoints",
+          "159"
+        ],
+        [
+          "Avg Trust",
+          "unknown"
+        ],
+        [
+          "Avg Signal",
+          "53"
+        ]
+      ],
+      "source": "FIXTURE-BACKED RADAR STATE",
+      "provenance": "Source: pay.sh/api/catalog · providers 12 · endpoints 159 · last ingested 10/15/2026, 2:05:44 PM\n\nFreshness / Oct 15, 2026, 8:35 AM UTC",
+      "children": [
+        "terminal-panel-heading",
+        "solana-hero-source-state",
+        "solana-hero-coverage",
+        "solana-hero-provenance",
+        "solana-hero-doctrine"
+      ],
+      "slogan": "Most see noise.Infopunks finds signal.",
+      "sloganSize": 12,
+      "metricSize": 23,
+      "directoryCounts": [
+        "04 surfaces",
+        "04 surfaces",
+        "04 surfaces",
+        "02 surfaces",
+        "05 surfaces",
+        "05 surfaces"
+      ]
+    },
+    "robinhood": {
+      "fields": [
+        "Top signal\n\nVolume remains resilient after the NOXA disruption, but the market is now separating into meme, RWA, agent, and infrastructure layers rather than moving as one launch-week trade.",
+        "Biggest risk\n\nLaunchpad fragmentation, duplicate tickers, paid attention, and unverified RWA or agent claims can make surface-level momentum look stronger than reviewed signal.",
+        "Strongest narrative\n\nRH Chain is maturing from meme rocket ship into a multi-layer attention market: memes onboard users, RWAs create institutional gravity, and agents become the next automation primitive.",
+        "Infopunks verdict\n\nMemes onboard attention. RWAs create gravity. Agents create the next primitive. 4663 tracks which layer gains power next.",
+        "Liquidity\nVolume remains strong but below peak launch-week frenzy. Chain-wide metrics are source/timestamp dependent; no exact chain-wide values are asserted. Uniswap remains a major venue in existing source context.",
+        "Deployer watch\nLaunchpad market-share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless provider receipts, primary sources, or operational on-chain evidence are attached.",
+        "Stock-token spillover\nLeadership messaging continues to re-center programmable real-world assets and tokenized finance, but that narrative is source_required unless primary or on-chain evidence supports the claim.",
+        "Launch-surface context\nLayer separation is RH Chain market-structure context, not proof of cross-chain migration, lasting usage, or token quality."
+      ],
+      "receiptText": "[ 13 ] DAILY RECEIPT\n\nDaily Receipt #006\n\n2026-07-19 · manual\nShare Receipt\n⌄\nRobinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers\n\nThe market forgets. 4663 remembers.\n\nSTALE\nTop signal\n\nVolume remains resilient after the NOXA disruption, but the market is now separating into meme, RWA, agent, and infrastructure layers rather than moving as one launch-week trade.\n\nBiggest risk\n\nLaunchpad fragmentation, duplicate tickers, paid attention, and unverified RWA or agent claims can make surface-level momentum look stronger than reviewed signal.\n\nStrongest narrative\n\nRH Chain is maturing from meme rocket ship into a multi-layer attention market: memes onboard users, RWAs create institutional gravity, and agents become the next automation primitive.\n\nInfopunks verdict\n\nMemes onboard attention. RWAs create gravity. Agents create the next primitive. 4663 tracks which layer gains power next.\n\nLiquidity\nVolume remains strong but below peak launch-week frenzy. Chain-wide metrics are source/timestamp dependent; no exact chain-wide values are asserted. Uniswap remains a major venue in existing source context.\n\nDeployer watch\nLaunchpad market-share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless provider receipts, primary sources, or operational on-chain evidence are attached.\n\nStock-token spillover\nLeadership messaging continues to re-center programmable real-world assets and tokenized finance, but that narrative is source_required unless primary or on-chain evidence supports the claim.\n\nLaunch-surface context\nLayer separation is RH Chain market-structure context, not proof of cross-chain migration, lasting usage, or token quality.\n\nObserved 2026-07-19 00:00 UTC\n1 source\nRead full receipt",
+      "headline": "Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers",
+      "headlineWidth": 861.75,
+      "headlineSize": 51.12,
+      "headlineLineHeight": 55.2096,
+      "observationStatuses": [
+        {
+          "text": "Market state\nSTALE\nHistorical observation\nObserved 2026-07-19 00:00 UTC",
+          "state": "stale",
+          "observedAt": "2026-07-19T00:00:00.000Z",
+          "beforeSignals": true
+        },
+        {
+          "text": "Market state\nSTALE\nHistorical observation\nObserved 2026-07-19 00:00 UTC",
+          "state": "stale",
+          "observedAt": "2026-07-19T00:00:00.000Z",
+          "beforeSignals": true
+        }
+      ]
+    }
+  },
+  {
+    "label": "mobile",
+    "width": 390,
+    "screenshots": [
+      "after-solana-evidence-mobile.png",
+      "after-solana-directory-mobile.png",
+      "after-robinhood-hero-status-mobile.png",
+      "after-robinhood-pulse-mobile.png",
+      "after-robinhood-receipt-mobile.png"
+    ],
+    "solana": {
+      "heading": "Radar coverage / source state",
+      "metrics": [
+        [
+          "Providers",
+          "12"
+        ],
+        [
+          "Endpoints",
+          "159"
+        ],
+        [
+          "Avg Trust",
+          "unknown"
+        ],
+        [
+          "Avg Signal",
+          "53"
+        ]
+      ],
+      "source": "FIXTURE-BACKED RADAR STATE",
+      "provenance": "Source: pay.sh/api/catalog · providers 12 · endpoints 159 · last ingested 10/15/2026, 2:05:44 PM\n\nFreshness / Oct 15, 2026, 8:35 AM UTC",
+      "children": [
+        "terminal-panel-heading",
+        "solana-hero-source-state",
+        "solana-hero-coverage",
+        "solana-hero-provenance",
+        "solana-hero-doctrine"
+      ],
+      "slogan": "Most see noise.Infopunks finds signal.",
+      "sloganSize": 12,
+      "metricSize": 23,
+      "directoryCounts": [
+        "04 surfaces",
+        "04 surfaces",
+        "04 surfaces",
+        "02 surfaces",
+        "05 surfaces",
+        "05 surfaces"
+      ]
+    },
+    "robinhood": {
+      "fields": [
+        "Top signal\n\nVolume remains resilient after the NOXA disruption, but the market is now separating into meme, RWA, agent, and infrastructure layers rather than moving as one launch-week trade.",
+        "Biggest risk\n\nLaunchpad fragmentation, duplicate tickers, paid attention, and unverified RWA or agent claims can make surface-level momentum look stronger than reviewed signal.",
+        "Strongest narrative\n\nRH Chain is maturing from meme rocket ship into a multi-layer attention market: memes onboard users, RWAs create institutional gravity, and agents become the next automation primitive.",
+        "Infopunks verdict\n\nMemes onboard attention. RWAs create gravity. Agents create the next primitive. 4663 tracks which layer gains power next.",
+        "Liquidity\nVolume remains strong but below peak launch-week frenzy. Chain-wide metrics are source/timestamp dependent; no exact chain-wide values are asserted. Uniswap remains a major venue in existing source context.",
+        "Deployer watch\nLaunchpad market-share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless provider receipts, primary sources, or operational on-chain evidence are attached.",
+        "Stock-token spillover\nLeadership messaging continues to re-center programmable real-world assets and tokenized finance, but that narrative is source_required unless primary or on-chain evidence supports the claim.",
+        "Launch-surface context\nLayer separation is RH Chain market-structure context, not proof of cross-chain migration, lasting usage, or token quality."
+      ],
+      "receiptText": "[ 13 ] DAILY RECEIPT\n\nDaily Receipt #006\n\n2026-07-19 · manual\nShare Receipt\n⌄\nRobinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers\n\nThe market forgets. 4663 remembers.\n\nSTALE\nTop signal\n\nVolume remains resilient after the NOXA disruption, but the market is now separating into meme, RWA, agent, and infrastructure layers rather than moving as one launch-week trade.\n\nBiggest risk\n\nLaunchpad fragmentation, duplicate tickers, paid attention, and unverified RWA or agent claims can make surface-level momentum look stronger than reviewed signal.\n\nStrongest narrative\n\nRH Chain is maturing from meme rocket ship into a multi-layer attention market: memes onboard users, RWAs create institutional gravity, and agents become the next automation primitive.\n\nInfopunks verdict\n\nMemes onboard attention. RWAs create gravity. Agents create the next primitive. 4663 tracks which layer gains power next.\n\nLiquidity\nVolume remains strong but below peak launch-week frenzy. Chain-wide metrics are source/timestamp dependent; no exact chain-wide values are asserted. Uniswap remains a major venue in existing source context.\n\nDeployer watch\nLaunchpad market-share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless provider receipts, primary sources, or operational on-chain evidence are attached.\n\nStock-token spillover\nLeadership messaging continues to re-center programmable real-world assets and tokenized finance, but that narrative is source_required unless primary or on-chain evidence supports the claim.\n\nLaunch-surface context\nLayer separation is RH Chain market-structure context, not proof of cross-chain migration, lasting usage, or token quality.\n\nObserved 2026-07-19 00:00 UTC\n1 source\nRead full receipt",
+      "headline": "Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers",
+      "headlineWidth": 344,
+      "headlineSize": 31.98,
+      "headlineLineHeight": 34.5384,
+      "observationStatuses": [
+        {
+          "text": "Market state\nSTALE\nHistorical observation\nObserved 2026-07-19 00:00 UTC",
+          "state": "stale",
+          "observedAt": "2026-07-19T00:00:00.000Z",
+          "beforeSignals": true
+        },
+        {
+          "text": "Market state\nSTALE\nHistorical observation\nObserved 2026-07-19 00:00 UTC",
+          "state": "stale",
+          "observedAt": "2026-07-19T00:00:00.000Z",
+          "beforeSignals": true
+        }
+      ]
+    }
+  }
+]

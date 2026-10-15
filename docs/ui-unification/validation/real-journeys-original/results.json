@@ -1,0 +1,27 @@
+{
+  "source_sha": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "environment": "SYNTHETIC_LOCAL_AUTHORIZED_FIXTURE; real PostgreSQL/API; payments disabled",
+  "reports": [
+    {
+      "name": "anonymous_home_to_spend_deep_link",
+      "pass": true,
+      "evidence_expansion": true
+    },
+    {
+      "name": "real_pre_spend_insufficient_evidence",
+      "pass": true,
+      "no_receipt": true,
+      "no_execution": true
+    },
+    {
+      "name": "route_filter_and_sort",
+      "pass": true,
+      "sort": "risk"
+    },
+    {
+      "name": "qualification_failure",
+      "pass": false,
+      "message": "Error: locator.click: Error: strict mode violation: getByRole('button', { name: 'Search', exact: true }) resolved to 2 elements:\n    1) <button type=\"submit\" class=\"execute compact secondary\">Search</button> aka locator('form').getByRole('button', { name: 'Search' })\n    2) <button class=\"\" type=\"button\" aria-pressed=\"false\">Search</button> aka getByRole('group', { name: 'Filter providers by category' }).getByRole('button', { name: 'Search' })\n\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Search', exact: true })\u001b[22m\n"
+    }
+  ]
+}

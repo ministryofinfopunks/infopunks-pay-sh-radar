@@ -1,0 +1,68 @@
+{
+  "capturedAt": "2026-10-15T07:54:38.515Z",
+  "method": "Both original selected-baseline source and final candidate exercise the same expanded Analyst / Meme Pulse table and valid read-only exact-contract flow against the real local fixture API. Console warnings/errors and page exceptions captured.",
+  "scriptSha256": "f2d3e86010d187877965553e3bec01c5a061887c85735f398a5cdadfca9174af",
+  "browserVersion": "155.0.8059.40",
+  "reports": [
+    {
+      "phase": "before",
+      "base": "http://127.0.0.1:5174",
+      "messages": [
+        {
+          "type": "error",
+          "text": "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted \u2014 the behavior is unsupported and could change in a future version. unverified_contract_required"
+        },
+        {
+          "type": "error",
+          "text": "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted \u2014 the behavior is unsupported and could change in a future version. unverified_contract_required"
+        },
+        {
+          "type": "error",
+          "text": "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted \u2014 the behavior is unsupported and could change in a future version. unverified_contract_required"
+        },
+        {
+          "type": "error",
+          "text": "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted \u2014 the behavior is unsupported and could change in a future version. unverified_contract_required"
+        },
+        {
+          "type": "error",
+          "text": "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted \u2014 the behavior is unsupported and could change in a future version. unverified_contract_required"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "phase": "after",
+      "base": "http://127.0.0.1:5173",
+      "messages": [
+        {
+          "type": "error",
+          "text": "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted \u2014 the behavior is unsupported and could change in a future version. unverified_contract_required"
+        },
+        {
+          "type": "error",
+          "text": "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted \u2014 the behavior is unsupported and could change in a future version. unverified_contract_required"
+        },
+        {
+          "type": "error",
+          "text": "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted \u2014 the behavior is unsupported and could change in a future version. unverified_contract_required"
+        },
+        {
+          "type": "error",
+          "text": "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted \u2014 the behavior is unsupported and could change in a future version. unverified_contract_required"
+        },
+        {
+          "type": "error",
+          "text": "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted \u2014 the behavior is unsupported and could change in a future version. unverified_contract_required"
+        }
+      ],
+      "errors": []
+    }
+  ],
+  "newCandidateMessages": [],
+  "postCheckSourceVerification": {
+    "verifiedAt": "2026-10-15T07:55:12.649287+00:00",
+    "sourceManifestSha256": "b0a8b62987967787eac5279cd965be129518829c692ad62ba8fa8a5c768e3bd8",
+    "matchesFrozenFinalCandidate": true
+  }
+}

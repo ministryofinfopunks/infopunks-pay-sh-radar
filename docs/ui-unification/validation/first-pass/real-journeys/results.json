@@ -1,0 +1,22 @@
+{
+  "source_sha": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "environment": "SYNTHETIC_LOCAL_AUTHORIZED_FIXTURE; real PostgreSQL/API; payments disabled",
+  "reports": [
+    {
+      "name": "anonymous_home_to_spend_deep_link",
+      "pass": true,
+      "evidence_expansion": true
+    },
+    {
+      "name": "real_pre_spend_insufficient_evidence",
+      "pass": true,
+      "no_receipt": true,
+      "no_execution": true
+    },
+    {
+      "name": "route_filter_and_sort",
+      "pass": true,
+      "sort": "risk"
+    }
+  ]
+}
