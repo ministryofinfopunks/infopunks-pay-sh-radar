@@ -1,0 +1,11 @@
+{
+  "pass": true,
+  "original_matches": 2,
+  "original_rejected_for_ambiguity": true,
+  "scoped_matches": 1,
+  "backend_status": 200,
+  "only_expected_selector_change": true,
+  "all_assertions_timeouts_and_security_checks_unchanged": true,
+  "source_sha": "f62f9cbabbe244682adf2cc17d9451f580a7ed1c",
+  "harness_sha256": "7603e67928d5faa97f791bdac2ecc5c1ad45a6d08409cf3469978c7c8bc425e1"
+}

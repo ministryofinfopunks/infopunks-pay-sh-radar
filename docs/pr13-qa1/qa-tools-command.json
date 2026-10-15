@@ -1,0 +1,18 @@
+{
+  "command": [
+    "npm",
+    "install",
+    "--prefix",
+    "/tmp/radar-pr13-qa1-tools",
+    "--offline",
+    "--ignore-scripts",
+    "--no-audit",
+    "--no-fund",
+    "--cache",
+    "/Users/ahdilm/.npm",
+    "randexp@0.5.3",
+    "pngjs@7.0.0"
+  ],
+  "exit_code": 0,
+  "scope": "Ephemeral QA-only runtime. No app package or lock changed; scripts disabled."
+}

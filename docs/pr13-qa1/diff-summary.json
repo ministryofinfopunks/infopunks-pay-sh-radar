@@ -1,0 +1,12 @@
+{
+  "base": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "head": "e1b7e7be2f14056c5aed61484b0fb1ba371be4a6",
+  "file_count": 581,
+  "github_inventory_matches": true,
+  "complete_patch_sha256": "220af35d38c2d3396623f34c1fc8bbd4ee58dbfee35dfa0c51a6e0d23e9b1bd5",
+  "patch_bytes": 204866768,
+  "commits": [
+    "e1b7e7be2f14056c5aed61484b0fb1ba371be4a6 Correct Radar evidence and receipt visual hierarchy",
+    "7f44417fcad683a48397dad251f5d4245aa34643 Unify Radar subpages with canonical cyan terminal"
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "status": "fulfilled",
+  "value": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Action completed."
+      }
+    ],
+    "structuredContent": {
+      "url": "https://github.com/ministryofinfopunks/infopunks-pay-sh-radar/pull/13",
+      "number": 13,
+      "state": "open",
+      "merged": false,
+      "mergeable": true,
+      "draft": true,
+      "body": "## Summary\n\nUnifies the Solana Radar and Robinhood Chain Signal Desk visual architecture with the canonical Infopunks Radar homepage.\n\nIncludes independently requested visual corrections VR-01–04.\n\n### Validation\n\n- 2,056 tests passed, zero skips\n- Build, lint, typecheck and design guard passed\n- Responsive, interaction, automated accessibility and native zoom checks passed\n- Homepage desktop/mobile screenshots remain byte-identical\n- Existing functionality and evidence states preserved\n\n### Review required\n\n- Independent visual approval of changed-page screenshots\n- Manual accessibility qualification\n- Existing journey-harness and project audit findings\n- Inherited security, migration and operational release gates\n\n**Status: HOLD**\n\nThis PR is for review and preservation only.\n\nDo not merge or deploy without explicit authorization.",
+      "title": "[UI] Radar Visual Unification: Solana + Robinhood Chain (Review Required)",
+      "base": "codex/radar-terminal-secure-integration",
+      "base_sha": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+      "head": "codex/radar-ui-visual-corrections",
+      "head_sha": "e1b7e7be2f14056c5aed61484b0fb1ba371be4a6",
+      "head_repo_id": 1231826839,
+      "head_repo_full_name": "ministryofinfopunks/infopunks-pay-sh-radar",
+      "merge_commit_sha": "ac373dc7894a9b244bb6fd4cd3bdc4deda5699f8",
+      "user": {
+        "login": "ministryofinfopunks",
+        "name": "ministryofinfopunks",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/278620752?v=4",
+        "id": 278620752
+      },
+      "requested_reviewers": null,
+      "requested_team_reviewers": null,
+      "diff": null,
+      "comments": null,
+      "created_at": "2026-10-15T12:03:11Z",
+      "updated_at": "2026-10-15T12:03:11Z",
+      "closed_at": null,
+      "merged_at": null,
+      "commits": 2,
+      "changed_files": 581,
+      "additions": 377575,
+      "deletions": 429,
+      "display_url": "https://github.com/ministryofinfopunks/infopunks-pay-sh-radar/pull/13",
+      "display_title": "[UI] Radar Visual Unification: Solana + Robinhood Chain (Review Required)"
+    },
+    "isError": false
+  }
+}

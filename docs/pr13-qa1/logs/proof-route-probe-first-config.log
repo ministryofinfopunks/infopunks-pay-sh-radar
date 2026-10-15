@@ -1,0 +1,23 @@
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  {
+    alerts: [],
+    headings: [],
+    route: '/4663/proof/0x1111111111111111111111111111111111111111',
+    source: null,
+    specialized_navigation_count: 0,
++   status: 503,
++   text: '{"error":"judgment_identity_unavailable"}'
+-   status: 401,
+-   text: '{"error":"judgment_authentication_required"}'
+  }
+
+    at /private/tmp/radar-pr13-qa1/docs/pr13-qa1/proof-route-probe.cjs:2:983 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [Object],
+  expected: [Object],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}

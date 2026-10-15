@@ -1,0 +1,347 @@
+infopunks-pay-sh-radar@0.1.0 /private/tmp/radar-pr13-qa1
+├── @adraffy/ens-normalize@1.11.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@adraffy/ens-normalize
+├── @asamuzakjp/css-color@5.1.11 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@asamuzakjp/css-color
+├── @asamuzakjp/dom-selector@7.1.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@asamuzakjp/dom-selector
+├── @asamuzakjp/generational-cache@1.0.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@asamuzakjp/generational-cache
+├── @asamuzakjp/nwsapi@2.3.9 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@asamuzakjp/nwsapi
+├── @bramus/specificity@2.4.2 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@bramus/specificity
+├── @csstools/color-helpers@6.0.2 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@csstools/color-helpers
+├── @csstools/css-calc@3.2.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@csstools/css-calc
+├── @csstools/css-color-parser@4.1.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@csstools/css-color-parser
+├── @csstools/css-parser-algorithms@4.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@csstools/css-parser-algorithms
+├── @csstools/css-syntax-patches-for-csstree@1.1.3 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@csstools/css-syntax-patches-for-csstree
+├── @csstools/css-tokenizer@4.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@csstools/css-tokenizer
+├── @esbuild/darwin-arm64@0.27.7 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@esbuild/darwin-arm64
+├── @exodus/bytes@1.15.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@exodus/bytes
+├── @fastify/ajv-compiler@4.0.5 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@fastify/ajv-compiler
+├── @fastify/cors@11.2.0 -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@fastify/cors
+├── @fastify/error@4.2.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@fastify/error
+├── @fastify/fast-json-stringify-compiler@5.0.3 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@fastify/fast-json-stringify-compiler
+├── @fastify/forwarded@3.0.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@fastify/forwarded
+├── @fastify/merge-json-schemas@0.2.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@fastify/merge-json-schemas
+├── @fastify/proxy-addr@5.1.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@fastify/proxy-addr
+├── @jridgewell/sourcemap-codec@1.6.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@jridgewell/sourcemap-codec
+├── @noble/ciphers@1.3.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@noble/ciphers
+├── @noble/curves@1.9.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@noble/curves
+├── @noble/hashes@1.8.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@noble/hashes
+├── @oxc-project/types@0.153.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@oxc-project/types
+├── @pinojs/redact@0.4.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@pinojs/redact
+├── @resvg/resvg-js-darwin-arm64@2.6.2 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@resvg/resvg-js-darwin-arm64
+├── @resvg/resvg-js@2.6.2 -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@resvg/resvg-js
+├── @rolldown/binding-darwin-arm64@1.2.13 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@rolldown/binding-darwin-arm64
+├── @rolldown/pluginutils@1.0.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@rolldown/pluginutils
+├── @scure/base@1.2.6 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@scure/base
+├── @scure/bip32@1.7.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@scure/bip32
+├── @scure/bip39@1.6.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@scure/bip39
+├── @standard-schema/spec@1.1.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@standard-schema/spec
+├── @types/chai@5.2.3 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@types/chai
+├── @types/deep-eql@4.0.2 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@types/deep-eql
+├── @types/estree@1.0.9 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@types/estree
+├── @types/node@25.6.0 invalid: "latest" from the root project -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@types/node
+├── @types/pg@8.20.0 -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@types/pg
+├── @types/react-dom@19.2.3 invalid: "latest" from the root project -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@types/react-dom
+├── @types/react@19.2.14 invalid: "latest" from the root project -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@types/react
+├── @vitejs/plugin-react@6.1.2 -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@vitejs/plugin-react
+├── @vitest/expect@4.1.11 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@vitest/expect
+├── @vitest/mocker@4.1.11 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@vitest/mocker
+├── @vitest/pretty-format@4.1.11 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@vitest/pretty-format
+├── @vitest/runner@4.1.11 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@vitest/runner
+├── @vitest/snapshot@4.1.11 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@vitest/snapshot
+├── @vitest/spy@4.1.11 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@vitest/spy
+├── @vitest/utils@4.1.11 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@vitest/utils
+├── @x402/core@2.28.0 -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@x402/core
+├── @x402/evm@2.28.0 -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/@x402/evm
+├── abitype@1.2.3 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/abitype
+├── abstract-logging@2.0.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/abstract-logging
+├── ajv-formats@3.0.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/ajv-formats
+├── ajv@8.20.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/ajv
+├── assertion-error@2.0.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/assertion-error
+├── atomic-sleep@1.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/atomic-sleep
+├── avvio@9.2.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/avvio
+├── axe-core@4.14.0 -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/axe-core
+├── bidi-js@1.0.3 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/bidi-js
+├── chai@6.3.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/chai
+├── convert-source-map@2.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/convert-source-map
+├── css-tree@3.2.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/css-tree
+├── csstype@3.2.3 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/csstype
+├── data-urls@7.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/data-urls
+├── decimal.js@10.6.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/decimal.js
+├── dequal@2.0.3 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/dequal
+├── detect-libc@2.1.2 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/detect-libc
+├── entities@8.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/entities
+├── es-module-lexer@2.3.2 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/es-module-lexer
+├── esbuild@0.27.7 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/esbuild
+├── estree-walker@3.0.3 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/estree-walker
+├── eventemitter3@5.0.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/eventemitter3
+├── expect-type@1.4.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/expect-type
+├── fast-decode-uri-component@1.0.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/fast-decode-uri-component
+├── fast-deep-equal@3.1.3 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/fast-deep-equal
+├── fast-json-stringify@6.4.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/fast-json-stringify
+├── fast-querystring@1.1.2 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/fast-querystring
+├── fast-uri@3.1.8 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/fast-uri
+├── fastify-plugin@5.1.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/fastify-plugin
+├── fastify@5.12.5 -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/fastify
+├── fastq@1.20.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/fastq
+├── fdir@6.5.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/fdir
+├── find-my-way@9.9.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/find-my-way
+├── fsevents@2.3.3 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/fsevents
+├── get-tsconfig@4.14.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/get-tsconfig
+├── html-encoding-sniffer@6.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/html-encoding-sniffer
+├── is-potential-custom-element-name@1.0.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/is-potential-custom-element-name
+├── isows@1.0.7 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/isows
+├── jsdom@29.1.1 invalid: "latest" from the root project -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/jsdom
+├── json-schema-ref-resolver@3.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/json-schema-ref-resolver
+├── json-schema-traverse@1.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/json-schema-traverse
+├── light-my-request@6.6.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/light-my-request
+├── lightningcss-darwin-arm64@1.33.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/lightningcss-darwin-arm64
+├── lightningcss@1.33.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/lightningcss
+├── lru-cache@11.3.6 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/lru-cache
+├── magic-string@0.30.21 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/magic-string
+├── mdn-data@2.27.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/mdn-data
+├── nanoid@3.3.20 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/nanoid
+├── obug@2.2.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/obug
+├── on-exit-leak-free@2.1.2 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/on-exit-leak-free
+├── ox@0.14.33 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/ox
+├── parse5@8.0.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/parse5
+├── pathe@2.0.3 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/pathe
+├── pg-cloudflare@1.3.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/pg-cloudflare
+├── pg-connection-string@2.12.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/pg-connection-string
+├── pg-int8@1.0.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/pg-int8
+├── pg-pool@3.13.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/pg-pool
+├── pg-protocol@1.13.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/pg-protocol
+├── pg-types@2.2.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/pg-types
+├── pg@8.20.0 -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/pg
+├── pgpass@1.0.5 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/pgpass
+├── picocolors@1.1.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/picocolors
+├── picomatch@4.0.7 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/picomatch
+├── pino-abstract-transport@3.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/pino-abstract-transport
+├── pino-std-serializers@7.1.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/pino-std-serializers
+├── pino@10.3.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/pino
+├── playwright-core@1.64.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/playwright-core
+├── playwright@1.64.0 -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/playwright
+├── postcss@8.5.29 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/postcss
+├── postgres-array@2.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/postgres-array
+├── postgres-bytea@1.0.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/postgres-bytea
+├── postgres-date@1.0.7 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/postgres-date
+├── postgres-interval@1.2.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/postgres-interval
+├── process-warning@5.1.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/process-warning
+├── punycode@2.3.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/punycode
+├── quick-format-unescaped@4.0.4 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/quick-format-unescaped
+├── react-dom@19.2.6 invalid: "latest" from the root project -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/react-dom
+├── react@19.2.6 invalid: "latest" from the root project -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/react
+├── real-require@0.2.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/real-require
+├── require-from-string@2.0.2 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/require-from-string
+├── resolve-pkg-maps@1.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/resolve-pkg-maps
+├── ret@0.5.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/ret
+├── reusify@1.1.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/reusify
+├── rfdc@1.4.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/rfdc
+├── rolldown@1.2.13 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/rolldown
+├── safe-regex2@5.1.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/safe-regex2
+├── safe-stable-stringify@2.5.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/safe-stable-stringify
+├── saxes@6.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/saxes
+├── scheduler@0.27.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/scheduler
+├── secure-json-parse@4.1.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/secure-json-parse
+├── semver@7.7.4 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/semver
+├── set-cookie-parser@2.7.2 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/set-cookie-parser
+├── siginfo@2.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/siginfo
+├── sonic-boom@4.2.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/sonic-boom
+├── source-map-js@1.2.2 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/source-map-js
+├── split2@4.2.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/split2
+├── stackback@0.0.2 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/stackback
+├── std-env@4.3.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/std-env
+├── symbol-tree@3.2.4 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/symbol-tree
+├── thread-stream@4.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/thread-stream
+├── tinybench@2.9.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/tinybench
+├── tinyexec@1.3.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/tinyexec
+├── tinyglobby@0.2.17 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/tinyglobby
+├── tinyrainbow@3.2.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/tinyrainbow
+├── tldts-core@7.0.30 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/tldts-core
+├── tldts@7.0.30 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/tldts
+├── toad-cache@3.7.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/toad-cache
+├── tough-cookie@6.0.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/tough-cookie
+├── tr46@6.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/tr46
+├── tsx@4.21.0 invalid: "latest" from the root project -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/tsx
+├── typescript@6.0.3 invalid: "latest" from the root project -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/typescript
+├── undici-types@7.19.2 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/undici-types
+├── undici@7.30.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/undici
+├── viem@2.55.13 -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/viem
+├── vite@8.3.4 -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/vite
+├── vitest@4.1.11 -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/vitest
+├── w3c-xmlserializer@5.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/w3c-xmlserializer
+├── webidl-conversions@8.0.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/webidl-conversions
+├── whatwg-mimetype@5.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/whatwg-mimetype
+├── whatwg-url@16.0.1 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/whatwg-url
+├── why-is-node-running@2.3.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/why-is-node-running
+├── ws@8.21.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/ws
+├── xml-name-validator@5.0.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/xml-name-validator
+├── xmlchars@2.2.0 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/xmlchars
+├── xtend@4.0.2 extraneous -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/xtend
+└── zod@4.4.3 invalid: "latest" from the root project -> ./../../../Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/node_modules/zod
+
+npm error code ELSPROBLEMS
+npm error extraneous: @adraffy/ens-normalize@1.11.1 /private/tmp/radar-pr13-qa1/node_modules/@adraffy/ens-normalize
+npm error extraneous: @asamuzakjp/css-color@5.1.11 /private/tmp/radar-pr13-qa1/node_modules/@asamuzakjp/css-color
+npm error extraneous: @asamuzakjp/dom-selector@7.1.1 /private/tmp/radar-pr13-qa1/node_modules/@asamuzakjp/dom-selector
+npm error extraneous: @asamuzakjp/generational-cache@1.0.1 /private/tmp/radar-pr13-qa1/node_modules/@asamuzakjp/generational-cache
+npm error extraneous: @asamuzakjp/nwsapi@2.3.9 /private/tmp/radar-pr13-qa1/node_modules/@asamuzakjp/nwsapi
+npm error extraneous: @bramus/specificity@2.4.2 /private/tmp/radar-pr13-qa1/node_modules/@bramus/specificity
+npm error extraneous: @csstools/color-helpers@6.0.2 /private/tmp/radar-pr13-qa1/node_modules/@csstools/color-helpers
+npm error extraneous: @csstools/css-calc@3.2.0 /private/tmp/radar-pr13-qa1/node_modules/@csstools/css-calc
+npm error extraneous: @csstools/css-color-parser@4.1.0 /private/tmp/radar-pr13-qa1/node_modules/@csstools/css-color-parser
+npm error extraneous: @csstools/css-parser-algorithms@4.0.0 /private/tmp/radar-pr13-qa1/node_modules/@csstools/css-parser-algorithms
+npm error extraneous: @csstools/css-syntax-patches-for-csstree@1.1.3 /private/tmp/radar-pr13-qa1/node_modules/@csstools/css-syntax-patches-for-csstree
+npm error extraneous: @csstools/css-tokenizer@4.0.0 /private/tmp/radar-pr13-qa1/node_modules/@csstools/css-tokenizer
+npm error extraneous: @esbuild/darwin-arm64@0.27.7 /private/tmp/radar-pr13-qa1/node_modules/@esbuild/darwin-arm64
+npm error extraneous: @exodus/bytes@1.15.0 /private/tmp/radar-pr13-qa1/node_modules/@exodus/bytes
+npm error extraneous: @fastify/ajv-compiler@4.0.5 /private/tmp/radar-pr13-qa1/node_modules/@fastify/ajv-compiler
+npm error extraneous: @fastify/error@4.2.0 /private/tmp/radar-pr13-qa1/node_modules/@fastify/error
+npm error extraneous: @fastify/fast-json-stringify-compiler@5.0.3 /private/tmp/radar-pr13-qa1/node_modules/@fastify/fast-json-stringify-compiler
+npm error extraneous: @fastify/forwarded@3.0.1 /private/tmp/radar-pr13-qa1/node_modules/@fastify/forwarded
+npm error extraneous: @fastify/merge-json-schemas@0.2.1 /private/tmp/radar-pr13-qa1/node_modules/@fastify/merge-json-schemas
+npm error extraneous: @fastify/proxy-addr@5.1.0 /private/tmp/radar-pr13-qa1/node_modules/@fastify/proxy-addr
+npm error extraneous: @jridgewell/sourcemap-codec@1.6.0 /private/tmp/radar-pr13-qa1/node_modules/@jridgewell/sourcemap-codec
+npm error extraneous: @noble/ciphers@1.3.0 /private/tmp/radar-pr13-qa1/node_modules/@noble/ciphers
+npm error extraneous: @noble/curves@1.9.1 /private/tmp/radar-pr13-qa1/node_modules/@noble/curves
+npm error extraneous: @noble/hashes@1.8.0 /private/tmp/radar-pr13-qa1/node_modules/@noble/hashes
+npm error extraneous: @oxc-project/types@0.153.0 /private/tmp/radar-pr13-qa1/node_modules/@oxc-project/types
+npm error extraneous: @pinojs/redact@0.4.0 /private/tmp/radar-pr13-qa1/node_modules/@pinojs/redact
+npm error extraneous: @resvg/resvg-js-darwin-arm64@2.6.2 /private/tmp/radar-pr13-qa1/node_modules/@resvg/resvg-js-darwin-arm64
+npm error extraneous: @rolldown/binding-darwin-arm64@1.2.13 /private/tmp/radar-pr13-qa1/node_modules/@rolldown/binding-darwin-arm64
+npm error extraneous: @rolldown/pluginutils@1.0.1 /private/tmp/radar-pr13-qa1/node_modules/@rolldown/pluginutils
+npm error extraneous: @scure/base@1.2.6 /private/tmp/radar-pr13-qa1/node_modules/@scure/base
+npm error extraneous: @scure/bip32@1.7.0 /private/tmp/radar-pr13-qa1/node_modules/@scure/bip32
+npm error extraneous: @scure/bip39@1.6.0 /private/tmp/radar-pr13-qa1/node_modules/@scure/bip39
+npm error extraneous: @standard-schema/spec@1.1.0 /private/tmp/radar-pr13-qa1/node_modules/@standard-schema/spec
+npm error extraneous: @types/chai@5.2.3 /private/tmp/radar-pr13-qa1/node_modules/@types/chai
+npm error extraneous: @types/deep-eql@4.0.2 /private/tmp/radar-pr13-qa1/node_modules/@types/deep-eql
+npm error extraneous: @types/estree@1.0.9 /private/tmp/radar-pr13-qa1/node_modules/@types/estree
+npm error invalid: @types/node@25.6.0 /private/tmp/radar-pr13-qa1/node_modules/@types/node
+npm error invalid: @types/react-dom@19.2.3 /private/tmp/radar-pr13-qa1/node_modules/@types/react-dom
+npm error invalid: @types/react@19.2.14 /private/tmp/radar-pr13-qa1/node_modules/@types/react
+npm error extraneous: @vitest/expect@4.1.11 /private/tmp/radar-pr13-qa1/node_modules/@vitest/expect
+npm error extraneous: @vitest/mocker@4.1.11 /private/tmp/radar-pr13-qa1/node_modules/@vitest/mocker
+npm error extraneous: @vitest/pretty-format@4.1.11 /private/tmp/radar-pr13-qa1/node_modules/@vitest/pretty-format
+npm error extraneous: @vitest/runner@4.1.11 /private/tmp/radar-pr13-qa1/node_modules/@vitest/runner
+npm error extraneous: @vitest/snapshot@4.1.11 /private/tmp/radar-pr13-qa1/node_modules/@vitest/snapshot
+npm error extraneous: @vitest/spy@4.1.11 /private/tmp/radar-pr13-qa1/node_modules/@vitest/spy
+npm error extraneous: @vitest/utils@4.1.11 /private/tmp/radar-pr13-qa1/node_modules/@vitest/utils
+npm error extraneous: abitype@1.2.3 /private/tmp/radar-pr13-qa1/node_modules/abitype
+npm error extraneous: abstract-logging@2.0.1 /private/tmp/radar-pr13-qa1/node_modules/abstract-logging
+npm error extraneous: ajv-formats@3.0.1 /private/tmp/radar-pr13-qa1/node_modules/ajv-formats
+npm error extraneous: ajv@8.20.0 /private/tmp/radar-pr13-qa1/node_modules/ajv
+npm error extraneous: assertion-error@2.0.1 /private/tmp/radar-pr13-qa1/node_modules/assertion-error
+npm error extraneous: atomic-sleep@1.0.0 /private/tmp/radar-pr13-qa1/node_modules/atomic-sleep
+npm error extraneous: avvio@9.2.0 /private/tmp/radar-pr13-qa1/node_modules/avvio
+npm error extraneous: bidi-js@1.0.3 /private/tmp/radar-pr13-qa1/node_modules/bidi-js
+npm error extraneous: chai@6.3.0 /private/tmp/radar-pr13-qa1/node_modules/chai
+npm error extraneous: convert-source-map@2.0.0 /private/tmp/radar-pr13-qa1/node_modules/convert-source-map
+npm error extraneous: css-tree@3.2.1 /private/tmp/radar-pr13-qa1/node_modules/css-tree
+npm error extraneous: csstype@3.2.3 /private/tmp/radar-pr13-qa1/node_modules/csstype
+npm error extraneous: data-urls@7.0.0 /private/tmp/radar-pr13-qa1/node_modules/data-urls
+npm error extraneous: decimal.js@10.6.0 /private/tmp/radar-pr13-qa1/node_modules/decimal.js
+npm error extraneous: dequal@2.0.3 /private/tmp/radar-pr13-qa1/node_modules/dequal
+npm error extraneous: detect-libc@2.1.2 /private/tmp/radar-pr13-qa1/node_modules/detect-libc
+npm error extraneous: entities@8.0.0 /private/tmp/radar-pr13-qa1/node_modules/entities
+npm error extraneous: es-module-lexer@2.3.2 /private/tmp/radar-pr13-qa1/node_modules/es-module-lexer
+npm error extraneous: esbuild@0.27.7 /private/tmp/radar-pr13-qa1/node_modules/esbuild
+npm error extraneous: estree-walker@3.0.3 /private/tmp/radar-pr13-qa1/node_modules/estree-walker
+npm error extraneous: eventemitter3@5.0.1 /private/tmp/radar-pr13-qa1/node_modules/eventemitter3
+npm error extraneous: expect-type@1.4.0 /private/tmp/radar-pr13-qa1/node_modules/expect-type
+npm error extraneous: fast-decode-uri-component@1.0.1 /private/tmp/radar-pr13-qa1/node_modules/fast-decode-uri-component
+npm error extraneous: fast-deep-equal@3.1.3 /private/tmp/radar-pr13-qa1/node_modules/fast-deep-equal
+npm error extraneous: fast-json-stringify@6.4.0 /private/tmp/radar-pr13-qa1/node_modules/fast-json-stringify
+npm error extraneous: fast-querystring@1.1.2 /private/tmp/radar-pr13-qa1/node_modules/fast-querystring
+npm error extraneous: fast-uri@3.1.8 /private/tmp/radar-pr13-qa1/node_modules/fast-uri
+npm error extraneous: fastify-plugin@5.1.0 /private/tmp/radar-pr13-qa1/node_modules/fastify-plugin
+npm error extraneous: fastq@1.20.1 /private/tmp/radar-pr13-qa1/node_modules/fastq
+npm error extraneous: fdir@6.5.0 /private/tmp/radar-pr13-qa1/node_modules/fdir
+npm error extraneous: find-my-way@9.9.0 /private/tmp/radar-pr13-qa1/node_modules/find-my-way
+npm error extraneous: fsevents@2.3.3 /private/tmp/radar-pr13-qa1/node_modules/fsevents
+npm error extraneous: get-tsconfig@4.14.0 /private/tmp/radar-pr13-qa1/node_modules/get-tsconfig
+npm error extraneous: html-encoding-sniffer@6.0.0 /private/tmp/radar-pr13-qa1/node_modules/html-encoding-sniffer
+npm error extraneous: is-potential-custom-element-name@1.0.1 /private/tmp/radar-pr13-qa1/node_modules/is-potential-custom-element-name
+npm error extraneous: isows@1.0.7 /private/tmp/radar-pr13-qa1/node_modules/isows
+npm error invalid: jsdom@29.1.1 /private/tmp/radar-pr13-qa1/node_modules/jsdom
+npm error extraneous: json-schema-ref-resolver@3.0.0 /private/tmp/radar-pr13-qa1/node_modules/json-schema-ref-resolver
+npm error extraneous: json-schema-traverse@1.0.0 /private/tmp/radar-pr13-qa1/node_modules/json-schema-traverse
+npm error extraneous: light-my-request@6.6.0 /private/tmp/radar-pr13-qa1/node_modules/light-my-request
+npm error extraneous: lightningcss-darwin-arm64@1.33.0 /private/tmp/radar-pr13-qa1/node_modules/lightningcss-darwin-arm64
+npm error extraneous: lightningcss@1.33.0 /private/tmp/radar-pr13-qa1/node_modules/lightningcss
+npm error extraneous: lru-cache@11.3.6 /private/tmp/radar-pr13-qa1/node_modules/lru-cache
+npm error extraneous: magic-string@0.30.21 /private/tmp/radar-pr13-qa1/node_modules/magic-string
+npm error extraneous: mdn-data@2.27.1 /private/tmp/radar-pr13-qa1/node_modules/mdn-data
+npm error extraneous: nanoid@3.3.20 /private/tmp/radar-pr13-qa1/node_modules/nanoid
+npm error extraneous: obug@2.2.1 /private/tmp/radar-pr13-qa1/node_modules/obug
+npm error extraneous: on-exit-leak-free@2.1.2 /private/tmp/radar-pr13-qa1/node_modules/on-exit-leak-free
+npm error extraneous: ox@0.14.33 /private/tmp/radar-pr13-qa1/node_modules/ox
+npm error extraneous: parse5@8.0.1 /private/tmp/radar-pr13-qa1/node_modules/parse5
+npm error extraneous: pathe@2.0.3 /private/tmp/radar-pr13-qa1/node_modules/pathe
+npm error extraneous: pg-cloudflare@1.3.0 /private/tmp/radar-pr13-qa1/node_modules/pg-cloudflare
+npm error extraneous: pg-connection-string@2.12.0 /private/tmp/radar-pr13-qa1/node_modules/pg-connection-string
+npm error extraneous: pg-int8@1.0.1 /private/tmp/radar-pr13-qa1/node_modules/pg-int8
+npm error extraneous: pg-pool@3.13.0 /private/tmp/radar-pr13-qa1/node_modules/pg-pool
+npm error extraneous: pg-protocol@1.13.0 /private/tmp/radar-pr13-qa1/node_modules/pg-protocol
+npm error extraneous: pg-types@2.2.0 /private/tmp/radar-pr13-qa1/node_modules/pg-types
+npm error extraneous: pgpass@1.0.5 /private/tmp/radar-pr13-qa1/node_modules/pgpass
+npm error extraneous: picocolors@1.1.1 /private/tmp/radar-pr13-qa1/node_modules/picocolors
+npm error extraneous: picomatch@4.0.7 /private/tmp/radar-pr13-qa1/node_modules/picomatch
+npm error extraneous: pino-abstract-transport@3.0.0 /private/tmp/radar-pr13-qa1/node_modules/pino-abstract-transport
+npm error extraneous: pino-std-serializers@7.1.0 /private/tmp/radar-pr13-qa1/node_modules/pino-std-serializers
+npm error extraneous: pino@10.3.1 /private/tmp/radar-pr13-qa1/node_modules/pino
+npm error extraneous: playwright-core@1.64.0 /private/tmp/radar-pr13-qa1/node_modules/playwright-core
+npm error extraneous: postcss@8.5.29 /private/tmp/radar-pr13-qa1/node_modules/postcss
+npm error extraneous: postgres-array@2.0.0 /private/tmp/radar-pr13-qa1/node_modules/postgres-array
+npm error extraneous: postgres-bytea@1.0.1 /private/tmp/radar-pr13-qa1/node_modules/postgres-bytea
+npm error extraneous: postgres-date@1.0.7 /private/tmp/radar-pr13-qa1/node_modules/postgres-date
+npm error extraneous: postgres-interval@1.2.0 /private/tmp/radar-pr13-qa1/node_modules/postgres-interval
+npm error extraneous: process-warning@5.1.0 /private/tmp/radar-pr13-qa1/node_modules/process-warning
+npm error extraneous: punycode@2.3.1 /private/tmp/radar-pr13-qa1/node_modules/punycode
+npm error extraneous: quick-format-unescaped@4.0.4 /private/tmp/radar-pr13-qa1/node_modules/quick-format-unescaped
+npm error invalid: react-dom@19.2.6 /private/tmp/radar-pr13-qa1/node_modules/react-dom
+npm error invalid: react@19.2.6 /private/tmp/radar-pr13-qa1/node_modules/react
+npm error extraneous: real-require@0.2.0 /private/tmp/radar-pr13-qa1/node_modules/real-require
+npm error extraneous: require-from-string@2.0.2 /private/tmp/radar-pr13-qa1/node_modules/require-from-string
+npm error extraneous: resolve-pkg-maps@1.0.0 /private/tmp/radar-pr13-qa1/node_modules/resolve-pkg-maps
+npm error extraneous: ret@0.5.0 /private/tmp/radar-pr13-qa1/node_modules/ret
+npm error extraneous: reusify@1.1.0 /private/tmp/radar-pr13-qa1/node_modules/reusify
+npm error extraneous: rfdc@1.4.1 /private/tmp/radar-pr13-qa1/node_modules/rfdc
+npm error extraneous: rolldown@1.2.13 /private/tmp/radar-pr13-qa1/node_modules/rolldown
+npm error extraneous: safe-regex2@5.1.1 /private/tmp/radar-pr13-qa1/node_modules/safe-regex2
+npm error extraneous: safe-stable-stringify@2.5.0 /private/tmp/radar-pr13-qa1/node_modules/safe-stable-stringify
+npm error extraneous: saxes@6.0.0 /private/tmp/radar-pr13-qa1/node_modules/saxes
+npm error extraneous: scheduler@0.27.0 /private/tmp/radar-pr13-qa1/node_modules/scheduler
+npm error extraneous: secure-json-parse@4.1.0 /private/tmp/radar-pr13-qa1/node_modules/secure-json-parse
+npm error extraneous: semver@7.7.4 /private/tmp/radar-pr13-qa1/node_modules/semver
+npm error extraneous: set-cookie-parser@2.7.2 /private/tmp/radar-pr13-qa1/node_modules/set-cookie-parser
+npm error extraneous: siginfo@2.0.0 /private/tmp/radar-pr13-qa1/node_modules/siginfo
+npm error extraneous: sonic-boom@4.2.1 /private/tmp/radar-pr13-qa1/node_modules/sonic-boom
+npm error extraneous: source-map-js@1.2.2 /private/tmp/radar-pr13-qa1/node_modules/source-map-js
+npm error extraneous: split2@4.2.0 /private/tmp/radar-pr13-qa1/node_modules/split2
+npm error extraneous: stackback@0.0.2 /private/tmp/radar-pr13-qa1/node_modules/stackback
+npm error extraneous: std-env@4.3.0 /private/tmp/radar-pr13-qa1/node_modules/std-env
+npm error extraneous: symbol-tree@3.2.4 /private/tmp/radar-pr13-qa1/node_modules/symbol-tree
+npm error extraneous: thread-stream@4.0.0 /private/tmp/radar-pr13-qa1/node_modules/thread-stream
+npm error extraneous: tinybench@2.9.0 /private/tmp/radar-pr13-qa1/node_modules/tinybench
+npm error extraneous: tinyexec@1.3.1 /private/tmp/radar-pr13-qa1/node_modules/tinyexec
+npm error extraneous: tinyglobby@0.2.17 /private/tmp/radar-pr13-qa1/node_modules/tinyglobby
+npm error extraneous: tinyrainbow@3.2.0 /private/tmp/radar-pr13-qa1/node_modules/tinyrainbow
+npm error extraneous: tldts-core@7.0.30 /private/tmp/radar-pr13-qa1/node_modules/tldts-core
+npm error extraneous: tldts@7.0.30 /private/tmp/radar-pr13-qa1/node_modules/tldts
+npm error extraneous: toad-cache@3.7.0 /private/tmp/radar-pr13-qa1/node_modules/toad-cache
+npm error extraneous: tough-cookie@6.0.1 /private/tmp/radar-pr13-qa1/node_modules/tough-cookie
+npm error extraneous: tr46@6.0.0 /private/tmp/radar-pr13-qa1/node_modules/tr46
+npm error invalid: tsx@4.21.0 /private/tmp/radar-pr13-qa1/node_modules/tsx
+npm error invalid: typescript@6.0.3 /private/tmp/radar-pr13-qa1/node_modules/typescript
+npm error extraneous: undici-types@7.19.2 /private/tmp/radar-pr13-qa1/node_modules/undici-types
+npm error extraneous: undici@7.30.0 /private/tmp/radar-pr13-qa1/node_modules/undici
+npm error extraneous: w3c-xmlserializer@5.0.0 /private/tmp/radar-pr13-qa1/node_modules/w3c-xmlserializer
+npm error extraneous: webidl-conversions@8.0.1 /private/tmp/radar-pr13-qa1/node_modules/webidl-conversions
+npm error extraneous: whatwg-mimetype@5.0.0 /private/tmp/radar-pr13-qa1/node_modules/whatwg-mimetype
+npm error extraneous: whatwg-url@16.0.1 /private/tmp/radar-pr13-qa1/node_modules/whatwg-url
+npm error extraneous: why-is-node-running@2.3.0 /private/tmp/radar-pr13-qa1/node_modules/why-is-node-running
+npm error extraneous: ws@8.21.0 /private/tmp/radar-pr13-qa1/node_modules/ws
+npm error extraneous: xml-name-validator@5.0.0 /private/tmp/radar-pr13-qa1/node_modules/xml-name-validator
+npm error extraneous: xmlchars@2.2.0 /private/tmp/radar-pr13-qa1/node_modules/xmlchars
+npm error extraneous: xtend@4.0.2 /private/tmp/radar-pr13-qa1/node_modules/xtend
+npm error invalid: zod@4.4.3 /private/tmp/radar-pr13-qa1/node_modules/zod
+npm error A complete log of this run can be found in: /Users/ahdilm/.npm/_logs/2026-10-15T12_10_31_705Z-debug-0.log

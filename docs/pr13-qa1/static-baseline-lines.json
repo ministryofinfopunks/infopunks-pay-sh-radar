@@ -1,0 +1,404 @@
+{
+  "base": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "findings": [
+    {
+      "id": "STATIC-01",
+      "path": "src/web/evaluationRequestPages.tsx",
+      "line": 225,
+      "context_sha256": "fc113a327a08152f153c887c75e6c84642bf2af1535ba2de3bedde1c7ed06208",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-02",
+      "path": "src/web/judgmentCheckPanel.tsx",
+      "line": 52,
+      "context_sha256": "46ad705bce9b4252a4c492f41c1416d1f2240cd94f5935910d02179323ee2773",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-03",
+      "path": "src/web/narrativePages.tsx",
+      "line": 897,
+      "context_sha256": "4becdb47daa71cb431a2765ed03bfe4d44171abf90d8d6291f73f51ff8d65c5a",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-04",
+      "path": "src/web/preSpendBuilderPages.tsx",
+      "line": 1719,
+      "context_sha256": "0a49128057b6821953fc3aaf8e84f723a85bbb47045c63abc6a05a829a213c08",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-05",
+      "path": "src/web/radarApp.tsx",
+      "line": 7131,
+      "context_sha256": "8bcfbfaf9e4270299b31106dffceae4312b1f2b26a0389a6f8cd0deb0158ddcc",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-06",
+      "path": "src/web/rh4663Pages.tsx",
+      "line": 298,
+      "context_sha256": "a32f6ee11dd25076df506055b3557b3285524a1d5ba45ec10026861764802022",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-07",
+      "path": "src/web/rhChainMarketStructurePage.tsx",
+      "line": 102,
+      "context_sha256": "fbdf061dbd7087844d18d9a3c942782174f05d19948432c9a9a86826b0fb9bbe",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-08",
+      "path": "src/web/rhChainProjectClaimsPage.tsx",
+      "line": 23,
+      "context_sha256": "d0270c9c7bb9f13217ed47a26eed6d275d7f78e48f68bb6803c097782699eccf",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-09",
+      "path": "src/web/rhChainReviewConsolePage.tsx",
+      "line": 34,
+      "context_sha256": "8c2fc43c212b4f055776938fefea9675bbeb7934f7c9f7a981c5b0b3175086e1",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-10",
+      "path": "src/web/rhChainReviewPipelinePage.tsx",
+      "line": 43,
+      "context_sha256": "69ba5d0df48c62b8fb7b3598928a89ec83f0aeb759811c779b41490552e2ed16",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-11",
+      "path": "src/web/rhChainSignalDeskPages.tsx",
+      "line": 1224,
+      "context_sha256": "ff2c78d3865c08a121b50979c32c164824cd3b55a1e700d5647160e9f74f59e2",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-12",
+      "path": "src/web/spendTerminalPage.tsx",
+      "line": 47,
+      "context_sha256": "d9ebffc0973a77d1219c83e107304c45aa69e81a316d519faced8d7667dcf77f",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-13",
+      "path": "src/web/unicornRadarPages.tsx",
+      "line": 368,
+      "context_sha256": "ee8bee08376933f0dc31789c53a864864a3cc2443dcae1710fbfeff5bae3b071",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-14",
+      "path": "src/web/canonicalReceiptPage.tsx",
+      "line": 43,
+      "context_sha256": "876e2e6e547038201143dfac477b50e047e8678b5eefa34748fbc423c2baaf05",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-15",
+      "path": "src/web/evaluationRequestPages.tsx",
+      "line": 199,
+      "context_sha256": "b248b0d83880824110ff6432c890875e8d294c7e983f7d0e147cb8bf413b67c8",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-16",
+      "path": "src/web/homepage.tsx",
+      "line": 36,
+      "context_sha256": "7c352749695c201b69f9498dfbf49085c03fffe3884aa91164984fe0dc505e38",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-17",
+      "path": "src/web/ipxPltrPreflightLabPage.tsx",
+      "line": 47,
+      "context_sha256": "9fd20bc4a74d8b145cb3b30c335ed8a8487253661041a28c90e907a2063b0a0f",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-18",
+      "path": "src/web/judgmentCheckPanel.tsx",
+      "line": 48,
+      "context_sha256": "e31a4363e2ebc4730c24df70927b72ce8de935eed03ce29f74cb880793367be0",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-19",
+      "path": "src/web/narrativePages.tsx",
+      "line": 1452,
+      "context_sha256": "dc5d6df55a6004f40041a9e984fdac6c9ebbe9078fb7da2c262722a8890baa1d",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-20",
+      "path": "src/web/narrativePages.tsx",
+      "line": 1729,
+      "context_sha256": "8e22c4af52d03f2e4036ed8b9e7e5cc2a12a726f08ae369360848b74fbbfa7e2",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-21",
+      "path": "src/web/preSpendBuilderPages.tsx",
+      "line": 1716,
+      "context_sha256": "e885514b2bbf6e553aa06059ca381743bc6755f3dd4058d80c71d5864ae70b11",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-22",
+      "path": "src/web/proofCheckPages.tsx",
+      "line": 291,
+      "context_sha256": "582141817a5925e87386f67a8a123414267615c5874b0bdf1420b6533600d0f2",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-23",
+      "path": "src/web/radarApp.tsx",
+      "line": 8145,
+      "context_sha256": "2048c4cad2f04dbff69207f02327458ca9deef2f6baf46dd0cc15a9336d76dd3",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-24",
+      "path": "src/web/radarApp.tsx",
+      "line": 10061,
+      "context_sha256": "1e570967c3dc655fbfa5f450c41821fd2f7db6cf18edb5a23ba744ff42618235",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-25",
+      "path": "src/web/rh4663Pages.tsx",
+      "line": 296,
+      "context_sha256": "c1073f62896898a60eef978244b5a8cc8fa79c187a0e6a207a189d0561b9aaec",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-26",
+      "path": "src/web/rhChainProjectClaimsPage.tsx",
+      "line": 23,
+      "context_sha256": "d0270c9c7bb9f13217ed47a26eed6d275d7f78e48f68bb6803c097782699eccf",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-27",
+      "path": "src/web/rhChainSignalDeskPages.tsx",
+      "line": 449,
+      "context_sha256": "4739d73ffe6c43ed7c0cf7c737eb2cad945bb26932a929002263e201759ef63f",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-28",
+      "path": "src/web/rhChainSignalDeskPages.tsx",
+      "line": 1065,
+      "context_sha256": "fec686c988a8edb4e7bbfcff3dbec256e40d6679a17b93d5c5b3c85efd07450e",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-29",
+      "path": "src/web/rhChainSignalDeskPages.tsx",
+      "line": 1466,
+      "context_sha256": "2645c401c923207000812097fbe54f7c23498298f6de969eb7f97ba8c0d971e4",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-30",
+      "path": "src/web/spendTerminalPage.tsx",
+      "line": 39,
+      "context_sha256": "b03d6606c5f4386e944056206cc532cf1bc98905b33a3e0a5ae8ab29220d38a6",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-31",
+      "path": "src/web/evaluationRequestPages.tsx",
+      "line": 111,
+      "context_sha256": "c1f401a1ccbe3267b138551e9cb75516bb31000dc2f8eca142f39e0a09880d65",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-32",
+      "path": "src/web/evaluationRequestPages.tsx",
+      "line": 194,
+      "context_sha256": "92fbc0b182ffdc4f83b18c1364b54243f02120653a4f903960fd540ca1f95345",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-33",
+      "path": "src/web/narrativePages.tsx",
+      "line": 1467,
+      "context_sha256": "36ecc5ca467846786cf308b44ce3843f1d9bb8c44c0d43e713563bd66c860f67",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-34",
+      "path": "src/web/narrativePages.tsx",
+      "line": 1471,
+      "context_sha256": "68ec5dfeca84ce1bf2c8ed9620d63cbfdc0745a547b073dd674f368e8b3c9979",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-35",
+      "path": "src/web/narrativePages.tsx",
+      "line": 1765,
+      "context_sha256": "5108c75f3dc7215409f9eb98e5f585ca73cb64f4a988b49695306323c291eb33",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-36",
+      "path": "src/web/narrativePages.tsx",
+      "line": 1769,
+      "context_sha256": "45ca5284639ba133ade5c2e85526f8a0a5ea1cd4db292d9ed0adc6f840204da4",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-37",
+      "path": "src/web/preSpendBuilderPages.tsx",
+      "line": 1722,
+      "context_sha256": "236e2ec725afe82f7612505ee55fc38e8b81f1eb04ebf6db9fa79da4a8aaae3e",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-38",
+      "path": "src/web/proofCheckPages.tsx",
+      "line": 294,
+      "context_sha256": "6fe50de1d365a9fa76c355a69dc7154de02d2e88b8e4fd5ea63aff7e0752b1eb",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-39",
+      "path": "src/web/radarApp.tsx",
+      "line": 8148,
+      "context_sha256": "10c9af80c663208ac5e8c6347ee6b06d9f2ff72784219eaeb89a6d73a9c08604",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-40",
+      "path": "src/web/radarApp.tsx",
+      "line": 10230,
+      "context_sha256": "390d6a724de12ff2f0051cc84c4f1b4b7abd565018bc8d88023e0cab8da86198",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-41",
+      "path": "src/web/radarApp.tsx",
+      "line": 10778,
+      "context_sha256": "0fdb20e9a23882fdb8f8aa9aa1a4a1654ca43ed08614b50f556993258bf3c012",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-42",
+      "path": "src/web/radarApp.tsx",
+      "line": 14112,
+      "context_sha256": "a8741d96660bb3c2608aa9c0e66619ee70be1e387ff7a34bfe7e5f739275e24b",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-43",
+      "path": "src/web/rh4663Pages.tsx",
+      "line": 299,
+      "context_sha256": "e83939ce5b05f37450010b50a6e06db06bac9a3ad23694125d29c6e8d6027178",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-44",
+      "path": "src/web/rhChainProjectClaimsPage.tsx",
+      "line": 23,
+      "context_sha256": "d0270c9c7bb9f13217ed47a26eed6d275d7f78e48f68bb6803c097782699eccf",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-45",
+      "path": "src/web/rhChainProjectClaimsPage.tsx",
+      "line": 23,
+      "context_sha256": "d0270c9c7bb9f13217ed47a26eed6d275d7f78e48f68bb6803c097782699eccf",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-46",
+      "path": "src/web/rhChainReviewConsolePage.tsx",
+      "line": 41,
+      "context_sha256": "4d1b945184b89e938bb577723a16c7c38aa03182a532550b27abb5c1591a9b14",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-47",
+      "path": "src/web/rhChainReviewConsolePage.tsx",
+      "line": 41,
+      "context_sha256": "4d1b945184b89e938bb577723a16c7c38aa03182a532550b27abb5c1591a9b14",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-48",
+      "path": "src/web/rhChainReviewConsolePage.tsx",
+      "line": 49,
+      "context_sha256": "3fd7061bb2fc958f0909765b64d352d1dc293ac4023d69253497caacb4aad7b9",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-49",
+      "path": "src/web/rhChainReviewConsolePage.tsx",
+      "line": 64,
+      "context_sha256": "74615461b1652a5fd42d7d2873c4b7466146fa27718d30fca5dc50606cd3b138",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-50",
+      "path": "src/web/rhChainReviewConsolePage.tsx",
+      "line": 64,
+      "context_sha256": "74615461b1652a5fd42d7d2873c4b7466146fa27718d30fca5dc50606cd3b138",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-51",
+      "path": "src/web/rhChainReviewConsolePage.tsx",
+      "line": 64,
+      "context_sha256": "74615461b1652a5fd42d7d2873c4b7466146fa27718d30fca5dc50606cd3b138",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-52",
+      "path": "src/web/rhChainReviewPipelinePage.tsx",
+      "line": 43,
+      "context_sha256": "69ba5d0df48c62b8fb7b3598928a89ec83f0aeb759811c779b41490552e2ed16",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-53",
+      "path": "src/web/rhChainReviewPipelinePage.tsx",
+      "line": 43,
+      "context_sha256": "69ba5d0df48c62b8fb7b3598928a89ec83f0aeb759811c779b41490552e2ed16",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-54",
+      "path": "src/web/rhChainReviewPipelinePage.tsx",
+      "line": 43,
+      "context_sha256": "69ba5d0df48c62b8fb7b3598928a89ec83f0aeb759811c779b41490552e2ed16",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-55",
+      "path": "src/web/rhChainSignalDeskPages.tsx",
+      "line": 635,
+      "context_sha256": "fc9ff54255d31caea194b981f05dd755f129e6de36ee257e547d59a2282241dd",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-56",
+      "path": "src/web/rhChainSignalDeskPages.tsx",
+      "line": 1473,
+      "context_sha256": "a35be3e66633c4b43235639db716a03de117fa29a0d76f606383932020841884",
+      "five_line_context_present_in_base": true
+    },
+    {
+      "id": "STATIC-57",
+      "path": "src/web/rhChainSignalDeskPages.tsx",
+      "line": 1474,
+      "context_sha256": "fc94ccbd9f1d63592f2cd2624233de66951762887fc4338ff0e8a44e08e58907",
+      "five_line_context_present_in_base": true
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "source_sha": "f62f9cbabbe244682adf2cc17d9451f580a7ed1c",
+  "scope": "Isolated archive with final compiled source, local synthetic API, all payments/execution/jobs disabled; no approved baseline writes",
+  "checks": [
+    {
+      "name": "search-selector-regression",
+      "command": [
+        "/Users/ahdilm/.codex/visualizations/2026/10/14/01a13917-0fb3-7781-bf52-94112ededb49/radar-v1-phase2/image-security/tools/node-v24.21.0-darwin-arm64/bin/node",
+        "/tmp/radar-pr13-qa1/docs/pr13-qa1/search-selector-regression.cjs"
+      ],
+      "environment_overrides": {
+        "RADAR_UI_BASE_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_CHROMIUM": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+      },
+      "exit_code": 0,
+      "seconds": 4.743,
+      "cwd": "/tmp/radar-pr13-qa1-browser",
+      "log": "logs/search-selector-regression.log"
+    },
+    {
+      "name": "journeys",
+      "command": [
+        "/Users/ahdilm/.codex/visualizations/2026/10/14/01a13917-0fb3-7781-bf52-94112ededb49/radar-v1-phase2/image-security/tools/node-v24.21.0-darwin-arm64/bin/node",
+        "scripts/qualify-ui-int2-journeys.cjs"
+      ],
+      "environment_overrides": {
+        "RADAR_UI_BASE_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_CHROMIUM": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+      },
+      "exit_code": 0,
+      "seconds": 6.596,
+      "cwd": "/tmp/radar-pr13-qa1-browser",
+      "log": "logs/journeys.log"
+    },
+    {
+      "name": "routes",
+      "command": [
+        "/Users/ahdilm/.codex/visualizations/2026/10/14/01a13917-0fb3-7781-bf52-94112ededb49/radar-v1-phase2/image-security/tools/node-v24.21.0-darwin-arm64/bin/node",
+        "scripts/qualify-ui-int2-routes.cjs"
+      ],
+      "environment_overrides": {
+        "RADAR_UI_BASE_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_CHROMIUM": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "RADAR_UI_ROUTES": "/,/solana,/rh-chain-signal-desk,/spend-terminal",
+        "RADAR_UI_OUTPUT": "/tmp/radar-pr13-qa1/docs/pr13-qa1/routes"
+      },
+      "exit_code": 1,
+      "seconds": 0.201,
+      "cwd": "/tmp/radar-pr13-qa1-browser",
+      "log": "logs/routes.log"
+    },
+    {
+      "name": "unified-browser",
+      "command": [
+        "/Users/ahdilm/.codex/visualizations/2026/10/14/01a13917-0fb3-7781-bf52-94112ededb49/radar-v1-phase2/image-security/tools/node-v24.21.0-darwin-arm64/bin/node",
+        "scripts/qualify-unified-radar-browser.mjs"
+      ],
+      "environment_overrides": {
+        "RADAR_UI_BASE_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_CHROMIUM": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "RADAR_QA_OUTPUT_DIR": "/tmp/radar-pr13-qa1/docs/pr13-qa1/unified-browser"
+      },
+      "exit_code": 1,
+      "seconds": 28.221,
+      "cwd": "/tmp/radar-pr13-qa1-browser",
+      "log": "logs/unified-browser.log"
+    },
+    {
+      "name": "accessibility",
+      "command": [
+        "/Users/ahdilm/.codex/visualizations/2026/10/14/01a13917-0fb3-7781-bf52-94112ededb49/radar-v1-phase2/image-security/tools/node-v24.21.0-darwin-arm64/bin/node",
+        "scripts/browser-radar-ui-accessibility.cjs",
+        "after"
+      ],
+      "environment_overrides": {
+        "RADAR_UI_BASE_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_CHROMIUM": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "RADAR_UI_EVIDENCE_DIR": "/tmp/radar-pr13-qa1/docs/pr13-qa1/accessibility"
+      },
+      "exit_code": 0,
+      "seconds": 14.68,
+      "cwd": "/tmp/radar-pr13-qa1-browser",
+      "log": "logs/accessibility.log"
+    },
+    {
+      "name": "native-zoom",
+      "command": [
+        "/Users/ahdilm/.codex/visualizations/2026/10/14/01a13917-0fb3-7781-bf52-94112ededb49/radar-v1-phase2/image-security/tools/node-v24.21.0-darwin-arm64/bin/node",
+        "scripts/browser-radar-ui-zoom.cjs",
+        "after"
+      ],
+      "environment_overrides": {
+        "RADAR_UI_BASE_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_CHROMIUM": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "RADAR_UI_EVIDENCE_DIR": "/tmp/radar-pr13-qa1/docs/pr13-qa1/native-zoom"
+      },
+      "exit_code": 0,
+      "seconds": 10.186,
+      "cwd": "/tmp/radar-pr13-qa1-browser",
+      "log": "logs/native-zoom.log"
+    },
+    {
+      "name": "approved-comparison",
+      "command": [
+        "/Users/ahdilm/.codex/visualizations/2026/10/14/01a13917-0fb3-7781-bf52-94112ededb49/radar-v1-phase2/image-security/tools/node-v24.21.0-darwin-arm64/bin/node",
+        "scripts/compare-ui-int2-visuals.cjs"
+      ],
+      "environment_overrides": {
+        "RADAR_UI_BASE_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_CHROMIUM": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+      },
+      "exit_code": 1,
+      "seconds": 28.147,
+      "cwd": "/tmp/radar-pr13-qa1-browser",
+      "log": "logs/approved-comparison.log"
+    }
+  ]
+}

@@ -1,0 +1,2797 @@
+{
+  "counts": {
+    "Required qualification evidence": 371,
+    "Redundant or superseded evidence": 191,
+    "Tests and validation scripts": 12,
+    "Runtime changes": 7
+  },
+  "security_inspection_files": 547,
+  "total_bytes": 173837457,
+  "exact_duplicate_groups": [
+    {
+      "sha256": "d8b8c188b0cceb7ac3cf41790ebb4e6b8494202c092c61cdd5d999f326256eb8",
+      "paths": [
+        "docs/ui-unification/baseline/logs/design.log",
+        "docs/ui-unification/validation/design.log",
+        "docs/ui-unification/visual-corrections/design.log"
+      ]
+    },
+    {
+      "sha256": "d03a558579d6c5bf7d9941dab14d20d6960b6011bd01717758fa05f6a0063285",
+      "paths": [
+        "docs/ui-unification/baseline/logs/lint.log",
+        "docs/ui-unification/validation/lint.log",
+        "docs/ui-unification/visual-corrections/lint.log"
+      ]
+    },
+    {
+      "sha256": "f2ec568164f99546161909b0189b57bb5be3e80f8e2ccd8a51a4aed8c4055a04",
+      "paths": [
+        "docs/ui-unification/baseline/logs/runtime.log",
+        "docs/ui-unification/validation/runtime.log"
+      ]
+    },
+    {
+      "sha256": "8c130045816136582deedcf711e910a2396c6e4c0739b0f5719548e764414970",
+      "paths": [
+        "docs/ui-unification/baseline/logs/typecheck.log",
+        "docs/ui-unification/validation/typecheck.log",
+        "docs/ui-unification/visual-corrections/typecheck.log"
+      ]
+    },
+    {
+      "sha256": "14ebbe69a4295e1ef76713207030882107092b0cb93c672d2c1c2b191bd92edf",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-homepage-desktop-viewport.png",
+        "docs/ui-unification/evidence/cyan-baseline/before-homepage-desktop-viewport.png",
+        "docs/ui-unification/visual-corrections/evidence/after-homepage-desktop-viewport.png",
+        "docs/ui-unification/visual-corrections/evidence/before-homepage-desktop-viewport.png"
+      ]
+    },
+    {
+      "sha256": "67b45aa7a2264988c664283a6061030c2c97b2aab17ef2f009bd3af4ea8f5893",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-homepage-desktop.png",
+        "docs/ui-unification/evidence/cyan-baseline/before-homepage-desktop.png",
+        "docs/ui-unification/validation/existing-routes/chromium-home-1440.png",
+        "docs/ui-unification/validation/existing-unified/desktop-home.png",
+        "docs/ui-unification/visual-corrections/approved-visual-comparison/after-desktop-home.png",
+        "docs/ui-unification/visual-corrections/evidence/after-homepage-desktop.png",
+        "docs/ui-unification/visual-corrections/evidence/before-homepage-desktop.png",
+        "docs/ui-unification/visual-corrections/existing-routes/chromium-home-1440.png",
+        "docs/ui-unification/visual-corrections/existing-unified/desktop-home.png"
+      ]
+    },
+    {
+      "sha256": "651dd043e2b8bd7ed5163a585f8e2da115f937a4349367b5751752e6d8db6592",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-homepage-inventory.json",
+        "docs/ui-unification/evidence/cyan-baseline/before-homepage-inventory.json",
+        "docs/ui-unification/visual-corrections/evidence/after-homepage-inventory.json",
+        "docs/ui-unification/visual-corrections/evidence/before-homepage-inventory.json"
+      ]
+    },
+    {
+      "sha256": "930a1c91c902036e3fbc52455aaf54fc25df46c7238185be5dcaf968db876cc2",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-homepage-mobile-viewport.png",
+        "docs/ui-unification/evidence/cyan-baseline/before-homepage-mobile-viewport.png",
+        "docs/ui-unification/visual-corrections/evidence/after-homepage-mobile-viewport.png",
+        "docs/ui-unification/visual-corrections/evidence/before-homepage-mobile-viewport.png"
+      ]
+    },
+    {
+      "sha256": "c080791bd1d9ec16cfd7da84e4b1a58e11bafbfae437cbb20102a89ac0e60745",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-homepage-mobile.png",
+        "docs/ui-unification/validation/approved-visual-comparison/loaded-mobile-home.png",
+        "docs/ui-unification/validation/existing-unified/mobile-home.png",
+        "docs/ui-unification/visual-corrections/approved-visual-comparison/after-mobile-home.png",
+        "docs/ui-unification/visual-corrections/approved-visual-comparison/loaded-mobile-home.png",
+        "docs/ui-unification/visual-corrections/evidence/after-homepage-mobile.png",
+        "docs/ui-unification/visual-corrections/evidence/before-homepage-mobile.png",
+        "docs/ui-unification/visual-corrections/existing-unified/mobile-home.png"
+      ]
+    },
+    {
+      "sha256": "6c029526d72d3bda5af4d5aab06ac4b0fb679e74743b9850d3848224cae8fa2a",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-homepage-native-zoom-200.png",
+        "docs/ui-unification/evidence/cyan-baseline/before-homepage-native-zoom-200.png",
+        "docs/ui-unification/visual-corrections/evidence/after-homepage-native-zoom-200.png"
+      ]
+    },
+    {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-page-errors.json",
+        "docs/ui-unification/evidence/cyan-baseline/before-page-errors.json",
+        "docs/ui-unification/visual-corrections/evidence/after-page-errors.json",
+        "docs/ui-unification/visual-corrections/evidence/before-page-errors.json"
+      ]
+    },
+    {
+      "sha256": "dd572dff4f9d97f1014348c9dd4d109c9389744b808bc8a6cda1be35ddbc9010",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-robinhood-contract-mobile.png",
+        "docs/ui-unification/visual-corrections/evidence/after-robinhood-contract-mobile.png",
+        "docs/ui-unification/visual-corrections/evidence/before-robinhood-contract-mobile.png"
+      ]
+    },
+    {
+      "sha256": "b1555556670f75b971a0e185f0cda593943339bca09cb1dba497e581a52a5e3f",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-robinhood-desktop-viewport.png",
+        "docs/ui-unification/validation/existing-unified/desktop-rh-chain-signal-desk.png",
+        "docs/ui-unification/visual-corrections/evidence/before-robinhood-desktop-viewport.png"
+      ]
+    },
+    {
+      "sha256": "7f8a168ad93abaa270a8128800ba080ebc9cc2848dd3ad5fc84b4f6b6456f75a",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-robinhood-desktop.png",
+        "docs/ui-unification/validation/approved-visual-comparison/loaded-desktop-rh-chain-signal-desk.png",
+        "docs/ui-unification/visual-corrections/evidence/before-robinhood-desktop.png"
+      ]
+    },
+    {
+      "sha256": "3045d47f99804ba8dcafe2656317cd79fbb5e4761eb69fc756b633a8d3fe1a62",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-robinhood-inventory.json",
+        "docs/ui-unification/visual-corrections/evidence/before-robinhood-inventory.json"
+      ]
+    },
+    {
+      "sha256": "e4d6fe2f4190a8c25e76c707f9dd5fe3cf260dc2c3017dae2a533a9586ba7c61",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-viewport.png",
+        "docs/ui-unification/validation/existing-unified/mobile-rh-chain-signal-desk.png",
+        "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-viewport.png",
+        "docs/ui-unification/visual-corrections/evidence/before-robinhood-mobile-viewport.png",
+        "docs/ui-unification/visual-corrections/existing-unified/mobile-rh-chain-signal-desk.png"
+      ]
+    },
+    {
+      "sha256": "e651096dbfec9264b19d9b689b41a14e80a0314811c4837da7b41fb90c152a5a",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile.png",
+        "docs/ui-unification/validation/approved-visual-comparison/loaded-mobile-rh-chain-signal-desk.png",
+        "docs/ui-unification/visual-corrections/evidence/before-robinhood-mobile.png"
+      ]
+    },
+    {
+      "sha256": "096b16c202274630419ee6763e62cd3d2c86c32df5ea341072abb5c2661a6302",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-robinhood-native-zoom-200.png",
+        "docs/ui-unification/evidence/cyan-baseline/before-robinhood-native-zoom-200.png",
+        "docs/ui-unification/visual-corrections/evidence/after-robinhood-native-zoom-200.png"
+      ]
+    },
+    {
+      "sha256": "0b5b36786f192f12724160988ec3d739f5feaf27a4d09544cfe1d73bb62ac032",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-robinhood-native-zoom-400.png",
+        "docs/ui-unification/evidence/cyan-baseline/after-solana-native-zoom-400.png",
+        "docs/ui-unification/evidence/cyan-baseline/before-robinhood-native-zoom-400.png",
+        "docs/ui-unification/evidence/cyan-baseline/before-solana-native-zoom-400.png",
+        "docs/ui-unification/visual-corrections/evidence/after-robinhood-native-zoom-400.png",
+        "docs/ui-unification/visual-corrections/evidence/after-solana-native-zoom-400.png"
+      ]
+    },
+    {
+      "sha256": "3c3175761c0dd86328d5678d674ee8e364781a24938ae5b682c5b536ef1117a9",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-robinhood-table-mobile.png",
+        "docs/ui-unification/visual-corrections/evidence/before-robinhood-table-mobile.png"
+      ]
+    },
+    {
+      "sha256": "2caabd1dadc7076bee8d0ad1ed241aafd99f2008d6bb246c7c0fbecb449100ab",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-viewport.png",
+        "docs/ui-unification/validation/existing-unified/mobile-solana.png",
+        "docs/ui-unification/visual-corrections/evidence/after-solana-mobile-viewport.png",
+        "docs/ui-unification/visual-corrections/evidence/before-solana-mobile-viewport.png",
+        "docs/ui-unification/visual-corrections/existing-unified/mobile-solana.png"
+      ]
+    },
+    {
+      "sha256": "cab6b730527da2f0ebbe9b2cfe4d552a3222f9a7ddd2369bdccf70bc478265f8",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-solana-native-zoom-200.png",
+        "docs/ui-unification/evidence/cyan-baseline/before-solana-native-zoom-200.png",
+        "docs/ui-unification/visual-corrections/evidence/after-solana-native-zoom-200.png"
+      ]
+    },
+    {
+      "sha256": "ba732228d15da0f74ab77692ed4211426085942cca02ba3fa3a06336c4ecff8b",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/after-viewport-results.json",
+        "docs/ui-unification/evidence/cyan-baseline/before-viewport-results.json",
+        "docs/ui-unification/visual-corrections/evidence/after-viewport-results.json",
+        "docs/ui-unification/visual-corrections/evidence/before-viewport-results.json"
+      ]
+    },
+    {
+      "sha256": "c2b3d90910b94cf8a83d5b2e161549807350fde80cbbe4cddb7c1d21b4c327dd",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/final-12-accessibility-audits.log",
+        "docs/ui-unification/visual-corrections/attempts/browser-first-pass/final-12-accessibility-audits.log",
+        "docs/ui-unification/visual-corrections/evidence/final-12-accessibility-audits.log"
+      ]
+    },
+    {
+      "sha256": "3fd81d9975daecf638bfc126dc3ad41e552139b059bee71e26b6861d06942ebc",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/final-20-interactions-and-6-reflow-checks.log",
+        "docs/ui-unification/visual-corrections/attempts/browser-first-pass/final-20-interactions-and-6-reflow-checks.log",
+        "docs/ui-unification/visual-corrections/evidence/final-20-interactions-and-6-reflow-checks.log"
+      ]
+    },
+    {
+      "sha256": "d9e69cf40ba6d6b9229e3665ce88f8c6fff47395779585294fe063ecd0bd4fbd",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/final-6-native-browser-zoom-checks.log",
+        "docs/ui-unification/visual-corrections/attempts/browser-first-pass/final-6-native-browser-zoom-checks.log",
+        "docs/ui-unification/visual-corrections/evidence/final-6-native-browser-zoom-checks.log"
+      ]
+    },
+    {
+      "sha256": "03453f35254469730a1b68182cf427723aeae91ddf50f2142cbd4529ef67cbc1",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/final-lower-fold-and-wrapping.log",
+        "docs/ui-unification/visual-corrections/attempts/browser-first-pass/final-lower-fold-and-wrapping.log",
+        "docs/ui-unification/visual-corrections/evidence/final-lower-fold-and-wrapping.log"
+      ]
+    },
+    {
+      "sha256": "152f1ec52549ee82ded979a6c3814f2f46285cc7caca9cddfa7d243bdfac7196",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/final-screenshots-and-24-widths.log",
+        "docs/ui-unification/visual-corrections/attempts/browser-first-pass/final-screenshots-and-24-widths.log",
+        "docs/ui-unification/visual-corrections/evidence/final-screenshots-and-24-widths.log"
+      ]
+    },
+    {
+      "sha256": "e6204c5a3181f84a5ab65c058785f4611b3a57b9a7d12882a2372bfeb51f60ad",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/final-unchanged-homepage.log",
+        "docs/ui-unification/evidence/cyan-baseline/final-unchanged-narrative.log",
+        "docs/ui-unification/visual-corrections/attempts/browser-first-pass/final-unchanged-homepage.log",
+        "docs/ui-unification/visual-corrections/evidence/final-unchanged-homepage.log",
+        "docs/ui-unification/visual-corrections/evidence/final-unchanged-narrative.log"
+      ]
+    },
+    {
+      "sha256": "fb729f48e8b256e92eedffdb23cdbdcf4885e0543c2d05bfa25a15160e5e0578",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/homepage-control-after-desktop-viewport.png",
+        "docs/ui-unification/evidence/cyan-baseline/homepage-control-before-desktop-viewport.png",
+        "docs/ui-unification/visual-corrections/evidence/homepage-control-after-desktop-viewport.png",
+        "docs/ui-unification/visual-corrections/evidence/homepage-control-before-desktop-viewport.png"
+      ]
+    },
+    {
+      "sha256": "00a7dfbac4abc2ed3421321e3fd8b1a329fa8a2bfe76f1158c3da3c43776cc6a",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/homepage-control-after-desktop.png",
+        "docs/ui-unification/evidence/cyan-baseline/homepage-control-before-desktop.png",
+        "docs/ui-unification/visual-corrections/evidence/homepage-control-after-desktop.png",
+        "docs/ui-unification/visual-corrections/evidence/homepage-control-before-desktop.png"
+      ]
+    },
+    {
+      "sha256": "4035365bcd0d3981838599f54940bc48e313673375308ad98de3dc08b84ee4b4",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/homepage-control-after-mobile-viewport.png",
+        "docs/ui-unification/evidence/cyan-baseline/homepage-control-before-mobile-viewport.png",
+        "docs/ui-unification/visual-corrections/evidence/homepage-control-after-mobile-viewport.png",
+        "docs/ui-unification/visual-corrections/evidence/homepage-control-before-mobile-viewport.png"
+      ]
+    },
+    {
+      "sha256": "37162e22178a2a1e8e427257cc2ea19cdb722735b30883101e10d92c0c57f49c",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/homepage-control-after-mobile.png",
+        "docs/ui-unification/evidence/cyan-baseline/homepage-control-before-mobile.png",
+        "docs/ui-unification/visual-corrections/evidence/homepage-control-after-mobile.png",
+        "docs/ui-unification/visual-corrections/evidence/homepage-control-before-mobile.png"
+      ]
+    },
+    {
+      "sha256": "6be7a2f6e7464e3b14751e081bda048b1c639255ac715a55df2d30e7fdbeeaf2",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/homepage-control-results.json",
+        "docs/ui-unification/visual-corrections/evidence/homepage-control-results.json"
+      ]
+    },
+    {
+      "sha256": "e4b2eeb0a83c35dd71e488cfc7b03a485d3c9d2fd18464c777b044a851b35eab",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-after-desktop-viewport.png",
+        "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-before-desktop-viewport.png",
+        "docs/ui-unification/visual-corrections/attempts/browser-first-pass/robinhood-narrative-control-after-desktop-viewport.png",
+        "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-after-desktop-viewport.png",
+        "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-before-desktop-viewport.png"
+      ]
+    },
+    {
+      "sha256": "b9d9ee1e553d95d008d616e37ae215593af302b44bda0e99cf38f5f3a5c49539",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-after-desktop.png",
+        "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-before-desktop.png",
+        "docs/ui-unification/visual-corrections/attempts/browser-first-pass/robinhood-narrative-control-after-desktop.png",
+        "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-after-desktop.png",
+        "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-before-desktop.png"
+      ]
+    },
+    {
+      "sha256": "def13ef8c10752768a6f0983788e4c3bef5a643a57b6737936e92317f65e8a50",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-after-mobile-viewport.png",
+        "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-before-mobile-viewport.png",
+        "docs/ui-unification/visual-corrections/attempts/browser-first-pass/robinhood-narrative-control-after-mobile-viewport.png",
+        "docs/ui-unification/visual-corrections/attempts/browser-first-pass/robinhood-narrative-control-before-mobile-viewport.png",
+        "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-after-mobile-viewport.png",
+        "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-before-mobile-viewport.png"
+      ]
+    },
+    {
+      "sha256": "c931bd9edf7f35174b2328793d17d6bba0d71dfc7d9852d92ef606d76524a02a",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-after-mobile.png",
+        "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-before-mobile.png",
+        "docs/ui-unification/visual-corrections/attempts/browser-first-pass/robinhood-narrative-control-after-mobile.png",
+        "docs/ui-unification/visual-corrections/attempts/browser-first-pass/robinhood-narrative-control-before-mobile.png",
+        "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-after-mobile.png",
+        "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-before-mobile.png"
+      ]
+    },
+    {
+      "sha256": "7aeeefed972e97a85fcd9a2d1abf4b3e55442c73d94ddae564ccaf4c77c6238d",
+      "paths": [
+        "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-results.json",
+        "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-results.json"
+      ]
+    },
+    {
+      "sha256": "b2265a021deef5cf3f3dc9a242ed4a27e1754375952cb6c00d24654df004b797",
+      "paths": [
+        "docs/ui-unification/validation/approved-visual-comparison/loaded-desktop-home.png",
+        "docs/ui-unification/visual-corrections/approved-visual-comparison/loaded-desktop-home.png"
+      ]
+    },
+    {
+      "sha256": "ed45d07fdc542c066df2e1ea5c5781531dc14ed3f5f4bffcab414ce876d9a512",
+      "paths": [
+        "docs/ui-unification/validation/approved-visual-comparison/loaded-desktop-spend-terminal.png",
+        "docs/ui-unification/visual-corrections/approved-visual-comparison/after-desktop-spend-terminal.png",
+        "docs/ui-unification/visual-corrections/approved-visual-comparison/loaded-desktop-spend-terminal.png"
+      ]
+    },
+    {
+      "sha256": "87b2f044c6976b8a9aa888fbe5aad94306d100fa55e170ae8665ddbb1e791580",
+      "paths": [
+        "docs/ui-unification/validation/approved-visual-comparison/loaded-mobile-spend-terminal.png",
+        "docs/ui-unification/visual-corrections/approved-visual-comparison/loaded-mobile-spend-terminal.png"
+      ]
+    },
+    {
+      "sha256": "15b3ab253b6c30f657bb51c82a9f15d209fcf9e75e7cc96875ab6cff063e1103",
+      "paths": [
+        "docs/ui-unification/validation/existing-routes/chromium-home-375.png",
+        "docs/ui-unification/visual-corrections/existing-routes/chromium-home-375.png"
+      ]
+    },
+    {
+      "sha256": "4bd3f1b0eb0006276995dfaef697447e6b35065d498d295080f0b49819e05d83",
+      "paths": [
+        "docs/ui-unification/validation/existing-routes/chromium-home-768.png",
+        "docs/ui-unification/validation/existing-unified/tablet-home.png",
+        "docs/ui-unification/visual-corrections/existing-routes/chromium-home-768.png",
+        "docs/ui-unification/visual-corrections/existing-unified/tablet-home.png"
+      ]
+    },
+    {
+      "sha256": "0446f6c74bbc202ad65fce143d75fdf020a5c363c650c4947bfea1f000250a3c",
+      "paths": [
+        "docs/ui-unification/validation/existing-routes/route-samples.json",
+        "docs/ui-unification/visual-corrections/existing-routes/route-samples.json"
+      ]
+    },
+    {
+      "sha256": "bb01afbcc5e22f73c6f65dc3f8cf55b9bdf3278e5fb7b3a91c145bd884c2d718",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/desktop-4663.png",
+        "docs/ui-unification/visual-corrections/existing-unified/desktop-4663.png"
+      ]
+    },
+    {
+      "sha256": "2e46f19bbcaec9f77a8c7772aa2bd0bdbe82775f553f5fc07b906c84bdde8dce",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/desktop-developers.png",
+        "docs/ui-unification/visual-corrections/existing-unified/desktop-developers.png"
+      ]
+    },
+    {
+      "sha256": "63bd3e2068739e2c21cf98d56c1ee2e8bf57c02a41882e17f05135c555057d45",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/desktop-loops.png",
+        "docs/ui-unification/visual-corrections/existing-unified/desktop-loops.png"
+      ]
+    },
+    {
+      "sha256": "7e957c2eb52b1e35dcf7fcedd4484fcb6104cc92a284d16433940d198f16b13d",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/desktop-radar-cards.png",
+        "docs/ui-unification/visual-corrections/existing-unified/desktop-radar-cards.png"
+      ]
+    },
+    {
+      "sha256": "b01a8bef29d96651a2e45b56c8754eaea3a6d1e614c24d7ca9a1675fb3486516",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/desktop-receipts-receipt_001.png",
+        "docs/ui-unification/visual-corrections/existing-unified/desktop-receipts-receipt_001.png"
+      ]
+    },
+    {
+      "sha256": "bb5719c9147f66eb25e90c667bde50d908f2abb89ef5dfc6af119e1b178ec06c",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/desktop-receipts.png",
+        "docs/ui-unification/visual-corrections/existing-unified/desktop-receipts.png"
+      ]
+    },
+    {
+      "sha256": "37fae777840c9bdf3a6bbc84bb638283156f7b2aac8cbc75033c016886f5cf49",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/mobile-4663.png",
+        "docs/ui-unification/visual-corrections/existing-unified/mobile-4663.png"
+      ]
+    },
+    {
+      "sha256": "9df0d99f6bdadf6924e1e7a53b00f7d3e538799990925594c0f42568d4eae653",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/mobile-developers.png",
+        "docs/ui-unification/visual-corrections/existing-unified/mobile-developers.png"
+      ]
+    },
+    {
+      "sha256": "d351a1c5cf54151f2aa230d4772550791cca5246090c9c85a84627d24745e34c",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/mobile-loops.png",
+        "docs/ui-unification/visual-corrections/existing-unified/mobile-loops.png"
+      ]
+    },
+    {
+      "sha256": "02d6a01e3e35ce2feb5bb5fa5674a0876cc9d685d55c606fab2933a5642a4036",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/mobile-radar-cards.png",
+        "docs/ui-unification/visual-corrections/existing-unified/mobile-radar-cards.png"
+      ]
+    },
+    {
+      "sha256": "90cd946e80d7a4ab7917874c9b1af0864d77bbb748968db70061a7509494c459",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/mobile-receipts-receipt_001.png",
+        "docs/ui-unification/visual-corrections/existing-unified/mobile-receipts-receipt_001.png"
+      ]
+    },
+    {
+      "sha256": "588830ea2a6a26100fe231b9a4158a1676a6ff83d7204c225a5fcd26a97dbe64",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/mobile-receipts.png",
+        "docs/ui-unification/visual-corrections/existing-unified/mobile-receipts.png"
+      ]
+    },
+    {
+      "sha256": "f142e161dc8c8681fbfadfc2d65e546c3872e9f48550c5fc831609e5b58195de",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/tablet-4663.png",
+        "docs/ui-unification/visual-corrections/existing-unified/tablet-4663.png"
+      ]
+    },
+    {
+      "sha256": "bfdb80c20c7f9b8ef8ead4b344d2684c6b2f84e590a0c2d62685eacb74cc535c",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/tablet-developers.png",
+        "docs/ui-unification/visual-corrections/existing-unified/tablet-developers.png"
+      ]
+    },
+    {
+      "sha256": "2febcdb09747a70a9d850f5050dd8e854ce22b17818366d1bd23aea6a7fae4d1",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/tablet-loops.png",
+        "docs/ui-unification/visual-corrections/existing-unified/tablet-loops.png"
+      ]
+    },
+    {
+      "sha256": "c9d47029a037bac7d74a201e185024cb5bb5c9cfdb8dd834c925569714a340fa",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/tablet-radar-cards.png",
+        "docs/ui-unification/visual-corrections/existing-unified/tablet-radar-cards.png"
+      ]
+    },
+    {
+      "sha256": "1c9f0994a57a9ccbb785d88e671e62726018d1e5d56152ed4e297f5aea2dd006",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/tablet-receipts-receipt_001.png",
+        "docs/ui-unification/visual-corrections/existing-unified/tablet-receipts-receipt_001.png"
+      ]
+    },
+    {
+      "sha256": "1defddd2c04e950b1be1696477d34ac199d2b97d81873313f916086b0436805a",
+      "paths": [
+        "docs/ui-unification/validation/existing-unified/tablet-receipts.png",
+        "docs/ui-unification/visual-corrections/existing-unified/tablet-receipts.png"
+      ]
+    },
+    {
+      "sha256": "86c588837008e351847b5a242f637951b34867b161e648c4c1decbc53c259774",
+      "paths": [
+        "docs/ui-unification/validation/first-pass/real-journeys/mobile-execution.png",
+        "docs/ui-unification/validation/real-journeys/mobile-execution.png"
+      ]
+    },
+    {
+      "sha256": "e5e1c67439fcb189373d44541712b76baae7a17387415c1462fbfe036cfbb9bb",
+      "paths": [
+        "docs/ui-unification/validation/first-pass/real-journeys/mobile-insufficient-evidence.png",
+        "docs/ui-unification/validation/real-journeys-original/mobile-insufficient-evidence.png",
+        "docs/ui-unification/validation/real-journeys/mobile-insufficient-evidence.png"
+      ]
+    },
+    {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "paths": [
+        "docs/ui-unification/validation/journey-seed.log",
+        "docs/ui-unification/validation/real-journeys.log"
+      ]
+    },
+    {
+      "sha256": "de74ffc235ad817f72159e211c573e2946944854559ed11ff35ca06dc093d8b9",
+      "paths": [
+        "docs/ui-unification/validation/source-boundary-current.log",
+        "docs/ui-unification/visual-corrections/source-boundary.log"
+      ]
+    },
+    {
+      "sha256": "6734edf8ae67f83e65e071a9974964230b033e82ce0f435350826d975dd89f6f",
+      "paths": [
+        "docs/ui-unification/visual-corrections/approved-visual-comparison/loaded-mobile-rh-chain-signal-desk.png",
+        "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile.png"
+      ]
+    },
+    {
+      "sha256": "92b0f5ddb34efe5cb02bd07488a32977e88c918feff3c5cb835a1ce4e9a0b7dd",
+      "paths": [
+        "docs/ui-unification/visual-corrections/attempts/browser-first-pass/final-preservation-comparison.log",
+        "docs/ui-unification/visual-corrections/evidence/final-preservation-comparison.log"
+      ]
+    },
+    {
+      "sha256": "bd1f6085d24f273f6fe7d5c01d70752a7d2759244091a2200f4bd68b978f2c27",
+      "paths": [
+        "docs/ui-unification/visual-corrections/evidence/after-api-responses.json",
+        "docs/ui-unification/visual-corrections/evidence/before-api-responses.json"
+      ]
+    },
+    {
+      "sha256": "a91b829e4df580e57d178186f5ff827e981fd120af617b2dff9b3fae1a370ed6",
+      "paths": [
+        "docs/ui-unification/visual-corrections/evidence/after-robinhood-desktop-viewport.png",
+        "docs/ui-unification/visual-corrections/existing-unified/desktop-rh-chain-signal-desk.png"
+      ]
+    },
+    {
+      "sha256": "7ada65646e286eceeb843464d6b8064b9b83e9ce26b8d4f08443e134d13d96b8",
+      "paths": [
+        "docs/ui-unification/visual-corrections/premium-after.json",
+        "docs/ui-unification/visual-corrections/premium-after.log"
+      ]
+    }
+  ],
+  "pngs": [
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-homepage-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-homepage-desktop.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-homepage-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-homepage-mobile.png",
+      "width": 390,
+      "height": 3738,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-homepage-native-zoom-200.png",
+      "width": 720,
+      "height": 456,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-homepage-native-zoom-400.png",
+      "width": 360,
+      "height": 228,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-contract-mobile.png",
+      "width": 360,
+      "height": 800,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-desktop.png",
+      "width": 1440,
+      "height": 5356,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-section-rh-v2-chain-pulse.png",
+      "width": 370,
+      "height": 894,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-section-rh-v2-memes.png",
+      "width": 370,
+      "height": 2367,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-section-rh-v2-methodology.png",
+      "width": 370,
+      "height": 551,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-section-rh-v2-movers.png",
+      "width": 370,
+      "height": 1266,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-section-rh-v2-receipt.png",
+      "width": 370,
+      "height": 1626,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-section-rh-v2-risk-radar.png",
+      "width": 370,
+      "height": 1038,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-section-rh-v2-routes.png",
+      "width": 370,
+      "height": 932,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-section-rh-v2-today.png",
+      "width": 370,
+      "height": 1274,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-chain-pulse-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-chain-pulse-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-memes-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-memes-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-methodology-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-movers-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-movers-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-receipt-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-receipt-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-review-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-review-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-risk-radar-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-risk-radar-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-routes-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-routes-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-today-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-tile-rh-v2-today-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-mobile.png",
+      "width": 390,
+      "height": 13178,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-native-zoom-200.png",
+      "width": 720,
+      "height": 456,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-native-zoom-400.png",
+      "width": 360,
+      "height": 228,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-robinhood-table-mobile.png",
+      "width": 360,
+      "height": 800,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-desktop.png",
+      "width": 1440,
+      "height": 24767,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-directory-viewport-probe.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-section-agent-benchmark-api.png",
+      "width": 336,
+      "height": 7010,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-section-benchmark-readiness.png",
+      "width": 336,
+      "height": 1269,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-section-preflight.png",
+      "width": 336,
+      "height": 1156,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-section-radar-route-directory.png",
+      "width": 370,
+      "height": 2847,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-section-route-mapping-registry.png",
+      "width": 336,
+      "height": 72,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-section-solana-evidence-brief.png",
+      "width": 370,
+      "height": 2042,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-tile-agent-benchmark-api-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-tile-agent-benchmark-api-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-tile-benchmark-readiness-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-tile-benchmark-readiness-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-tile-machine-module-card-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-tile-preflight-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-tile-preflight-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-tile-radar-route-directory-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-tile-radar-route-directory-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-tile-route-mapping-registry-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-tile-signal-graph-teaser-card-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-tile-solana-evidence-brief-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-tile-solana-evidence-brief-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-mobile.png",
+      "width": 390,
+      "height": 66367,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-native-zoom-200.png",
+      "width": 720,
+      "height": 456,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/after-solana-native-zoom-400.png",
+      "width": 360,
+      "height": 228,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-homepage-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-homepage-desktop.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-homepage-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-homepage-mobile.png",
+      "width": 390,
+      "height": 3738,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-homepage-native-zoom-200.png",
+      "width": 720,
+      "height": 456,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-homepage-native-zoom-400.png",
+      "width": 360,
+      "height": 228,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-robinhood-contract-mobile.png",
+      "width": 360,
+      "height": 800,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-robinhood-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-robinhood-desktop.png",
+      "width": 1440,
+      "height": 7470,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-robinhood-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-robinhood-mobile.png",
+      "width": 390,
+      "height": 14928,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-robinhood-native-zoom-200.png",
+      "width": 720,
+      "height": 456,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-robinhood-native-zoom-400.png",
+      "width": 360,
+      "height": 228,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-robinhood-table-mobile.png",
+      "width": 360,
+      "height": 800,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-solana-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-solana-desktop.png",
+      "width": 1440,
+      "height": 24069,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-solana-directory-viewport-probe.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-solana-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-solana-mobile.png",
+      "width": 390,
+      "height": 62758,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-solana-native-zoom-200.png",
+      "width": 720,
+      "height": 456,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/before-solana-native-zoom-400.png",
+      "width": 360,
+      "height": 228,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/homepage-control-after-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/homepage-control-after-desktop.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/homepage-control-after-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/homepage-control-after-mobile.png",
+      "width": 390,
+      "height": 3738,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/homepage-control-before-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/homepage-control-before-desktop.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/homepage-control-before-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/homepage-control-before-mobile.png",
+      "width": 390,
+      "height": 3738,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/homepage-desktop-diff-amplified.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/homepage-desktop-diff.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/homepage-mobile-diff-amplified.png",
+      "width": 390,
+      "height": 3738,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/homepage-mobile-diff.png",
+      "width": 390,
+      "height": 3738,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-after-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-after-desktop.png",
+      "width": 1440,
+      "height": 8191,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-after-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-after-mobile.png",
+      "width": 390,
+      "height": 16103,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-before-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-before-desktop.png",
+      "width": 1440,
+      "height": 8191,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-before-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/robinhood-narrative-control-before-mobile.png",
+      "width": 390,
+      "height": 16103,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/approved-visual-comparison/loaded-desktop-home.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/approved-visual-comparison/loaded-desktop-receipts.png",
+      "width": 1440,
+      "height": 2759,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/approved-visual-comparison/loaded-desktop-rh-chain-signal-desk.png",
+      "width": 1440,
+      "height": 5356,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/approved-visual-comparison/loaded-desktop-solana.png",
+      "width": 1440,
+      "height": 24548,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/approved-visual-comparison/loaded-desktop-spend-terminal.png",
+      "width": 1440,
+      "height": 1750,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/approved-visual-comparison/loaded-mobile-home.png",
+      "width": 390,
+      "height": 3738,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/approved-visual-comparison/loaded-mobile-receipts.png",
+      "width": 390,
+      "height": 6523,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/approved-visual-comparison/loaded-mobile-rh-chain-signal-desk.png",
+      "width": 390,
+      "height": 13178,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/approved-visual-comparison/loaded-mobile-solana.png",
+      "width": 390,
+      "height": 66125,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/approved-visual-comparison/loaded-mobile-spend-terminal.png",
+      "width": 390,
+      "height": 2403,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-routes/chromium-home-1440.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-routes/chromium-home-375.png",
+      "width": 375,
+      "height": 3815,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-routes/chromium-home-768.png",
+      "width": 768,
+      "height": 2273,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-routes/chromium-solana-1440.png",
+      "width": 1440,
+      "height": 24701,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-routes/chromium-solana-375.png",
+      "width": 375,
+      "height": 67346,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-routes/chromium-solana-768.png",
+      "width": 768,
+      "height": 50870,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/desktop-4663.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/desktop-developers.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/desktop-home.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/desktop-loops.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/desktop-radar-cards.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/desktop-receipts-receipt_001.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/desktop-receipts.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/desktop-rh-chain-signal-desk-market.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/desktop-rh-chain-signal-desk.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/desktop-solana.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/desktop-spend-terminal.png",
+      "width": 1440,
+      "height": 1824,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/mobile-4663.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/mobile-developers.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/mobile-home.png",
+      "width": 390,
+      "height": 3738,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/mobile-loops.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/mobile-radar-cards.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/mobile-receipts-receipt_001.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/mobile-receipts.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/mobile-rh-chain-signal-desk-market.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/mobile-rh-chain-signal-desk.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/mobile-solana.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/mobile-spend-terminal.png",
+      "width": 390,
+      "height": 3219,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/tablet-4663.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/tablet-developers.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/tablet-home.png",
+      "width": 768,
+      "height": 2273,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/tablet-loops.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/tablet-radar-cards.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/tablet-receipts-receipt_001.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/tablet-receipts.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/tablet-rh-chain-signal-desk-market.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/tablet-rh-chain-signal-desk.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/tablet-solana.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/existing-unified/tablet-spend-terminal.png",
+      "width": 768,
+      "height": 2843,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/first-pass/real-journeys/mobile-evaluation.png",
+      "width": 390,
+      "height": 1740,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/first-pass/real-journeys/mobile-execution.png",
+      "width": 390,
+      "height": 1765,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/first-pass/real-journeys/mobile-insufficient-evidence.png",
+      "width": 390,
+      "height": 3219,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/first-pass/real-journeys/mobile-judgment.png",
+      "width": 390,
+      "height": 1920,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/real-journeys-original/mobile-insufficient-evidence.png",
+      "width": 390,
+      "height": 3219,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/real-journeys/mobile-evaluation.png",
+      "width": 390,
+      "height": 1740,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/real-journeys/mobile-execution.png",
+      "width": 390,
+      "height": 1765,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/real-journeys/mobile-insufficient-evidence.png",
+      "width": 390,
+      "height": 3219,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/validation/real-journeys/mobile-judgment.png",
+      "width": 390,
+      "height": 1945,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/after-desktop-home.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/after-desktop-receipts.png",
+      "width": 1440,
+      "height": 2759,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/after-desktop-rh-chain-signal-desk.png",
+      "width": 1440,
+      "height": 1264,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/after-desktop-solana.png",
+      "width": 1440,
+      "height": 1408,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/after-desktop-spend-terminal.png",
+      "width": 1440,
+      "height": 1750,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/after-mobile-home.png",
+      "width": 390,
+      "height": 3738,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/after-mobile-receipts.png",
+      "width": 390,
+      "height": 1350,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/after-mobile-rh-chain-signal-desk.png",
+      "width": 390,
+      "height": 1244,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/after-mobile-solana.png",
+      "width": 390,
+      "height": 1350,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/after-mobile-spend-terminal.png",
+      "width": 390,
+      "height": 1206,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/loaded-desktop-home.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/loaded-desktop-receipts.png",
+      "width": 1440,
+      "height": 2759,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/loaded-desktop-rh-chain-signal-desk.png",
+      "width": 1440,
+      "height": 5640,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/loaded-desktop-solana.png",
+      "width": 1440,
+      "height": 30576,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/loaded-desktop-spend-terminal.png",
+      "width": 1440,
+      "height": 1750,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/loaded-mobile-home.png",
+      "width": 390,
+      "height": 3738,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/loaded-mobile-receipts.png",
+      "width": 390,
+      "height": 6523,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/loaded-mobile-rh-chain-signal-desk.png",
+      "width": 390,
+      "height": 13478,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/loaded-mobile-solana.png",
+      "width": 390,
+      "height": 66441,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-comparison/loaded-mobile-spend-terminal.png",
+      "width": 390,
+      "height": 2403,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/attempts/browser-first-pass/robinhood-narrative-control-after-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/attempts/browser-first-pass/robinhood-narrative-control-after-desktop.png",
+      "width": 1440,
+      "height": 8191,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/attempts/browser-first-pass/robinhood-narrative-control-after-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/attempts/browser-first-pass/robinhood-narrative-control-after-mobile.png",
+      "width": 390,
+      "height": 16103,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/attempts/browser-first-pass/robinhood-narrative-control-before-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/attempts/browser-first-pass/robinhood-narrative-control-before-desktop.png",
+      "width": 1440,
+      "height": 8191,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/attempts/browser-first-pass/robinhood-narrative-control-before-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/attempts/browser-first-pass/robinhood-narrative-control-before-mobile.png",
+      "width": 390,
+      "height": 16103,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/attempts/component-capture/after-robinhood-receipt-mobile.png",
+      "width": 370,
+      "height": 1742,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/attempts/component-capture/before-robinhood-receipt-mobile.png",
+      "width": 370,
+      "height": 1626,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-homepage-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-homepage-desktop.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-homepage-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-homepage-mobile.png",
+      "width": 390,
+      "height": 3738,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-homepage-native-zoom-200.png",
+      "width": 720,
+      "height": 456,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-homepage-native-zoom-400.png",
+      "width": 360,
+      "height": 228,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-contract-mobile.png",
+      "width": 360,
+      "height": 800,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-desktop.png",
+      "width": 1440,
+      "height": 5640,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-hero-status-desktop.png",
+      "width": 556,
+      "height": 616,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-hero-status-mobile.png",
+      "width": 344,
+      "height": 865,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-chain-pulse-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-chain-pulse-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-memes-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-memes-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-methodology-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-movers-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-movers-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-receipt-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-receipt-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-review-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-review-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-risk-radar-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-risk-radar-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-routes-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-routes-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-today-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-tile-rh-v2-today-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-mobile.png",
+      "width": 390,
+      "height": 13478,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-native-zoom-200.png",
+      "width": 720,
+      "height": 456,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-native-zoom-400.png",
+      "width": 360,
+      "height": 228,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-pulse-desktop.png",
+      "width": 1408,
+      "height": 515,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-pulse-mobile.png",
+      "width": 370,
+      "height": 1350,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-receipt-desktop.png",
+      "width": 1408,
+      "height": 803,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-receipt-mobile.png",
+      "width": 370,
+      "height": 1742,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-robinhood-table-mobile.png",
+      "width": 360,
+      "height": 800,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-desktop.png",
+      "width": 1440,
+      "height": 30625,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-directory-desktop.png",
+      "width": 1408,
+      "height": 1076,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-directory-mobile.png",
+      "width": 370,
+      "height": 2846,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-evidence-desktop.png",
+      "width": 552,
+      "height": 450,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-evidence-mobile.png",
+      "width": 344,
+      "height": 524,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-mobile-tile-agent-benchmark-api-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-mobile-tile-agent-benchmark-api-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-mobile-tile-benchmark-readiness-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-mobile-tile-benchmark-readiness-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-mobile-tile-machine-module-card-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-mobile-tile-preflight-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-mobile-tile-preflight-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-mobile-tile-radar-route-directory-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-mobile-tile-radar-route-directory-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-mobile-tile-route-mapping-registry-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-mobile-tile-signal-graph-teaser-card-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-mobile-tile-solana-evidence-brief-1.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-mobile-tile-solana-evidence-brief-2.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-mobile.png",
+      "width": 390,
+      "height": 66441,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-native-zoom-200.png",
+      "width": 720,
+      "height": 456,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/after-solana-native-zoom-400.png",
+      "width": 360,
+      "height": 228,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-homepage-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-homepage-desktop.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-homepage-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-homepage-mobile.png",
+      "width": 390,
+      "height": 3738,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-robinhood-contract-mobile.png",
+      "width": 360,
+      "height": 800,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-robinhood-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-robinhood-desktop.png",
+      "width": 1440,
+      "height": 5356,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-robinhood-hero-status-desktop.png",
+      "width": 556,
+      "height": 536,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-robinhood-hero-status-mobile.png",
+      "width": 344,
+      "height": 757,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-robinhood-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-robinhood-mobile.png",
+      "width": 390,
+      "height": 13178,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-robinhood-pulse-desktop.png",
+      "width": 1408,
+      "height": 468,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-robinhood-pulse-mobile.png",
+      "width": 370,
+      "height": 1274,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-robinhood-receipt-desktop.png",
+      "width": 1408,
+      "height": 646,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-robinhood-receipt-mobile.png",
+      "width": 370,
+      "height": 1626,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-robinhood-table-mobile.png",
+      "width": 360,
+      "height": 800,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-solana-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-solana-desktop.png",
+      "width": 1440,
+      "height": 30625,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-solana-directory-desktop.png",
+      "width": 1408,
+      "height": 1076,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-solana-directory-mobile.png",
+      "width": 370,
+      "height": 2847,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-solana-evidence-desktop.png",
+      "width": 552,
+      "height": 450,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-solana-evidence-mobile.png",
+      "width": 344,
+      "height": 449,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-solana-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/before-solana-mobile.png",
+      "width": 390,
+      "height": 66367,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/homepage-control-after-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/homepage-control-after-desktop.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/homepage-control-after-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/homepage-control-after-mobile.png",
+      "width": 390,
+      "height": 3738,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/homepage-control-before-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/homepage-control-before-desktop.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/homepage-control-before-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/homepage-control-before-mobile.png",
+      "width": 390,
+      "height": 3738,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/receipt-native-after-mobile.png",
+      "width": 370,
+      "height": 1740,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/receipt-native-before-mobile.png",
+      "width": 370,
+      "height": 1624,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-after-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-after-desktop.png",
+      "width": 1440,
+      "height": 8191,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-after-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-after-mobile.png",
+      "width": 390,
+      "height": 16103,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-before-desktop-viewport.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-before-desktop.png",
+      "width": 1440,
+      "height": 8191,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-before-mobile-viewport.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/robinhood-narrative-control-before-mobile.png",
+      "width": 390,
+      "height": 16103,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-routes/chromium-home-1440.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-routes/chromium-home-375.png",
+      "width": 375,
+      "height": 3815,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-routes/chromium-home-768.png",
+      "width": 768,
+      "height": 2273,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-routes/chromium-solana-1440.png",
+      "width": 1440,
+      "height": 30648,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-routes/chromium-solana-375.png",
+      "width": 375,
+      "height": 67728,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-routes/chromium-solana-768.png",
+      "width": 768,
+      "height": 51232,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-routes/chromium-spend-terminal-1440.png",
+      "width": 1440,
+      "height": 1810,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-routes/chromium-spend-terminal-375.png",
+      "width": 375,
+      "height": 2557,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-routes/chromium-spend-terminal-768.png",
+      "width": 768,
+      "height": 2338,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/desktop-4663.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/desktop-developers.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/desktop-home.png",
+      "width": 1440,
+      "height": 1628,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/desktop-loops.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/desktop-radar-cards.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/desktop-receipts-receipt_001.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/desktop-receipts.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/desktop-rh-chain-signal-desk-market.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/desktop-rh-chain-signal-desk.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/desktop-solana.png",
+      "width": 1440,
+      "height": 1000,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/desktop-spend-terminal.png",
+      "width": 1440,
+      "height": 1824,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/mobile-4663.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/mobile-developers.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/mobile-home.png",
+      "width": 390,
+      "height": 3738,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/mobile-loops.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/mobile-radar-cards.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/mobile-receipts-receipt_001.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/mobile-receipts.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/mobile-rh-chain-signal-desk-market.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/mobile-rh-chain-signal-desk.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/mobile-solana.png",
+      "width": 390,
+      "height": 844,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/mobile-spend-terminal.png",
+      "width": 390,
+      "height": 3219,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/tablet-4663.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/tablet-developers.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/tablet-home.png",
+      "width": 768,
+      "height": 2273,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/tablet-loops.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/tablet-radar-cards.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/tablet-receipts-receipt_001.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/tablet-receipts.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/tablet-rh-chain-signal-desk-market.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/tablet-rh-chain-signal-desk.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/tablet-solana.png",
+      "width": 768,
+      "height": 1024,
+      "metadata_chunks": []
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/existing-unified/tablet-spend-terminal.png",
+      "width": 768,
+      "height": 2843,
+      "metadata_chunks": []
+    }
+  ],
+  "json_parse_errors": [],
+  "content_scan_hits": [
+    {
+      "path": "docs/ui-unification/baseline/logs/full-tests.json",
+      "line": 1,
+      "kind": "credential_url",
+      "match_sha256": "46ebfa0c8725042209bdc0c1af665f2d085863b9d13a8ffcccc5914c5c6f4d03",
+      "context_class": "synthetic_or_documentation_candidate"
+    },
+    {
+      "path": "docs/ui-unification/baseline/logs/full-tests.json",
+      "line": 1,
+      "kind": "credential_url",
+      "match_sha256": "46ebfa0c8725042209bdc0c1af665f2d085863b9d13a8ffcccc5914c5c6f4d03",
+      "context_class": "synthetic_or_documentation_candidate"
+    },
+    {
+      "path": "docs/ui-unification/baseline/logs/full-tests.json",
+      "line": 1,
+      "kind": "credential_url",
+      "match_sha256": "ec25b8fa54a9d7a878a86e6f38233af24d5d27d184b396136d6d7f0251d33c19",
+      "context_class": "synthetic_or_documentation_candidate"
+    },
+    {
+      "path": "docs/ui-unification/baseline/logs/full-tests.json",
+      "line": 1,
+      "kind": "credential_url",
+      "match_sha256": "ec25b8fa54a9d7a878a86e6f38233af24d5d27d184b396136d6d7f0251d33c19",
+      "context_class": "manual_inspection_required"
+    },
+    {
+      "path": "docs/ui-unification/baseline/logs/full-tests.json",
+      "line": 1,
+      "kind": "email",
+      "match_sha256": "fbc35f259cf338d3c0a27d2352ae0ee048d07f92c54a6247b78def0b11055dc7",
+      "context_class": "manual_inspection_required"
+    },
+    {
+      "path": "docs/ui-unification/baseline/logs/full-tests.json",
+      "line": 1,
+      "kind": "email",
+      "match_sha256": "fbc35f259cf338d3c0a27d2352ae0ee048d07f92c54a6247b78def0b11055dc7",
+      "context_class": "manual_inspection_required"
+    },
+    {
+      "path": "docs/ui-unification/validation/first-pass/full-tests.json",
+      "line": 1,
+      "kind": "credential_url",
+      "match_sha256": "46ebfa0c8725042209bdc0c1af665f2d085863b9d13a8ffcccc5914c5c6f4d03",
+      "context_class": "synthetic_or_documentation_candidate"
+    },
+    {
+      "path": "docs/ui-unification/validation/first-pass/full-tests.json",
+      "line": 1,
+      "kind": "credential_url",
+      "match_sha256": "46ebfa0c8725042209bdc0c1af665f2d085863b9d13a8ffcccc5914c5c6f4d03",
+      "context_class": "synthetic_or_documentation_candidate"
+    },
+    {
+      "path": "docs/ui-unification/validation/first-pass/full-tests.json",
+      "line": 1,
+      "kind": "credential_url",
+      "match_sha256": "ec25b8fa54a9d7a878a86e6f38233af24d5d27d184b396136d6d7f0251d33c19",
+      "context_class": "synthetic_or_documentation_candidate"
+    },
+    {
+      "path": "docs/ui-unification/validation/first-pass/full-tests.json",
+      "line": 1,
+      "kind": "credential_url",
+      "match_sha256": "ec25b8fa54a9d7a878a86e6f38233af24d5d27d184b396136d6d7f0251d33c19",
+      "context_class": "manual_inspection_required"
+    },
+    {
+      "path": "docs/ui-unification/validation/first-pass/full-tests.json",
+      "line": 1,
+      "kind": "email",
+      "match_sha256": "fbc35f259cf338d3c0a27d2352ae0ee048d07f92c54a6247b78def0b11055dc7",
+      "context_class": "manual_inspection_required"
+    },
+    {
+      "path": "docs/ui-unification/validation/first-pass/full-tests.json",
+      "line": 1,
+      "kind": "email",
+      "match_sha256": "fbc35f259cf338d3c0a27d2352ae0ee048d07f92c54a6247b78def0b11055dc7",
+      "context_class": "manual_inspection_required"
+    },
+    {
+      "path": "docs/ui-unification/validation/full-tests.json",
+      "line": 1,
+      "kind": "credential_url",
+      "match_sha256": "46ebfa0c8725042209bdc0c1af665f2d085863b9d13a8ffcccc5914c5c6f4d03",
+      "context_class": "synthetic_or_documentation_candidate"
+    },
+    {
+      "path": "docs/ui-unification/validation/full-tests.json",
+      "line": 1,
+      "kind": "credential_url",
+      "match_sha256": "46ebfa0c8725042209bdc0c1af665f2d085863b9d13a8ffcccc5914c5c6f4d03",
+      "context_class": "synthetic_or_documentation_candidate"
+    },
+    {
+      "path": "docs/ui-unification/validation/full-tests.json",
+      "line": 1,
+      "kind": "credential_url",
+      "match_sha256": "ec25b8fa54a9d7a878a86e6f38233af24d5d27d184b396136d6d7f0251d33c19",
+      "context_class": "synthetic_or_documentation_candidate"
+    },
+    {
+      "path": "docs/ui-unification/validation/full-tests.json",
+      "line": 1,
+      "kind": "credential_url",
+      "match_sha256": "ec25b8fa54a9d7a878a86e6f38233af24d5d27d184b396136d6d7f0251d33c19",
+      "context_class": "manual_inspection_required"
+    },
+    {
+      "path": "docs/ui-unification/validation/full-tests.json",
+      "line": 1,
+      "kind": "email",
+      "match_sha256": "fbc35f259cf338d3c0a27d2352ae0ee048d07f92c54a6247b78def0b11055dc7",
+      "context_class": "manual_inspection_required"
+    },
+    {
+      "path": "docs/ui-unification/validation/full-tests.json",
+      "line": 1,
+      "kind": "email",
+      "match_sha256": "fbc35f259cf338d3c0a27d2352ae0ee048d07f92c54a6247b78def0b11055dc7",
+      "context_class": "manual_inspection_required"
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/full-tests.json",
+      "line": 1,
+      "kind": "credential_url",
+      "match_sha256": "46ebfa0c8725042209bdc0c1af665f2d085863b9d13a8ffcccc5914c5c6f4d03",
+      "context_class": "synthetic_or_documentation_candidate"
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/full-tests.json",
+      "line": 1,
+      "kind": "credential_url",
+      "match_sha256": "46ebfa0c8725042209bdc0c1af665f2d085863b9d13a8ffcccc5914c5c6f4d03",
+      "context_class": "synthetic_or_documentation_candidate"
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/full-tests.json",
+      "line": 1,
+      "kind": "credential_url",
+      "match_sha256": "ec25b8fa54a9d7a878a86e6f38233af24d5d27d184b396136d6d7f0251d33c19",
+      "context_class": "synthetic_or_documentation_candidate"
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/full-tests.json",
+      "line": 1,
+      "kind": "credential_url",
+      "match_sha256": "ec25b8fa54a9d7a878a86e6f38233af24d5d27d184b396136d6d7f0251d33c19",
+      "context_class": "manual_inspection_required"
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/full-tests.json",
+      "line": 1,
+      "kind": "email",
+      "match_sha256": "fbc35f259cf338d3c0a27d2352ae0ee048d07f92c54a6247b78def0b11055dc7",
+      "context_class": "manual_inspection_required"
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/full-tests.json",
+      "line": 1,
+      "kind": "email",
+      "match_sha256": "fbc35f259cf338d3c0a27d2352ae0ee048d07f92c54a6247b78def0b11055dc7",
+      "context_class": "manual_inspection_required"
+    }
+  ],
+  "limitations": [
+    "Pattern scan is triage, not proof of no secrets. Pixel content requires independent privacy review. Public market addresses and hashes are not automatically tenant secrets. No evidence deleted or rewritten."
+  ]
+}

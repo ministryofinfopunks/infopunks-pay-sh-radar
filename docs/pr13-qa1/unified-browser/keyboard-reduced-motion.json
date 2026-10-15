@@ -1,0 +1,89 @@
+{
+  "source_sha": "f62f9cbabbe244682adf2cc17d9451f580a7ed1c",
+  "keyboard": [
+    {
+      "tag": "A",
+      "text": "Skip to content",
+      "focusVisible": true,
+      "outline": "solid",
+      "outlineWidth": "2px",
+      "boxShadow": "none",
+      "visibleIndicator": true,
+      "tabAttempts": 1
+    },
+    {
+      "tag": "A",
+      "text": "INFOPUNKSRADAR / INTELLIGENCE TERMINAL",
+      "focusVisible": true,
+      "outline": "solid",
+      "outlineWidth": "2px",
+      "boxShadow": "none",
+      "visibleIndicator": true,
+      "tabAttempts": 1
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "focusVisible": true,
+      "outline": "solid",
+      "outlineWidth": "2px",
+      "boxShadow": "none",
+      "visibleIndicator": true,
+      "tabAttempts": 1
+    },
+    {
+      "tag": "INPUT",
+      "text": "",
+      "focusVisible": true,
+      "outline": "solid",
+      "outlineWidth": "2px",
+      "boxShadow": "none",
+      "visibleIndicator": true,
+      "tabAttempts": 1
+    },
+    {
+      "tag": "BUTTON",
+      "text": "▶ Run Spend Check ",
+      "focusVisible": true,
+      "outline": "solid",
+      "outlineWidth": "2px",
+      "boxShadow": "none",
+      "visibleIndicator": true,
+      "tabAttempts": 1
+    },
+    {
+      "tag": "A",
+      "text": " Inspect judgment format",
+      "focusVisible": true,
+      "outline": "solid",
+      "outlineWidth": "2px",
+      "boxShadow": "none",
+      "visibleIndicator": true,
+      "tabAttempts": 1
+    },
+    {
+      "tag": "SUMMARY",
+      "text": "Provider verificationNOT CHECKEDView ↗",
+      "focusVisible": true,
+      "outline": "solid",
+      "outlineWidth": "2px",
+      "boxShadow": "none",
+      "visibleIndicator": true,
+      "tabAttempts": 1
+    },
+    {
+      "tag": "SUMMARY",
+      "text": "Route historyNOT CHECKEDView ↗",
+      "focusVisible": true,
+      "outline": "solid",
+      "outlineWidth": "2px",
+      "boxShadow": "none",
+      "visibleIndicator": true,
+      "tabAttempts": 1
+    }
+  ],
+  "reduced_motion": {
+    "requested": true,
+    "scrollBehavior": "smooth"
+  }
+}

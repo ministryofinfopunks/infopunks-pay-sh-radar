@@ -1,0 +1,26 @@
+[
+  {
+    "sha": "7f44417fcad683a48397dad251f5d4245aa34643",
+    "parents": [
+      "d3d0a445ec20e8c55170c2fc1f52aff220b2a851"
+    ],
+    "author_name": "ministryofinfopunks",
+    "author_date": "2026-10-15T13:31:58+05:30",
+    "committer_name": "ministryofinfopunks",
+    "commit_date": "2026-10-15T13:33:37+05:30",
+    "subject": "Unify Radar subpages with canonical cyan terminal",
+    "changed_files": 315
+  },
+  {
+    "sha": "e1b7e7be2f14056c5aed61484b0fb1ba371be4a6",
+    "parents": [
+      "7f44417fcad683a48397dad251f5d4245aa34643"
+    ],
+    "author_name": "ministryofinfopunks",
+    "author_date": "2026-10-15T14:37:00+05:30",
+    "committer_name": "ministryofinfopunks",
+    "commit_date": "2026-10-15T14:37:00+05:30",
+    "subject": "Correct Radar evidence and receipt visual hierarchy",
+    "changed_files": 273
+  }
+]

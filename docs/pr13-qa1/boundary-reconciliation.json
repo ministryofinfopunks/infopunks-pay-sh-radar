@@ -1,0 +1,12 @@
+{
+  "original_checker_exit": 1,
+  "original_report": "boundary.json",
+  "intentional_difference": [
+    "scripts/qualify-ui-int2-journeys.cjs"
+  ],
+  "all_other_protected_files_unchanged": true,
+  "all_original_bindings_unchanged": true,
+  "legacy_css_rules_preserved": 295,
+  "selector_only_proof": "search-selector-regression.json",
+  "meaning": "Supplemental assessment only. Original gate result retained; no checker allowlist or assertions modified."
+}

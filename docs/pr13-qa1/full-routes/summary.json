@@ -1,0 +1,20 @@
+{
+  "source_sha": "f62f9cbabbe244682adf2cc17d9451f580a7ed1c",
+  "previous_routes": 137,
+  "current_routes": 139,
+  "viewport_checks": 973,
+  "chromium": 139,
+  "webkit": 0,
+  "failures": [
+    {
+      "route": "/4663/proof/0x1111111111111111111111111111111111111111",
+      "fail": "TimeoutError: locator.evaluate: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('.radar-specialized-nav')\n",
+      "errors": []
+    },
+    {
+      "route": "/4663/proof/qualification-missing-record",
+      "fail": "TimeoutError: locator.evaluate: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('.radar-specialized-nav')\n",
+      "errors": []
+    }
+  ]
+}

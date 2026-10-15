@@ -1,0 +1,14 @@
+Inventory: 139 concrete route/alias/detail examples from 130 router patterns
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+browserContext.newPage: Protocol error (Page.overrideSetting): Unknown setting: PushAPIEnabled
+    at worker (/private/tmp/radar-pr13-qa1-browser/scripts/qualify-ui-int2-routes.cjs:18:237)
+    at async qualify (/private/tmp/radar-pr13-qa1-browser/scripts/qualify-ui-int2-routes.cjs:30:4)
+    at async /private/tmp/radar-pr13-qa1-browser/scripts/qualify-ui-int2-routes.cjs:32:382 {
+  log: [],
+  name: 'Error'
+}
+
+Node.js v24.21.0

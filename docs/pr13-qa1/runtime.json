@@ -1,0 +1,7 @@
+{
+  "node": "/Users/ahdilm/.codex/visualizations/2026/10/14/01a13917-0fb3-7781-bf52-94112ededb49/radar-v1-phase2/image-security/tools/node-v24.21.0-darwin-arm64/bin/node",
+  "node_sha256": "e4b5a3af0e05c75de2eae013904145f40fe7fc2a6e6f17510128bf45cca4e79b",
+  "platform": "macOS-14.4.1-arm64-arm-64bit",
+  "environment": "Allowlisted process environment; no .env loaded; synthetic local PostgreSQL only",
+  "dependencies": "Existing exact-lock node_modules linked from original workspace; npm ls validation recorded"
+}

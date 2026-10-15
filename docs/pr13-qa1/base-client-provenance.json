@@ -1,0 +1,11 @@
+{
+  "source": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "git_archive_sha256": "ad6e615eab1742d734840fd03043e5480d6505239df209c0e208685b031865bd",
+  "build_command": [
+    "/Users/ahdilm/.codex/visualizations/2026/10/14/01a13917-0fb3-7781-bf52-94112ededb49/radar-v1-phase2/image-security/tools/node-v24.21.0-darwin-arm64/bin/node",
+    "/tmp/radar-pr13-qa1/node_modules/vite/bin/vite.js",
+    "build"
+  ],
+  "build_exit": 0,
+  "backend": "Qualified compiled backend reused; git diff base..frozen shows no backend changes."
+}

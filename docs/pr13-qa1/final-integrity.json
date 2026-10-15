@@ -1,0 +1,54 @@
+{
+  "source_commit": "f62f9cbabbe244682adf2cc17d9451f580a7ed1c",
+  "frozen_pr": "e1b7e7be2f14056c5aed61484b0fb1ba371be4a6",
+  "integrity": [
+    {
+      "scope": "source",
+      "checked": 747,
+      "mismatches": []
+    },
+    {
+      "scope": "frozen_evidence",
+      "checked": 581,
+      "mismatches": []
+    }
+  ],
+  "qualified_tracked_diff": "",
+  "original_checkout_head": "e1b7e7be2f14056c5aed61484b0fb1ba371be4a6",
+  "original_checkout_status": "?? docs/qualification/\n?? docs/ui-unification/evidence.zip\n",
+  "generated_private_key_material_matches": [],
+  "base_server_stopped_pid": 29625,
+  "postgres_stop": {
+    "command": [
+      "/opt/homebrew/opt/postgresql@16/bin/pg_ctl",
+      "-D",
+      "/tmp/radar-pr13-qa1-pg",
+      "-m",
+      "fast",
+      "-w",
+      "stop"
+    ],
+    "exit_code": 0,
+    "log": "logs/pg-stop.log"
+  },
+  "owned_ports": {
+    "8819": false,
+    "8820": false,
+    "55441": false
+  },
+  "preexisting_preview_observation": {
+    "5173": true,
+    "8787": true,
+    "5432": true
+  },
+  "restrictions": {
+    "pushed": false,
+    "force_pushed": false,
+    "merged": false,
+    "deployed": false,
+    "restricted_staging": false,
+    "financial_execution": false,
+    "backend_authority_changes": false,
+    "approved_reference_updates": false
+  }
+}

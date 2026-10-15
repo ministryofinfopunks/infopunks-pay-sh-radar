@@ -1,0 +1,1 @@
+PASS: original selector ambiguity reproduced; scoped real API search succeeds; all other harness bytes unchanged.
