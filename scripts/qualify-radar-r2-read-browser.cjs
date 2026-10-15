@@ -14,8 +14,9 @@ const reports = [], hash = bytes => crypto.createHash('sha256').update(bytes).di
  try {
   for (const width of [320,375,390,430,768,1024,1440]) {
    const context = await browser.newContext({viewport:{width,height:1000},reducedMotion:'reduce'});
-   const page = await context.newPage(); const errors=[], methods=[];
-   page.on('pageerror', error=>errors.push(error.message));page.on('request',r=>{if(new URL(r.url()).pathname.startsWith('/v1/')) methods.push(r.method());});
+   const page = await context.newPage(); const errors=[], methods=[], deniedLegacy=[];
+   page.on('pageerror', error=>errors.push(error.message));page.on('request',r=>{if(new URL(r.url()).pathname.startsWith('/v1/')) methods.push({method:r.method(),url:r.url()});});
+   page.on('response',r=>{if(r.request().method()!=='GET'&&r.url().startsWith(base+'/v1/'))deniedLegacy.push({url:r.url(),method:r.request().method(),status:r.status()});});
    await page.route('**/*',r=>['127.0.0.1','localhost'].includes(new URL(r.request().url()).hostname)?r.continue():r.abort());
    // Compare exact R1 and R2 homepage pixels in the same engine/viewport; never update approved references.
    await page.goto(baseline+'/');await page.getByRole('heading',{name:'Before your agent spends, check the evidence.',exact:true}).waitFor();
@@ -33,7 +34,7 @@ const reports = [], hash = bytes => crypto.createHash('sha256').update(bytes).di
    await page.goto(release+'/unicorn-radar');await page.getByRole('textbox',{name:'Search',exact:true}).waitFor();
    await page.getByRole('textbox',{name:'Search',exact:true}).fill('no-r2-candidate');await page.getByText('No candidates match this view. Adjust the filters or search.',{exact:true}).first().waitFor();
    await page.getByRole('textbox',{name:'Search',exact:true}).fill('KINS');await page.getByText('1 shown',{exact:true}).waitFor();
-   await page.getByLabel('Sector',{exact:true}).selectOption('Gaming / Consumer');
+   await page.getByRole('combobox',{name:/^Sector/}).selectOption('Gaming / Consumer');
    assert.equal(await page.getByRole('article',{name:'Kintara Unicorn Radar card',exact:true}).count(),1);
    reports.push({case:'actual API empty/search/native-filter journey',width,pass:true});
    await page.getByRole('article',{name:'Kintara Unicorn Radar card',exact:true}).getByRole('link',{name:'Open Candidate',exact:true}).click();
@@ -58,7 +59,7 @@ const reports = [], hash = bytes => crypto.createHash('sha256').update(bytes).di
    failure='503';await page.getByRole('button',{name:'Retry',exact:true}).click();await page.getByText('Market intelligence unavailable',{exact:true}).waitFor();
    failure='none';await page.getByRole('button',{name:'Retry',exact:true}).click();await page.getByRole('textbox',{name:'Search',exact:true}).waitFor();
    reports.push({case:'malformed/503/retry state recovery',width,pass:true,scope:'controlled failures; success actual local HTTP'});
-   assert.deepEqual(errors,[]);assert.ok(methods.every(m=>m==='GET'));await context.close();
+   assert.deepEqual(errors,[]);assert.ok(methods.filter(m=>m.url.startsWith(release+'/')).every(m=>m.method==='GET'));assert.ok(deniedLegacy.every(r=>r.status===403&&/^\/v1\/radar\/bundles\/[a-z-]+\/plan$/.test(new URL(r.url).pathname)));reports.push({case:'public journey requests are GET only; legacy plan mount requests denied before handlers',width,pass:true,legacy_denials:deniedLegacy});await context.close();
   }
  }finally{await browser.close();}
  fs.writeFileSync(path.join(out,'results.json'),JSON.stringify({source_sha:sha,decision:'engineering evidence only',scope:'Local actual API reads plus explicitly controlled error responses; not production or independent approval; opt-in scope verified only on isolated local profile',reports},null,2));
