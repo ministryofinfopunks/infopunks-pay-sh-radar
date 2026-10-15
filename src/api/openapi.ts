@@ -1,4 +1,4 @@
-import { PUBLIC_READ_API_ROUTES, PUBLIC_READ_UI_ROUTES } from '../config/controlledStaging';
+import { PUBLIC_READ_API_ROUTES, PUBLIC_READ_UI_ROUTES, PUBLIC_READ_OPERATIONAL_ROUTES } from '../config/controlledStaging';
 import { unicornReadExamples } from './publicReadExamples';
 import { DecisionViewV1Schema } from '../schemas/decisionView';
 import { JudgmentDomainContextSchema } from '../schemas/judgmentDomain';
@@ -7577,7 +7577,7 @@ export function createPublicReadOpenApiSpec(version: string): OpenApiSpec {
   const errors = ['public_release_route_unavailable', 'public_release_query_unsupported', 'public_release_payment_forbidden'];
   for (const [path, methods] of Object.entries(paths)) for (const [method, operation] of Object.entries(methods)) {
     if (!['get', 'post', 'patch', 'put', 'delete', 'head'].includes(method)) continue;
-    const publicRead = method === 'get' && PUBLIC_READ_API_ROUTES.some(route => route.replace(':candidateId', '{candidateId}') === path);
+    const publicRead = method === 'get' && (PUBLIC_READ_API_ROUTES.some(route => route.replace(':candidateId', '{candidateId}') === path) || PUBLIC_READ_OPERATIONAL_ROUTES.some(route => route === path));
     operation['x-radar-anonymous-public-read'] = publicRead;
     operation.description = String(operation.description ?? '') + (publicRead
       ? ' Public-read profile: no server query parameters are supported; unsupported queries or payment headers return no-store403. HEAD inherits the same reviewed read behavior.'
@@ -7589,6 +7589,6 @@ export function createPublicReadOpenApiSpec(version: string): OpenApiSpec {
     } };
   }
   return { ...spec, 'x-radar-public-release': { profile: 'public-read-v1', public_ui_routes: PUBLIC_READ_UI_ROUTES,
-    anonymous_api_routes: PUBLIC_READ_API_ROUTES, server_queries: [], blocked_status: 403, errors,
+    anonymous_api_routes: PUBLIC_READ_API_ROUTES, operational_read_transports: PUBLIC_READ_OPERATIONAL_ROUTES, server_queries: [], blocked_status: 403, errors,
     private_capabilities: 'Reference only; existing operator/tenant authorization and authority gates still apply. No public economic execution.' } };
 }

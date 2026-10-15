@@ -77,5 +77,5 @@ export function marketObservationLabel(candidate: { dexScreenerData?: unknown; m
   if (!candidate.dexScreenerData || !Number.isFinite(observed)) return 'Market observation unavailable';
   if (observed > now) return 'Market capture time invalid · current freshness unavailable';
   const age = now - observed;
-  return age >= 0 && age <= 90_000 ? 'Recent Radar market capture · may be cached up to 90 seconds' : 'Historical market observation · current refresh not established';
+  return age >= 0 && age <= 90_000 ? 'Radar market capture · snapshot may be cached; see capture time' : 'Historical market observation · current refresh not established';
 }

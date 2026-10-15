@@ -32,6 +32,10 @@ const reports = [], hash = bytes => crypto.createHash('sha256').update(bytes).di
    for(const route of ['/solana','/signal-hunt','/hermes','/loops','/machine-market','/revenue-receipts','/v1/hermes','/v1/signal-hunt','/v1/unicorn-radar?status=watchlist']){const denied=await page.request.get(release+route);assert.equal(denied.status(),403);assert.equal(denied.headers()['cache-control'],'private, no-store');}
    reports.push({case:'opt-in public profile direct-route and query boundary',width,pass:true});
    await page.goto(release+'/unicorn-radar');await page.getByRole('textbox',{name:'Search',exact:true}).waitFor();
+   await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
+   const indexAxe=await page.evaluate(async()=>{const r=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa','wcag22aa']}});return{violations:r.violations,incomplete:r.incomplete};});
+   fs.writeFileSync(path.join(out,`axe-index-${width}.json`),JSON.stringify(indexAxe,null,2));assert.equal(indexAxe.violations.length,0);
+   await page.screenshot({path:path.join(out,`index-${width}.png`),fullPage:true});reports.push({case:'fully loaded index scoped axe',width,pass:true});
    await page.getByRole('textbox',{name:'Search',exact:true}).fill('no-r2-candidate');await page.getByText('No candidates match this view. Adjust the filters or search.',{exact:true}).first().waitFor();
    await page.getByRole('textbox',{name:'Search',exact:true}).fill('KINS');await page.getByText('1 shown',{exact:true}).waitFor();
    await page.getByRole('combobox',{name:/^Sector/}).selectOption('Gaming / Consumer');
@@ -45,7 +49,7 @@ const reports = [], hash = bytes => crypto.createHash('sha256').update(bytes).di
    // Scoped accessibility/runtime evidence; human AT/native zoom/device approval remains separate.
    for (const [label,url] of [['candidate',await page.url()],['developers',release+'/developers']]) {
     if(url!==await page.url())await page.goto(url);
-    await page.locator('main').waitFor();await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
+    await page.locator('main').waitFor();if(label==='developers')await page.getByRole('heading',{name:'Before your agent pays, it checks Infopunks.',exact:true}).waitFor();await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
     const axe=await page.evaluate(async()=>{const r=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa','wcag22aa']}});return{violations:r.violations,incomplete:r.incomplete};});
     fs.writeFileSync(path.join(out,`axe-${label}-${width}.json`),JSON.stringify(axe,null,2));
     const geometry=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,resources:performance.getEntriesByType('resource').filter(r=>r.name.endsWith('.js')).reduce((sum,r)=>sum+r.transferSize,0),navigation:performance.getEntriesByType('navigation').map(r=>({domContentLoadedMs:r.domContentLoadedEventEnd,transferBytes:r.transferSize}))}));

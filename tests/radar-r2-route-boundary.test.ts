@@ -46,6 +46,8 @@ describe('approved opt-in public read availability boundary', () => {
       const spec = (await app.inject('/openapi.json')).json(); expect(spec['x-radar-public-release'].anonymous_api_routes).toHaveLength(4);
       expect(spec.paths['/v1/unicorn-radar'].get.responses['403'].content['application/json'].examples.public_release_query_unsupported.value).toEqual({ error: 'public_release_query_unsupported' });
       expect(spec.paths['/v1/unicorn-radar'].get['x-radar-anonymous-public-read']).toBe(true);
+      expect(spec.paths['/version'].get['x-radar-anonymous-public-read']).toBe(true);
+      expect(spec['x-radar-public-release'].operational_read_transports).toEqual(['/healthz', '/readyz', '/version']);
       expect(spec.paths['/v1/pre-spend/check'].post['x-radar-anonymous-public-read']).toBe(false);
     } finally { await app.close(); await rm(dir, { recursive: true, force: true }); }
   });

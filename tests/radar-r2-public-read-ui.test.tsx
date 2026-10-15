@@ -2,6 +2,7 @@
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { DevelopersPage } from '../src/web/preSpendBuilderPages';
 import { App } from '../src/web/radarApp';
 import { UniversalHomepage } from '../src/web/homepage';
 import { unicornReadExamples } from '../src/api/publicReadExamples';
@@ -13,6 +14,18 @@ async function mount(element: React.ReactNode, run: (host: HTMLDivElement) => Pr
   try { await act(async () => root.render(element)); await run(host); } finally { act(() => root.unmount()); host.remove(); }
 }
 describe('R2 public read honesty and navigation', () => {
+  it('labels developer integration links as gated, preserves reference anchors, and performs no mount-time action', async () => {
+    const fetch = vi.fn(); vi.stubGlobal('fetch', fetch);
+    await mount(<DevelopersPage />, host => {
+      expect(host.textContent).toContain('credential-bound ownership or operator authentication');
+      expect([...host.querySelectorAll('.builder-card-anchor .section-kicker')].filter(x => x.textContent?.startsWith('Gated integration'))).toHaveLength(9);
+      expect([...host.querySelectorAll('.builder-card-anchor .section-kicker')].filter(x => x.textContent === 'Public read reference')).toHaveLength(2);
+      expect(host.querySelector('#agent-example')).not.toBeNull();
+      expect(host.textContent).not.toContain('Public link');
+      expect(fetch).not.toHaveBeenCalled();
+    });
+  });
+
   it('keeps all24destinations discoverable with truthful proposed/excluded scope, not live admission', async () => {
     await mount(<SolanaRadarDirectory />, host => {
       expect(host.querySelectorAll('[data-route-id]')).toHaveLength(24);

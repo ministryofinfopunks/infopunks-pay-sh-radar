@@ -78,6 +78,7 @@ describe('R2 public read contracts and side effects', () => {
     const now = Date.parse('2026-10-14T00:00:00Z');
     expect(marketObservationLabel({}, now)).toContain('unavailable');
     expect(marketObservationLabel({ dexScreenerData: {}, marketDataUpdatedAt: '2026-10-15T00:00:00Z' }, now)).toContain('invalid');
-    expect(marketObservationLabel({ dexScreenerData: {}, marketDataUpdatedAt: '2026-10-13T23:59:30Z' }, now)).toContain('Radar market capture');
+    const label = marketObservationLabel({ dexScreenerData: {}, marketDataUpdatedAt: '2026-10-13T23:59:30Z' }, now);
+    expect(label).toContain('Radar market capture'); expect(label).toContain('snapshot'); expect(label).not.toMatch(/recent|live/i);
   });
 });

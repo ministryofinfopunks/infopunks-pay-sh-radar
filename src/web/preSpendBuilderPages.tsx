@@ -604,14 +604,14 @@ Content-Type: application/json
       cta: 'Open quickstart + snippets'
     },
     { href: '/spend-terminal', title: 'Spend Terminal', copy: 'Run the receipt-backed pre-spend check UI.' },
-    { href: '/check', title: 'Check', copy: 'Turn claims, routes, providers, wallets, and links into public receipt checks.' },
-    { href: '/loops', title: 'Loops', copy: 'Inspect autonomous loops as proof-linked public memory objects.' },
+    { href: '/check', title: 'Check', copy: 'Inspect claims under existing authorization and authority gates.' },
+    { href: '/loops', title: 'Loops', copy: 'Inspect loop records; record existence does not establish verified execution.' },
     { href: '/routes', title: 'Routes', copy: 'Inspect route-level intelligence before autonomous spend.' },
     { href: '/providers', title: 'Providers', copy: 'Review provider reliability, disputes, and coverage.' },
     { href: '/services', title: 'Services', copy: 'Compare best route, safest first attempt, and blockers.' },
-    { href: '/receipts', title: 'Receipts', copy: 'Trace every decision back to recorded route evidence.' },
+    { href: '/receipts', title: 'Receipts', copy: 'Private inspection requires credential-bound ownership or operator authorization.' },
     { href: '/claim', title: 'Claims', copy: 'Turn receipts into reusable signal objects with evidence and challenge placeholders.' },
-    { href: '/openapi.json', title: 'OpenAPI', copy: 'Pull the public OpenAPI spec from the live endpoint.' },
+    { href: '/openapi.json', title: 'OpenAPI', copy: 'Read build-bound contracts; profile metadata records public availability.' },
     { href: '/developers#agent-example', title: 'Agent Example', copy: 'See the minimal example and repo path for examples/pre-spend-agent.' }
   ];
 
@@ -679,7 +679,7 @@ Content-Type: application/json
           <div className="panel-head">
             <div>
               <p className="section-kicker">API</p>
-              <h2 id="api-heading">POST /v1/pre-spend/check</h2><p className="copy">Canonical decisions: proceed, test_spend_first, do_not_spend, insufficient_evidence. Inspect canonical_judgment; legacy diagnostic verdicts cannot authorize spend. Subject network is independent of fee settlement. The strict radar-judgment-context.v1 extension binds a namespaced subject, policy version, accepted evidence references, fee settlement network and expiry. RH market policy remains read-only and unqualified for trading. Native Solana fee settlement is unavailable. Canonical proof reads require operator authentication.</p>
+              <h2 id="api-heading">POST /v1/pre-spend/check</h2><p className="copy">Canonical decisions: proceed, test_spend_first, do_not_spend, insufficient_evidence. Inspect canonical_judgment; legacy diagnostic verdicts cannot authorize spend. Subject network is independent of fee settlement. The strict radar-judgment-context.v1 extension binds a namespaced subject, policy version, accepted evidence references, fee settlement network and expiry. RH market policy remains read-only and unqualified for trading. Native Solana fee settlement is unavailable. Canonical proof reads require credential-bound ownership or operator authentication.</p>
             </div>
           </div>
           <p className="panel-caption">Builders can call the HTTP endpoint directly when they do not want the SDK wrapper. The public contract is the intelligence layer before payment, not the payment client itself.</p>
@@ -732,20 +732,20 @@ Content-Type: application/json
           </div>
           <a className="execute compact secondary" href="/developers/wallet-safety/integrations">Open Integration Registry</a>
         </div>
-        <p className="panel-caption">The registry shows agents, wallets, routers, and apps that are Wallet Safety-ready or moving toward compatibility.</p>
+        <p className="panel-caption">Outside the first public release. Registry entries describe integration status; they do not establish independent operational or payment approval.</p>
       </section>
 
       <section className="panel builder-detail-panel" id="agent-example" aria-label="Developer links">
         <div className="panel-head">
           <div>
             <p className="section-kicker">Builder Links</p>
-            <h2>Inspect the public surfaces</h2>
+            <h2>Inspect integration references</h2>
           </div>
         </div>
         <div className="builder-card-grid">
           {resourceCards.map((card) => <article className="panel builder-card" key={card.title}>
             <a className="builder-card-anchor" href={card.href}>
-              <p className="section-kicker">Public link</p>
+              <p className="section-kicker">{['/openapi.json', '/developers#agent-example'].includes(card.href) ? 'Public read reference' : 'Gated integration · outside first public release'}</p>
               <h2>{card.title}</h2>
               <p className="panel-caption">{card.copy}</p>
               <span className="builder-card-cta">{card.cta ?? 'Open'}</span>
