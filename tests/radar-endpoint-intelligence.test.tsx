@@ -149,10 +149,10 @@ function anomalyWatchItems(count: number) {
   }));
 }
 
-function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknown[]; degraded?: boolean; readiness?: Record<string, unknown>; anomalyWatch?: ReturnType<typeof anomalyWatchItems>; evidenceLedger?: unknown; evidenceLedgerUnavailable?: boolean; bundleRunLedgerUnavailable?: boolean; bundleRunHistorySummaryMissing?: boolean; bundleRunFreshnessMissing?: boolean } = {}) {
+function installFetch(options: { pulse?: Record<string, unknown>; endpoints?: unknown[]; detailEndpoints?: unknown[]; degraded?: boolean; readiness?: Record<string, unknown>; anomalyWatch?: ReturnType<typeof anomalyWatchItems>; evidenceLedger?: unknown; evidenceLedgerUnavailable?: boolean; bundleRunLedgerUnavailable?: boolean; bundleRunHistorySummaryMissing?: boolean; bundleRunFreshnessMissing?: boolean } = {}) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
     const path = pathOf(input);
-    if (path === '/v1/pulse') return json({ providerCount: 1, endpointCount: options.endpoints?.length ?? 0, eventCount: 1, averageTrust: 86, averageSignal: 74, hottestNarrative: null, topTrust: [], topSignal: [], data_source: { mode: 'live_pay_sh_catalog', url: 'https://pay.sh/api/catalog', generated_at: observedAt, provider_count: 1, last_ingested_at: observedAt, used_fixture: false }, updatedAt: observedAt });
+    if (path === '/v1/pulse') return json({ providerCount: 1, endpointCount: options.endpoints?.length ?? 0, eventCount: 1, averageTrust: 86, averageSignal: 74, hottestNarrative: null, topTrust: [], topSignal: [], data_source: { mode: 'live_pay_sh_catalog', url: 'https://pay.sh/api/catalog', generated_at: observedAt, provider_count: 1, last_ingested_at: observedAt, used_fixture: false }, updatedAt: observedAt, ...options.pulse });
     if (path === '/v1/providers') return json([provider]);
     if (path === '/v1/narratives') return json([]);
     if (path === '/v1/graph') return json({ nodes: [], edges: [] });
@@ -994,6 +994,25 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Lookup');
     expect(container.textContent).toContain('route eligible');
     expect(container.textContent).not.toContain('Developer diagnostics');
+  });
+
+  it.each([null, 0])('keeps unknown and zero coverage values truthful in the Solana hero (%s)', async (score) => {
+    window.history.replaceState({}, '', '/solana');
+    installFetch({ endpoints: [normalizedEndpoint], pulse: {
+      averageTrust: score,
+      averageSignal: score,
+      data_source: { mode: 'live_pay_sh_catalog', url: 'https://pay.sh/api/catalog', generated_at: observedAt, provider_count: 1, last_ingested_at: observedAt, used_fixture: true }
+    } });
+    root = await renderApp(container);
+
+    const evidence = container.querySelector<HTMLElement>('[aria-label="Solana Radar coverage and evidence"]')!;
+    const metrics = Object.fromEntries(Array.from(evidence.querySelectorAll('dl > div')).map((row) => [row.querySelector('dt')?.textContent, row.querySelector('dd')?.textContent]));
+    expect(metrics).toEqual({ Providers: '1', Endpoints: '1', 'Avg Trust': score === null ? 'unknown' : '0', 'Avg Signal': score === null ? 'unknown' : '0' });
+    expect(evidence.textContent).toContain('FIXTURE-BACKED RADAR STATE');
+    expect(evidence.textContent).not.toContain('LIVE PAY.SH CATALOG');
+    expect(container.querySelector('.solana-terminal-hero a[href="/spend-terminal"]')?.textContent).toBe('Check a Spend Route');
+    expect(container.querySelector('.solana-terminal-hero a[href="#explore-solana-radar"]')?.textContent).toBe('Explore the Radar');
+    expect(container.querySelectorAll('.radar-directory-card')).toHaveLength(6);
   });
 
   it('renders selected provider with no endpoint rows without hiding the provider', async () => {

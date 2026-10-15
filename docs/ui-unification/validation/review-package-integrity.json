@@ -1,0 +1,32 @@
+{
+  "checkedAt": "2026-10-15T07:59:02.472707+00:00",
+  "branch": "codex/radar-subpages-ui-unification",
+  "baselineCommit": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "reviewState": "HOLD",
+  "testBuildManifest": {
+    "path": "docs/ui-unification/validation/source-hashes-final.json",
+    "sha256": "090372043ac151a3f037734787e0be9a0f2d7f7e1695503037862473072a9b61",
+    "entries": 704,
+    "currentDifferences": [
+      "scripts/browser-radar-ui-interactions.cjs"
+    ],
+    "explanation": "Only the browser interaction driver changed after the full-suite/build snapshot, to strengthen its computed-density assertion. Runtime, configuration and tests remain the tested bytes."
+  },
+  "finalBrowserManifest": {
+    "path": "docs/ui-unification/evidence/cyan-baseline/final-browser-provenance.json",
+    "fileSha256": "026b92dc928f3ce752d2ec1217b06428dff995acb75ab115292a78b24ff46f98",
+    "sourceManifestSha256": "b0a8b62987967787eac5279cd965be129518829c692ad62ba8fa8a5c768e3bd8",
+    "sourceFilesChecked": 341,
+    "scriptFilesChecked": 8,
+    "artifactsChecked": 106,
+    "sourceDifferences": [],
+    "scriptDifferences": [],
+    "artifactDifferences": [],
+    "sourceUnchangedDuringChecks": true,
+    "checkGroups": 8
+  },
+  "unchangedScope": "The separately qualified final browser driver closes the known test/build-manifest difference. This does not alter or replace either historical manifest.",
+  "deployment": false,
+  "merge": false,
+  "approvedReferencesChanged": false
+}

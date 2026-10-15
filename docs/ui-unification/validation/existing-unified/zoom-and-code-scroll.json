@@ -1,0 +1,134 @@
+{
+  "source_sha": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "method": "Equivalent CSS viewport widths at 100% browser zoom: 720px (200% of 1440 CSS px) and 360px (400% of 1440 CSS px). This is reflow coverage, not browser zoom UI automation.",
+  "reports": [
+    {
+      "zoom_equivalent": "200_percent",
+      "route": "/developers",
+      "http_status": 200,
+      "viewport_width": 720,
+      "document_width": 720,
+      "overflowing": false,
+      "code_regions": [
+        {
+          "label": "Integration code example",
+          "tabIndex": "0",
+          "bounded": true,
+          "requiresScroll": true,
+          "scrollable": true
+        },
+        {
+          "label": "Integration code example",
+          "tabIndex": "0",
+          "bounded": true,
+          "requiresScroll": false,
+          "scrollable": true
+        },
+        {
+          "label": "Integration code example",
+          "tabIndex": "0",
+          "bounded": true,
+          "requiresScroll": false,
+          "scrollable": true
+        }
+      ],
+      "keyboard_scroll": {
+        "focused": true,
+        "before": 0,
+        "after": 31,
+        "advanced": true
+      }
+    },
+    {
+      "zoom_equivalent": "200_percent",
+      "route": "/rh-chain-signal-desk/market",
+      "http_status": 200,
+      "viewport_width": 720,
+      "document_width": 720,
+      "overflowing": false,
+      "code_regions": []
+    },
+    {
+      "zoom_equivalent": "200_percent",
+      "route": "/4663",
+      "http_status": 200,
+      "viewport_width": 720,
+      "document_width": 720,
+      "overflowing": false,
+      "code_regions": []
+    },
+    {
+      "zoom_equivalent": "200_percent",
+      "route": "/spend-terminal",
+      "http_status": 200,
+      "viewport_width": 720,
+      "document_width": 720,
+      "overflowing": false,
+      "code_regions": []
+    },
+    {
+      "zoom_equivalent": "400_percent",
+      "route": "/developers",
+      "http_status": 200,
+      "viewport_width": 360,
+      "document_width": 360,
+      "overflowing": false,
+      "code_regions": [
+        {
+          "label": "Integration code example",
+          "tabIndex": "0",
+          "bounded": true,
+          "requiresScroll": true,
+          "scrollable": true
+        },
+        {
+          "label": "Integration code example",
+          "tabIndex": "0",
+          "bounded": true,
+          "requiresScroll": true,
+          "scrollable": true
+        },
+        {
+          "label": "Integration code example",
+          "tabIndex": "0",
+          "bounded": true,
+          "requiresScroll": true,
+          "scrollable": true
+        }
+      ],
+      "keyboard_scroll": {
+        "focused": true,
+        "before": 0,
+        "after": 28,
+        "advanced": true
+      }
+    },
+    {
+      "zoom_equivalent": "400_percent",
+      "route": "/rh-chain-signal-desk/market",
+      "http_status": 200,
+      "viewport_width": 360,
+      "document_width": 360,
+      "overflowing": false,
+      "code_regions": []
+    },
+    {
+      "zoom_equivalent": "400_percent",
+      "route": "/4663",
+      "http_status": 200,
+      "viewport_width": 360,
+      "document_width": 360,
+      "overflowing": false,
+      "code_regions": []
+    },
+    {
+      "zoom_equivalent": "400_percent",
+      "route": "/spend-terminal",
+      "http_status": 200,
+      "viewport_width": 360,
+      "document_width": 360,
+      "overflowing": false,
+      "code_regions": []
+    }
+  ]
+}

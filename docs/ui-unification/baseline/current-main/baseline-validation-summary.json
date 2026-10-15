@@ -1,0 +1,90 @@
+{
+  "baseline_commit": "dfe089bb71c6b4c52acdfb0e8e5b8cc331a13a2f",
+  "baseline_branch": "main",
+  "runtime": {
+    "node": "v25.6.1",
+    "npm": "11.9.0"
+  },
+  "commands": [
+    {
+      "command": "npm run lint",
+      "exit_code": 0,
+      "result": "pass",
+      "log": "lint.log",
+      "notes": "TypeScript noEmit; no separate ESLint script."
+    },
+    {
+      "command": "npm run typecheck",
+      "exit_code": 0,
+      "result": "pass",
+      "log": "typecheck.log"
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "result": "pass_with_existing_warning",
+      "log": "build.log",
+      "notes": "Vite >500kB chunks: radarApp client 1,285.66 kB minified (245.56 kB gzip), CSS 417.61 kB (74.30 kB gzip)."
+    },
+    {
+      "command": "npm test -- --reporter=default --reporter=json --outputFile.json=/private/tmp/radar-ui-baseline/tests.json",
+      "exit_code": 1,
+      "result": "initial_failures",
+      "log": "test.log",
+      "duration_seconds": 301.94,
+      "test_files": {
+        "passed": 235,
+        "failed": 16,
+        "skipped": 9,
+        "total": 260
+      },
+      "tests": {
+        "passed": 1834,
+        "failed": 21,
+        "skipped": 19,
+        "total": 1874
+      },
+      "notes": "19 tests timed out at unchanged 5s timeout with compile commands concurrent; 2 local process probes blocked by sandbox EPERM."
+    },
+    {
+      "command": "npm test -- <all 16 initially failed test files> --maxWorkers=2 --reporter=default --reporter=json --outputFile.json=/private/tmp/radar-ui-baseline/retry-failed.json",
+      "exit_code": 1,
+      "result": "all_timeouts_resolved_environmental_failures_remain",
+      "log": "retry-failed.log",
+      "duration_seconds": 17.87,
+      "test_files": {
+        "passed": 15,
+        "failed": 1,
+        "total": 16
+      },
+      "tests": {
+        "passed": 178,
+        "failed": 2,
+        "skipped": 1,
+        "total": 181
+      },
+      "notes": "No timeout or source changes. Exact file list in failed-file-list.json. Remaining two failures in postgres-resilience-failure-matrix: local 127.0.0.1 bind and tsx IPC bind EPERM."
+    },
+    {
+      "command": "npm test -- tests/postgres-resilience-failure-matrix.test.ts --maxWorkers=1 --reporter=default --reporter=json --outputFile.json=/private/tmp/radar-ui-baseline/process-probes-unsandboxed.json",
+      "exit_code": 0,
+      "result": "pass_with_existing_optional_skip",
+      "environment": "authorized unsandboxed local test process probes",
+      "log": "process-probes-unsandboxed.log",
+      "duration_seconds": 5.09,
+      "test_files": {
+        "passed": 1,
+        "total": 1
+      },
+      "tests": {
+        "passed": 15,
+        "skipped": 1,
+        "total": 16
+      },
+      "notes": "Both sandbox EPERM failures passed with local listener/tsx IPC permission; no test timeout/config/source changes."
+    }
+  ],
+  "production_actions": "none",
+  "browser_checks": "This worker did not run browser/visual/manual screen-reader checks. Existing frontend tests use jsdom.",
+  "qualified_baseline": "No persistent failures after isolated retries: aggregate 1,855 passed / 19 existing skipped of 1,874 tests. Initial full run remains recorded as failed due contention and sandbox environment. This is a combined baseline qualification, not a clean single full-run pass."
+}

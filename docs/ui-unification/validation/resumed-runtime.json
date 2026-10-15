@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-15",
+  "node": "/Users/ahdilm/.codex/visualizations/2026/10/14/01a13917-0fb3-7781-bf52-94112ededb49/radar-v1-phase2/image-security/tools/node-v24.21.0-darwin-arm64/bin/node",
+  "node_version": "v24.21.0",
+  "node_sha256": "e4b5a3af0e05c75de2eae013904145f40fe7fc2a6e6f17510128bf45cca4e79b",
+  "dependency_recovery_command": "PATH=<recorded Node24.21 bin>:$PATH npm ci --offline --no-audit --no-fund --cache /Users/ahdilm/.npm",
+  "dependency_recovery_exit": 0,
+  "packages_added": 185,
+  "package_lock_sha256": "42cc2afd6cf52d6a3b30b0af1ec74f8d4126f0aa867135204c6e4f35e4044c00",
+  "note": "Earlier /private/tmp and dependency target removed across interrupted runtime. Reconstructed exact selected baseline archive+recorded overlay. Existing broken root node_modules symlink replaced by local exact lock install only; no other worktree changes. No network dependency install. Existing install-script review warnings for esbuild/fsevents; no package/lock edits. 704 source-hashes match."
+}

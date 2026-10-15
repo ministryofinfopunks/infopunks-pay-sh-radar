@@ -1,0 +1,142 @@
+/* Home-specific composition of the canonical cyan terminal. Tokens remain in radarTokens.css. */
+.radar-terminal-page :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--radar-signal);
+  outline-offset: 4px;
+}
+
+.radar-solana-home {
+  font-family: var(--radar-mono);
+  color: var(--radar-text);
+}
+
+.radar-solana-home :is(h1, h2, h3) { font-family: var(--radar-mono); }
+.radar-solana-home :is(.panel, .zone, .radar-route-directory) {
+  border: 1px solid var(--radar-line);
+  border-radius: var(--radar-radius);
+  background: var(--radar-bg);
+  box-shadow: none;
+}
+.radar-solana-home :is(.panel, .zone):hover { box-shadow: none; }
+.radar-solana-home .panel { padding: 16px; }
+.radar-solana-home .panel h2 { color: var(--radar-text); font-size: 1.4375rem; line-height: 1.2; letter-spacing: -.045em; }
+.radar-solana-home :is(.panel-caption, .source-line, .section-kicker, .eyebrow) { font-family: var(--radar-mono); }
+.radar-solana-home :is(.copy, .mission-subtitle, .radar-universal-lede) { color: var(--radar-muted); font-family: var(--radar-mono); }
+.radar-solana-home :is(.section-kicker, .eyebrow) { font-size: .75rem; line-height: 1.6; letter-spacing: .065em; }
+.radar-solana-home .execute { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; border-radius: var(--radar-radius); font: 650 .75rem/1.4 var(--radar-mono); text-decoration: none; }
+.radar-solana-home .execute:hover:not(:disabled) { border-color: var(--radar-signal); }
+.radar-solana-home .execute:active:not(:disabled) { opacity: .8; }
+.radar-solana-home.density-comfortable .copy-chip { min-height: 44px; }
+.radar-solana-home :is(input, select, textarea) { font-family: var(--radar-mono); }
+
+.radar-solana-home .solana-terminal-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, .82fr);
+  align-items: stretch;
+  gap: 28px;
+  min-height: 0;
+  margin: 0 0 14px;
+  padding: 16px;
+  overflow: visible;
+}
+.radar-solana-home .solana-terminal-hero::before { content: none; }
+.radar-solana-home .radar-universal-copy { min-width: 0; align-self: center; padding: 16px 12px; }
+.radar-solana-home .solana-terminal-hero h1 {
+  max-width: 640px;
+  margin: 12px 0 18px;
+  font: 800 clamp(2rem, 3.55vw, 3.4375rem)/1.08 var(--radar-mono);
+  letter-spacing: -.055em;
+  text-wrap: balance;
+}
+.radar-solana-home .radar-universal-lede { max-width: 590px; margin: 0; font-size: clamp(.8125rem, 1.1vw, 1rem); line-height: 1.65; }
+.radar-solana-home .radar-universal-actions { justify-content: flex-start; gap: 12px; margin: 22px 0 0; }
+.radar-solana-home .radar-universal-actions .execute { flex: 1; min-width: 0; min-height: 48px; padding: 10px 12px; }
+.radar-solana-home .radar-hero-supporting-line { margin: 12px 0; font: .75rem/1.7 var(--radar-mono); }
+.radar-solana-home .product-evidence-scope { padding: 12px; font: .75rem/1.7 var(--radar-mono); }
+.radar-solana-home .solana-hero-evidence { min-width: 0; padding: 0 16px 12px; }
+.radar-solana-home .solana-hero-evidence .terminal-panel-heading { flex-wrap: wrap; }
+.radar-solana-home .solana-hero-evidence h2 { font: 650 .8125rem/1.4 var(--radar-mono); letter-spacing: 0; text-transform: uppercase; color: var(--radar-text); }
+.radar-solana-home .solana-hero-doctrine { margin: 18px 0; color: var(--radar-muted); font: 600 clamp(1.25rem, 1.8vw, 1.75rem)/1.3 var(--radar-mono); letter-spacing: -.035em; }
+.radar-solana-home .solana-hero-doctrine strong { color: var(--radar-text); }
+.radar-solana-home .solana-hero-coverage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; border-block: 1px solid var(--radar-line); }
+.radar-solana-home .solana-hero-coverage > div { min-width: 0; padding: 12px 0; }
+.radar-solana-home .solana-hero-coverage > div:nth-child(odd) { border-right: 1px solid var(--radar-line-soft); padding-right: 12px; }
+.radar-solana-home .solana-hero-coverage > div:nth-child(even) { padding-left: 12px; }
+.radar-solana-home .solana-hero-coverage > div:nth-child(n + 3) { border-top: 1px solid var(--radar-line-soft); }
+.radar-solana-home .solana-hero-coverage dt { color: var(--radar-muted); font-size: .75rem; }
+.radar-solana-home .solana-hero-coverage dd { margin: 6px 0 0; font: 650 1.4375rem/1.2 var(--radar-mono); text-transform: uppercase; }
+.radar-solana-home .solana-hero-provenance { padding-top: 12px; }
+.radar-solana-home .solana-hero-provenance p { margin: 8px 0 0; color: var(--radar-muted); font: .75rem/1.7 var(--radar-mono); overflow-wrap: anywhere; }
+.radar-solana-home .solana-hero-provenance .source-badge { border-radius: 3px; color: var(--radar-muted); font: .75rem/1.5 var(--radar-mono); }
+
+.radar-solana-home .radar-route-directory { margin: 0 0 14px; padding: 16px; }
+.radar-solana-home .radar-route-directory-head { gap: 20px; align-items: center; margin-bottom: 16px; padding-bottom: 16px; border-color: var(--radar-line-soft); }
+.radar-solana-home .radar-route-directory-head h2 { margin: 6px 0 0; color: var(--radar-text); font: 650 1.4375rem/1.2 var(--radar-mono); letter-spacing: -.045em; }
+.radar-solana-home .radar-route-directory-head > p { max-width: 590px; margin: 0; color: var(--radar-muted); font: .75rem/1.7 var(--radar-mono); }
+.radar-solana-home .radar-route-directory-head .radar-section-header { color: var(--radar-muted); font: .75rem/1.6 var(--radar-mono); }
+.radar-solana-home .radar-route-directory-grid { gap: 12px; }
+.radar-solana-home .radar-directory-card { min-width: 0; padding: 14px; border: 1px solid var(--radar-line); border-radius: var(--radar-radius); background: var(--radar-surface); box-shadow: none; }
+.radar-solana-home .radar-directory-card:hover { border-color: var(--radar-signal); }
+.radar-solana-home .radar-directory-card-head h3 { font: 650 1.125rem/1.3 var(--radar-mono); letter-spacing: -.035em; }
+.radar-solana-home .radar-directory-card > p { min-height: 0; margin-block: 10px 16px; color: var(--radar-muted); font: .75rem/1.7 var(--radar-mono); }
+.radar-solana-home .radar-directory-featured-routes { gap: 0; }
+.radar-solana-home .radar-directory-featured-routes a { min-height: 60px; border-top: 1px solid var(--radar-line-soft); padding: 10px 0; }
+.radar-solana-home .radar-directory-featured-routes :is(strong, small) { font-family: var(--radar-mono); font-size: .75rem; line-height: 1.6; }
+.radar-solana-home .radar-directory-explore-action { min-height: 44px; padding-top: 12px; border-color: var(--radar-line-soft); color: var(--radar-signal); font: 650 .75rem/1.6 var(--radar-mono); }
+
+.radar-solana-home .terminal-meta-strip { flex-wrap: wrap; margin-block: 0 14px; border-color: var(--radar-line); background: var(--radar-surface); }
+.radar-solana-home .solana-evidence-brief { gap: 16px; margin-bottom: 14px; border-left-width: 1px; }
+.radar-solana-home .solana-evidence-primary { grid-template-columns: minmax(0, 1.18fr) minmax(0, .82fr); gap: 28px; }
+.radar-solana-home .solana-evidence-summary .mission-subtitle { font-size: 1rem; line-height: 1.55; }
+.radar-solana-home .solana-evidence-summary > .copy { font: .875rem/1.7 var(--radar-mono); }
+.radar-solana-home .solana-evidence-summary .preflight-home-cta { gap: 12px; padding: 12px; border: 1px solid var(--radar-line-soft); border-radius: var(--radar-radius); background: var(--radar-surface); }
+.radar-solana-home .preflight-home-cta-copy :is(p, small) { font-family: var(--radar-mono); }
+.radar-solana-home .solana-evidence-rail { gap: 16px; padding-left: 16px; border-color: var(--radar-line); }
+.radar-solana-home .solana-monitoring-state { padding: 12px 0; background: transparent; }
+.radar-solana-home .solana-priority-link { font-family: var(--radar-mono); }
+.radar-solana-home .solana-secondary-actions { gap: 0; border-color: var(--radar-line); }
+.radar-solana-home .solana-secondary-actions a { min-width: 0; min-height: 64px; padding: 12px; }
+.radar-solana-home .solana-secondary-actions :is(b, span) { font-family: var(--radar-mono); overflow-wrap: anywhere; }
+.radar-solana-home :is(.machine-module-card, .signal-graph-teaser-card) { margin-block: 0 14px; padding: 16px; }
+.radar-solana-home :is(.machine-module-card, .signal-graph-teaser-card) p { font: .875rem/1.65 var(--radar-mono); }
+.radar-solana-home :is(.metric, .endpoint-intelligence-card, .dossier-section, .route, .result, .batch-group) { border-radius: var(--radar-radius); box-shadow: none; }
+.radar-solana-home .panel-head { flex-wrap: wrap; gap: 12px; }
+.radar-solana-home .panel-head > div { min-width: 0; }
+/* Provider context is evidence: let its text nodes wrap instead of becoming clipped flex items. */
+.radar-solana-home .dossier-section-actions .scope-label { display: block; min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.radar-solana-home .zone { padding: 16px; }
+.radar-solana-home .zone-header { border-color: var(--radar-line); }
+.radar-solana-home :is(.panel, .zone, .radar-directory-card) :is(p, dd, code) { overflow-wrap: anywhere; }
+.radar-solana-home :is(pre, .table-wrap, .endpoint-table-scroll) { max-width: 100%; overflow-x: auto; }
+
+@media (max-width: 1023px) {
+  .radar-solana-home .solana-terminal-hero,
+  .radar-solana-home .solana-evidence-primary { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+  .radar-solana-home .radar-route-directory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .radar-solana-home .solana-secondary-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 680px) {
+  .radar-solana-home .solana-terminal-hero,
+  .radar-solana-home .solana-evidence-primary { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .radar-solana-home .solana-terminal-hero { padding: 12px; }
+  .radar-solana-home .radar-universal-copy { padding: 4px; }
+  .radar-solana-home .solana-terminal-hero h1 { max-width: none; margin: 12px 0 14px; font-size: clamp(1.875rem, 8.2vw, 2.625rem); }
+  .radar-solana-home .radar-universal-actions { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .radar-solana-home .radar-universal-actions .execute { width: 100%; min-height: 44px; }
+  .radar-solana-home .solana-hero-evidence { padding-inline: 12px; }
+  .radar-solana-home .radar-route-directory { padding: 12px; }
+  .radar-solana-home .radar-route-directory-head { display: grid; gap: 12px; }
+  .radar-solana-home .radar-route-directory-head > p { text-align: left; }
+  .radar-solana-home .radar-route-directory-grid { grid-template-columns: minmax(0, 1fr); }
+  .radar-solana-home .solana-evidence-rail { border-top: 1px solid var(--radar-line); border-left: 0; padding: 12px 0 0; }
+  .radar-solana-home .solana-secondary-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .radar-solana-home .solana-orientation-summary .proof-metrics-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .radar-solana-home .solana-orientation-summary .proof-metrics-strip span { border-bottom: 1px solid var(--radar-line-soft); }
+  .radar-solana-home :is(.machine-module-card, .signal-graph-teaser-card) { display: grid; gap: 12px; }
+  .radar-solana-home :is(.machine-module-card, .signal-graph-teaser-card) .execute { justify-self: start; }
+  .radar-solana-home :is(input, select, textarea) { font-size: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .radar-terminal-page :is(a, button, input, summary, .panel, .metric) { transition: none; animation: none; }
+}

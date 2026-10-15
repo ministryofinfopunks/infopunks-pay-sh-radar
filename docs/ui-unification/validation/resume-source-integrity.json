@@ -1,0 +1,6 @@
+{
+  "frozenFilesChecked": 704,
+  "differences": [],
+  "passed": true,
+  "reason": "Confirm frozen application source survived the interrupted validation session; no source edits on resume."
+}

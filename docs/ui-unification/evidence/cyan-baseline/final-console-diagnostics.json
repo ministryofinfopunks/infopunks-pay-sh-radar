@@ -1,0 +1,21 @@
+{
+  "capturedAt": "2026-10-15T07:53:28.457Z",
+  "method": "Both original selected-baseline source and final candidate exercise the same valid read-only exact-contract flow against the real local fixture API. Console warnings/errors and page exceptions captured.",
+  "scriptSha256": "31fb0b8b055a73f7c10b2e9f6098b6ea49c4787730babedfd3cccc0057af102c",
+  "browserVersion": "155.0.8059.40",
+  "reports": [
+    {
+      "phase": "before",
+      "base": "http://127.0.0.1:5174",
+      "messages": [],
+      "errors": []
+    },
+    {
+      "phase": "after",
+      "base": "http://127.0.0.1:5173",
+      "messages": [],
+      "errors": []
+    }
+  ],
+  "newCandidateMessages": []
+}

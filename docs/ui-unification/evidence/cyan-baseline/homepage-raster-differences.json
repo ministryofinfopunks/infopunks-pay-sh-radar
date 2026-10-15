@@ -1,0 +1,37 @@
+{
+  "method": "Exact RGB pixel comparison of original GPU screenshots. Controlled software-rendered comparison of immutable source and candidate follows separately and must pass exact equality.",
+  "results": [
+    {
+      "image": "desktop",
+      "width": 1440,
+      "height": 1628,
+      "changedPixels": 102,
+      "maximumChannelDifference": 4,
+      "meanChannelDifference": 2.0475020475020476e-05
+    },
+    {
+      "image": "desktop-viewport",
+      "width": 1440,
+      "height": 1000,
+      "changedPixels": 0,
+      "maximumChannelDifference": 0,
+      "meanChannelDifference": 0.0
+    },
+    {
+      "image": "mobile",
+      "width": 390,
+      "height": 3738,
+      "changedPixels": 29,
+      "maximumChannelDifference": 9,
+      "meanChannelDifference": 3.2697223708459664e-05
+    },
+    {
+      "image": "mobile-viewport",
+      "width": 390,
+      "height": 844,
+      "changedPixels": 0,
+      "maximumChannelDifference": 0,
+      "meanChannelDifference": 0.0
+    }
+  ]
+}

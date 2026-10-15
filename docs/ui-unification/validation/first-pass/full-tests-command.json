@@ -1,0 +1,22 @@
+{
+  "name": "full-tests",
+  "command": [
+    "npm",
+    "test",
+    "--",
+    "--maxWorkers=2",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile.json=/Users/ahdilm/Documents/Infopunks Pay.sh Intelligence Terminal/docs/ui-unification/validation/full-tests.json"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 101.608,
+  "runtime": "Node24.21.0",
+  "snapshot": "/private/tmp/radar-ui-cyan-final/repo",
+  "databases": [
+    "radar_ui_cyan_final",
+    "radar_ui_cyan_final_resilience"
+  ],
+  "database_host": "127.0.0.1:55433",
+  "isolation": "new disposable PG16.15 cluster; no pre-existing or production database; default timeouts unchanged"
+}

@@ -1,5 +1,6 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { EvidenceScope } from './productPrimitives';
+import { RadarSectionHeader } from './radarDesignSystem';
 import { MethodologyDrawer } from './methodology';
 import { formatCatalogPrice } from './pricingDisplay';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
@@ -48,6 +49,8 @@ import { formatAbsoluteUtc } from '../shared/timestamps';
 import { RADAR_NETWORK_LIST, RadarContextHeader, RadarHeaderIdentity, RadarProductNavigation, SolanaRadarDirectory } from './radarNetworks';
 import { BOOT_INITIALIZATION_DELAYED_LABEL, currentBootLoadingLabel } from './bootContext';
 import './styles.css';
+import './radarSubpages.css';
+import './rhChainTerminal.css';
 
 const LazyRhChainMemePulsePage = lazy(() => import('./rhChainMemePulsePage').then((module) => ({ default: module.RhChainMemePulsePage })));
 const LazyRhChainTokenDossierPage = lazy(() => import('./rhChainTokenDossierPage').then((module) => ({ default: module.RhChainTokenDossierPage })));
@@ -85,8 +88,8 @@ function UniversalRadarHomepageHero() {
   </section>;
 }
 
-function SolanaRadarHomepageHero() {
-  return <section className="panel radar-universal-hero" aria-labelledby="radar-home-title">
+function SolanaRadarHomepageHero({ pulse }: { pulse: Pulse }) {
+  return <section className="panel radar-universal-hero solana-terminal-hero" aria-labelledby="radar-home-title">
     <div className="radar-universal-copy">
       <p className="eyebrow">Solana Radar</p>
       <h1 id="radar-home-title">Proof before agent spend.</h1>
@@ -97,10 +100,20 @@ function SolanaRadarHomepageHero() {
       </div>
       <p className="radar-hero-supporting-line">Pay.sh is a spend rail. Radar is the evidence layer.</p><EvidenceScope kind="service" />
     </div>
-    <aside className="radar-system-note" aria-label="Solana Radar doctrine">
-      <span className="radar-system-mark" aria-hidden="true" />
-      <p className="section-kicker">Pre-spend intelligence</p>
-      <strong>Most see noise.<br />Infopunks finds signal.</strong>
+    <aside className="solana-hero-evidence terminal-panel" aria-label="Solana Radar coverage and evidence">
+      <div className="terminal-panel-heading"><h2>Pre-spend intelligence</h2><span className="terminal-state">Safe metadata</span></div>
+      <p className="solana-hero-doctrine">Most see noise.<br /><strong>Infopunks finds signal.</strong></p>
+      <dl className="solana-hero-coverage">
+        <div><dt>Providers</dt><dd>{pulse.providerCount}</dd></div>
+        <div><dt>Endpoints</dt><dd>{pulse.endpointCount}</dd></div>
+        <div><dt>Avg Trust</dt><dd>{pulse.averageTrust ?? 'unknown'}</dd></div>
+        <div><dt>Avg Signal</dt><dd>{pulse.averageSignal ?? 'unknown'}</dd></div>
+      </dl>
+      <div className="solana-hero-provenance">
+        <span className={`source-badge ${pulse.data_source.mode}`}>{pulse.data_source.mode === 'live_pay_sh_catalog' && !pulse.data_source.used_fixture ? 'LIVE PAY.SH CATALOG' : 'FIXTURE-BACKED RADAR STATE'}</span>
+        <p>{formatDataSource(pulse.data_source, pulse.providerCount, pulse.endpointCount)}</p>
+        <p>Freshness / {formatAbsoluteUtc(pulse.data_source.last_ingested_at ?? pulse.data_source.generated_at)}</p>
+      </div>
     </aside>
   </section>;
 }
@@ -9807,7 +9820,7 @@ function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universa
     : data.pulse.data_source.last_ingested_at
       ? { label: 'Last ingestion', value: formatAbsoluteUtc(data.pulse.data_source.last_ingested_at) }
       : { label: 'Catalog timing', value: 'Timestamp unavailable' };
-  return <div className={`shell ${agentMode ? 'agent-mode-shell' : ''} density-${densityMode}`}>
+  return <div className={`shell ${landingContext === 'solana' ? 'radar-terminal-page radar-solana-home' : ''} ${agentMode ? 'agent-mode-shell' : ''} density-${densityMode}`}>
     <a className="skip-link" href="#terminal-content">Skip to content</a>
     <header className="site-header">
       <RadarProductNavigation
@@ -9826,7 +9839,7 @@ function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universa
 
     <main id="terminal-content">
     {!agentMode && (landingContext === 'solana'
-      ? <><SolanaRadarHomepageHero /><SolanaRadarDirectory /></>
+      ? <><SolanaRadarHomepageHero pulse={data.pulse} /><SolanaRadarDirectory terminal /></>
       : <><UniversalRadarHomepageHero /><RadarNetworkEntrySection /></>)}
     {!agentMode && <section className="terminal-meta-strip" aria-label="Terminal session metadata">
       <span><b>{catalogTiming.label}</b>{catalogTiming.value}</span>
@@ -9869,7 +9882,7 @@ function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universa
     {!agentMode && <section className="panel solana-evidence-brief" aria-labelledby="solana-evidence-title">
       <div className="solana-evidence-primary">
         <div className="solana-evidence-summary">
-          <p className="eyebrow">Solana Radar · Current evidence state</p>
+          {landingContext === 'solana' ? <RadarSectionHeader index="04" title="Solana Radar" subtitle="Current evidence state" level="label" /> : <p className="eyebrow">Solana Radar · Current evidence state</p>}
           <h2 id="solana-evidence-title">Proof before agent spend.</h2>
           <p className="mission-subtitle">Mapped Pay.sh routes, provider evidence and benchmark readiness—kept distinct from the Robinhood Chain signal desk.</p>
           <p className="copy">Pay.sh is the spend rail. Radar is the evidence ledger. Agents inspect evidence, request a non-executing plan, and record proof artifacts before trust compounds.</p>

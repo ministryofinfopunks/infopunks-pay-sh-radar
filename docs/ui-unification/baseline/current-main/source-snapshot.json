@@ -1,0 +1,46 @@
+{
+  "src/web/homepage.tsx": {
+    "sha256": "086adfa58cfcd213193abf24006a05f0b6020f6d525578e392d38ce17118e693",
+    "bytes": 5293
+  },
+  "src/web/homepage.css": {
+    "sha256": "ef587ccdacdda611634ac5fa0b5f3bc561ea98296f193a1c68fcffc2094b9884",
+    "bytes": 11592
+  },
+  "src/web/radarApp.tsx": {
+    "sha256": "c374e9818d9810c93a9d8ad2fe7832f89ac15dd2f89f2550c59fc79a7041cfc1",
+    "bytes": 841027
+  },
+  "src/web/radarNetworks.tsx": {
+    "sha256": "5e988b1ab01391f17422fc811d909197435c37f90e1160b5cbc8e552ae54dad0",
+    "bytes": 16458
+  },
+  "src/web/radarNavigationCatalog.ts": {
+    "sha256": "94546f4b7e87f2765c53b5cbb529b93f91e9b11f040ceac445861b11edb22017",
+    "bytes": 16619
+  },
+  "src/web/styles.css": {
+    "sha256": "c7c11f6b4836396cbf9265b742c577a3505fb9fc2189241f658157d27e6c5768",
+    "bytes": 521614
+  },
+  "src/web/rhChainSignalDeskPages.tsx": {
+    "sha256": "d3f67991acf6df0e61eddf6011a3a165027ac9443baf8da3f41e48905f439f73",
+    "bytes": 105247
+  },
+  "src/web/rhChainSignalDeskV2.tsx": {
+    "sha256": "06aa2492b9bc54a6d3f4dd0486f7b7bbd9c1c6833f7ef6383476f9f6083703f8",
+    "bytes": 42166
+  },
+  "src/web/rhChainSignalDeskSelectors.ts": {
+    "sha256": "73efab1ce1ed2c5b4136e6e9a8fbaeb07268cf19926dab986a172111ce0dba37",
+    "bytes": 15017
+  },
+  "src/web/rhChainUi.tsx": {
+    "sha256": "7272f449679daa944177b57a88bff7bbe81fe2ca183b6c04a79afd214947c59d",
+    "bytes": 10546
+  },
+  "src/web/rhChainContract.ts": {
+    "sha256": "1c60cae20331e50bf8cc0a06e92cc379adf10c8af85776828814475b8bc12a83",
+    "bytes": 362
+  }
+}
