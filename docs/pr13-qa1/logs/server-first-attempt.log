@@ -1,0 +1,14 @@
+/private/tmp/radar-pr13-qa1/dist/server/config/env.js:365
+    throw new Error('MONITOR_MODE must be one of "disabled", "safe_metadata", "endpoint_health", or "paid_execution_probe"');
+          ^
+
+Error: MONITOR_MODE must be one of "disabled", "safe_metadata", "endpoint_health", or "paid_execution_probe"
+    at readMonitorMode (/private/tmp/radar-pr13-qa1/dist/server/config/env.js:365:11)
+    at loadRuntimeConfig (/private/tmp/radar-pr13-qa1/dist/server/config/env.js:99:22)
+    at createApp (/private/tmp/radar-pr13-qa1/dist/server/api/app.js:532:48)
+    at file:///private/tmp/radar-pr13-qa1-local-server.mjs:2:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal/modules/esm/loader:647:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.21.0

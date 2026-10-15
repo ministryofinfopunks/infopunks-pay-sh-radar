@@ -1,0 +1,3562 @@
+{
+  "method" : "Local Apple Vision OCR accurate; identical SHA256 files reuse recognized text. Potential matches hashed, never copied. OCR cannot prove absence of secrets or qualify human privacy review.",
+  "reports" : [
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "14ebbe69a4295e1ef76713207030882107092b0cb93c672d2c1c2b191bd92edf",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-homepage-desktop-viewport.png",
+      "recognized_lines" : 86,
+      "text_sha256" : "e70988654d0e683af7e60582101e753ad41bee12c621b57ea166c96764d07f86"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "67b45aa7a2264988c664283a6061030c2c97b2aab17ef2f009bd3af4ea8f5893",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-homepage-desktop.png",
+      "recognized_lines" : 125,
+      "text_sha256" : "11931213fc4edf16c112ade9f1bcf4aa2ebcb541bc670affea8cdde3f04d0b1d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "930a1c91c902036e3fbc52455aaf54fc25df46c7238185be5dcaf968db876cc2",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-homepage-mobile-viewport.png",
+      "recognized_lines" : 27,
+      "text_sha256" : "650325a02778f4bb1f80a8420b5cf58abc1a9c4413cb1b447e568514e9a01d7d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c080791bd1d9ec16cfd7da84e4b1a58e11bafbfae437cbb20102a89ac0e60745",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-homepage-mobile.png",
+      "recognized_lines" : 65,
+      "text_sha256" : "67318672a1e608ae7b33ac94faaf97dce531950bfde424582179676f4cffd9e4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "6c029526d72d3bda5af4d5aab06ac4b0fb679e74743b9850d3848224cae8fa2a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-homepage-native-zoom-200.png",
+      "recognized_lines" : 9,
+      "text_sha256" : "4aba20e05215636cfb96a7837baebf1476096b92e1a6126356f502d517c7b5d9"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "3d02b122e0fb26e5e7dc472699a63edd3f3f144fbcd5a88ad13398661e84807a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-homepage-native-zoom-400.png",
+      "recognized_lines" : 2,
+      "text_sha256" : "b895d779b81d9dfc83164c2fefcf78b8ffb9c0f4290188566fac36d9e3038449"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "dd572dff4f9d97f1014348c9dd4d109c9389744b808bc8a6cda1be35ddbc9010",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-contract-mobile.png",
+      "recognized_lines" : 21,
+      "text_sha256" : "6d6191cd254d128015ed2bb3a77c6459ed73caf677adbb3286f53b774d9d89ba"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "b1555556670f75b971a0e185f0cda593943339bca09cb1dba497e581a52a5e3f",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-desktop-viewport.png",
+      "recognized_lines" : 58,
+      "text_sha256" : "eaf4c4f2e33c5d5c62bda892bcd057f66ae84d5ffd51453f8d6a5cfee38500c2"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "7f8a168ad93abaa270a8128800ba080ebc9cc2848dd3ad5fc84b4f6b6456f75a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-desktop.png",
+      "recognized_lines" : 212,
+      "text_sha256" : "92152ac3756ec1c3078308278b79b6d8bc466a397946b4ceed12c06969bbce6d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "cbb83983f65226760b74955efe4a550d8499841fe492c4706e6f36d0ab739d2b",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-section-rh-v2-chain-pulse.png",
+      "recognized_lines" : 37,
+      "text_sha256" : "8fc9abc974dcf02d1909e9e68124b96be6b1ae1fdbf4401b9400d5e0804ddfe0"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "22d9e96a54d14b5e930a0b329cbcdf6f6f8b620f9c69eed5b39feb0347754d70",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-section-rh-v2-memes.png",
+      "recognized_lines" : 76,
+      "text_sha256" : "cdfd4929007b0c946dada762fd1fc9b39308620873c3f20c0f23496b34256391"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "ea709731bc762edbaad4e63f315572b6503877b2055f1dbfa9448c79439419b2",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-section-rh-v2-methodology.png",
+      "recognized_lines" : 14,
+      "text_sha256" : "47feeb02f34b677c6bb557a8b7686616b9b6f5b7d7cb60d8c5eb057be5599753"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "f2a504322cc8ec1dffacce6b5756886d1e0ccffabc6f7c50c319a0add6418c2a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-section-rh-v2-movers.png",
+      "recognized_lines" : 42,
+      "text_sha256" : "f286ddb0816d86016f4a7701ea761006f04b99b3a553a81f232fcb87cfa7b6e1"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c3bcae729f6df619db29b24b50545abd9dc98615bb5ca474d6fa51bab950920c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-section-rh-v2-receipt.png",
+      "recognized_lines" : 58,
+      "text_sha256" : "142a2c39613b79b46858582fd1212fc48caf6cf83a33fd68569ae7f2d5860700"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "f4f1a2a07578b4d55b01660310caf4340b5de4e42a8c7ed87baa2b49beb8a0e2",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-section-rh-v2-risk-radar.png",
+      "recognized_lines" : 32,
+      "text_sha256" : "2f1813af47fd9838151e327d3ef65a662bc199257f21d24c31dfd1fd95b8c341"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "708ff3cb26c8dec5e258ef1607703cb3d1cdddf109f87fb6539b70c6f23f784d",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-section-rh-v2-routes.png",
+      "recognized_lines" : 23,
+      "text_sha256" : "2cd762720cdfe1da49839fb82811cd2711281df6cd9ebba38313915970a152b2"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "7b99627c1287773bf338d13c44295019fa976f295937670a581a136094f25d6e",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-section-rh-v2-today.png",
+      "recognized_lines" : 43,
+      "text_sha256" : "864ea51dbb7aeedf48facafc8cee901665a0f362348cf58dcde4055af5334c97"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "8135a4efcf4253c8509916f014f452ba6cb7d47c63822c49f6f5aeb6b841989d",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-chain-pulse-1.png",
+      "recognized_lines" : 36,
+      "text_sha256" : "6d829e26a9b652413d930e42b2cd3d1857e6832344a83e971b583e5efbad6a20"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "271e51ef7a91e6645c159a9ad62724600cf3fe4281f2c37db0ea09ee645c4471",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-chain-pulse-2.png",
+      "recognized_lines" : 35,
+      "text_sha256" : "a488dce7b11830cd26a7d8cb765c7e7ec195e6f6b00504e33e7756c68623eb13"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "7f45d1a9571e658c3b0f609e88ffb9715a43fb82ae38bfe1eb3b65115af49fc0",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-memes-1.png",
+      "recognized_lines" : 28,
+      "text_sha256" : "b01e299e2a107b2a9383a97e68a6959f64607ec3acdcf8e482c8adb715f80d91"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "9b9ca93808d805fd76cb31c7690256c72499032512d0535d0cb7f14ab4c932ef",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-memes-2.png",
+      "recognized_lines" : 24,
+      "text_sha256" : "c896ba6f37ee58cfc6e17a43a2030ef9f4e71f66e5fb625b5d49cd7d6b5290f9"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "96ee651d604ea6050f09c4cfbe55c93fb6835a0f6fb31ac18233a1d60b000a40",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-methodology-1.png",
+      "recognized_lines" : 23,
+      "text_sha256" : "b57881c3f09c293f97cf8461da18093eee6a211f39abdeb2bb1b2c608d3317c9"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "7490514baf0db98b4b26ac1a92db6012c5867bb869af93ab6b1dd512df57ec8c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-movers-1.png",
+      "recognized_lines" : 27,
+      "text_sha256" : "538e4f9c0f637159ec0946b662f73e3444e0c4f4d5e00c6797510f8faf9a2402"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "2bcd297882fa57c71d5dd8b9ba6458c28fbe5113749098bda93c2389445b904e",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-movers-2.png",
+      "recognized_lines" : 26,
+      "text_sha256" : "ee1a9415385fe391eb9f1cf3e1c498cc024c3d7663a4a3d1a74089d1a9b2abf7"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "bd9d075551cda689a10e8a75eb2d6c78fcb1893dedb9a5f3bb2518694969566d",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-receipt-1.png",
+      "recognized_lines" : 27,
+      "text_sha256" : "f17acb213802b6e53c86ba843ac67072a59880ffcd72039621e4e5dbd8e0bf87"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "222ca0067e7bf118895d0eb2f472089df633658e76d90ea9882e1fdd33d5c129",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-receipt-2.png",
+      "recognized_lines" : 30,
+      "text_sha256" : "48be0ec5b74ce46fb452a5ef5dca2b593e0f7b6d7ea80f707a1d10b0cef36a0a"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "d50a5000cd15eea03aa14fe21cb284063bb0dd05fde6bafe6c2b6cd6ed0d52ef",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-review-1.png",
+      "recognized_lines" : 33,
+      "text_sha256" : "1d76e01ad475e35e0c60b446936bda6609610a8726808b5b507c4e397773eb76"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c85a2dabfa2e8e8a720f0866160d9a49a1575d8d974f3bea8b5b1cd171e97ae5",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-review-2.png",
+      "recognized_lines" : 32,
+      "text_sha256" : "e2b156f7ac53428c859f89ac6ceff360e76f66df44b6561c2292f45c6f799363"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "2b6817364d43766d58e507fb2949512ac7781b9035995b6d80c4dfdeb0cd6a94",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-risk-radar-1.png",
+      "recognized_lines" : 30,
+      "text_sha256" : "74b5541cd00877c9d385bb1fdecba4a822aa3eb21e16f89b51260e6c3f4672ca"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c1503355473e6176565d1e7d66bee638987bc3e8cdf66798f20a58130842b8a7",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-risk-radar-2.png",
+      "recognized_lines" : 26,
+      "text_sha256" : "73e9a460c4dd8b3d48b67873675e2734889e4dad4e0d596217af72cc17e05bba"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "a094475d574f4cb10018fd021bcfe39a104ee32a4886fa258f76d8af68df6c52",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-routes-1.png",
+      "recognized_lines" : 20,
+      "text_sha256" : "b7ab832b5f2ebbda3e54b630e64c2b83617b962a0dbc170c50cdb0506f0727bc"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "4ad8a20e13faf1da8bc2a01c7e4a884f7254d348f73b7147e850e112f572cfdf",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-routes-2.png",
+      "recognized_lines" : 20,
+      "text_sha256" : "9a3c73c1d8a25e0cfc5261ec0211ad7c76fc1044810e375aeda0c0cee73492aa"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "9d8fc87785179eec69aae6f56cdcc61a08575dfd8e00514019ec3743ea6103f2",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-today-1.png",
+      "recognized_lines" : 29,
+      "text_sha256" : "e388e6d6dbcf27d4dcc9435aa204306d280fff63fb48c0ee077e6455f806a22e"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "52da11f6d110dfc94e6649739b081e35501d70a6ad90e717ae206cfcc496dc31",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-tile-rh-v2-today-2.png",
+      "recognized_lines" : 27,
+      "text_sha256" : "00105caad65c6dba180bf771af5f0aae223f7de11ed13321067aa5bf3b41ddb9"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e4d6fe2f4190a8c25e76c707f9dd5fe3cf260dc2c3017dae2a533a9586ba7c61",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile-viewport.png",
+      "recognized_lines" : 24,
+      "text_sha256" : "41ed6b9e1d6919dddcf4e69ca58a7ea57a29c9532d4c03485faa9662a5d67f4c"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e651096dbfec9264b19d9b689b41a14e80a0314811c4837da7b41fb90c152a5a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-mobile.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "096b16c202274630419ee6763e62cd3d2c86c32df5ea341072abb5c2661a6302",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-native-zoom-200.png",
+      "recognized_lines" : 9,
+      "text_sha256" : "2f8e1555fe9dbfa5bdf1dcf21dfc4442ee10dd6cfe73e7b9672b0799298e2b66"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "0b5b36786f192f12724160988ec3d739f5feaf27a4d09544cfe1d73bb62ac032",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-native-zoom-400.png",
+      "recognized_lines" : 2,
+      "text_sha256" : "b895d779b81d9dfc83164c2fefcf78b8ffb9c0f4290188566fac36d9e3038449"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "3c3175761c0dd86328d5678d674ee8e364781a24938ae5b682c5b536ef1117a9",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-robinhood-table-mobile.png",
+      "recognized_lines" : 49,
+      "text_sha256" : "dfd72af1b1f223fde4a6bdc512828e27b3704d1adddaab7f227f3c492e4fa8d7"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "2693719c05a8de11a7e99c934aa453d7ad6b0139911298c1e98a55647ca3e66e",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-desktop-viewport.png",
+      "recognized_lines" : 52,
+      "text_sha256" : "bae5027e4d41d33b04d3d5db415e6b56f995e23cd5d772fc25782381167a30b5"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "ddfcea5eef8aa122f87781a4eee440c07cf85e315c0c28573a05659e888b653f",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-desktop.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "80785207675f82896506a5a53806ff85b380753d43dbcfde70b76905120ac98a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-directory-viewport-probe.png",
+      "recognized_lines" : 25,
+      "text_sha256" : "6b80de1ea994c8af36ff638f5afb2b5e06d60ace3c96b0a90422c0eb1d3fbc74"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "4e21c9b0429980075ce6f219184bbd0a7f1126d66a87c71c3cfa577b9272cd04",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-section-agent-benchmark-api.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "98c298bd98dac70f173bbeb01b6be81cde885b3c6b27e6a9c4cdb2ce0da230b0",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-section-benchmark-readiness.png",
+      "recognized_lines" : 46,
+      "text_sha256" : "80b742ee2d89bbd0a20dbd8bbfeb69a8041f9bbfce4c388e07d79c0b192bd818"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "67f2a4f3bc352d94181b94c0c5cb4f6771e216abd1f2804b9b9880b8a7264eb1",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-section-preflight.png",
+      "recognized_lines" : 28,
+      "text_sha256" : "a89ecfa09cdca93932f966d683fa517728387114014fca0511c4064f9720f651"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "816d054fa0af630dd6c109728b13b73f4ced925d744c1656535ce4f96c7e6f80",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-section-radar-route-directory.png",
+      "recognized_lines" : 77,
+      "text_sha256" : "73c344d04524688eb10d2a07398c1af5ebbcc779a06250d44988aa0b9f9acfae"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "7c1e912bc88424ff3dbab793d42489c53bc1175ff7ddf28f961abb2aab24fdd8",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-section-route-mapping-registry.png",
+      "recognized_lines" : 1,
+      "text_sha256" : "fc62178c62c4dd1902929477928a8f8ccd1b954d1271459c885fe72802560b43"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "7228a0dc47be05d8fef803e71b733c8dfabe34ae3d4dc77a83bf837212a2fc39",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-section-solana-evidence-brief.png",
+      "recognized_lines" : 66,
+      "text_sha256" : "a2b49d8bb42cd461eba9149dd3e0d45c6bbac3b0e5cda88c7a12669e2a2f37ec"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "9c709614d2d414e09f64e3e245336fde010fea1e4b2ce3647e7032a18ab22678",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-tile-agent-benchmark-api-1.png",
+      "recognized_lines" : 29,
+      "text_sha256" : "6b123cadaeda7b7feb7019e521f4d8d9a75cd1fc23b7eb3fdbdc169e920c89b3"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e9c23d7a886dceb82f054bfe7dcc351161b1119f22241e108f5ed4f33ad6bd65",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-tile-agent-benchmark-api-2.png",
+      "recognized_lines" : 21,
+      "text_sha256" : "4ad52e0d96a12b96f74d403a59befec5721598be68d2a6b34068b5d8c28c1106"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "999a1784b34e8ff70375198347924006d92aa9ed5ee57b18a323440e2a9e07b1",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-tile-benchmark-readiness-1.png",
+      "recognized_lines" : 31,
+      "text_sha256" : "709b4b77cf647922c267f33eda51544273e3cc1f4f0ad26d2559af27e605ccb2"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "eae9e9a0cf340429fcc2e7de9a1961b1547f6a5f9bc9c530be2591f4aa3e8ab9",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-tile-benchmark-readiness-2.png",
+      "recognized_lines" : 29,
+      "text_sha256" : "76bed654eba992e40f43fd96a857b7cee87cd1809494b8a1cd08b59f4621a129"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "515322bcc21ded582587e0bc4717ab790dad082b36b41dd1b669c5d994a8605b",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-tile-machine-module-card-1.png",
+      "recognized_lines" : 25,
+      "text_sha256" : "007686772f31bacf296ee8ef253590762a53044a8abb4e062939a4ce891f3c17"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "8a3be700d7057a12867be588b10d1fbc95fe48b47f225bb42a21594e54becfdc",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-tile-preflight-1.png",
+      "recognized_lines" : 25,
+      "text_sha256" : "9d928f825f900f396bd8d521fc83267326e2db48bd32358eaaec1e223af909e0"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "3b5bfbd8d5d4dba8d70332f58381e3dc14c2142712688f7cb75e65aeae6ebcd8",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-tile-preflight-2.png",
+      "recognized_lines" : 17,
+      "text_sha256" : "a757c5f113c961583616cbddb736f31482de2d9e9da637739aa80e041bbb8cee"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "6e7157ca283ce641c137fc1c6fde636b10ed56bd4a5144c7ea2b870472ae6e90",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-tile-radar-route-directory-1.png",
+      "recognized_lines" : 25,
+      "text_sha256" : "9ce1837007af5b5278e1f386998f821d495ee7c4f3896e7387fceac86d245e30"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "07489ad94eed85e210bc6a030daf31cb75e25efdc98dfba8ebdb08429e58edeb",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-tile-radar-route-directory-2.png",
+      "recognized_lines" : 26,
+      "text_sha256" : "f249720eab55b4c6169caa3c1197876585cae805bcf318eab9a8cbbdbad1518c"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "f2e2a7fbb4f1d1fe9a5267ebdb6ef50de77ee28acc0e35fe0a86b7edcedd4720",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-tile-route-mapping-registry-1.png",
+      "recognized_lines" : 23,
+      "text_sha256" : "c038a1da61e705738d04fedc8e0211da09edbade9193daf897785db73c968c1f"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "081d1257e3d0d90d5fec79e08b8bbb8b8bfd331bbbec52aa3619cfc265bc2b60",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-tile-signal-graph-teaser-card-1.png",
+      "recognized_lines" : 26,
+      "text_sha256" : "d9eec800231f5e1e1e9e93a9eba1fa2e89bc55efefca7d0451b7c4a1df9e0359"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "704b294056b34b4c912d442db109ea81dea53e9e29407b5358043a69f53196a2",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-tile-solana-evidence-brief-1.png",
+      "recognized_lines" : 27,
+      "text_sha256" : "46111d635cab20c20e98c2645baa543faa04f37fde4584f537e645a27b843462"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "3b4f7127702e8eccaecdf811afe09d0e8bd79b49a488ac6b3d9851622fde0caa",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-tile-solana-evidence-brief-2.png",
+      "recognized_lines" : 27,
+      "text_sha256" : "014ff512ea2309bb685ecb662e1219c2a323eff3ddf7b738b3f794fc7d0c6df5"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "2caabd1dadc7076bee8d0ad1ed241aafd99f2008d6bb246c7c0fbecb449100ab",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile-viewport.png",
+      "recognized_lines" : 22,
+      "text_sha256" : "af3fc5076b1a4611169523f308f3cf46e5ed4d557b508794d7f9b0ffebb8dee0"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "1ea14f7942b209626f0959b737fa18f4348f50c02d2b39cabaf13472cf4e6ad0",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-mobile.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "cab6b730527da2f0ebbe9b2cfe4d552a3222f9a7ddd2369bdccf70bc478265f8",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-native-zoom-200.png",
+      "recognized_lines" : 10,
+      "text_sha256" : "ebebea983e41674a366cb2f5bde3f09b35720f9274d8366ffe9dcb7a562d30a2"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "0b5b36786f192f12724160988ec3d739f5feaf27a4d09544cfe1d73bb62ac032",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/after-solana-native-zoom-400.png",
+      "recognized_lines" : 2,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "b895d779b81d9dfc83164c2fefcf78b8ffb9c0f4290188566fac36d9e3038449"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "14ebbe69a4295e1ef76713207030882107092b0cb93c672d2c1c2b191bd92edf",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-homepage-desktop-viewport.png",
+      "recognized_lines" : 86,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e70988654d0e683af7e60582101e753ad41bee12c621b57ea166c96764d07f86"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "67b45aa7a2264988c664283a6061030c2c97b2aab17ef2f009bd3af4ea8f5893",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-homepage-desktop.png",
+      "recognized_lines" : 125,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "11931213fc4edf16c112ade9f1bcf4aa2ebcb541bc670affea8cdde3f04d0b1d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "930a1c91c902036e3fbc52455aaf54fc25df46c7238185be5dcaf968db876cc2",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-homepage-mobile-viewport.png",
+      "recognized_lines" : 27,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "650325a02778f4bb1f80a8420b5cf58abc1a9c4413cb1b447e568514e9a01d7d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "5d3e260bad92e3305db9e0629fa3f384b11a35ca96aa42f8a44bbb9b3ec462bb",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-homepage-mobile.png",
+      "recognized_lines" : 65,
+      "text_sha256" : "67318672a1e608ae7b33ac94faaf97dce531950bfde424582179676f4cffd9e4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "6c029526d72d3bda5af4d5aab06ac4b0fb679e74743b9850d3848224cae8fa2a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-homepage-native-zoom-200.png",
+      "recognized_lines" : 9,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "4aba20e05215636cfb96a7837baebf1476096b92e1a6126356f502d517c7b5d9"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "82ef00cc9def3f781be7e681371f536e6516dcd49dafece95b980d89ac21662a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-homepage-native-zoom-400.png",
+      "recognized_lines" : 2,
+      "text_sha256" : "b895d779b81d9dfc83164c2fefcf78b8ffb9c0f4290188566fac36d9e3038449"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "91d2ab992dd3c9581da4a1a7d025c2a16581327e5e3b3c8abf949e313b633008",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-robinhood-contract-mobile.png",
+      "recognized_lines" : 22,
+      "text_sha256" : "fdc13acad818feb116e4bffdef106d0a0db2a86ded1eb6bbafddb943c2ea83ae"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "a9b88bf6e0c7959e03517687bc0b42221a7bae87b142954c14e4f646d4020043",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-robinhood-desktop-viewport.png",
+      "recognized_lines" : 50,
+      "text_sha256" : "5dfebac6fc4ab51d1b5fb53a410c100dd5e48add398761f2acf1bfa09497c7fb"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "49fd61897f4d2597ffdcbc862924536abe7733a03a72121ad50b52c35336b3dc",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-robinhood-desktop.png",
+      "recognized_lines" : 188,
+      "text_sha256" : "3da5b054cb2201d31a6633ced7770ba9ed5c4086f7315f11af1d887ca15fbb80"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "28f3491ddfce2e879d05223cdd77af0fea06a53c2b9ed7019bc341b48c24bee4",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-robinhood-mobile-viewport.png",
+      "recognized_lines" : 20,
+      "text_sha256" : "0100959ac355e44a61347bbbc8c05150ba2af6146a8c0328b900129a3ce2963c"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "1eb9418c6dfbed5a28473e7d001a41d97853e4a9aa797fc18060c6609af32427",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-robinhood-mobile.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "096b16c202274630419ee6763e62cd3d2c86c32df5ea341072abb5c2661a6302",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-robinhood-native-zoom-200.png",
+      "recognized_lines" : 9,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "2f8e1555fe9dbfa5bdf1dcf21dfc4442ee10dd6cfe73e7b9672b0799298e2b66"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "0b5b36786f192f12724160988ec3d739f5feaf27a4d09544cfe1d73bb62ac032",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-robinhood-native-zoom-400.png",
+      "recognized_lines" : 2,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "b895d779b81d9dfc83164c2fefcf78b8ffb9c0f4290188566fac36d9e3038449"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "675c14c0dbadd45483fcbf19ec0de1fc82578e0d5dd6f6e9b2c4c74137eed7d9",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-robinhood-table-mobile.png",
+      "recognized_lines" : 44,
+      "text_sha256" : "4146754cfdc96801874ea213583ffde082ac5787159eb2e038724b8062e41c1a"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "fd8dc9e38b501835fc0548bdbc18b119b34a7b3bb13b0b4bd1ded84216ca9ba9",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-solana-desktop-viewport.png",
+      "recognized_lines" : 34,
+      "text_sha256" : "12fc6f536a99ecb06d48479dfacc3f48374933ac7fad090a8581a8366b5f8c38"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "7f8623007a3a06232c2095661b1d2f23aa62a419ebd167ea5cf22cea89fc5e86",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-solana-desktop.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "8ad3064d1b98c4fa099ad6cecd8c07ca59a9430b4c98cec582990e8c9f9a10c3",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-solana-directory-viewport-probe.png",
+      "recognized_lines" : 22,
+      "text_sha256" : "0387d72deda89521846278743ed867b4ea13cc6be4b949699e52037e8533135c"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "1dfb02edfd7f146ccd53188cdc9eabcbeb85ef4c8ce5309504fb3a1373062a59",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-solana-mobile-viewport.png",
+      "recognized_lines" : 19,
+      "text_sha256" : "da3e5215ad618498c10315d0f498f498ae5886793c5cc34378440b9fea7e11e1"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "1911b9e9962e720c25c8561df430d5e3901bb53a39b053f6b0d127308c212e48",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-solana-mobile.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "cab6b730527da2f0ebbe9b2cfe4d552a3222f9a7ddd2369bdccf70bc478265f8",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-solana-native-zoom-200.png",
+      "recognized_lines" : 10,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "ebebea983e41674a366cb2f5bde3f09b35720f9274d8366ffe9dcb7a562d30a2"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "0b5b36786f192f12724160988ec3d739f5feaf27a4d09544cfe1d73bb62ac032",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/before-solana-native-zoom-400.png",
+      "recognized_lines" : 2,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "b895d779b81d9dfc83164c2fefcf78b8ffb9c0f4290188566fac36d9e3038449"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "fb729f48e8b256e92eedffdb23cdbdcf4885e0543c2d05bfa25a15160e5e0578",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/homepage-control-after-desktop-viewport.png",
+      "recognized_lines" : 86,
+      "text_sha256" : "60caf452591d33791899e1878feadfc02d9e8e799e61398406dad4a112351eb1"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "00a7dfbac4abc2ed3421321e3fd8b1a329fa8a2bfe76f1158c3da3c43776cc6a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/homepage-control-after-desktop.png",
+      "recognized_lines" : 126,
+      "text_sha256" : "ccb23fdcc1ff26e5d8ac4f8d70986ab743342933adac562729ad1000651580d1"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "4035365bcd0d3981838599f54940bc48e313673375308ad98de3dc08b84ee4b4",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/homepage-control-after-mobile-viewport.png",
+      "recognized_lines" : 27,
+      "text_sha256" : "650325a02778f4bb1f80a8420b5cf58abc1a9c4413cb1b447e568514e9a01d7d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "37162e22178a2a1e8e427257cc2ea19cdb722735b30883101e10d92c0c57f49c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/homepage-control-after-mobile.png",
+      "recognized_lines" : 64,
+      "text_sha256" : "3a59007c3ad3139e4517b13a46c80d9955f5df3a977b345a0c2c7e31ef6859bd"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "fb729f48e8b256e92eedffdb23cdbdcf4885e0543c2d05bfa25a15160e5e0578",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/homepage-control-before-desktop-viewport.png",
+      "recognized_lines" : 86,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "60caf452591d33791899e1878feadfc02d9e8e799e61398406dad4a112351eb1"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "00a7dfbac4abc2ed3421321e3fd8b1a329fa8a2bfe76f1158c3da3c43776cc6a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/homepage-control-before-desktop.png",
+      "recognized_lines" : 126,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "ccb23fdcc1ff26e5d8ac4f8d70986ab743342933adac562729ad1000651580d1"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "4035365bcd0d3981838599f54940bc48e313673375308ad98de3dc08b84ee4b4",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/homepage-control-before-mobile-viewport.png",
+      "recognized_lines" : 27,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "650325a02778f4bb1f80a8420b5cf58abc1a9c4413cb1b447e568514e9a01d7d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "37162e22178a2a1e8e427257cc2ea19cdb722735b30883101e10d92c0c57f49c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/homepage-control-before-mobile.png",
+      "recognized_lines" : 64,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "3a59007c3ad3139e4517b13a46c80d9955f5df3a977b345a0c2c7e31ef6859bd"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "69881bde9001ed2bc9d51ab86edb89b0356252b2e3f109564b5022b3b9f95cb9",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/homepage-desktop-diff-amplified.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "8e4cd11bb2e4959e4900cf10b4fdbb5e4c49d620bfd0a8152bad7bc5c03ae1da",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/homepage-desktop-diff.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "29afea1aaa0538052631bc3a6ffd20c9890818fb3ca463dc87b45b88afdba7a5",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/homepage-mobile-diff-amplified.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "7338f4c542e1d569389089ee4d8ebe80a1acced7882e9dda184d2ec2c0181a5f",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/homepage-mobile-diff.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e4b2eeb0a83c35dd71e488cfc7b03a485d3c9d2fd18464c777b044a851b35eab",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/robinhood-narrative-control-after-desktop-viewport.png",
+      "recognized_lines" : 37,
+      "text_sha256" : "e48cfb840fb6a9ec79e68abfd7028c71c00ec19d57eba70385ee9bacd2b542a4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "b9d9ee1e553d95d008d616e37ae215593af302b44bda0e99cf38f5f3a5c49539",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/robinhood-narrative-control-after-desktop.png",
+      "recognized_lines" : 158,
+      "text_sha256" : "8a6b8a188a2368d97605789e333966cc0d4dbd185ddfbb52ea263d4b831607be"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "def13ef8c10752768a6f0983788e4c3bef5a643a57b6737936e92317f65e8a50",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/robinhood-narrative-control-after-mobile-viewport.png",
+      "recognized_lines" : 20,
+      "text_sha256" : "278cac024f42b5892833f3ee4db165fa173bf6c6d04a316890735ce3142c26eb"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c931bd9edf7f35174b2328793d17d6bba0d71dfc7d9852d92ef606d76524a02a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/robinhood-narrative-control-after-mobile.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e4b2eeb0a83c35dd71e488cfc7b03a485d3c9d2fd18464c777b044a851b35eab",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/robinhood-narrative-control-before-desktop-viewport.png",
+      "recognized_lines" : 37,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e48cfb840fb6a9ec79e68abfd7028c71c00ec19d57eba70385ee9bacd2b542a4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "b9d9ee1e553d95d008d616e37ae215593af302b44bda0e99cf38f5f3a5c49539",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/robinhood-narrative-control-before-desktop.png",
+      "recognized_lines" : 158,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "8a6b8a188a2368d97605789e333966cc0d4dbd185ddfbb52ea263d4b831607be"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "def13ef8c10752768a6f0983788e4c3bef5a643a57b6737936e92317f65e8a50",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/robinhood-narrative-control-before-mobile-viewport.png",
+      "recognized_lines" : 20,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "278cac024f42b5892833f3ee4db165fa173bf6c6d04a316890735ce3142c26eb"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c931bd9edf7f35174b2328793d17d6bba0d71dfc7d9852d92ef606d76524a02a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/evidence\/cyan-baseline\/robinhood-narrative-control-before-mobile.png",
+      "recognized_lines" : 0,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "b2265a021deef5cf3f3dc9a242ed4a27e1754375952cb6c00d24654df004b797",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/approved-visual-comparison\/loaded-desktop-home.png",
+      "recognized_lines" : 125,
+      "text_sha256" : "11931213fc4edf16c112ade9f1bcf4aa2ebcb541bc670affea8cdde3f04d0b1d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c5083ac770271a57f4fad8de247849076acf4728c03222d44b6faff6bfdea9bd",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/approved-visual-comparison\/loaded-desktop-receipts.png",
+      "recognized_lines" : 201,
+      "text_sha256" : "6e5e24caaae9f7704d2e0f1f6b5fb34367b9fb1641819214fa796c99df40368c"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "7f8a168ad93abaa270a8128800ba080ebc9cc2848dd3ad5fc84b4f6b6456f75a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/approved-visual-comparison\/loaded-desktop-rh-chain-signal-desk.png",
+      "recognized_lines" : 212,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "92152ac3756ec1c3078308278b79b6d8bc466a397946b4ceed12c06969bbce6d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "d8900c88af1db2fda87cfc7f28edeb3e2d09f728ae19f089c5416dcb9885d74b",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/approved-visual-comparison\/loaded-desktop-solana.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "ed45d07fdc542c066df2e1ea5c5781531dc14ed3f5f4bffcab414ce876d9a512",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/approved-visual-comparison\/loaded-desktop-spend-terminal.png",
+      "recognized_lines" : 46,
+      "text_sha256" : "d414baa06e32c1dd0b375b63ea8fa45f97266191108b1378cbe8d5299b1e73b1"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c080791bd1d9ec16cfd7da84e4b1a58e11bafbfae437cbb20102a89ac0e60745",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/approved-visual-comparison\/loaded-mobile-home.png",
+      "recognized_lines" : 65,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "67318672a1e608ae7b33ac94faaf97dce531950bfde424582179676f4cffd9e4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "76def79d3029f77ceb9500ac3fe526c71142bce8b053909af838ce1222e78ca5",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/approved-visual-comparison\/loaded-mobile-receipts.png",
+      "recognized_lines" : 1,
+      "text_sha256" : "6dc514b1942c6b80c5c9ce6524ec7c277ad88f608292daf4ab52fa90d946429d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e651096dbfec9264b19d9b689b41a14e80a0314811c4837da7b41fb90c152a5a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/approved-visual-comparison\/loaded-mobile-rh-chain-signal-desk.png",
+      "recognized_lines" : 0,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "20337474a15e524299b05d1791fc58717351b2f4936670f9235f828f67e4ac2b",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/approved-visual-comparison\/loaded-mobile-solana.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "87b2f044c6976b8a9aa888fbe5aad94306d100fa55e170ae8665ddbb1e791580",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/approved-visual-comparison\/loaded-mobile-spend-terminal.png",
+      "recognized_lines" : 47,
+      "text_sha256" : "b43a7f76f1f6f16b3719acd680648ef796cd2837fc744030e2d4f33ff684f686"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "67b45aa7a2264988c664283a6061030c2c97b2aab17ef2f009bd3af4ea8f5893",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-routes\/chromium-home-1440.png",
+      "recognized_lines" : 125,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "11931213fc4edf16c112ade9f1bcf4aa2ebcb541bc670affea8cdde3f04d0b1d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "15b3ab253b6c30f657bb51c82a9f15d209fcf9e75e7cc96875ab6cff063e1103",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-routes\/chromium-home-375.png",
+      "recognized_lines" : 65,
+      "text_sha256" : "167696524258c16c356e95462e581ce35d8dfabe6f8c8ef81e3c728dcfb0e63a"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "4bd3f1b0eb0006276995dfaef697447e6b35065d498d295080f0b49819e05d83",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-routes\/chromium-home-768.png",
+      "recognized_lines" : 139,
+      "text_sha256" : "f846f5152764c6e5be633d6464db3dcde37d59c6487d3c9ecc8851fd9e88bef9"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "860eaecc18667d4d1b82fe2c980b8b73154e865cbbd13ec642f14fa88f397154",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-routes\/chromium-solana-1440.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "638c15c60941c1d203398eeb59a7cfdd515b5ecc70ac95c1c5e00d8a700a99b9",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-routes\/chromium-solana-375.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "07c279f930b5dc1df9a3e8c277d29be089f095e0bf266d90fc1b60cb2a157546",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-routes\/chromium-solana-768.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "bb01afbcc5e22f73c6f65dc3f8cf55b9bdf3278e5fb7b3a91c145bd884c2d718",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/desktop-4663.png",
+      "recognized_lines" : 26,
+      "text_sha256" : "9085e5b0c802f9aa3f5a7f49b84644971c8658a72442e35bdc8b5c9412a53df6"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "2e46f19bbcaec9f77a8c7772aa2bd0bdbe82775f553f5fc07b906c84bdde8dce",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/desktop-developers.png",
+      "recognized_lines" : 40,
+      "text_sha256" : "26531350d298ee5b27116b67d97ada408e8cb8754ee2cb532cddfb61cbd2f181"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "67b45aa7a2264988c664283a6061030c2c97b2aab17ef2f009bd3af4ea8f5893",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/desktop-home.png",
+      "recognized_lines" : 125,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "11931213fc4edf16c112ade9f1bcf4aa2ebcb541bc670affea8cdde3f04d0b1d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "63bd3e2068739e2c21cf98d56c1ee2e8bf57c02a41882e17f05135c555057d45",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/desktop-loops.png",
+      "recognized_lines" : 81,
+      "text_sha256" : "e8abdf9c84f0281468a0981987ff1ed4cbaeece89aa4c78b5815a976aeff556e"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "7e957c2eb52b1e35dcf7fcedd4484fcb6104cc92a284d16433940d198f16b13d",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/desktop-radar-cards.png",
+      "recognized_lines" : 30,
+      "text_sha256" : "afd26aecc50e4ea24695453632f4f966ed0c109113ec6b69746b7fdfd0885be1"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "b01a8bef29d96651a2e45b56c8754eaea3a6d1e614c24d7ca9a1675fb3486516",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/desktop-receipts-receipt_001.png",
+      "recognized_lines" : 33,
+      "text_sha256" : "e6e55be840348d2424c6c196feba437f08b19b53788c875a8599b98bbedd92c2"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "bb5719c9147f66eb25e90c667bde50d908f2abb89ef5dfc6af119e1b178ec06c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/desktop-receipts.png",
+      "recognized_lines" : 35,
+      "text_sha256" : "5b570b7349df369739494d22c5097b157e7699d82949aa823bf547ce86049cea"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "1545203321814b85ebc243def1b7e35fb95e755490399cbe4825d5f55bac4318",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/desktop-rh-chain-signal-desk-market.png",
+      "recognized_lines" : 24,
+      "text_sha256" : "5e9d8a50acef395e708171507d60ffaa9485e0131447e3069bc767034d4c9ee7"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "b1555556670f75b971a0e185f0cda593943339bca09cb1dba497e581a52a5e3f",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/desktop-rh-chain-signal-desk.png",
+      "recognized_lines" : 58,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "eaf4c4f2e33c5d5c62bda892bcd057f66ae84d5ffd51453f8d6a5cfee38500c2"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "de199bd368a95b5a48398404bbb1cc899b11c3c285cda989b72ac38ead98d26c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/desktop-solana.png",
+      "recognized_lines" : 52,
+      "text_sha256" : "ebd4b6f87c1d270867622cefc0f10440e598f18174ba37712f030213f3ed121b"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "b2b1eb714ab0cafa8cc0604bb523286657ef3747405b522b6761778c974a2021",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/desktop-spend-terminal.png",
+      "recognized_lines" : 100,
+      "text_sha256" : "6996bf3eb52fadaea29e146695c6ab8cc58ab78e1520b7a8ed665ffb28fd6a7b"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "37fae777840c9bdf3a6bbc84bb638283156f7b2aac8cbc75033c016886f5cf49",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/mobile-4663.png",
+      "recognized_lines" : 21,
+      "text_sha256" : "2535ceb9c7ef0c483246e7ed9881674a678ba4d82fa876838f943def26fc8c91"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "9df0d99f6bdadf6924e1e7a53b00f7d3e538799990925594c0f42568d4eae653",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/mobile-developers.png",
+      "recognized_lines" : 24,
+      "text_sha256" : "3ff460ffff38ec33e26b178463b946700df677ecf7e1bbcbf54bf2d61deff097"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c080791bd1d9ec16cfd7da84e4b1a58e11bafbfae437cbb20102a89ac0e60745",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/mobile-home.png",
+      "recognized_lines" : 65,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "67318672a1e608ae7b33ac94faaf97dce531950bfde424582179676f4cffd9e4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "d351a1c5cf54151f2aa230d4772550791cca5246090c9c85a84627d24745e34c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/mobile-loops.png",
+      "recognized_lines" : 21,
+      "text_sha256" : "b7674840638a52ae2641c8bda5ecf829d50e02c5b570c93c40ea89bfb336240c"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "02d6a01e3e35ce2feb5bb5fa5674a0876cc9d685d55c606fab2933a5642a4036",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/mobile-radar-cards.png",
+      "recognized_lines" : 24,
+      "text_sha256" : "7b139b19b3bdbcd03d2e8a6cbbf0ce59269d2e05d6f1ce0f1ba9955c887be48d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "90cd946e80d7a4ab7917874c9b1af0864d77bbb748968db70061a7509494c459",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/mobile-receipts-receipt_001.png",
+      "recognized_lines" : 17,
+      "text_sha256" : "b1f8655f3769d9b327777f05fe8bb913311cde9c567d3fbb2b0e44bc4d22929b"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "588830ea2a6a26100fe231b9a4158a1676a6ff83d7204c225a5fcd26a97dbe64",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/mobile-receipts.png",
+      "recognized_lines" : 17,
+      "text_sha256" : "585f40cc59221070dd494e4d39f66d26d70a128c82ea3e0c63978969784d48e8"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "eac2d4b22cb9ff6263b85020d228c486abbb5f7402bcf405d683b93c27679b42",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/mobile-rh-chain-signal-desk-market.png",
+      "recognized_lines" : 23,
+      "text_sha256" : "88843304aa93690fb77c23e333096a4890e3408cfa06bb833622a4ee2d1d7b6b"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e4d6fe2f4190a8c25e76c707f9dd5fe3cf260dc2c3017dae2a533a9586ba7c61",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/mobile-rh-chain-signal-desk.png",
+      "recognized_lines" : 24,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "41ed6b9e1d6919dddcf4e69ca58a7ea57a29c9532d4c03485faa9662a5d67f4c"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "2caabd1dadc7076bee8d0ad1ed241aafd99f2008d6bb246c7c0fbecb449100ab",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/mobile-solana.png",
+      "recognized_lines" : 22,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "af3fc5076b1a4611169523f308f3cf46e5ed4d557b508794d7f9b0ffebb8dee0"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "00d051c39146a6bfae57ce9c6c8429d977f2ad20a1996f2ab6d53ba9cb4b6b47",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/mobile-spend-terminal.png",
+      "recognized_lines" : 68,
+      "text_sha256" : "d08c0279cc33c981dd7cfdf4c8114a272b23988d91e8d7d1c827c23fa7829452"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "f142e161dc8c8681fbfadfc2d65e546c3872e9f48550c5fc831609e5b58195de",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/tablet-4663.png",
+      "recognized_lines" : 26,
+      "text_sha256" : "eb8c27e54963ed2bdac724fd7fbbcff2d4fefc289e7bbaea75cdf03a192c3675"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "bfdb80c20c7f9b8ef8ead4b344d2684c6b2f84e590a0c2d62685eacb74cc535c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/tablet-developers.png",
+      "recognized_lines" : 33,
+      "text_sha256" : "6735d1255e4d8cdb0d7e89190cab57f7d4ba7f585ea5697b7e9bbc95a760b5b6"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "4bd3f1b0eb0006276995dfaef697447e6b35065d498d295080f0b49819e05d83",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/tablet-home.png",
+      "recognized_lines" : 139,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "f846f5152764c6e5be633d6464db3dcde37d59c6487d3c9ecc8851fd9e88bef9"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "2febcdb09747a70a9d850f5050dd8e854ce22b17818366d1bd23aea6a7fae4d1",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/tablet-loops.png",
+      "recognized_lines" : 28,
+      "text_sha256" : "831d2b83da7424447d145e60d9c9720c95df7a1437bf009177b764105c15734d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c9d47029a037bac7d74a201e185024cb5bb5c9cfdb8dd834c925569714a340fa",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/tablet-radar-cards.png",
+      "recognized_lines" : 30,
+      "text_sha256" : "68f49699f9639605a43cfa909c02a25850c89a9da81617b48a800572e823cea4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "1c9f0994a57a9ccbb785d88e671e62726018d1e5d56152ed4e297f5aea2dd006",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/tablet-receipts-receipt_001.png",
+      "recognized_lines" : 30,
+      "text_sha256" : "511270f191f1412ecc0a2ec1e7e833454ee53e667ece207d7ceadb4de7f9b35c"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "1defddd2c04e950b1be1696477d34ac199d2b97d81873313f916086b0436805a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/tablet-receipts.png",
+      "recognized_lines" : 22,
+      "text_sha256" : "b602d73be07e8f20fead7940ac0fafa293a2294b505be9553b6c5dcd129e33c5"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "ac5296f2705a054be8698c4c41cc7dd698b4954731ffa50516ae8b606d07682a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/tablet-rh-chain-signal-desk-market.png",
+      "recognized_lines" : 23,
+      "text_sha256" : "c5d8b197b46e70222bf495d06e96e2acda98a606db36fd97c8aa56e7263dbb49"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "94f66651fba1f2748fe114d6d2d8c73ea64ce8885752b2f84bcf1dbf8d2cd3cc",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/tablet-rh-chain-signal-desk.png",
+      "recognized_lines" : 52,
+      "text_sha256" : "167b0165665de356ddceff547dc8d4e7209920085bea4944c8d8bf964a86a496"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "42baea83fcbf0628651b6e235d0e6ad2c198ec288a722b436aab5cd4cf0b46da",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/tablet-solana.png",
+      "recognized_lines" : 45,
+      "text_sha256" : "a1a721278f101ed81d7a635aa90be1f6a76d44ae6064fb55ef203b3c2b45dc11"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "0f39dda2eaed1c2059b5e7abb9ab129c23b8c90fdd653b64e0362fbb28020b17",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/existing-unified\/tablet-spend-terminal.png",
+      "recognized_lines" : 70,
+      "text_sha256" : "645a0507e746bf26cda265f2e3cc0676b48d202c758d123ee65e47fa5993f332"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "0f846d57755017d10969e15714f6c44ef9f3df24345251a91510fd0a2b1a0210",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/first-pass\/real-journeys\/mobile-evaluation.png",
+      "recognized_lines" : 36,
+      "text_sha256" : "7c03baed702949cdb8c7ec4137eb00631dc761c1d16c259e95eb762e8578ee49"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "86c588837008e351847b5a242f637951b34867b161e648c4c1decbc53c259774",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/first-pass\/real-journeys\/mobile-execution.png",
+      "recognized_lines" : 35,
+      "text_sha256" : "af1cc0ee99957cb7e45810c1751febf67d4b353cf00819acf62a27689b348420"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "e5e1c67439fcb189373d44541712b76baae7a17387415c1462fbfe036cfbb9bb",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/first-pass\/real-journeys\/mobile-insufficient-evidence.png",
+      "recognized_lines" : 69,
+      "text_sha256" : "1416c2b1ef66317458edd0d48ac4928700b78bc8579281591d177b1ed324214d"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "74f58d26bc14e0d29db90f60d48a22e24400f3666ddbe9bd3eb62fa24522c4c5",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/first-pass\/real-journeys\/mobile-judgment.png",
+      "recognized_lines" : 41,
+      "text_sha256" : "fd57e12797a2b757b963b4930a55c36f834ee9b770005964d118d5168b5085ee"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "e5e1c67439fcb189373d44541712b76baae7a17387415c1462fbfe036cfbb9bb",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/real-journeys-original\/mobile-insufficient-evidence.png",
+      "recognized_lines" : 69,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "1416c2b1ef66317458edd0d48ac4928700b78bc8579281591d177b1ed324214d"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "b156d5744d1a29670474a6af8dc37602d53ad80a5708606a785824d7616011da",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/real-journeys\/mobile-evaluation.png",
+      "recognized_lines" : 36,
+      "text_sha256" : "7c03baed702949cdb8c7ec4137eb00631dc761c1d16c259e95eb762e8578ee49"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "86c588837008e351847b5a242f637951b34867b161e648c4c1decbc53c259774",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/real-journeys\/mobile-execution.png",
+      "recognized_lines" : 35,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "af1cc0ee99957cb7e45810c1751febf67d4b353cf00819acf62a27689b348420"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "e5e1c67439fcb189373d44541712b76baae7a17387415c1462fbfe036cfbb9bb",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/real-journeys\/mobile-insufficient-evidence.png",
+      "recognized_lines" : 69,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "1416c2b1ef66317458edd0d48ac4928700b78bc8579281591d177b1ed324214d"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "2389804643b649649f7a02f1dc4f3533ad69ab269930b9698dfe1da2ea5914b4",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/validation\/real-journeys\/mobile-judgment.png",
+      "recognized_lines" : 44,
+      "text_sha256" : "32bdfd387cbcb46bfb2c8cbe40789691a4cf92fb880336d708cf4d81783ea932"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "67b45aa7a2264988c664283a6061030c2c97b2aab17ef2f009bd3af4ea8f5893",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/after-desktop-home.png",
+      "recognized_lines" : 125,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "11931213fc4edf16c112ade9f1bcf4aa2ebcb541bc670affea8cdde3f04d0b1d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "d1c3bab29a7ab05281100c8762ba15d74186a379a3be8df66d372e846af232ee",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/after-desktop-receipts.png",
+      "recognized_lines" : 201,
+      "text_sha256" : "f8c2eb60ce22a0671802900504b69d85853ec1b5e3e11ccd3fe1028c1375f288"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e3c0caaa02ca8755904569402f4b04fa7b29cbad1d1afb625a7b014a94469fab",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/after-desktop-rh-chain-signal-desk.png",
+      "recognized_lines" : 19,
+      "text_sha256" : "51d05ff1a4be1e0ee22a4708b060fb4fab76c992a7ec71476fb978a8f056db03"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "54c95ca184e32c1a8bbb393b1dbc8daf6f9c27ccc90560dac2c6f6d0c0575390",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/after-desktop-solana.png",
+      "recognized_lines" : 16,
+      "text_sha256" : "1319678c79482e7a5cba82903591941ebfbdc2a0f9666d62e896df43eef3a156"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "ed45d07fdc542c066df2e1ea5c5781531dc14ed3f5f4bffcab414ce876d9a512",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/after-desktop-spend-terminal.png",
+      "recognized_lines" : 46,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "d414baa06e32c1dd0b375b63ea8fa45f97266191108b1378cbe8d5299b1e73b1"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c080791bd1d9ec16cfd7da84e4b1a58e11bafbfae437cbb20102a89ac0e60745",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/after-mobile-home.png",
+      "recognized_lines" : 65,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "67318672a1e608ae7b33ac94faaf97dce531950bfde424582179676f4cffd9e4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c48d69f7e1ab138e09f054d625c1e6888355c87581bf378cfcf8a728f3cf8e79",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/after-mobile-receipts.png",
+      "recognized_lines" : 26,
+      "text_sha256" : "64c5edfbf1290a317bf5432cc5b0f2a899adf062c149f09563a6819d615de12a"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "38a4d729c8c6da56c5f4dfdc12c8c74308fd994d62b7718210888660e046e55a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/after-mobile-rh-chain-signal-desk.png",
+      "recognized_lines" : 16,
+      "text_sha256" : "0c774dbfdf7673d46b465a4739986b2c8597df900ca0add196212a32efb8b628"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "eb8c55c65e1943b6d96f50f06ea9574349f2077bf7b41c4ce8b3f78089828e1a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/after-mobile-solana.png",
+      "recognized_lines" : 13,
+      "text_sha256" : "8096bf752799eb9a687c45a7e54f51d9271923e13b3ce73680ae52bdf894626f"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "2b5c7d41cef0ee4ec0538f2f953feb254d3793415e8493ff7052c7c20c2f5abb",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/after-mobile-spend-terminal.png",
+      "recognized_lines" : 12,
+      "text_sha256" : "dae9fba0d94cbd850d299507f59e418af1a9adc631c75a3bcff845e1cfbf4604"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "b2265a021deef5cf3f3dc9a242ed4a27e1754375952cb6c00d24654df004b797",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/loaded-desktop-home.png",
+      "recognized_lines" : 125,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "11931213fc4edf16c112ade9f1bcf4aa2ebcb541bc670affea8cdde3f04d0b1d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "d9716f5581f8979aef7f8af6ea4c9e231102f56f5db03ff2d8cddd2700db4cee",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/loaded-desktop-receipts.png",
+      "recognized_lines" : 201,
+      "text_sha256" : "f8c2eb60ce22a0671802900504b69d85853ec1b5e3e11ccd3fe1028c1375f288"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e76936f934c6f42cd665e71b2d2a88009a3c4bb65f6622b171e12745cd6cf846",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/loaded-desktop-rh-chain-signal-desk.png",
+      "recognized_lines" : 195,
+      "text_sha256" : "957e7db81adf06670d4e9ba3c8af19c6e46d775f6b6ec6c6b97b13b319434ffd"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "cb872cd13ea390f7d03ef2189ba031b9e7721eaebc26f9b17a646f56654058fe",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/loaded-desktop-solana.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "ed45d07fdc542c066df2e1ea5c5781531dc14ed3f5f4bffcab414ce876d9a512",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/loaded-desktop-spend-terminal.png",
+      "recognized_lines" : 46,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "d414baa06e32c1dd0b375b63ea8fa45f97266191108b1378cbe8d5299b1e73b1"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c080791bd1d9ec16cfd7da84e4b1a58e11bafbfae437cbb20102a89ac0e60745",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/loaded-mobile-home.png",
+      "recognized_lines" : 65,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "67318672a1e608ae7b33ac94faaf97dce531950bfde424582179676f4cffd9e4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "76379c68a1cf768fe3f688e872cfdc953165225a00671941e8986b7a9b2fee9f",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/loaded-mobile-receipts.png",
+      "recognized_lines" : 1,
+      "text_sha256" : "6dc514b1942c6b80c5c9ce6524ec7c277ad88f608292daf4ab52fa90d946429d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "6734edf8ae67f83e65e071a9974964230b033e82ce0f435350826d975dd89f6f",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/loaded-mobile-rh-chain-signal-desk.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "78414709743e0208d611cd09aa01ec4692ad092878fe89558a64b5cbcc777c87",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/loaded-mobile-solana.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "87b2f044c6976b8a9aa888fbe5aad94306d100fa55e170ae8665ddbb1e791580",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/approved-visual-comparison\/loaded-mobile-spend-terminal.png",
+      "recognized_lines" : 47,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "b43a7f76f1f6f16b3719acd680648ef796cd2837fc744030e2d4f33ff684f686"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e4b2eeb0a83c35dd71e488cfc7b03a485d3c9d2fd18464c777b044a851b35eab",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/attempts\/browser-first-pass\/robinhood-narrative-control-after-desktop-viewport.png",
+      "recognized_lines" : 37,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e48cfb840fb6a9ec79e68abfd7028c71c00ec19d57eba70385ee9bacd2b542a4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "b9d9ee1e553d95d008d616e37ae215593af302b44bda0e99cf38f5f3a5c49539",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/attempts\/browser-first-pass\/robinhood-narrative-control-after-desktop.png",
+      "recognized_lines" : 158,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "8a6b8a188a2368d97605789e333966cc0d4dbd185ddfbb52ea263d4b831607be"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "def13ef8c10752768a6f0983788e4c3bef5a643a57b6737936e92317f65e8a50",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/attempts\/browser-first-pass\/robinhood-narrative-control-after-mobile-viewport.png",
+      "recognized_lines" : 20,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "278cac024f42b5892833f3ee4db165fa173bf6c6d04a316890735ce3142c26eb"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c931bd9edf7f35174b2328793d17d6bba0d71dfc7d9852d92ef606d76524a02a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/attempts\/browser-first-pass\/robinhood-narrative-control-after-mobile.png",
+      "recognized_lines" : 0,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "ff686a123fc20f79150e7276c2275cf6b20ea341ce9b77077fb1eddc29f62987",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/attempts\/browser-first-pass\/robinhood-narrative-control-before-desktop-viewport.png",
+      "recognized_lines" : 37,
+      "text_sha256" : "e48cfb840fb6a9ec79e68abfd7028c71c00ec19d57eba70385ee9bacd2b542a4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "365a53781d833cf84585d504bd5475054785726042f7c38d1b58b0f5e90f7681",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/attempts\/browser-first-pass\/robinhood-narrative-control-before-desktop.png",
+      "recognized_lines" : 158,
+      "text_sha256" : "8a6b8a188a2368d97605789e333966cc0d4dbd185ddfbb52ea263d4b831607be"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "def13ef8c10752768a6f0983788e4c3bef5a643a57b6737936e92317f65e8a50",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/attempts\/browser-first-pass\/robinhood-narrative-control-before-mobile-viewport.png",
+      "recognized_lines" : 20,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "278cac024f42b5892833f3ee4db165fa173bf6c6d04a316890735ce3142c26eb"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c931bd9edf7f35174b2328793d17d6bba0d71dfc7d9852d92ef606d76524a02a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/attempts\/browser-first-pass\/robinhood-narrative-control-before-mobile.png",
+      "recognized_lines" : 0,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "416b4cbf164563896c5926f6d79d91d160a2f8ed0de53b7b9c1885c6d6e3d5a5",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/attempts\/component-capture\/after-robinhood-receipt-mobile.png",
+      "recognized_lines" : 61,
+      "text_sha256" : "007d5b575090e75ce31274e745afe68e7136bc0ffcb081ec56996a9fbf2f1bc7"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "fe59a285df7ca4682b794435884cc046cde5a068c6f9bedabaa4cef6b677e776",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/attempts\/component-capture\/before-robinhood-receipt-mobile.png",
+      "recognized_lines" : 58,
+      "text_sha256" : "8023e1d3570352271c0ea77f40ce3878ba0e8ede5d615f8a5feebbf8a5d03cf0"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "14ebbe69a4295e1ef76713207030882107092b0cb93c672d2c1c2b191bd92edf",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-homepage-desktop-viewport.png",
+      "recognized_lines" : 86,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e70988654d0e683af7e60582101e753ad41bee12c621b57ea166c96764d07f86"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "67b45aa7a2264988c664283a6061030c2c97b2aab17ef2f009bd3af4ea8f5893",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-homepage-desktop.png",
+      "recognized_lines" : 125,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "11931213fc4edf16c112ade9f1bcf4aa2ebcb541bc670affea8cdde3f04d0b1d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "930a1c91c902036e3fbc52455aaf54fc25df46c7238185be5dcaf968db876cc2",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-homepage-mobile-viewport.png",
+      "recognized_lines" : 27,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "650325a02778f4bb1f80a8420b5cf58abc1a9c4413cb1b447e568514e9a01d7d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c080791bd1d9ec16cfd7da84e4b1a58e11bafbfae437cbb20102a89ac0e60745",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-homepage-mobile.png",
+      "recognized_lines" : 65,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "67318672a1e608ae7b33ac94faaf97dce531950bfde424582179676f4cffd9e4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "6c029526d72d3bda5af4d5aab06ac4b0fb679e74743b9850d3848224cae8fa2a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-homepage-native-zoom-200.png",
+      "recognized_lines" : 9,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "4aba20e05215636cfb96a7837baebf1476096b92e1a6126356f502d517c7b5d9"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "3e904ae38428c3ead29468c5924a430a46a11f021fab12f6936c8bcd5058aa60",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-homepage-native-zoom-400.png",
+      "recognized_lines" : 2,
+      "text_sha256" : "b895d779b81d9dfc83164c2fefcf78b8ffb9c0f4290188566fac36d9e3038449"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "dd572dff4f9d97f1014348c9dd4d109c9389744b808bc8a6cda1be35ddbc9010",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-contract-mobile.png",
+      "recognized_lines" : 21,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "6d6191cd254d128015ed2bb3a77c6459ed73caf677adbb3286f53b774d9d89ba"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "a91b829e4df580e57d178186f5ff827e981fd120af617b2dff9b3fae1a370ed6",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-desktop-viewport.png",
+      "recognized_lines" : 55,
+      "text_sha256" : "0ca46f0ca7dbb6f00c2635cc6d874eb446df81666b45039e4fbdf25e92597bfc"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "d5e47ca79a504766ea69566519279fef59101f5fef0862893a20a182490dd162",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-desktop.png",
+      "recognized_lines" : 195,
+      "text_sha256" : "3d8b1559a8fab25e9e06b54275a7645507ff0a044feaa72b360789aff73b3b99"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "bf64f22c0234b6f22ad1f770b047c49628916685a9c34b5cf06f064c75be1f6a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-hero-status-desktop.png",
+      "recognized_lines" : 25,
+      "text_sha256" : "f8fc8c66699098f6870176e192200b926509d22307e4e11aee9b8e8c4cd3b702"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "6fdb22c31e3fb4e894af39ad8a42d5c187712d241ba1288eeebe5eabd4089c7b",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-hero-status-mobile.png",
+      "recognized_lines" : 26,
+      "text_sha256" : "289221ccf838356013fab791ca9cde4539c8b65f2a4c727a074a77390d36fe47"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "dc9e6e347ef6dba82971a3cf620252c572a09bf6616e741696c21e87f815fe10",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-chain-pulse-1.png",
+      "recognized_lines" : 36,
+      "text_sha256" : "6d829e26a9b652413d930e42b2cd3d1857e6832344a83e971b583e5efbad6a20"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "fdcfe59c6af86a03a31698dd59540598998733e46aba101e9c9211840753ab27",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-chain-pulse-2.png",
+      "recognized_lines" : 35,
+      "text_sha256" : "a488dce7b11830cd26a7d8cb765c7e7ec195e6f6b00504e33e7756c68623eb13"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "90d7b96bee743091e698560e052f65b529a5cc5dc83c40e19742f1de26f5aed8",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-memes-1.png",
+      "recognized_lines" : 28,
+      "text_sha256" : "5fd7562b2081acfdcc92231a20a43673a450398d891fd31019a6428fab54123a"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "ad143f517efaf2542015dc37fa6913bbcd570e522a4e93e3c4bea1407c6b224e",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-memes-2.png",
+      "recognized_lines" : 24,
+      "text_sha256" : "c896ba6f37ee58cfc6e17a43a2030ef9f4e71f66e5fb625b5d49cd7d6b5290f9"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "f65402eac62fbdc437ee105f601baa3dd69e2891300a09b44c7c07f648e68f10",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-methodology-1.png",
+      "recognized_lines" : 24,
+      "text_sha256" : "bf607ccc7f53b2be6b1b61f5e08b2f9a76d18bc5be11d658db080e0912aa4e2f"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "0f16dd8386ffbf181dda33cdb68c663a12cf8cbbe245895d44721621ac0b9d75",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-movers-1.png",
+      "recognized_lines" : 27,
+      "text_sha256" : "538e4f9c0f637159ec0946b662f73e3444e0c4f4d5e00c6797510f8faf9a2402"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "dd00e7d9c118e15bb8564215be8a391803e3aa768eaf4441c6aa4d89cdea51f6",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-movers-2.png",
+      "recognized_lines" : 26,
+      "text_sha256" : "ee1a9415385fe391eb9f1cf3e1c498cc024c3d7663a4a3d1a74089d1a9b2abf7"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "58cc03c3eeb2f1cd318c510a20dc29e5b4aee5dbb36c97567673f787378ba75d",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-receipt-1.png",
+      "recognized_lines" : 25,
+      "text_sha256" : "38614aab2f173ecc63f2f4a997415a5ffb78bd34be3a0da10d276063d0a2d065"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "d55d16620b5bf0f5767c91c042f909d19b99c3b555a7380053abe09b824ccde2",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-receipt-2.png",
+      "recognized_lines" : 30,
+      "text_sha256" : "48be0ec5b74ce46fb452a5ef5dca2b593e0f7b6d7ea80f707a1d10b0cef36a0a"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "4cd70b565c51239d8db21f036ea177bda4c2005db1fb836b953d1c2201b87f51",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-review-1.png",
+      "recognized_lines" : 33,
+      "text_sha256" : "1d76e01ad475e35e0c60b446936bda6609610a8726808b5b507c4e397773eb76"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "228e21d08b0b17f2ef0499c839b44c38d358e0fcf156b432afd4a59360664c6b",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-review-2.png",
+      "recognized_lines" : 32,
+      "text_sha256" : "e2b156f7ac53428c859f89ac6ceff360e76f66df44b6561c2292f45c6f799363"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "ef7aca538244a5a8c5cabc007ca34fce04fd029aa0859db76c4fb8a7a6dbf4de",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-risk-radar-1.png",
+      "recognized_lines" : 30,
+      "text_sha256" : "74b5541cd00877c9d385bb1fdecba4a822aa3eb21e16f89b51260e6c3f4672ca"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "888c2ac03781ba6b1dca48b4629ee595bbe0dcfc782e163f1c03d6aeb01ca61b",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-risk-radar-2.png",
+      "recognized_lines" : 26,
+      "text_sha256" : "73e9a460c4dd8b3d48b67873675e2734889e4dad4e0d596217af72cc17e05bba"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "284bf112498a5a1315d3dd0edad7e99bfdb3e422d04fd7c6e5b19fdda56e8548",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-routes-1.png",
+      "recognized_lines" : 20,
+      "text_sha256" : "b7ab832b5f2ebbda3e54b630e64c2b83617b962a0dbc170c50cdb0506f0727bc"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "d5957ea6f860556923bd833db1b5fa0740526c40b5f284d786d3c972ba78f3b8",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-routes-2.png",
+      "recognized_lines" : 20,
+      "text_sha256" : "9a3c73c1d8a25e0cfc5261ec0211ad7c76fc1044810e375aeda0c0cee73492aa"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "78082bb65a9d5805095b57532d40ceadb9de6e3f3240584d91d73cdd2a6724f2",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-today-1.png",
+      "recognized_lines" : 31,
+      "text_sha256" : "347025e5936894545a6d032e75ca3256532766489a068d764bb0f4cc0f4e8fc2"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "7ed71f2b4e42c67010e754178701de57bb36b90bb9ed3a307878fd6ebdd41a5c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-tile-rh-v2-today-2.png",
+      "recognized_lines" : 26,
+      "text_sha256" : "ce163b5e6556d67798f263eebaf73220979b1acb78200324fdcbc423f4549aa3"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e4d6fe2f4190a8c25e76c707f9dd5fe3cf260dc2c3017dae2a533a9586ba7c61",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile-viewport.png",
+      "recognized_lines" : 24,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "41ed6b9e1d6919dddcf4e69ca58a7ea57a29c9532d4c03485faa9662a5d67f4c"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "6734edf8ae67f83e65e071a9974964230b033e82ce0f435350826d975dd89f6f",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-mobile.png",
+      "recognized_lines" : 0,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "096b16c202274630419ee6763e62cd3d2c86c32df5ea341072abb5c2661a6302",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-native-zoom-200.png",
+      "recognized_lines" : 9,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "2f8e1555fe9dbfa5bdf1dcf21dfc4442ee10dd6cfe73e7b9672b0799298e2b66"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "0b5b36786f192f12724160988ec3d739f5feaf27a4d09544cfe1d73bb62ac032",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-native-zoom-400.png",
+      "recognized_lines" : 2,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "b895d779b81d9dfc83164c2fefcf78b8ffb9c0f4290188566fac36d9e3038449"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "a879d5a6e0746ace39153274588703df8e1333d9b50a2d6917d73a82811fa533",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-pulse-desktop.png",
+      "recognized_lines" : 47,
+      "text_sha256" : "939df84a168cdd504a9238d13155ea6f06ace15b643386ef85ae0c884075ffe7"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "7fe0bef60934e79f73345c7eab07ac133a859fe6c6b24e0f1e2cac73895b70d1",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-pulse-mobile.png",
+      "recognized_lines" : 44,
+      "text_sha256" : "6eee098a69d3f541c901ff02a2dde97eb7befa78e44832eeefb5388018446fa5"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e4a70d3e81ea30e2de14bf9a54bfdcc190590a70893817ba578573c4745bc2d3",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-receipt-desktop.png",
+      "recognized_lines" : 58,
+      "text_sha256" : "64cb7c85bb219d10f18f8996633d4089bd4f3f19187b7b4e7ce7dd0c30293822"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "7c7f1a4cd137938e366a574d2d314b55c577a51610cc11fcaf962e523fee6665",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-receipt-mobile.png",
+      "recognized_lines" : 55,
+      "text_sha256" : "72470d5f12035b4c6662edacfa816866890d999af1c6f2d3707cdd124bf57bd9"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "90655a978a3c3106077bb82aa567bdc947d201c5f4e257234ee2aee3e74de699",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-robinhood-table-mobile.png",
+      "recognized_lines" : 49,
+      "text_sha256" : "733bfcbdd1e843fa0307d3b083ab492edac14f6c18cd1a18c8bedcde72312fe3"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "4f5d44e65dc15a54cadc3750487f2673060becb7a9519e5652e1ee1c162f8ba4",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-desktop-viewport.png",
+      "recognized_lines" : 54,
+      "text_sha256" : "a5ce67e0afc1ec0a6da3ee37da1d82dd0c917f458c5cf2e6b20057cf57ba57e4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "17c36af7945bad38174382be2d25e5fff6cff27902db126836847e110d2d47a9",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-desktop.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "4afbb36e67f5935754e1aceaf1798c0c9f67a9bc44c832a406b56a476134f7e9",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-directory-desktop.png",
+      "recognized_lines" : 73,
+      "text_sha256" : "31dd03c5089b577400850224807b51490efe9374275f76a30308b5b5dc8654e6"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "31770f8ba9ff7e61027af3b393c54846629285cc84eb8d36b190a045d221dbc3",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-directory-mobile.png",
+      "recognized_lines" : 78,
+      "text_sha256" : "cfcfa1695e9d1b8c836424e2407e321c63226b39ff92b645d3a221b99911a336"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "98dec5fe436625eb7b351010176b87427839bee1db4a5c5b22a4dd7bc557f56a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-evidence-desktop.png",
+      "recognized_lines" : 17,
+      "text_sha256" : "e4a09d53cf9cf660fcc2b7a8d07e4668c070f7f2449dd4c1bd6837c46c6a1c89"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "003d01b27f467dbb6d9891efcbbfa8279fed78a27571282447f09d35a8864c91",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-evidence-mobile.png",
+      "recognized_lines" : 19,
+      "text_sha256" : "1371b4c0c87784a099c05144c06b2db39037d59ec4f9c601aa42ed7bc814084e"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "357872d36b7ae4c714c5fcbcbdc661c5cfe0d71fc9440a78860e3b3628080401",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-mobile-tile-agent-benchmark-api-1.png",
+      "recognized_lines" : 29,
+      "text_sha256" : "6b123cadaeda7b7feb7019e521f4d8d9a75cd1fc23b7eb3fdbdc169e920c89b3"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "2109a1a76f82a7b6e648d4eac162cd2189be8b3bddedbfc6718bc3cabd5a3f12",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-mobile-tile-agent-benchmark-api-2.png",
+      "recognized_lines" : 21,
+      "text_sha256" : "532c546f58c6e1cb32595b30fa16c9dc3908b8020a979ee67fce2db784b3f1df"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "08b59928f2e2534d1d25aa622797aa9a242eae284f0de03d9d60bc27e7ca911e",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-mobile-tile-benchmark-readiness-1.png",
+      "recognized_lines" : 32,
+      "text_sha256" : "371c8d878cd1d227e8659521b4e24e94e2d65bcd76db7a3ef9fe724b73c62e31"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "1e3db394035bc93eff6d382ce7e1925d90cfc1037e4ea39d6d53dab36c003171",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-mobile-tile-benchmark-readiness-2.png",
+      "recognized_lines" : 30,
+      "text_sha256" : "b10209ed22fa0a4ae5df269bf37adf6675654b2dd170f06b66913d9aca9797fd"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "be76bc576d9ea19f26be7912b9ea32131ba318bd42a2ac1db70cfdeeb46bca35",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-mobile-tile-machine-module-card-1.png",
+      "recognized_lines" : 25,
+      "text_sha256" : "007686772f31bacf296ee8ef253590762a53044a8abb4e062939a4ce891f3c17"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "29259639b1a993376643371196e5f678042d4279b7daf0a8f7a39bb0f7c5f429",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-mobile-tile-preflight-1.png",
+      "recognized_lines" : 24,
+      "text_sha256" : "7d18e03c632fbb82a73a4ebb6b9f25d674d540d240bcbd8ac173b8616594b96a"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "304c88e0331579958305326271bcc5a370cd8e377243aafda3f2651d44c767c6",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-mobile-tile-preflight-2.png",
+      "recognized_lines" : 17,
+      "text_sha256" : "a757c5f113c961583616cbddb736f31482de2d9e9da637739aa80e041bbb8cee"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "58a0800e1bd5255e851a7ad0859c531a1758a4ecfffdcf21756c25ae4e554f91",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-mobile-tile-radar-route-directory-1.png",
+      "recognized_lines" : 25,
+      "text_sha256" : "bd8f53c880951fe45dbebfe69072a7c377c1eef2528f1495c48c9fda7ebf757f"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "cf1db633764a7c84c1f1271df63659d261923da188253532a36a80a39bc2642a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-mobile-tile-radar-route-directory-2.png",
+      "recognized_lines" : 27,
+      "text_sha256" : "841ade82d9bff2276f94a49dfb411f2e4422189bbe9b8a17908932abc26c012a"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "7c8f0e30c089f2aaf8642d1cc0407a41840ed4a5ed8eb9d875199c08e1086a7b",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-mobile-tile-route-mapping-registry-1.png",
+      "recognized_lines" : 23,
+      "text_sha256" : "c038a1da61e705738d04fedc8e0211da09edbade9193daf897785db73c968c1f"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "51fd1d94f44164bc59c4a5c48a670eeaf3a97ae21cdf9ed0a55458762ca28585",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-mobile-tile-signal-graph-teaser-card-1.png",
+      "recognized_lines" : 26,
+      "text_sha256" : "d9eec800231f5e1e1e9e93a9eba1fa2e89bc55efefca7d0451b7c4a1df9e0359"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "363417e0d20049780b164c229297e450ab865b2b4a0c804a3a05b2173c4b2255",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-mobile-tile-solana-evidence-brief-1.png",
+      "recognized_lines" : 27,
+      "text_sha256" : "46111d635cab20c20e98c2645baa543faa04f37fde4584f537e645a27b843462"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "0709d5999ac9c951a421b98b25709dd4ddd9e0169913212f46896462fb9b23f1",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-mobile-tile-solana-evidence-brief-2.png",
+      "recognized_lines" : 27,
+      "text_sha256" : "aa778dd5cdc0cb5d9561172ab5779c0385da951af827c8ef25fc038bde4c2386"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "2caabd1dadc7076bee8d0ad1ed241aafd99f2008d6bb246c7c0fbecb449100ab",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-mobile-viewport.png",
+      "recognized_lines" : 22,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "af3fc5076b1a4611169523f308f3cf46e5ed4d557b508794d7f9b0ffebb8dee0"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "cc68cdd0dcf43cc3d4c1cca34cf2b61980d93fac64c5c2b5768183465e1f1591",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-mobile.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "cab6b730527da2f0ebbe9b2cfe4d552a3222f9a7ddd2369bdccf70bc478265f8",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-native-zoom-200.png",
+      "recognized_lines" : 10,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "ebebea983e41674a366cb2f5bde3f09b35720f9274d8366ffe9dcb7a562d30a2"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "0b5b36786f192f12724160988ec3d739f5feaf27a4d09544cfe1d73bb62ac032",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/after-solana-native-zoom-400.png",
+      "recognized_lines" : 2,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "b895d779b81d9dfc83164c2fefcf78b8ffb9c0f4290188566fac36d9e3038449"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "14ebbe69a4295e1ef76713207030882107092b0cb93c672d2c1c2b191bd92edf",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-homepage-desktop-viewport.png",
+      "recognized_lines" : 86,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e70988654d0e683af7e60582101e753ad41bee12c621b57ea166c96764d07f86"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "67b45aa7a2264988c664283a6061030c2c97b2aab17ef2f009bd3af4ea8f5893",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-homepage-desktop.png",
+      "recognized_lines" : 125,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "11931213fc4edf16c112ade9f1bcf4aa2ebcb541bc670affea8cdde3f04d0b1d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "930a1c91c902036e3fbc52455aaf54fc25df46c7238185be5dcaf968db876cc2",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-homepage-mobile-viewport.png",
+      "recognized_lines" : 27,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "650325a02778f4bb1f80a8420b5cf58abc1a9c4413cb1b447e568514e9a01d7d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c080791bd1d9ec16cfd7da84e4b1a58e11bafbfae437cbb20102a89ac0e60745",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-homepage-mobile.png",
+      "recognized_lines" : 65,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "67318672a1e608ae7b33ac94faaf97dce531950bfde424582179676f4cffd9e4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "dd572dff4f9d97f1014348c9dd4d109c9389744b808bc8a6cda1be35ddbc9010",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-robinhood-contract-mobile.png",
+      "recognized_lines" : 21,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "6d6191cd254d128015ed2bb3a77c6459ed73caf677adbb3286f53b774d9d89ba"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "b1555556670f75b971a0e185f0cda593943339bca09cb1dba497e581a52a5e3f",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-robinhood-desktop-viewport.png",
+      "recognized_lines" : 58,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "eaf4c4f2e33c5d5c62bda892bcd057f66ae84d5ffd51453f8d6a5cfee38500c2"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "7f8a168ad93abaa270a8128800ba080ebc9cc2848dd3ad5fc84b4f6b6456f75a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-robinhood-desktop.png",
+      "recognized_lines" : 212,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "92152ac3756ec1c3078308278b79b6d8bc466a397946b4ceed12c06969bbce6d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c4057189c5de139c11e51456202a418e4c273c3489e6c83f250cbe000bc814f0",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-robinhood-hero-status-desktop.png",
+      "recognized_lines" : 23,
+      "text_sha256" : "a9d3d4e48eeab8b082f9d0c21c95eb44505c069a0806be98d03329886741196c"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "d9256d6b14b8d73835dbf67ec83134c2507be5ab9a2b3eae6b239f60e2a30a43",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-robinhood-hero-status-mobile.png",
+      "recognized_lines" : 26,
+      "text_sha256" : "6217b901c8f6b3fa8435667c3debd245d326731a5bbf6f3aa0c5498128607f04"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e4d6fe2f4190a8c25e76c707f9dd5fe3cf260dc2c3017dae2a533a9586ba7c61",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-robinhood-mobile-viewport.png",
+      "recognized_lines" : 24,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "41ed6b9e1d6919dddcf4e69ca58a7ea57a29c9532d4c03485faa9662a5d67f4c"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e651096dbfec9264b19d9b689b41a14e80a0314811c4837da7b41fb90c152a5a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-robinhood-mobile.png",
+      "recognized_lines" : 0,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "6ebd67a13805790d9250282097e88e9115c14870d4239870245584c003743f04",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-robinhood-pulse-desktop.png",
+      "recognized_lines" : 43,
+      "text_sha256" : "1c7dca96c1e6b9fea16cb86a4149eb721b7d27fb72362f1154b15f995bd63c95"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "cb210e2188a1da2ba276ceacae40ea76b1d1c73c5d9778f6de4a5a81b805d39c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-robinhood-pulse-mobile.png",
+      "recognized_lines" : 40,
+      "text_sha256" : "f86d231552fe443018d7bc3a3ff2bf1098c710d585e85fa7840103342584e593"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "81a4289b7188ec945a5f06b0f2ee941acac0d7389e3fc9bfcb81e7e3b96b457d",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-robinhood-receipt-desktop.png",
+      "recognized_lines" : 57,
+      "text_sha256" : "e8be78bbadfd557d3535612bf6ff11f611800d139eb2b437833f54f7ea1d52b0"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "06cb4f5fbeb836e8fc9ed128d814bbceea38201bbe5162e6daf8faa71f84bf34",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-robinhood-receipt-mobile.png",
+      "recognized_lines" : 53,
+      "text_sha256" : "34627747e6430f77661fbfaa04dc4d02d81157259fa58ebeb094130db9e2054b"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "3c3175761c0dd86328d5678d674ee8e364781a24938ae5b682c5b536ef1117a9",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-robinhood-table-mobile.png",
+      "recognized_lines" : 49,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "dfd72af1b1f223fde4a6bdc512828e27b3704d1adddaab7f227f3c492e4fa8d7"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "53b841e3d3fea9424ae9653404f6d488e9916afb9a582ac52197c22183b4002e",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-solana-desktop-viewport.png",
+      "recognized_lines" : 52,
+      "text_sha256" : "110990aeab02c89a3455c4e444fe81fa7646896a430a0446ae0293409c380a45"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "a8a5b77d243746a5b28ba46e5051393a688766530f8d5eecdcba9aa6252f6915",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-solana-desktop.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "b7aba693fd3f67c36bd88ce2f062a2f88ad34a38b2ec75bf754b863f1d127d01",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-solana-directory-desktop.png",
+      "recognized_lines" : 72,
+      "text_sha256" : "dfd1770dad1fe1293ce6288aafa93fc6cdde3366342da4127a92c50f9628d39d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "539d8cab0ceb5b6970c1b06bc9feecc85807e6cfa0d207b12f7912e067ccfc19",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-solana-directory-mobile.png",
+      "recognized_lines" : 73,
+      "text_sha256" : "bea6cda374c0e4fb5096bbddbcb20350311a1df7ea2e18f7f3bdb4aa1f4bd444"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "1854d1b0ad34958d8dbfe83dbb348366469a00edf92057d7f291b16e6b6819e1",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-solana-evidence-desktop.png",
+      "recognized_lines" : 16,
+      "text_sha256" : "95ef8598ee0b098fae20e27307c1e8693bd45b81b22533f85966631f5d426f9c"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c739ff80fd59434ce6fac5cafeb84ceb6ad945c5b85950660017dccfc664e2b1",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-solana-evidence-mobile.png",
+      "recognized_lines" : 17,
+      "text_sha256" : "215139c4e1a8d53e426a678e669a7bfd8386a8c8f3871b1cc13d8ce58b11ac01"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "2caabd1dadc7076bee8d0ad1ed241aafd99f2008d6bb246c7c0fbecb449100ab",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-solana-mobile-viewport.png",
+      "recognized_lines" : 22,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "af3fc5076b1a4611169523f308f3cf46e5ed4d557b508794d7f9b0ffebb8dee0"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "6a700807ea2c1890ade168e8adcbae35d4bf3b169dedf5ac588e28be139b25e9",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/before-solana-mobile.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "fb729f48e8b256e92eedffdb23cdbdcf4885e0543c2d05bfa25a15160e5e0578",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/homepage-control-after-desktop-viewport.png",
+      "recognized_lines" : 86,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "60caf452591d33791899e1878feadfc02d9e8e799e61398406dad4a112351eb1"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "00a7dfbac4abc2ed3421321e3fd8b1a329fa8a2bfe76f1158c3da3c43776cc6a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/homepage-control-after-desktop.png",
+      "recognized_lines" : 126,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "ccb23fdcc1ff26e5d8ac4f8d70986ab743342933adac562729ad1000651580d1"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "4035365bcd0d3981838599f54940bc48e313673375308ad98de3dc08b84ee4b4",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/homepage-control-after-mobile-viewport.png",
+      "recognized_lines" : 27,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "650325a02778f4bb1f80a8420b5cf58abc1a9c4413cb1b447e568514e9a01d7d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "37162e22178a2a1e8e427257cc2ea19cdb722735b30883101e10d92c0c57f49c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/homepage-control-after-mobile.png",
+      "recognized_lines" : 64,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "3a59007c3ad3139e4517b13a46c80d9955f5df3a977b345a0c2c7e31ef6859bd"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "fb729f48e8b256e92eedffdb23cdbdcf4885e0543c2d05bfa25a15160e5e0578",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/homepage-control-before-desktop-viewport.png",
+      "recognized_lines" : 86,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "60caf452591d33791899e1878feadfc02d9e8e799e61398406dad4a112351eb1"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "00a7dfbac4abc2ed3421321e3fd8b1a329fa8a2bfe76f1158c3da3c43776cc6a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/homepage-control-before-desktop.png",
+      "recognized_lines" : 126,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "ccb23fdcc1ff26e5d8ac4f8d70986ab743342933adac562729ad1000651580d1"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "4035365bcd0d3981838599f54940bc48e313673375308ad98de3dc08b84ee4b4",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/homepage-control-before-mobile-viewport.png",
+      "recognized_lines" : 27,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "650325a02778f4bb1f80a8420b5cf58abc1a9c4413cb1b447e568514e9a01d7d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "37162e22178a2a1e8e427257cc2ea19cdb722735b30883101e10d92c0c57f49c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/homepage-control-before-mobile.png",
+      "recognized_lines" : 64,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "3a59007c3ad3139e4517b13a46c80d9955f5df3a977b345a0c2c7e31ef6859bd"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "6698b7ee3dab19909c30b0d2d172add003d8afa2367397df75e06c7b9bd30ff4",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/receipt-native-after-mobile.png",
+      "recognized_lines" : 58,
+      "text_sha256" : "c948889a87a0d8ad682fc2ed22ac17de59c09d9e5fd21c29b22c3242d63cf80a"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "f205e9fe09fdfb2bb54c6a35fc751ff101c29a23b16861912b6231a59af52ecc",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/receipt-native-before-mobile.png",
+      "recognized_lines" : 56,
+      "text_sha256" : "a160c01820eb16ad2f55e88536590a4446e2f49dbe3abd2d3392cbc91fd48741"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e4b2eeb0a83c35dd71e488cfc7b03a485d3c9d2fd18464c777b044a851b35eab",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/robinhood-narrative-control-after-desktop-viewport.png",
+      "recognized_lines" : 37,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e48cfb840fb6a9ec79e68abfd7028c71c00ec19d57eba70385ee9bacd2b542a4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "b9d9ee1e553d95d008d616e37ae215593af302b44bda0e99cf38f5f3a5c49539",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/robinhood-narrative-control-after-desktop.png",
+      "recognized_lines" : 158,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "8a6b8a188a2368d97605789e333966cc0d4dbd185ddfbb52ea263d4b831607be"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "def13ef8c10752768a6f0983788e4c3bef5a643a57b6737936e92317f65e8a50",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/robinhood-narrative-control-after-mobile-viewport.png",
+      "recognized_lines" : 20,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "278cac024f42b5892833f3ee4db165fa173bf6c6d04a316890735ce3142c26eb"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c931bd9edf7f35174b2328793d17d6bba0d71dfc7d9852d92ef606d76524a02a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/robinhood-narrative-control-after-mobile.png",
+      "recognized_lines" : 0,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e4b2eeb0a83c35dd71e488cfc7b03a485d3c9d2fd18464c777b044a851b35eab",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/robinhood-narrative-control-before-desktop-viewport.png",
+      "recognized_lines" : 37,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e48cfb840fb6a9ec79e68abfd7028c71c00ec19d57eba70385ee9bacd2b542a4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "b9d9ee1e553d95d008d616e37ae215593af302b44bda0e99cf38f5f3a5c49539",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/robinhood-narrative-control-before-desktop.png",
+      "recognized_lines" : 158,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "8a6b8a188a2368d97605789e333966cc0d4dbd185ddfbb52ea263d4b831607be"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "def13ef8c10752768a6f0983788e4c3bef5a643a57b6737936e92317f65e8a50",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/robinhood-narrative-control-before-mobile-viewport.png",
+      "recognized_lines" : 20,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "278cac024f42b5892833f3ee4db165fa173bf6c6d04a316890735ce3142c26eb"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c931bd9edf7f35174b2328793d17d6bba0d71dfc7d9852d92ef606d76524a02a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/evidence\/robinhood-narrative-control-before-mobile.png",
+      "recognized_lines" : 0,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "67b45aa7a2264988c664283a6061030c2c97b2aab17ef2f009bd3af4ea8f5893",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-routes\/chromium-home-1440.png",
+      "recognized_lines" : 125,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "11931213fc4edf16c112ade9f1bcf4aa2ebcb541bc670affea8cdde3f04d0b1d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "15b3ab253b6c30f657bb51c82a9f15d209fcf9e75e7cc96875ab6cff063e1103",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-routes\/chromium-home-375.png",
+      "recognized_lines" : 65,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "167696524258c16c356e95462e581ce35d8dfabe6f8c8ef81e3c728dcfb0e63a"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "4bd3f1b0eb0006276995dfaef697447e6b35065d498d295080f0b49819e05d83",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-routes\/chromium-home-768.png",
+      "recognized_lines" : 139,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "f846f5152764c6e5be633d6464db3dcde37d59c6487d3c9ecc8851fd9e88bef9"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "463345f2514ade5d7d22012bfe21be4cb0b263e2e879065dbfbb442cf98bc5a0",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-routes\/chromium-solana-1440.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "00bd38ecd97878fd30975469520eda44979410389184f364d05aacca6c664685",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-routes\/chromium-solana-375.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "f088977590beeedaa0cb9cec2d8f89374c32226b013db60be039b7bf7bd24c64",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-routes\/chromium-solana-768.png",
+      "recognized_lines" : 0,
+      "text_sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "913bf469971202645e9a038aa583c1f77af4adab6aeb4572b59ad8e5410eae4c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-routes\/chromium-spend-terminal-1440.png",
+      "recognized_lines" : 53,
+      "text_sha256" : "8639726342c079143139a02670cd9996f9045bf2072a114902b4b4b1b0426076"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "9cbc1ef824b04d5a44b0ddf00349aa8e7b33801f15126ea539f49aa06d1dea25",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-routes\/chromium-spend-terminal-375.png",
+      "recognized_lines" : 33,
+      "text_sha256" : "5e17f5f41efff0d649c1319019435cdb2a5035e2c8bce445d447941c82046447"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "fcf669b2f9d9164809dcf6b251b5fb5ef0a64935ba480ea1c1bdb2724d84384f",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-routes\/chromium-spend-terminal-768.png",
+      "recognized_lines" : 45,
+      "text_sha256" : "58d4c98f3d29156011e7e3a647803f0ac08b0e789e6267fdde4aa4e77059a0dd"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "bb01afbcc5e22f73c6f65dc3f8cf55b9bdf3278e5fb7b3a91c145bd884c2d718",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/desktop-4663.png",
+      "recognized_lines" : 26,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "9085e5b0c802f9aa3f5a7f49b84644971c8658a72442e35bdc8b5c9412a53df6"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "2e46f19bbcaec9f77a8c7772aa2bd0bdbe82775f553f5fc07b906c84bdde8dce",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/desktop-developers.png",
+      "recognized_lines" : 40,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "26531350d298ee5b27116b67d97ada408e8cb8754ee2cb532cddfb61cbd2f181"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "67b45aa7a2264988c664283a6061030c2c97b2aab17ef2f009bd3af4ea8f5893",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/desktop-home.png",
+      "recognized_lines" : 125,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "11931213fc4edf16c112ade9f1bcf4aa2ebcb541bc670affea8cdde3f04d0b1d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "63bd3e2068739e2c21cf98d56c1ee2e8bf57c02a41882e17f05135c555057d45",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/desktop-loops.png",
+      "recognized_lines" : 81,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e8abdf9c84f0281468a0981987ff1ed4cbaeece89aa4c78b5815a976aeff556e"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "7e957c2eb52b1e35dcf7fcedd4484fcb6104cc92a284d16433940d198f16b13d",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/desktop-radar-cards.png",
+      "recognized_lines" : 30,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "afd26aecc50e4ea24695453632f4f966ed0c109113ec6b69746b7fdfd0885be1"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "b01a8bef29d96651a2e45b56c8754eaea3a6d1e614c24d7ca9a1675fb3486516",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/desktop-receipts-receipt_001.png",
+      "recognized_lines" : 33,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "e6e55be840348d2424c6c196feba437f08b19b53788c875a8599b98bbedd92c2"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "bb5719c9147f66eb25e90c667bde50d908f2abb89ef5dfc6af119e1b178ec06c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/desktop-receipts.png",
+      "recognized_lines" : 35,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "5b570b7349df369739494d22c5097b157e7699d82949aa823bf547ce86049cea"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "d3480b7f0aa3646eb34ef440fcc06e1e5932f9b03c02f3d378fe2d1e49d42712",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/desktop-rh-chain-signal-desk-market.png",
+      "recognized_lines" : 24,
+      "text_sha256" : "a6f578326dbbc637f82e6a91e69a8669b828b50c3c28f2eafbf7f03fd043f4d3"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "a91b829e4df580e57d178186f5ff827e981fd120af617b2dff9b3fae1a370ed6",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/desktop-rh-chain-signal-desk.png",
+      "recognized_lines" : 55,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "0ca46f0ca7dbb6f00c2635cc6d874eb446df81666b45039e4fbdf25e92597bfc"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "8cd186ad129a446f7bf2e7db018588f837b8aadbac188a6ee8503a7dc83efb3c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/desktop-solana.png",
+      "recognized_lines" : 54,
+      "text_sha256" : "c807a5c56aab280d3a847f01fcbb4f9df34944a1425d4d23f0618ad4fab7bb26"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "5f81a6cc6e98d1678f954e1a9212be3a7b35623bc041662ec55208f2cda8e3f7",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/desktop-spend-terminal.png",
+      "recognized_lines" : 100,
+      "text_sha256" : "6996bf3eb52fadaea29e146695c6ab8cc58ab78e1520b7a8ed665ffb28fd6a7b"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "37fae777840c9bdf3a6bbc84bb638283156f7b2aac8cbc75033c016886f5cf49",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/mobile-4663.png",
+      "recognized_lines" : 21,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "2535ceb9c7ef0c483246e7ed9881674a678ba4d82fa876838f943def26fc8c91"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "9df0d99f6bdadf6924e1e7a53b00f7d3e538799990925594c0f42568d4eae653",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/mobile-developers.png",
+      "recognized_lines" : 24,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "3ff460ffff38ec33e26b178463b946700df677ecf7e1bbcbf54bf2d61deff097"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c080791bd1d9ec16cfd7da84e4b1a58e11bafbfae437cbb20102a89ac0e60745",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/mobile-home.png",
+      "recognized_lines" : 65,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "67318672a1e608ae7b33ac94faaf97dce531950bfde424582179676f4cffd9e4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "d351a1c5cf54151f2aa230d4772550791cca5246090c9c85a84627d24745e34c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/mobile-loops.png",
+      "recognized_lines" : 21,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "b7674840638a52ae2641c8bda5ecf829d50e02c5b570c93c40ea89bfb336240c"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "02d6a01e3e35ce2feb5bb5fa5674a0876cc9d685d55c606fab2933a5642a4036",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/mobile-radar-cards.png",
+      "recognized_lines" : 24,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "7b139b19b3bdbcd03d2e8a6cbbf0ce59269d2e05d6f1ce0f1ba9955c887be48d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "90cd946e80d7a4ab7917874c9b1af0864d77bbb748968db70061a7509494c459",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/mobile-receipts-receipt_001.png",
+      "recognized_lines" : 17,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "b1f8655f3769d9b327777f05fe8bb913311cde9c567d3fbb2b0e44bc4d22929b"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "588830ea2a6a26100fe231b9a4158a1676a6ff83d7204c225a5fcd26a97dbe64",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/mobile-receipts.png",
+      "recognized_lines" : 17,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "585f40cc59221070dd494e4d39f66d26d70a128c82ea3e0c63978969784d48e8"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "ea7670e32268a669fd1f8bd79f6ec51449b4e7f2a1bed47543769cdf777d7f0d",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/mobile-rh-chain-signal-desk-market.png",
+      "recognized_lines" : 22,
+      "text_sha256" : "6beed5eced4630f5581861439d3811f142dabda16d78cd740c9dbeb6af405a23"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "e4d6fe2f4190a8c25e76c707f9dd5fe3cf260dc2c3017dae2a533a9586ba7c61",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/mobile-rh-chain-signal-desk.png",
+      "recognized_lines" : 24,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "41ed6b9e1d6919dddcf4e69ca58a7ea57a29c9532d4c03485faa9662a5d67f4c"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "2caabd1dadc7076bee8d0ad1ed241aafd99f2008d6bb246c7c0fbecb449100ab",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/mobile-solana.png",
+      "recognized_lines" : 22,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "af3fc5076b1a4611169523f308f3cf46e5ed4d557b508794d7f9b0ffebb8dee0"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "7e9bc7358cc8466ad4364e122de6b3a59b1e477da8f9c7f8b303e11142446d41",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/mobile-spend-terminal.png",
+      "recognized_lines" : 69,
+      "text_sha256" : "33d9b0975872c664a536203f46923a75258de6692b004413aac0404d5bf1bab5"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "f142e161dc8c8681fbfadfc2d65e546c3872e9f48550c5fc831609e5b58195de",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/tablet-4663.png",
+      "recognized_lines" : 26,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "eb8c27e54963ed2bdac724fd7fbbcff2d4fefc289e7bbaea75cdf03a192c3675"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "bfdb80c20c7f9b8ef8ead4b344d2684c6b2f84e590a0c2d62685eacb74cc535c",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/tablet-developers.png",
+      "recognized_lines" : 33,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "6735d1255e4d8cdb0d7e89190cab57f7d4ba7f585ea5697b7e9bbc95a760b5b6"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "4bd3f1b0eb0006276995dfaef697447e6b35065d498d295080f0b49819e05d83",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/tablet-home.png",
+      "recognized_lines" : 139,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "f846f5152764c6e5be633d6464db3dcde37d59c6487d3c9ecc8851fd9e88bef9"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "2febcdb09747a70a9d850f5050dd8e854ce22b17818366d1bd23aea6a7fae4d1",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/tablet-loops.png",
+      "recognized_lines" : 28,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "831d2b83da7424447d145e60d9c9720c95df7a1437bf009177b764105c15734d"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c9d47029a037bac7d74a201e185024cb5bb5c9cfdb8dd834c925569714a340fa",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/tablet-radar-cards.png",
+      "recognized_lines" : 30,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "68f49699f9639605a43cfa909c02a25850c89a9da81617b48a800572e823cea4"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "1c9f0994a57a9ccbb785d88e671e62726018d1e5d56152ed4e297f5aea2dd006",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/tablet-receipts-receipt_001.png",
+      "recognized_lines" : 30,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "511270f191f1412ecc0a2ec1e7e833454ee53e667ece207d7ceadb4de7f9b35c"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "1defddd2c04e950b1be1696477d34ac199d2b97d81873313f916086b0436805a",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/tablet-receipts.png",
+      "recognized_lines" : 22,
+      "reused_identical_pixels" : true,
+      "text_sha256" : "b602d73be07e8f20fead7940ac0fafa293a2294b505be9553b6c5dcd129e33c5"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "0773ad031b1b44ecb960a44423db87a089670a85ac67a01115ecd56e277963d7",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/tablet-rh-chain-signal-desk-market.png",
+      "recognized_lines" : 23,
+      "text_sha256" : "ee7022da7d1a8dff372c4a401c9ebe87dcf072cccc1c0ac70028addc336f0a30"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "c287ffca62b145b4b7bf4bc31bcd230c25e128f0a121c3fdd4bdac4f05c59ef6",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/tablet-rh-chain-signal-desk.png",
+      "recognized_lines" : 52,
+      "text_sha256" : "98ddfa20e6ec67452d0ac2b75a4ad5ffad0398da7d372da8b48b87d75f55f637"
+    },
+    {
+      "hits" : [
+
+      ],
+      "image_sha256" : "272e8a26667913d9e7ad2a4eda8e62d5652e5538c699e468ef8dbccf7d68c873",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/tablet-solana.png",
+      "recognized_lines" : 50,
+      "text_sha256" : "14554639cf91f65309b560c46f49220cebe5192bc397287000faec780ec8fe83"
+    },
+    {
+      "hits" : [
+        {
+          "kind" : "credential_label",
+          "match_sha256" : "153bde9278754c34ee3292cb13f2bf58e730cf8a5776e4ddcd4286e54aa46ac4"
+        }
+      ],
+      "image_sha256" : "a19dffce9930d032f249dc420e3743c6abb6ede1d20fd8d4eee3aee80911106e",
+      "ocr_completed" : true,
+      "path" : "docs\/ui-unification\/visual-corrections\/existing-unified\/tablet-spend-terminal.png",
+      "recognized_lines" : 70,
+      "text_sha256" : "645a0507e746bf26cda265f2e3cc0676b48d202c758d123ee65e47fa5993f332"
+    }
+  ],
+  "source_sha" : "e1b7e7be2f14056c5aed61484b0fb1ba371be4a6"
+}

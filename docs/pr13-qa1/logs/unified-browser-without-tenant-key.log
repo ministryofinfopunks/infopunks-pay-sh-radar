@@ -1,0 +1,20 @@
+desktop / overflow false axe 0
+desktop /solana overflow false axe 0
+desktop /4663 overflow false axe 0
+desktop /rh-chain-signal-desk overflow false axe 0
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.waitFor: Timeout 15000ms exceeded.
+Call log:
+  - waiting for getByRole('heading', { name: 'Insufficient evidence' }) to be visible
+
+    at /private/tmp/radar-pr13-qa1-browser/scripts/qualify-unified-radar-browser.mjs:42:74 {
+  log: [
+    "  - waiting for getByRole('heading', { name: 'Insufficient evidence' }) to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.21.0

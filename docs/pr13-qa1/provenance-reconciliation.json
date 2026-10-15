@@ -1,0 +1,70 @@
+[
+  {
+    "manifest": "docs/ui-unification/visual-corrections/source-hashes.json",
+    "sha256": "0fbccfa8bd549c705034bdc24c9765549bfedaed91c4c00129fd0222a9269208",
+    "entries": 722,
+    "differences": []
+  },
+  {
+    "manifest": "docs/ui-unification/validation/source-hashes-final.json",
+    "sha256": "090372043ac151a3f037734787e0be9a0f2d7f7e1695503037862473072a9b61",
+    "entries": 704,
+    "differences": [
+      {
+        "path": "scripts/browser-radar-ui-interactions.cjs",
+        "reason": "hash_mismatch",
+        "expected": "b5107ccc7d1cf03db0e5d388167bb493f3072a299ca6a412e3c3b95b5ae807c7",
+        "actual": "18e8ac9b8dc873ef2be64165ac028ebdcb35c15ad48be4f7df1a5f2da4b1395a"
+      },
+      {
+        "path": "src/web/radarApp.tsx",
+        "reason": "hash_mismatch",
+        "expected": "d707972d3186bfe813e18a42497168054fc33cf8d87910361e293bb1a11519a1",
+        "actual": "e1d406e03ea7d3903c18fd345eb00ff14d7f0087ea3fcad0b1bd115e0481c0bf"
+      },
+      {
+        "path": "src/web/radarNetworks.tsx",
+        "reason": "hash_mismatch",
+        "expected": "84ecb77d61f8c9a324cd34e60aae6ba6cb423b5629e84165727d761408188542",
+        "actual": "3806b969be8171f5a807eb3c1dc9ccb9182d409b6d18c8f77a0e29c4b2af187f"
+      },
+      {
+        "path": "src/web/radarSubpages.css",
+        "reason": "hash_mismatch",
+        "expected": "829a0a50e75638030bf3425ca3433e9faa3d779a62618c2d256bf5dcee1611cd",
+        "actual": "64813d47e7545114c57cd38ac52e7619a9aaec943fdd50b064d74cfd866179e4"
+      },
+      {
+        "path": "src/web/rhChainSignalDeskV2.tsx",
+        "reason": "hash_mismatch",
+        "expected": "e6f65ff141db23cad5a1523033272630955e9caf0bfc775fdf01093e724d6c33",
+        "actual": "9d0f57d1b052d3e336bbee070255d1d9609cd16af4c7f157eb15a1143432480d"
+      },
+      {
+        "path": "src/web/rhChainTerminal.css",
+        "reason": "hash_mismatch",
+        "expected": "6e0e36eb996deabff29c165e025810c0a04ae3fef74b99420d65b97b3e986cdc",
+        "actual": "8c5d22bafd1be347175d8c48a74e84c10058c27924287e99da38b8a362f454a9"
+      },
+      {
+        "path": "tests/radar-endpoint-intelligence.test.tsx",
+        "reason": "hash_mismatch",
+        "expected": "34c87bb8ba42240ad4b284a0951c64dc59711178e2997f219d56e60fbcce5568",
+        "actual": "7f34514bdcd1cfa3e032141100d9ae003b37ed9b4c2a4dd5e15fdc26cce59682"
+      },
+      {
+        "path": "tests/radar-subpage-presentation.test.tsx",
+        "reason": "hash_mismatch",
+        "expected": "322f959916e0af60d5a85d517aea77bb46492cf4de1b146603c9ba2948b4bbff",
+        "actual": "501057096109ba4bccbc3ccfb491b9ba97c1ad93396a8da1a60fdd0c26dd93dd"
+      }
+    ]
+  },
+  {
+    "manifest": "docs/ui-unification/visual-corrections/evidence/final-browser-provenance.json",
+    "entries": 449,
+    "differences": [],
+    "capture_parent_sha": "7f44417fcad683a48397dad251f5d4245aa34643",
+    "qualification": "Working tree source verified by hashes; parent SHA is capture metadata, not final commit identity."
+  }
+]

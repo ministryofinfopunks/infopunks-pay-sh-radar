@@ -1,0 +1,541 @@
+{
+  "baseline_nodes": 469,
+  "candidate_nodes": 413,
+  "new_occurrences": [
+    [
+      "/solana",
+      390,
+      "default",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(1) > span:nth-child(1)\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "default",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(1) > .directory-state-badge.state-watch\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "default",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(1) > small\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(1) > span:nth-child(1)\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(1) > .directory-state-badge.state-watch\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(1) > small\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "default",
+      "color-contrast",
+      "[\".status-stable > strong\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "default",
+      "color-contrast",
+      "[\".route-decision-section > .dossier-section-head > .dossier-section-actions > .provider.scope-label\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".status-stable > strong\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".route-decision-section > .dossier-section-head > .dossier-section-actions > .provider.scope-label\"]"
+    ]
+  ],
+  "absent_occurrences": [
+    [
+      "/solana",
+      390,
+      "default",
+      "color-contrast",
+      "[\".active.row[type=\\\"button\\\"] > span:nth-child(1)\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "default",
+      "color-contrast",
+      "[\".active.row[type=\\\"button\\\"] > .directory-state-badge.state-watch\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "default",
+      "color-contrast",
+      "[\".active.row[type=\\\"button\\\"] > small\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "default",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(3) > .directory-state-badge.state-watch\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "default",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(3) > small\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "default",
+      "color-contrast",
+      "[\".assessment.panel:nth-child(1) > .provider.scope-label\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "default",
+      "color-contrast",
+      "[\".assessment.panel:nth-child(2) > .provider.scope-label\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "default",
+      "color-contrast",
+      "[\".assessment.panel:nth-child(3) > .provider.scope-label\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "default",
+      "color-contrast",
+      "[\".two.provider-analysis-grid.grid > .panel:nth-child(1) > .provider.scope-label\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "default",
+      "color-contrast",
+      "[\".two.provider-analysis-grid.grid > .panel:nth-child(2) > .provider.scope-label\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".active.row[type=\\\"button\\\"] > span:nth-child(1)\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".active.row[type=\\\"button\\\"] > .directory-state-badge.state-watch\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".active.row[type=\\\"button\\\"] > small\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(3) > .directory-state-badge.state-watch\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(3) > small\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".assessment.panel:nth-child(1) > .provider.scope-label\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".assessment.panel:nth-child(2) > .provider.scope-label\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".assessment.panel:nth-child(3) > .provider.scope-label\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".two.provider-analysis-grid.grid > .panel:nth-child(1) > .provider.scope-label\"]"
+    ],
+    [
+      "/solana",
+      390,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".two.provider-analysis-grid.grid > .panel:nth-child(2) > .provider.scope-label\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "default",
+      "color-contrast",
+      "[\".active.row[type=\\\"button\\\"] > small\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "default",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(2) > small\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "default",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(3) > small\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "default",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(4) > small\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "default",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(5) > small\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "default",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(6) > small\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "default",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(7) > small\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".active.row[type=\\\"button\\\"] > small\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(2) > small\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(3) > small\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(4) > small\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(5) > small\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(6) > small\"]"
+    ],
+    [
+      "/solana",
+      1440,
+      "expanded-navigation-and-controls",
+      "color-contrast",
+      "[\".row[type=\\\"button\\\"]:nth-child(7) > small\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > thead > tr > th:nth-child(5)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > thead > tr > th:nth-child(6)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > thead > tr > th:nth-child(7)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(1) > td:nth-child(4)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(1) > td:nth-child(5)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(1) > td:nth-child(6)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\"tr:nth-child(1) > td:nth-child(6) > small\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(1) > td:nth-child(7)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(2) > td:nth-child(5)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(2) > td:nth-child(6)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\"tr:nth-child(2) > td:nth-child(6) > small\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(2) > td:nth-child(7)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(3) > td:nth-child(4)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(3) > td:nth-child(5)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(3) > td:nth-child(6)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\"tr:nth-child(3) > td:nth-child(6) > small\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(3) > td:nth-child(7)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(4) > td:nth-child(4)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(4) > td:nth-child(5)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(4) > td:nth-child(6)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\"tr:nth-child(4) > td:nth-child(6) > small\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(4) > td:nth-child(7)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(5) > td:nth-child(4)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(5) > td:nth-child(5)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(5) > td:nth-child(6)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\"tr:nth-child(5) > td:nth-child(6) > small\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(5) > td:nth-child(7)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(6) > td:nth-child(5)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(6) > td:nth-child(6)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\"tr:nth-child(6) > td:nth-child(6) > small\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\".rh-v2-memes > .rh-v2-table-wrap > table > tbody > tr:nth-child(6) > td:nth-child(7)\"]"
+    ],
+    [
+      "/rh-chain-signal-desk",
+      390,
+      "analyst-expanded",
+      "color-contrast",
+      "[\"article:nth-child(7) > header > .state-rejected_low_receipt_quality.rh-v2-evidence-state\"]"
+    ]
+  ],
+  "note": "Selector movement or extra expanded content does not by itself establish a regression or resolution. Every incomplete still requires manual assessment."
+}

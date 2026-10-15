@@ -1,0 +1,51 @@
+{
+  "source_sha": "f62f9cbabbe244682adf2cc17d9451f580a7ed1c",
+  "scope": "Isolated archive with final compiled source, local synthetic API, all payments/execution/jobs disabled; no approved baseline writes",
+  "checks": [
+    {
+      "name": "webkit-routes",
+      "command": [
+        "/Users/ahdilm/.codex/visualizations/2026/10/14/01a13917-0fb3-7781-bf52-94112ededb49/radar-v1-phase2/image-security/tools/node-v24.21.0-darwin-arm64/bin/node",
+        "scripts/qualify-ui-int2-routes.cjs"
+      ],
+      "environment_overrides": {
+        "RADAR_UI_BASE_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_CHROMIUM": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "RADAR_UI_TEST_RUNTIME": "/tmp/radar-pr13-qa1-tools",
+        "RADAR_QA_TENANT_KEY": "radar-ci-tenant-a-static-not-secret",
+        "RADAR_QA_OTHER_TENANT_KEY": "radar-ci-tenant-b-static-not-secret",
+        "RADAR_QA_WRONG_AGENT_KEY": "radar-ci-wrong-agent-static-not-secret",
+        "RADAR_QA_EXPIRED_KEY": "radar-ci-expired-key-static-not-secret",
+        "RADAR_UI_ROUTES": "/,/solana,/rh-chain-signal-desk,/spend-terminal",
+        "RADAR_UI_BROWSERS": "chromium,webkit",
+        "RADAR_UI_OUTPUT": "/tmp/radar-pr13-qa1/docs/pr13-qa1/webkit-routes"
+      },
+      "exit_code": 1,
+      "seconds": 285.195,
+      "cwd": "/tmp/radar-pr13-qa1-browser",
+      "log": "logs/webkit-routes.log"
+    },
+    {
+      "name": "proof-route-probe",
+      "command": [
+        "/Users/ahdilm/.codex/visualizations/2026/10/14/01a13917-0fb3-7781-bf52-94112ededb49/radar-v1-phase2/image-security/tools/node-v24.21.0-darwin-arm64/bin/node",
+        "/tmp/radar-pr13-qa1/docs/pr13-qa1/proof-route-probe.cjs"
+      ],
+      "environment_overrides": {
+        "RADAR_UI_BASE_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_URL": "http://127.0.0.1:8819",
+        "RADAR_QA_CHROMIUM": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "RADAR_UI_TEST_RUNTIME": "/tmp/radar-pr13-qa1-tools",
+        "RADAR_QA_TENANT_KEY": "radar-ci-tenant-a-static-not-secret",
+        "RADAR_QA_OTHER_TENANT_KEY": "radar-ci-tenant-b-static-not-secret",
+        "RADAR_QA_WRONG_AGENT_KEY": "radar-ci-wrong-agent-static-not-secret",
+        "RADAR_QA_EXPIRED_KEY": "radar-ci-expired-key-static-not-secret"
+      },
+      "exit_code": 0,
+      "seconds": 8.803,
+      "cwd": "/tmp/radar-pr13-qa1-browser",
+      "log": "logs/proof-route-probe.log"
+    }
+  ]
+}

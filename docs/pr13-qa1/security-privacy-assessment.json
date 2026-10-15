@@ -1,0 +1,21 @@
+{
+  "text_pattern_hits": 24,
+  "adjudication": "All 24 text hits are synthetic user/secret URL rejection test titles (16 URL matches, 8 false email matches); verified against tests/env.test.ts. No live credential established.",
+  "private_key_or_provider_token_patterns": 0,
+  "png_metadata_chunks": 0,
+  "png_files": 338,
+  "png_ocr_failures": 0,
+  "png_credential_labels": 22,
+  "png_provider_token_private_key_email_matches": 0,
+  "pixel_spot_checks": [
+    "visual-corrections/evidence/after-solana-mobile-viewport.png",
+    "visual-corrections/evidence/after-robinhood-desktop-viewport.png"
+  ],
+  "disposition": "4 Requires independent security/privacy assessment before distribution or staging. Pattern scan, OCR, no-metadata result and limited visual spot checks cannot prove absence of sensitive tenant data.",
+  "scope": "Only 581 committed PR files. Untracked evidence.zip and docs/qualification were preserved and excluded. Public market/source identifiers are not by themselves private tenant data. No artifacts removed or rewritten.",
+  "personal_information": {
+    "local_account_path_files": 20,
+    "details": "personal-information-triage.json",
+    "disposition": "Developer username and absolute filesystem paths present. Human privacy review required before widening distribution; evidence not rewritten."
+  }
+}

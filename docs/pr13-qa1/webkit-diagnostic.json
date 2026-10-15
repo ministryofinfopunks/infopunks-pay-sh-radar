@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/Users/ahdilm/.codex/visualizations/2026/10/14/01a13917-0fb3-7781-bf52-94112ededb49/radar-v1-phase2/image-security/tools/node-v24.21.0-darwin-arm64/bin/node",
+    "-e",
+    "const {webkit}=require('playwright');(async()=>{const b=await webkit.launch();console.log('launched');const c=await b.newContext({viewport:{width:375,height:812},reducedMotion:'reduce',isMobile:true,hasTouch:true});console.log('context');const p=await c.newPage();console.log('page');await p.goto('http://127.0.0.1:8819/',{timeout:20000,waitUntil:'domcontentloaded'});console.log('loaded');console.log(await p.locator('body').innerText());await b.close()})().catch(e=>{console.error(e);process.exitCode=1})"
+  ],
+  "exit_code": "external_45_second_timeout",
+  "seconds": 45.015,
+  "scope": "Independent diagnostic; external 45s process limit does not alter existing harness assertions/timeouts."
+}

@@ -1,0 +1,38 @@
+{
+  "commands": [
+    {
+      "command": [
+        "swift",
+        "docs/pr13-qa1/scan-screenshot-text.swift"
+      ],
+      "exit_code": 0,
+      "log": "logs/screenshot-text-scan.log",
+      "output": "screenshot-text-scan.json"
+    },
+    {
+      "command": [
+        "python3",
+        "docs/pr13-qa1/audit-evidence.py"
+      ],
+      "exit_code": 0,
+      "output": "evidence-triage.json"
+    },
+    {
+      "command": [
+        "python3",
+        "docs/pr13-qa1/reconcile.py"
+      ],
+      "exit_code": 0,
+      "output": "provenance-reconciliation.json"
+    },
+    {
+      "command": [
+        "python3",
+        "docs/pr13-qa1/finalize.py"
+      ],
+      "exit_code": 0,
+      "output": "final-integrity.json"
+    }
+  ],
+  "note": "Early reconcile failure from aggregate incomplete-node counts was corrected in packet tooling, not application or original harness; final reports distinguish aggregate counts from per-node targets."
+}

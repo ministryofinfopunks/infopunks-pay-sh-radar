@@ -1,0 +1,46 @@
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vite.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+  - ESM syntax in a file loaded as CommonJS (src/web/bootContext.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+vite v8.3.4 building client environment for production...
+transforming...
+✓ 657 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/index.html                                              6.71 kB │ gzip:   2.21 kB
+dist/client/assets/spendTerminalPage-DiciUYUU.css                   3.82 kB │ gzip:   1.17 kB
+dist/client/assets/rhChainReflexiveRadarPage-C0_SslAO.css          10.19 kB │ gzip:   2.19 kB
+dist/client/assets/ipxPltrPreflightLabPage-DHNhDfyF.css            12.84 kB │ gzip:   2.94 kB
+dist/client/assets/index-CIeUw9ei.css                              44.13 kB │ gzip:   9.01 kB
+dist/client/assets/rh4663Pages-DuVVrgZg.css                        61.58 kB │ gzip:  10.72 kB
+dist/client/assets/radarApp-DRC1A8WE.css                          406.69 kB │ gzip:  67.99 kB
+dist/client/assets/canonicalReceiptPage-_JTUZX1K.js                 4.90 kB │ gzip:   1.92 kB
+dist/client/assets/rhChainDistributionPackPage-Cd3qdlm8.js          7.60 kB │ gzip:   1.96 kB
+dist/client/assets/rhChainDiscoveryQueuePage-BxeOQSxD.js            7.70 kB │ gzip:   2.25 kB
+dist/client/assets/rhChainScoutsPage-B7MulYdv.js                    8.07 kB │ gzip:   1.96 kB
+dist/client/assets/rhChainLaunchpadObservatoryPage-BwoJ813t.js     10.67 kB │ gzip:   2.28 kB
+dist/client/assets/rhChainReviewPipelinePage-8nsJ12Lb.js           11.67 kB │ gzip:   2.98 kB
+dist/client/assets/rhChainMemePulsePage-6Pc9af84.js                12.05 kB │ gzip:   2.53 kB
+dist/client/assets/rhChainCloneRadarPage-Czt3Ca33.js               13.53 kB │ gzip:   2.74 kB
+dist/client/assets/spendTerminalPage-BuAbIUFQ.js                   14.84 kB │ gzip:   4.25 kB
+dist/client/assets/rhChainShareControls-BS0b9f0G.js                16.66 kB │ gzip:   4.34 kB
+dist/client/assets/rhChainProjectClaimsPage-BhZGujgI.js            16.86 kB │ gzip:   3.59 kB
+dist/client/assets/rhChain100ReceiptsCampaignPage-EHDsPkp4.js      19.16 kB │ gzip:   4.76 kB
+dist/client/assets/rhChainTokenDossierPage-yb3BTsh3.js             19.52 kB │ gzip:   3.97 kB
+dist/client/assets/rhChainMarketPulsePage-DCYBBiQh.js              22.76 kB │ gzip:   5.05 kB
+dist/client/assets/jsx-dev-runtime-twiiM955.js                     26.00 kB │ gzip:   8.34 kB
+dist/client/assets/ipxPltrPreflightLabPage-BPgbVlpZ.js             26.32 kB │ gzip:   6.01 kB
+dist/client/assets/rhChainReviewConsolePage-BFjOtAW4.js            27.37 kB │ gzip:   5.50 kB
+dist/client/assets/rhChainMarketStructurePage-S56aaFTP.js          47.33 kB │ gzip:   9.20 kB
+dist/client/assets/rhChainReflexiveRadarPage-g760EF5T.js           70.70 kB │ gzip:  12.16 kB
+dist/client/assets/apiBaseUrl-CygU1sGw.js                          78.01 kB │ gzip:  21.25 kB
+dist/client/assets/rh4663Pages-CuSUqvfy.js                        146.20 kB │ gzip:  28.80 kB
+dist/client/assets/index-B_FjzYMN.js                              435.17 kB │ gzip: 126.32 kB
+dist/client/assets/radarApp-B6oSMloq.js                         2,352.77 kB │ gzip: 392.65 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 371ms

@@ -1,0 +1,9 @@
+{
+  "command": [
+    "/Users/ahdilm/.codex/visualizations/2026/10/14/01a13917-0fb3-7781-bf52-94112ededb49/radar-v1-phase2/image-security/tools/node-v24.21.0-darwin-arm64/bin/node",
+    "/tmp/radar-pr13-qa1/docs/pr13-qa1/proof-route-probe.cjs"
+  ],
+  "cwd": "/tmp/radar-pr13-qa1-browser",
+  "exit_code": 0,
+  "seconds": 8.441
+}

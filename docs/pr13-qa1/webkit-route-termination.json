@@ -1,0 +1,11 @@
+{
+  "pid": 29334,
+  "command": "/Users/ahdilm/.codex/visualizations/2026/10/14/01a13917-0fb3-7781-bf52-94112ededb49/radar-v1-phase2/image-security/tools/node-v24.21.0-darwin-arm64/bin/node scripts/qualify-ui-int2-routes.cjs",
+  "elapsed_at_termination": "04:45",
+  "signal": "SIGTERM",
+  "reason": "WebKit launches and creates context but stalls at newPage before navigation. Independent diagnostic reproduces. Existing route assertions/timeouts not modified; no WebKit route PASS claimed.",
+  "partial_chromium": "webkit-routes/chromium-qualification.json",
+  "webkit_completed_routes": 0,
+  "summary_missing": true,
+  "scope": "Only verified QA1-owned invocation terminated"
+}

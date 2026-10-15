@@ -1,0 +1,31 @@
+(node:29449) [FSTDEP023] FastifyDeprecation: disableRequestLogging option is deprecated. Use the logController option with disableRequestLogging or isLogDisabled override instead. The disableRequestLogging top-level option will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"event":"timing","stage":"database_connect","duration_ms":52}
+{"event":"timing","stage":"catalog_load","duration_ms":52}
+{"event":"timing","stage":"propagation_build","duration_ms":0}
+{"event":"timing","stage":"interpretation_build","duration_ms":2}
+{"event":"ingestion_state","catalogSource":"fixture","ingestionEnabled":false,"dbMode":"memory","providerCount":12,"endpointCount":159,"lastIngestedAt":"2026-10-15T12:25:40.147Z","catalogStatus":"fixture_fallback"}
+{"event":"hook_enter","hook":"onRequest","id":"req-1","method":"GET","route":"/4663/proof/0x1111111111111111111111111111111111111111"}
+{"event":"request_start","id":"req-1","method":"GET","route":"/4663/proof/0x1111111111111111111111111111111111111111","started_at":"2026-10-15T12:26:16.814Z"}
+{"event":"hook_exit","hook":"onRequest","id":"req-1"}
+{"event":"hook_enter","hook":"onResponse","id":"req-1","method":"GET","route":"/*"}
+{"event":"request_complete","request_id":"req-1","method":"GET","route":"/*","status_code":503,"duration_ms":5}
+{"event":"hook_exit","hook":"onResponse","id":"req-1"}
+{"event":"hook_enter","hook":"onRequest","id":"req-2","method":"GET","route":"/favicon.ico"}
+{"event":"request_start","id":"req-2","method":"GET","route":"/favicon.ico","started_at":"2026-10-15T12:26:16.840Z"}
+{"event":"hook_exit","hook":"onRequest","id":"req-2"}
+{"event":"hook_enter","hook":"onResponse","id":"req-2","method":"GET","route":"/*"}
+{"event":"request_complete","request_id":"req-2","method":"GET","route":"/*","status_code":200,"duration_ms":4}
+{"event":"hook_exit","hook":"onResponse","id":"req-2"}
+{"event":"hook_enter","hook":"onRequest","id":"req-3","method":"GET","route":"/4663/proof/qualification-missing-record"}
+{"event":"request_start","id":"req-3","method":"GET","route":"/4663/proof/qualification-missing-record","started_at":"2026-10-15T12:26:18.624Z"}
+{"event":"hook_exit","hook":"onRequest","id":"req-3"}
+{"event":"hook_enter","hook":"onResponse","id":"req-3","method":"GET","route":"/*"}
+{"event":"request_complete","request_id":"req-3","method":"GET","route":"/*","status_code":503,"duration_ms":1}
+{"event":"hook_exit","hook":"onResponse","id":"req-3"}
+{"event":"hook_enter","hook":"onRequest","id":"req-4","method":"GET","route":"/favicon.ico"}
+{"event":"request_start","id":"req-4","method":"GET","route":"/favicon.ico","started_at":"2026-10-15T12:26:18.638Z"}
+{"event":"hook_exit","hook":"onRequest","id":"req-4"}
+{"event":"hook_enter","hook":"onResponse","id":"req-4","method":"GET","route":"/*"}
+{"event":"request_complete","request_id":"req-4","method":"GET","route":"/*","status_code":200,"duration_ms":1}
+{"event":"hook_exit","hook":"onResponse","id":"req-4"}

@@ -1,0 +1,19 @@
+{
+  "status": "fulfilled",
+  "value": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Action completed."
+      }
+    ],
+    "structuredContent": {
+      "comments": [],
+      "url": "https://github.com/ministryofinfopunks/infopunks-pay-sh-radar/pull/13",
+      "title": "ministryofinfopunks/infopunks-pay-sh-radar PR #13 comments",
+      "display_url": "https://github.com/ministryofinfopunks/infopunks-pay-sh-radar/pull/13",
+      "display_title": "ministryofinfopunks/infopunks-pay-sh-radar PR #13 comments"
+    },
+    "isError": false
+  }
+}

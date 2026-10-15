@@ -1,0 +1,146 @@
+{
+  "findings": [
+    {
+      "path": "docs/ui-unification/baseline/logs/full-tests.log",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 128,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/attempts/density-selector/final-browser-provenance.json",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 8,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/evidence/cyan-baseline/final-browser-provenance.json",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 8,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/validation/FINAL-VALIDATION.md",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 1,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/validation/first-pass/full-tests-command.json",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 1,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/validation/first-pass/full-tests.log",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 130,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/validation/full-tests-command.json",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 1,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/validation/full-tests.log",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 130,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/validation/premium-after.json",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 1,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/validation/resumed-runtime.json",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 2,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/approved-visual-command.json",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 1,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/attempts/browser-first-pass/final-browser-provenance.json",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 8,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/attempts/frontend-initial-selector-failure.json",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 11,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/evidence/final-browser-provenance.json",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 8,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/frontend-tests.json",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 9,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/frontend.log",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 2,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/full-tests.json",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 283,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/full-tests.log",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 178,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/premium-after.json",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 1,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    },
+    {
+      "path": "docs/ui-unification/visual-corrections/premium-after.log",
+      "kind": "local_developer_account_and_filesystem_paths",
+      "occurrences": 1,
+      "classification": "4 Requires human privacy assessment",
+      "disposition": "Identifying local account/project/temp paths are present. Retain original; assess redaction for external distribution separately. No credential value implied."
+    }
+  ],
+  "known_local_identity_marker": "/Users/ahdilm/",
+  "note": "Local developer identity/path information is present; do not claim no PII. Source URLs/market participant names/contract addresses may also identify public subjects and are intentional context, not automatic private-tenant evidence."
+}

@@ -1,0 +1,277 @@
+{
+  "source_sha": "f62f9cbabbe244682adf2cc17d9451f580a7ed1c",
+  "checks": [
+    {
+      "name": "runtime",
+      "command": [
+        "node",
+        "--version"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "seconds": 0.022,
+      "log": "logs/runtime.log"
+    },
+    {
+      "name": "dependencies",
+      "command": [
+        "npm",
+        "ls",
+        "--depth=0"
+      ],
+      "environment_overrides": {},
+      "exit_code": 1,
+      "seconds": 0.463,
+      "log": "logs/dependencies.log"
+    },
+    {
+      "name": "pg-init",
+      "command": [
+        "/opt/homebrew/opt/postgresql@16/bin/initdb",
+        "-D",
+        "/tmp/radar-pr13-qa1-pg",
+        "-U",
+        "postgres",
+        "-A",
+        "trust",
+        "--no-locale"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "seconds": 0.562,
+      "log": "logs/pg-init.log"
+    },
+    {
+      "name": "pg-start",
+      "command": [
+        "/opt/homebrew/opt/postgresql@16/bin/pg_ctl",
+        "-D",
+        "/tmp/radar-pr13-qa1-pg",
+        "-l",
+        "/tmp/radar-pr13-qa1-pg.log",
+        "-o",
+        "-h 127.0.0.1 -p 55441 -k /tmp",
+        "-w",
+        "start"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "seconds": 0.124,
+      "log": "logs/pg-start.log"
+    },
+    {
+      "name": "db-pr13_qa1",
+      "command": [
+        "/opt/homebrew/opt/postgresql@16/bin/createdb",
+        "-h",
+        "127.0.0.1",
+        "-p",
+        "55441",
+        "-U",
+        "postgres",
+        "pr13_qa1"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "seconds": 0.177,
+      "log": "logs/db-pr13_qa1.log"
+    },
+    {
+      "name": "db-pr13_qa1_resilience",
+      "command": [
+        "/opt/homebrew/opt/postgresql@16/bin/createdb",
+        "-h",
+        "127.0.0.1",
+        "-p",
+        "55441",
+        "-U",
+        "postgres",
+        "pr13_qa1_resilience"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "seconds": 0.052,
+      "log": "logs/db-pr13_qa1_resilience.log"
+    },
+    {
+      "name": "db-ui_int2_browser",
+      "command": [
+        "/opt/homebrew/opt/postgresql@16/bin/createdb",
+        "-h",
+        "127.0.0.1",
+        "-p",
+        "55441",
+        "-U",
+        "postgres",
+        "ui_int2_browser"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "seconds": 0.066,
+      "log": "logs/db-ui_int2_browser.log"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "seconds": 22.666,
+      "log": "logs/lint.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "seconds": 18.51,
+      "log": "logs/typecheck.log"
+    },
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "seconds": 7.174,
+      "log": "logs/build.log"
+    },
+    {
+      "name": "design",
+      "command": [
+        "npm",
+        "run",
+        "check:design"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "seconds": 0.478,
+      "log": "logs/design.log"
+    },
+    {
+      "name": "migration-inventory",
+      "command": [
+        "npm",
+        "run",
+        "migrations:validate"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "seconds": 0.315,
+      "log": "logs/migration-inventory.log"
+    },
+    {
+      "name": "full-tests",
+      "command": [
+        "npm",
+        "test",
+        "--",
+        "--maxWorkers=2",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile.json=docs/pr13-qa1/full-tests.json"
+      ],
+      "environment_overrides": {
+        "CANONICAL_RECEIPT_TEST_URL": "postgresql://postgres@127.0.0.1:55441/pr13_qa1",
+        "ECONOMIC_ENGINE_TEST_URL": "postgresql://postgres@127.0.0.1:55441/pr13_qa1",
+        "POSTGRES_RESILIENCE_TEST_URL": "postgresql://postgres@127.0.0.1:55441/pr13_qa1_resilience",
+        "RADAR_QUERY_TIMING_ENABLED": "true"
+      },
+      "exit_code": 0,
+      "seconds": 105.453,
+      "log": "logs/full-tests.log"
+    },
+    {
+      "name": "boundary",
+      "command": [
+        "node",
+        "scripts/verify-radar-subpage-boundary.cjs"
+      ],
+      "environment_overrides": {
+        "RADAR_UI_BOUNDARY_OUTPUT": "/tmp/radar-pr13-qa1/docs/pr13-qa1/boundary.json"
+      },
+      "exit_code": 1,
+      "seconds": 0.973,
+      "log": "logs/boundary.log"
+    },
+    {
+      "name": "static-audit",
+      "command": [
+        "python3",
+        "/Users/ahdilm/.codex/plugins/cache/openai-curated-remote/frontend-design-premium/1.4.0/skills/frontend-design-premium/scripts/audit_project.py",
+        "--mode",
+        "strict",
+        "--output",
+        "/tmp/radar-pr13-qa1/docs/pr13-qa1/static-audit.json",
+        "/tmp/radar-pr13-qa1"
+      ],
+      "environment_overrides": {},
+      "exit_code": 2,
+      "seconds": 9.812,
+      "log": "logs/static-audit.log"
+    },
+    {
+      "name": "audit-production",
+      "command": [
+        "npm",
+        "audit",
+        "--omit=dev",
+        "--json"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "seconds": 1.427,
+      "log": "logs/audit-production.log"
+    },
+    {
+      "name": "audit-all",
+      "command": [
+        "npm",
+        "audit",
+        "--json"
+      ],
+      "environment_overrides": {},
+      "exit_code": 1,
+      "seconds": 2.08,
+      "log": "logs/audit-all.log"
+    },
+    {
+      "name": "browser-migrations",
+      "command": [
+        "node",
+        "dist/server/cli/runPostgresMigrations.js"
+      ],
+      "environment_overrides": {
+        "DATABASE_URL": "postgresql://postgres@localhost:55441/ui_int2_browser"
+      },
+      "exit_code": 0,
+      "seconds": 0.156,
+      "log": "logs/browser-migrations.log"
+    },
+    {
+      "name": "browser-seed",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "scripts/ui-int2-seed-fixtures.ts"
+      ],
+      "environment_overrides": {
+        "UI_INT2_FIXTURE_DATABASE_URL": "postgresql://postgres@localhost:55441/ui_int2_browser"
+      },
+      "exit_code": 0,
+      "seconds": 0.368,
+      "log": "logs/browser-seed.log"
+    }
+  ]
+}

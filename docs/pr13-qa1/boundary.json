@@ -1,0 +1,98 @@
+{
+  "baseline": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "candidateCommit": "f62f9cbabbe244682adf2cc17d9451f580a7ed1c",
+  "candidateIsWorkingTree": true,
+  "intentionalTestChanges": [
+    "tests/radar-endpoint-intelligence.test.tsx"
+  ],
+  "protectedFilesChecked": 1526,
+  "protectedDifferences": [
+    "scripts/qualify-ui-int2-journeys.cjs"
+  ],
+  "comparisons": [
+    {
+      "file": "src/web/radarApp.tsx",
+      "groups": [
+        {
+          "group": "interactions",
+          "count": 141,
+          "unchanged": true
+        },
+        {
+          "group": "navigation",
+          "count": 188,
+          "unchanged": true
+        },
+        {
+          "group": "stateAndRequests",
+          "count": 460,
+          "unchanged": true
+        }
+      ]
+    },
+    {
+      "file": "src/web/radarNetworks.tsx",
+      "groups": [
+        {
+          "group": "interactions",
+          "count": 17,
+          "unchanged": true
+        },
+        {
+          "group": "navigation",
+          "count": 5,
+          "unchanged": true
+        },
+        {
+          "group": "stateAndRequests",
+          "count": 6,
+          "unchanged": true
+        }
+      ]
+    },
+    {
+      "file": "src/web/rhChainSignalDeskPages.tsx",
+      "groups": [
+        {
+          "group": "interactions",
+          "count": 29,
+          "unchanged": true
+        },
+        {
+          "group": "navigation",
+          "count": 39,
+          "unchanged": true
+        },
+        {
+          "group": "stateAndRequests",
+          "count": 47,
+          "unchanged": true
+        }
+      ]
+    },
+    {
+      "file": "src/web/rhChainSignalDeskV2.tsx",
+      "groups": [
+        {
+          "group": "interactions",
+          "count": 15,
+          "unchanged": true
+        },
+        {
+          "group": "navigation",
+          "count": 28,
+          "unchanged": true
+        },
+        {
+          "group": "stateAndRequests",
+          "count": 28,
+          "unchanged": true
+        }
+      ]
+    }
+  ],
+  "legacyStyleRules": 295,
+  "legacyDeclarationsAndSpecificityPreservedOnOtherRoutes": true,
+  "passed": false,
+  "limitation": "Static evidence complements actual browser and domain tests; it does not prove visual or interaction qualification."
+}

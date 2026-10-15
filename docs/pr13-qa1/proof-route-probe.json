@@ -1,0 +1,48 @@
+{
+  "baseline_source": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "qualified_source": "f62f9cbabbe244682adf2cc17d9451f580a7ed1c",
+  "same_backend_bytes_verified": true,
+  "baseline_storage": "memory; same synthetic identity configuration",
+  "candidate_storage": "synthetic local PostgreSQL",
+  "probe_authentication": "anonymous on both",
+  "method": "Each frontend built from exact archived source, unchanged compiled backend code on separate localhost ports, isolated fixture storage, anonymous on both. Compare real body/headings/alerts/status/navigation count.",
+  "reports": [
+    {
+      "source": "base",
+      "route": "/4663/proof/0x1111111111111111111111111111111111111111",
+      "status": 401,
+      "specialized_navigation_count": 0,
+      "headings": [],
+      "alerts": [],
+      "text": "{\"error\":\"judgment_authentication_required\"}"
+    },
+    {
+      "source": "base",
+      "route": "/4663/proof/qualification-missing-record",
+      "status": 401,
+      "specialized_navigation_count": 0,
+      "headings": [],
+      "alerts": [],
+      "text": "{\"error\":\"judgment_authentication_required\"}"
+    },
+    {
+      "source": "qualified",
+      "route": "/4663/proof/0x1111111111111111111111111111111111111111",
+      "status": 401,
+      "specialized_navigation_count": 0,
+      "headings": [],
+      "alerts": [],
+      "text": "{\"error\":\"judgment_authentication_required\"}"
+    },
+    {
+      "source": "qualified",
+      "route": "/4663/proof/qualification-missing-record",
+      "status": 401,
+      "specialized_navigation_count": 0,
+      "headings": [],
+      "alerts": [],
+      "text": "{\"error\":\"judgment_authentication_required\"}"
+    }
+  ],
+  "identical": true
+}

@@ -1,0 +1,14 @@
+{"event":"database_pool_created","database_pool_max":10,"connection_timeout_ms":2500,"idle_timeout_ms":10000}
+(node:29329) [FSTDEP023] FastifyDeprecation: disableRequestLogging option is deprecated. Use the logController option with disableRequestLogging or isLogDisabled override instead. The disableRequestLogging top-level option will be removed in `fastify@6`.
+(Use `node --trace-warnings ...` to show where the warning was created)
+/private/tmp/radar-pr13-qa1/dist/server/services/propagationService.js:12
+    const providerLookup = new Map(store.providers.map((provider) => [provider.id, provider]));
+                                                   ^
+
+TypeError: Cannot read properties of undefined (reading 'map')
+    at analyzePropagation (/private/tmp/radar-pr13-qa1/dist/server/services/propagationService.js:12:52)
+    at createApp (/private/tmp/radar-pr13-qa1/dist/server/api/app.js:1502:73)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///private/tmp/radar-pr13-qa1-base-server.mjs:1:80
+
+Node.js v24.21.0
