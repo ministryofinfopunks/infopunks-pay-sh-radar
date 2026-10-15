@@ -1,3 +1,4 @@
+import { PUBLIC_READ_API_ROUTES, PUBLIC_READ_UI_ROUTES } from '../config/controlledStaging';
 import { unicornReadExamples } from './publicReadExamples';
 import { DecisionViewV1Schema } from '../schemas/decisionView';
 import { JudgmentDomainContextSchema } from '../schemas/judgmentDomain';
@@ -7567,4 +7568,27 @@ function dateTimeSchema(): JsonSchema {
 
 function enumSchema(values: string[]): JsonSchema {
   return { type: 'string', enum: values };
+}
+
+/** Documents the approved opt-in availability contract without altering default APIs. */
+export function createPublicReadOpenApiSpec(version: string): OpenApiSpec {
+  const spec = createOpenApiSpec(version);
+  const paths = spec.paths as Record<string, Record<string, Record<string, unknown>>>;
+  const errors = ['public_release_route_unavailable', 'public_release_query_unsupported', 'public_release_payment_forbidden'];
+  for (const [path, methods] of Object.entries(paths)) for (const [method, operation] of Object.entries(methods)) {
+    if (!['get', 'post', 'patch', 'put', 'delete', 'head'].includes(method)) continue;
+    const publicRead = method === 'get' && PUBLIC_READ_API_ROUTES.some(route => route.replace(':candidateId', '{candidateId}') === path);
+    operation['x-radar-anonymous-public-read'] = publicRead;
+    operation.description = String(operation.description ?? '') + (publicRead
+      ? ' Public-read profile: no server query parameters are supported; unsupported queries or payment headers return no-store403. HEAD inherits the same reviewed read behavior.'
+      : ' Outside the anonymous public-read release. Reference only: existing tenant/operator guards and economic authority gates remain applicable; a public route restriction may return403 before the handler.');
+    operation.responses = { ...(operation.responses as Record<string, unknown>), '403': {
+      description: 'Opt-in public-read availability restriction, unsupported query or forbidden payment header. Existing private handler errors can also apply.',
+      content: { 'application/json': { schema: { type: 'object', required: ['error'], properties: { error: { type: 'string' } }, additionalProperties: false },
+        examples: Object.fromEntries(errors.map(error => [error, { value: { error } }])) } }
+    } };
+  }
+  return { ...spec, 'x-radar-public-release': { profile: 'public-read-v1', public_ui_routes: PUBLIC_READ_UI_ROUTES,
+    anonymous_api_routes: PUBLIC_READ_API_ROUTES, server_queries: [], blocked_status: 403, errors,
+    private_capabilities: 'Reference only; existing operator/tenant authorization and authority gates still apply. No public economic execution.' } };
 }

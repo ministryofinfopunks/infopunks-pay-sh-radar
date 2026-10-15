@@ -3,8 +3,9 @@ const fs = require('node:fs'), path = require('node:path'), assert = require('no
 const { execFileSync } = require('node:child_process');
 const { chromium } = require('playwright');
 const base = process.env.RADAR_R2_BASE || 'http://127.0.0.1:8922';
+const release = process.env.RADAR_R2_RELEASE_BASE || 'http://127.0.0.1:8923';
 const baseline = process.env.RADAR_R1_BASE || 'http://127.0.0.1:8921';
-for (const url of [base, baseline]) if (!/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(url)) throw Error('local_origins_only');
+for (const url of [base, baseline, release]) if (!/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(url)) throw Error('local_origins_only');
 const out = path.resolve(process.env.RADAR_R2_OUTPUT || 'output/radar-r2-read'); fs.mkdirSync(out, {recursive:true});
 const sha = execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
 const reports = [], hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
@@ -26,8 +27,11 @@ const reports = [], hash = bytes => crypto.createHash('sha256').update(bytes).di
    reports.push({case:'legacy methodology focus',width,pass:true});
    await page.goto(base+'/#agent-benchmark-api');await page.waitForURL(base+'/solana#agent-benchmark-api');await page.locator('#agent-benchmark-api').waitFor();
    reports.push({case:'legacy benchmark preserves Solana destination',width,pass:true,scope:'routing regression only; Solana catalogue remains excluded from public read proposal'});
-   await page.goto(base+'/unicorn-radar');await page.getByRole('textbox',{name:'Search',exact:true}).waitFor();
-   await page.getByRole('textbox',{name:'Search',exact:true}).fill('no-r2-candidate');await page.getByText('No candidates match this view. Adjust the filters or search.',{exact:true}).waitFor();
+   const profile = await (await page.request.get(release+'/openapi.json')).json();assert.equal(profile['x-radar-public-release'].profile,'public-read-v1');
+   for(const route of ['/solana','/signal-hunt','/hermes','/loops','/machine-market','/revenue-receipts','/v1/hermes','/v1/signal-hunt','/v1/unicorn-radar?status=watchlist']){const denied=await page.request.get(release+route);assert.equal(denied.status(),403);assert.equal(denied.headers()['cache-control'],'private, no-store');}
+   reports.push({case:'opt-in public profile direct-route and query boundary',width,pass:true});
+   await page.goto(release+'/unicorn-radar');await page.getByRole('textbox',{name:'Search',exact:true}).waitFor();
+   await page.getByRole('textbox',{name:'Search',exact:true}).fill('no-r2-candidate');await page.getByText('No candidates match this view. Adjust the filters or search.',{exact:true}).first().waitFor();
    await page.getByRole('textbox',{name:'Search',exact:true}).fill('KINS');await page.getByText('1 shown',{exact:true}).waitFor();
    await page.getByLabel('Sector',{exact:true}).selectOption('Gaming / Consumer');
    assert.equal(await page.getByRole('article',{name:'Kintara Unicorn Radar card',exact:true}).count(),1);
@@ -38,7 +42,7 @@ const reports = [], hash = bytes => crypto.createHash('sha256').update(bytes).di
    reports.push({case:'dated source inspection, no issuance',width,pass:true});
    const providerState=(await page.locator('main').innerText()).includes('Captured by Radar')?'captured market data':'market observation unavailable';
    // Scoped accessibility/runtime evidence; human AT/native zoom/device approval remains separate.
-   for (const [label,url] of [['candidate',await page.url()],['developers',base+'/developers']]) {
+   for (const [label,url] of [['candidate',await page.url()],['developers',release+'/developers']]) {
     if(url!==await page.url())await page.goto(url);
     await page.locator('main').waitFor();await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
     const axe=await page.evaluate(async()=>{const r=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa','wcag22aa']}});return{violations:r.violations,incomplete:r.incomplete};});
@@ -50,13 +54,13 @@ const reports = [], hash = bytes => crypto.createHash('sha256').update(bytes).di
    if(width===390){await page.getByRole('button',{name:'Open navigation',exact:true}).click();await page.getByRole('button',{name:'Close navigation',exact:true}).waitFor();await page.keyboard.press('Escape');assert.equal(await page.getByRole('button',{name:'Open navigation',exact:true}).evaluate(el=>document.activeElement===el),true);reports.push({case:'mobile menu Escape restores focus',width,pass:true});}
    // Controlled failure responses are explicitly labelled; actual successful retry reaches local backend.
    let failure='malformed';await page.route('**/v1/unicorn-radar',r=>failure==='none'?r.continue():r.fulfill({status:failure==='503'?503:200,contentType:'application/json',body:failure==='503'?'{}':'{"data":{}}'}));
-   await page.goto(base+'/unicorn-radar');await page.getByText('Market intelligence unavailable',{exact:true}).waitFor();assert.equal(await page.getByText('No candidates match this view. Adjust the filters or search.',{exact:true}).count(),0);
+   await page.goto(release+'/unicorn-radar');await page.getByText('Market intelligence unavailable',{exact:true}).waitFor();assert.equal(await page.getByText('No candidates match this view. Adjust the filters or search.',{exact:true}).count(),0);
    failure='503';await page.getByRole('button',{name:'Retry',exact:true}).click();await page.getByText('Market intelligence unavailable',{exact:true}).waitFor();
    failure='none';await page.getByRole('button',{name:'Retry',exact:true}).click();await page.getByRole('textbox',{name:'Search',exact:true}).waitFor();
    reports.push({case:'malformed/503/retry state recovery',width,pass:true,scope:'controlled failures; success actual local HTTP'});
    assert.deepEqual(errors,[]);assert.ok(methods.every(m=>m==='GET'));await context.close();
   }
  }finally{await browser.close();}
- fs.writeFileSync(path.join(out,'results.json'),JSON.stringify({source_sha:sha,decision:'engineering evidence only',scope:'Local actual API reads plus explicitly controlled error responses; not production, scope enforcement or independent approval',reports},null,2));
+ fs.writeFileSync(path.join(out,'results.json'),JSON.stringify({source_sha:sha,decision:'engineering evidence only',scope:'Local actual API reads plus explicitly controlled error responses; not production or independent approval; opt-in scope verified only on isolated local profile',reports},null,2));
  console.log('PASS',reports.length,'scoped R2 browser cases');
 })().catch(error=>{fs.writeFileSync(path.join(out,'failure.json'),JSON.stringify({source_sha:sha,error:String(error),reports},null,2));console.error(error);process.exitCode=1;});

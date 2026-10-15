@@ -625,6 +625,7 @@ Content-Type: application/json
           <p className="copy">Infopunks is the pre-spend intelligence layer before payment. It returns receipt-backed route intelligence, known blockers, safer alternatives, and validation context before economic action.</p>
           <p className="copy">Infopunks is not executing payment. The SDK calls POST /v1/pre-spend/check against https://radar.infopunks.fun.</p>
           <p className="panel-caption">Public read reference · release HOLD. Interactive tenant checks, paid Judgment and wallet examples require a separately authorized environment. Reading this page activates no payment or execution.</p>
+          <p className="panel-caption">The opt-in public read profile supports GET /v1/unicorn-radar, GET /v1/unicorn-radar/candidates and GET /v1/unicorn-radar/candidates/:candidateId, plus /openapi.json. Search and filters run locally. Server query parameters are unsupported. Excluded anonymous requests return 403 public_release_route_unavailable; unsupported queries return public_release_query_unsupported and payment headers return public_release_payment_forbidden. A provider outage leaves market data unavailable. The catalogue and SDK examples below also describe separately gated private capabilities.</p>
         </div>
         <div className="ticker" aria-label="Developer page signals">
           <span>pre-spend intelligence</span>

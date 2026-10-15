@@ -1,7 +1,8 @@
+import { judgmentAccessPolicy } from '../security/judgmentAccessPolicy';
 import { registerDecisionViewRoutes } from './decisionViewRoutes';
 import { createDecisionViewService } from '../services/decisionViewService';
 import { requiresOperatorProofRead } from '../security/proofReadBoundary';
-import { controlledStagingRequestError } from '../config/controlledStaging';
+import { controlledStagingRequestError, publicReadRequestError } from '../config/controlledStaging';
 import { timingSafeEqual } from 'node:crypto';
 import { registerIpxLaunchRoutes } from './ipxLaunchRoutes';
 import { MemoryEconomicAccountingStore, PostgresEconomicAccountingStore } from '../persistence/economicAccountingStore';
@@ -376,7 +377,7 @@ import {
   buildWalletSafetyIntegrationRegistry,
   getWalletSafetyIntegrationById
 } from '../services/walletSafetyIntegrationRegistry';
-import { createOpenApiSpec } from './openapi';
+import { createOpenApiSpec, createPublicReadOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
 const HermesPreSpendRunRequestSchema = z.object({
@@ -768,7 +769,7 @@ export async function createApp(
       const rawPath = (request.raw.url ?? '').split('?')[0];
       // Router decoding happens before application hooks. Only a public reader
       // navigation may recover through the fixed client shell; APIs stay JSON.
-      if (request.method === 'GET' && /^\/4663\/share\/[^/]+$/.test(rawPath)
+      if (!config.publicReadRelease && request.method === 'GET' && /^\/4663\/share\/[^/]+$/.test(rawPath)
         && request.headers.accept?.includes('text/html') && clientIndexPath && existsSync(clientIndexPath)) {
         void readFile(clientIndexPath, 'utf8').then(html => {
           reply.code(400).header('Cache-Control', 'no-store').header('X-Content-Type-Options', 'nosniff')
@@ -779,6 +780,16 @@ export async function createApp(
       }
       return reply.code(400).header('Cache-Control', 'no-store').send({ error: 'invalid_request_path', code: 'FST_ERR_BAD_URL' });
     }
+  });
+  app.addHook('onRequest', async (req, reply) => {
+    if (!config.publicReadRelease) return;
+    const route = req.routeOptions.url === '/*' || req.method === 'OPTIONS'
+      ? req.url.split('?')[0] : req.routeOptions.url ?? req.url.split('?')[0];
+    const error = publicReadRequestError({ method: req.method, url: req.url, matchedRoute: route,
+      existingPrivate: judgmentAccessPolicy(route, req.method, config.isProduction) !== 'public',
+      operator: isAdmin(config.adminToken, req.headers.authorization), tenant: Boolean(identity.authenticate(req.headers.authorization)),
+      requestedMethod: req.headers['access-control-request-method'], payment: req.headers['payment-signature'] !== undefined });
+    if (error) return reply.code(403).header('Cache-Control', 'private, no-store').send({ error });
   });
   app.addHook('onRequest', async (req, reply) => {
     if (!config.controlledStaging) return;
@@ -1676,7 +1687,7 @@ export async function createApp(
       }
     };
   });
-  app.get('/openapi.json', async () => createOpenApiSpec(config.version));
+  app.get('/openapi.json', async () => config.publicReadRelease ? createPublicReadOpenApiSpec(config.version) : createOpenApiSpec(config.version));
   app.get('/status', async () => withRouteTimeout('/status', ROUTE_TIMEOUT_MS, () => ({
     ok: true,
     catalogSource: config.payShCatalogSource,
