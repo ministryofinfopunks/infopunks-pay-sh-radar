@@ -1,0 +1,546 @@
+[
+  {
+    "width": 360,
+    "before": [
+      {
+        "id": "intelligence",
+        "width": 314,
+        "height": 425.875
+      },
+      {
+        "id": "agent-tools",
+        "width": 314,
+        "height": 425.875
+      },
+      {
+        "id": "hermes",
+        "width": 314,
+        "height": 425.875
+      },
+      {
+        "id": "commercial",
+        "width": 314,
+        "height": 295.125
+      },
+      {
+        "id": "machine-economy",
+        "width": 314,
+        "height": 491.25
+      },
+      {
+        "id": "developers",
+        "width": 314,
+        "height": 491.25
+      }
+    ],
+    "after": [
+      {
+        "id": "intelligence",
+        "width": 314,
+        "height": 425.875
+      },
+      {
+        "id": "agent-tools",
+        "width": 314,
+        "height": 425.875
+      },
+      {
+        "id": "hermes",
+        "width": 314,
+        "height": 425.875
+      },
+      {
+        "id": "commercial",
+        "width": 314,
+        "height": 295.125
+      },
+      {
+        "id": "machine-economy",
+        "width": 314,
+        "height": 491.25
+      },
+      {
+        "id": "developers",
+        "width": 314,
+        "height": 491.25
+      }
+    ],
+    "cardDimensionsIdentical": true
+  },
+  {
+    "width": 375,
+    "before": [
+      {
+        "id": "intelligence",
+        "width": 329,
+        "height": 425.875
+      },
+      {
+        "id": "agent-tools",
+        "width": 329,
+        "height": 425.875
+      },
+      {
+        "id": "hermes",
+        "width": 329,
+        "height": 425.875
+      },
+      {
+        "id": "commercial",
+        "width": 329,
+        "height": 295.125
+      },
+      {
+        "id": "machine-economy",
+        "width": 329,
+        "height": 491.25
+      },
+      {
+        "id": "developers",
+        "width": 329,
+        "height": 491.25
+      }
+    ],
+    "after": [
+      {
+        "id": "intelligence",
+        "width": 329,
+        "height": 425.875
+      },
+      {
+        "id": "agent-tools",
+        "width": 329,
+        "height": 425.875
+      },
+      {
+        "id": "hermes",
+        "width": 329,
+        "height": 425.875
+      },
+      {
+        "id": "commercial",
+        "width": 329,
+        "height": 295.125
+      },
+      {
+        "id": "machine-economy",
+        "width": 329,
+        "height": 491.25
+      },
+      {
+        "id": "developers",
+        "width": 329,
+        "height": 491.25
+      }
+    ],
+    "cardDimensionsIdentical": true
+  },
+  {
+    "width": 390,
+    "before": [
+      {
+        "id": "intelligence",
+        "width": 344,
+        "height": 425.875
+      },
+      {
+        "id": "agent-tools",
+        "width": 344,
+        "height": 425.875
+      },
+      {
+        "id": "hermes",
+        "width": 344,
+        "height": 425.875
+      },
+      {
+        "id": "commercial",
+        "width": 344,
+        "height": 295.125
+      },
+      {
+        "id": "machine-economy",
+        "width": 344,
+        "height": 491.25
+      },
+      {
+        "id": "developers",
+        "width": 344,
+        "height": 491.25
+      }
+    ],
+    "after": [
+      {
+        "id": "intelligence",
+        "width": 344,
+        "height": 425.875
+      },
+      {
+        "id": "agent-tools",
+        "width": 344,
+        "height": 425.875
+      },
+      {
+        "id": "hermes",
+        "width": 344,
+        "height": 425.875
+      },
+      {
+        "id": "commercial",
+        "width": 344,
+        "height": 295.125
+      },
+      {
+        "id": "machine-economy",
+        "width": 344,
+        "height": 491.25
+      },
+      {
+        "id": "developers",
+        "width": 344,
+        "height": 491.25
+      }
+    ],
+    "cardDimensionsIdentical": true
+  },
+  {
+    "width": 768,
+    "before": [
+      {
+        "id": "intelligence",
+        "width": 345,
+        "height": 425.875
+      },
+      {
+        "id": "agent-tools",
+        "width": 345,
+        "height": 425.875
+      },
+      {
+        "id": "hermes",
+        "width": 345,
+        "height": 425.875
+      },
+      {
+        "id": "commercial",
+        "width": 345,
+        "height": 425.875
+      },
+      {
+        "id": "machine-economy",
+        "width": 345,
+        "height": 491.25
+      },
+      {
+        "id": "developers",
+        "width": 345,
+        "height": 491.25
+      }
+    ],
+    "after": [
+      {
+        "id": "intelligence",
+        "width": 345,
+        "height": 425.875
+      },
+      {
+        "id": "agent-tools",
+        "width": 345,
+        "height": 425.875
+      },
+      {
+        "id": "hermes",
+        "width": 345,
+        "height": 425.875
+      },
+      {
+        "id": "commercial",
+        "width": 345,
+        "height": 425.875
+      },
+      {
+        "id": "machine-economy",
+        "width": 345,
+        "height": 491.25
+      },
+      {
+        "id": "developers",
+        "width": 345,
+        "height": 491.25
+      }
+    ],
+    "cardDimensionsIdentical": true
+  },
+  {
+    "width": 1024,
+    "before": [
+      {
+        "id": "intelligence",
+        "width": 311.328125,
+        "height": 425.875
+      },
+      {
+        "id": "agent-tools",
+        "width": 311.328125,
+        "height": 425.875
+      },
+      {
+        "id": "hermes",
+        "width": 311.34375,
+        "height": 425.875
+      },
+      {
+        "id": "commercial",
+        "width": 311.328125,
+        "height": 491.25
+      },
+      {
+        "id": "machine-economy",
+        "width": 311.328125,
+        "height": 491.25
+      },
+      {
+        "id": "developers",
+        "width": 311.34375,
+        "height": 491.25
+      }
+    ],
+    "after": [
+      {
+        "id": "intelligence",
+        "width": 311.328125,
+        "height": 425.875
+      },
+      {
+        "id": "agent-tools",
+        "width": 311.328125,
+        "height": 425.875
+      },
+      {
+        "id": "hermes",
+        "width": 311.34375,
+        "height": 425.875
+      },
+      {
+        "id": "commercial",
+        "width": 311.328125,
+        "height": 491.25
+      },
+      {
+        "id": "machine-economy",
+        "width": 311.328125,
+        "height": 491.25
+      },
+      {
+        "id": "developers",
+        "width": 311.34375,
+        "height": 491.25
+      }
+    ],
+    "cardDimensionsIdentical": true
+  },
+  {
+    "width": 1280,
+    "before": [
+      {
+        "id": "intelligence",
+        "width": 396.65625,
+        "height": 425.875
+      },
+      {
+        "id": "agent-tools",
+        "width": 396.671875,
+        "height": 425.875
+      },
+      {
+        "id": "hermes",
+        "width": 396.65625,
+        "height": 425.875
+      },
+      {
+        "id": "commercial",
+        "width": 396.65625,
+        "height": 491.25
+      },
+      {
+        "id": "machine-economy",
+        "width": 396.671875,
+        "height": 491.25
+      },
+      {
+        "id": "developers",
+        "width": 396.65625,
+        "height": 491.25
+      }
+    ],
+    "after": [
+      {
+        "id": "intelligence",
+        "width": 396.65625,
+        "height": 425.875
+      },
+      {
+        "id": "agent-tools",
+        "width": 396.671875,
+        "height": 425.875
+      },
+      {
+        "id": "hermes",
+        "width": 396.65625,
+        "height": 425.875
+      },
+      {
+        "id": "commercial",
+        "width": 396.65625,
+        "height": 491.25
+      },
+      {
+        "id": "machine-economy",
+        "width": 396.671875,
+        "height": 491.25
+      },
+      {
+        "id": "developers",
+        "width": 396.65625,
+        "height": 491.25
+      }
+    ],
+    "cardDimensionsIdentical": true
+  },
+  {
+    "width": 1440,
+    "before": [
+      {
+        "id": "intelligence",
+        "width": 450,
+        "height": 425.875
+      },
+      {
+        "id": "agent-tools",
+        "width": 450,
+        "height": 425.875
+      },
+      {
+        "id": "hermes",
+        "width": 450,
+        "height": 425.875
+      },
+      {
+        "id": "commercial",
+        "width": 450,
+        "height": 491.25
+      },
+      {
+        "id": "machine-economy",
+        "width": 450,
+        "height": 491.25
+      },
+      {
+        "id": "developers",
+        "width": 450,
+        "height": 491.25
+      }
+    ],
+    "after": [
+      {
+        "id": "intelligence",
+        "width": 450,
+        "height": 425.875
+      },
+      {
+        "id": "agent-tools",
+        "width": 450,
+        "height": 425.875
+      },
+      {
+        "id": "hermes",
+        "width": 450,
+        "height": 425.875
+      },
+      {
+        "id": "commercial",
+        "width": 450,
+        "height": 491.25
+      },
+      {
+        "id": "machine-economy",
+        "width": 450,
+        "height": 491.25
+      },
+      {
+        "id": "developers",
+        "width": 450,
+        "height": 491.25
+      }
+    ],
+    "cardDimensionsIdentical": true
+  },
+  {
+    "width": 1920,
+    "before": [
+      {
+        "id": "intelligence",
+        "width": 500.65625,
+        "height": 405.484375
+      },
+      {
+        "id": "agent-tools",
+        "width": 500.671875,
+        "height": 405.484375
+      },
+      {
+        "id": "hermes",
+        "width": 500.65625,
+        "height": 405.484375
+      },
+      {
+        "id": "commercial",
+        "width": 500.65625,
+        "height": 470.859375
+      },
+      {
+        "id": "machine-economy",
+        "width": 500.671875,
+        "height": 470.859375
+      },
+      {
+        "id": "developers",
+        "width": 500.65625,
+        "height": 470.859375
+      }
+    ],
+    "after": [
+      {
+        "id": "intelligence",
+        "width": 500.65625,
+        "height": 405.484375
+      },
+      {
+        "id": "agent-tools",
+        "width": 500.671875,
+        "height": 405.484375
+      },
+      {
+        "id": "hermes",
+        "width": 500.65625,
+        "height": 405.484375
+      },
+      {
+        "id": "commercial",
+        "width": 500.65625,
+        "height": 470.859375
+      },
+      {
+        "id": "machine-economy",
+        "width": 500.671875,
+        "height": 470.859375
+      },
+      {
+        "id": "developers",
+        "width": 500.65625,
+        "height": 470.859375
+      }
+    ],
+    "cardDimensionsIdentical": true
+  }
+]

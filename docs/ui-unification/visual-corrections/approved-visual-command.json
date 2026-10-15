@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/Users/ahdilm/.codex/visualizations/2026/10/14/01a13917-0fb3-7781-bf52-94112ededb49/radar-v1-phase2/image-security/tools/node-v24.21.0-darwin-arm64/bin/node",
+    "scripts/compare-ui-int2-visuals.cjs"
+  ],
+  "cwd": "/private/tmp/radar-ui-vr-snapshot-5m5dc78g",
+  "exitCode": 1,
+  "seconds": 32.841,
+  "sourceManifest": "source-hashes.json",
+  "runtimePackages": "Ephemeral QA only: cached randexp0.5.3/pngjs7.0.0; application package/lock unchanged",
+  "referencePolicy": "Original script unmodified; human-approved references never overwritten"
+}

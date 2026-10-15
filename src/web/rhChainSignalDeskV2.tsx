@@ -166,7 +166,7 @@ export function RhChainSignalDeskV2(props: RhChainSignalDeskV2Props) {
       onModeChange={setMode}
     />
 
-    <TodayOn4663 cards={today} />
+    <TodayOn4663 cards={today} latestReceipt={props.dailyReceipts?.latest_receipt ?? null} fallbackObservedAt={props.desk.last_updated} />
 
     {props.dailyReceipts
       ? <DailyReceiptFeature receipt={props.dailyReceipts.latest_receipt} />
@@ -249,6 +249,7 @@ function RhChainHero({ desk, envelope, today, latestReceipt, signalIndex, review
     </div>
     <aside className="rh-v2-intelligence-rail" aria-label="Today on 4663 summary">
       <div className="rh-v2-rail-heading"><span>Today on 4663</span><i aria-hidden="true" /></div>
+      <MarketObservationStatus state={latestReceipt?.freshness_state} observedAt={observedAt} />
       <dl>
         <div><dt>Market state</dt><dd>{latestReceipt?.freshness_state ? formatLabel(latestReceipt.freshness_state) : 'source required'}</dd></div>
         <div><dt>Top signal</dt><dd>{topSignal?.verdict ?? 'Unavailable'}</dd></div>
@@ -358,9 +359,20 @@ function EvidenceStateBadge({ state }: { state: string }) {
   return <span className={`rh-v2-evidence-state state-${state.replaceAll(' ', '_')}`}>{formatLabel(state)}</span>;
 }
 
-function TodayOn4663({ cards }: { cards: ReturnType<typeof selectTodayOn4663> }) {
+function MarketObservationStatus({ state, observedAt }: { state: RhChainDailyReceipt['freshness_state']; observedAt: string }) {
+  if (!React.useContext(RhChainTerminalVisualContext)) return null;
+  return <div className="rh-v2-observation-status" data-state={state ?? 'source_required'}>
+    <span>Market state <EvidenceStateBadge state={state ?? 'source_required'} /></span>
+    {state === 'stale' && <strong>Historical observation</strong>}
+    <span>Observed <time dateTime={observedAt}>{formatTimestamp(observedAt)}</time></span>
+  </div>;
+}
+
+function TodayOn4663({ cards, latestReceipt, fallbackObservedAt }: { cards: ReturnType<typeof selectTodayOn4663>; latestReceipt: RhChainDailyReceipt | null; fallbackObservedAt: string }) {
+  const observedAt = cards.map((item) => item.observedAt).filter((value): value is string => Boolean(value)).sort().at(-1) ?? fallbackObservedAt;
   return <section className="rh-v2-section rh-v2-today" aria-labelledby="rh-v2-today-title">
     <SectionHeading index="12" titleId="rh-v2-today-title" kicker="Daily pulse" title="Today on 4663" copy="Four decisions. One minute. Every claim keeps its evidence state." />
+    <MarketObservationStatus state={latestReceipt?.freshness_state} observedAt={observedAt} />
     <div className="rh-v2-today-grid">
       {cards.map((card) => <article key={card.id} className={`rh-v2-today-card card-${card.id}`}>
         <div><p>{card.title}</p><EvidenceStateBadge state={card.evidenceState} /></div>

@@ -1,0 +1,13 @@
+/ 390 default violations=0
+/ 1440 default violations=0
+/solana 390 default violations=0
+/solana 390 expanded-navigation-and-controls violations=0
+/solana 1440 default violations=0
+/solana 1440 expanded-navigation-and-controls violations=0
+/rh-chain-signal-desk 390 default violations=0
+/rh-chain-signal-desk 390 expanded-navigation-and-controls violations=0
+/rh-chain-signal-desk 390 analyst-expanded violations=0
+/rh-chain-signal-desk 1440 default violations=0
+/rh-chain-signal-desk 1440 expanded-navigation-and-controls violations=0
+/rh-chain-signal-desk 1440 analyst-expanded violations=0
+{"phase":"after","audits":12,"violationNodes":0}

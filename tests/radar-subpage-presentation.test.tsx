@@ -7,6 +7,7 @@ import { assembleRhChainMemePulseScreen } from '../src/services/rhChainMemePulse
 import { assembleRhChainTodayOn4663 } from '../src/services/rhChainTodayOn4663Service';
 import { buildRhChainApiResponse } from '../src/services/rhChainIntelligenceService';
 import { RhChainSignalDeskV2 } from '../src/web/rhChainSignalDeskV2';
+import type { RhChainDailyReceipt } from '../src/data/rhChain';
 
 describe('Signal Desk presentation boundaries', () => {
   let container: HTMLDivElement;
@@ -23,15 +24,16 @@ describe('Signal Desk presentation boundaries', () => {
     container.remove();
   });
 
-  async function renderDesk(terminalHome: boolean) {
+  async function renderDesk(terminalHome: boolean, receiptOverrides: Partial<RhChainDailyReceipt> = {}) {
     const desk = getRhChainPayload();
+    const receipts = getRhChainDailyReceipts();
     await act(async () => root.render(<RhChainSignalDeskV2
       terminalHome={terminalHome}
       desk={desk}
       envelope={buildRhChainApiResponse(desk)}
       reviewQueue={getRhChainReviewQueue()}
       signalIndex={getRhChain4663Index()}
-      dailyReceipts={getRhChainDailyReceipts()}
+      dailyReceipts={{ ...receipts, latest_receipt: { ...receipts.latest_receipt, ...receiptOverrides } }}
       memePulse={assembleRhChainMemePulseScreen()}
       todayOn4663={assembleRhChainTodayOn4663()}
       launchSurfaces={getRhChainLaunchSurfaces()}
@@ -56,6 +58,41 @@ describe('Signal Desk presentation boundaries', () => {
     expect(container.querySelector('.rh-v2-movers .rh-v2-section-heading p')?.textContent).toBe('4663 movers');
     expect(container.querySelector('.rh-v2-methodology > div > p')?.textContent).toBe('Methodology');
     expect(container.querySelectorAll('h1')).toHaveLength(1);
+    expect(container.querySelectorAll('.rh-v2-observation-status')).toHaveLength(0);
+  });
+
+  it.each(['stale', 'aging', 'fresh', undefined] as const)('promotes the actual %s state and existing observation time without asserting new freshness', async (freshness) => {
+    await renderDesk(true, { freshness_state: freshness });
+    const statuses = Array.from(container.querySelectorAll<HTMLElement>('.rh-v2-observation-status'));
+    const originalObserved = Array.from(container.querySelectorAll('.rh-v2-intelligence-rail dl > div')).find(row => row.querySelector('dt')?.textContent === 'Observed')?.querySelector('dd')?.textContent;
+    expect(statuses).toHaveLength(2);
+    for (const status of statuses) {
+      expect(status.dataset.state).toBe(freshness ?? 'source_required');
+      expect(status.querySelector('.rh-v2-evidence-state')?.textContent).toBe(freshness ?? 'source required');
+      expect(status.querySelector('time')?.textContent).toBe(originalObserved);
+      expect(status.querySelector('time')?.getAttribute('datetime')).toBeTruthy();
+      expect(status.textContent?.includes('Historical observation')).toBe(freshness === 'stale');
+    }
+    const pulseStatus = container.querySelector('.rh-v2-today > .rh-v2-observation-status')!;
+    expect(pulseStatus.compareDocumentPosition(container.querySelector('.rh-v2-today-grid')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(container.querySelectorAll('.rh-v2-today-card')).toHaveLength(4);
+  });
+
+  it('retains every Daily Receipt field, identifier, timestamp, stale state, link and share control', async () => {
+    const receipt = getRhChainDailyReceipts().latest_receipt;
+    await renderDesk(true, { freshness_state: 'stale' });
+    const panel = container.querySelector('.rh-v2-receipt')!;
+    expect(panel.querySelector('h2')?.textContent).toBe(receipt.headline);
+    const values = [receipt.top_signal, receipt.biggest_risk, receipt.strongest_narrative, receipt.infopunks_verdict, receipt.liquidity_note, receipt.deployer_watch_note, receipt.stock_token_spillover_note, receipt.solana_base_migration_note];
+    expect(panel.querySelectorAll('.rh-v2-receipt-intelligence article, .rh-v2-receipt-secondary p')).toHaveLength(values.length);
+    for (const value of values) expect(panel.textContent).toContain(value);
+    expect(panel.textContent).toContain(receipt.date);
+    expect(panel.querySelector('.state-stale')?.textContent).toBe('stale');
+    expect(panel.querySelector('a[href="/rh-chain-signal-desk/daily-receipts/rh_daily_006"]')).not.toBeNull();
+    expect(panel.querySelector('.rh-v2-share > button')?.textContent).toContain('Share Receipt');
+    expect(panel.querySelector('.rh-v2-share > button')?.getAttribute('aria-expanded')).toBe('false');
+    expect(panel.querySelector('.rh-v2-receipt-foot')?.textContent).toContain('Observed');
+    expect(panel.querySelector('.rh-v2-receipt-foot')?.textContent).toContain(`${receipt.sources.length}`);
   });
 
   it('keeps both analyst tables named and keyboard reachable without discarding ranked evidence', async () => {

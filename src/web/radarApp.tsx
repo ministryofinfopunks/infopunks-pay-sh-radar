@@ -101,19 +101,22 @@ function SolanaRadarHomepageHero({ pulse }: { pulse: Pulse }) {
       <p className="radar-hero-supporting-line">Pay.sh is a spend rail. Radar is the evidence layer.</p><EvidenceScope kind="service" />
     </div>
     <aside className="solana-hero-evidence terminal-panel" aria-label="Solana Radar coverage and evidence">
-      <div className="terminal-panel-heading"><h2>Pre-spend intelligence</h2><span className="terminal-state">Safe metadata</span></div>
-      <p className="solana-hero-doctrine">Most see noise.<br /><strong>Infopunks finds signal.</strong></p>
+      <div className="terminal-panel-heading"><h2>Radar coverage / source state</h2><span className="terminal-state">Safe metadata</span></div>
+      <div className="solana-hero-source-state" data-fixture-backed={pulse.data_source.mode !== 'live_pay_sh_catalog' || pulse.data_source.used_fixture}>
+        <span className="solana-hero-source-badge terminal-state" data-source-mode={pulse.data_source.mode}>{pulse.data_source.mode === 'live_pay_sh_catalog' && !pulse.data_source.used_fixture ? 'LIVE PAY.SH CATALOG' : 'FIXTURE-BACKED RADAR STATE'}</span>
+        <p>Catalog coverage. Check a route for a pre-spend judgment.</p>
+      </div>
       <dl className="solana-hero-coverage">
         <div><dt>Providers</dt><dd>{pulse.providerCount}</dd></div>
         <div><dt>Endpoints</dt><dd>{pulse.endpointCount}</dd></div>
-        <div><dt>Avg Trust</dt><dd>{pulse.averageTrust ?? 'unknown'}</dd></div>
-        <div><dt>Avg Signal</dt><dd>{pulse.averageSignal ?? 'unknown'}</dd></div>
+        <div data-unavailable={pulse.averageTrust == null}><dt>Avg Trust</dt><dd>{pulse.averageTrust ?? 'unknown'}</dd></div>
+        <div data-unavailable={pulse.averageSignal == null}><dt>Avg Signal</dt><dd>{pulse.averageSignal ?? 'unknown'}</dd></div>
       </dl>
       <div className="solana-hero-provenance">
-        <span className={`source-badge ${pulse.data_source.mode}`}>{pulse.data_source.mode === 'live_pay_sh_catalog' && !pulse.data_source.used_fixture ? 'LIVE PAY.SH CATALOG' : 'FIXTURE-BACKED RADAR STATE'}</span>
         <p>{formatDataSource(pulse.data_source, pulse.providerCount, pulse.endpointCount)}</p>
         <p>Freshness / {formatAbsoluteUtc(pulse.data_source.last_ingested_at ?? pulse.data_source.generated_at)}</p>
       </div>
+      <p className="solana-hero-doctrine">Most see noise.<br /><strong>Infopunks finds signal.</strong></p>
     </aside>
   </section>;
 }

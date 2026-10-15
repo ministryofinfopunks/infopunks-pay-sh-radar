@@ -241,7 +241,7 @@ export function SolanaRadarDirectory({ current = currentLocation(), terminal = f
         return <article className="radar-directory-card" key={group.id} aria-labelledby={groupTitleId} data-group-id={group.id}>
           <div className="radar-directory-card-head">
             <h3 id={groupTitleId}>{group.label}</h3>
-            <span>{featuredItems.length.toString().padStart(2, '0')}</span>
+            <span>{featuredItems.length.toString().padStart(2, '0')}{terminal && ' surfaces'}</span>
           </div>
           <p>{group.description}</p>
           <div className="radar-directory-featured-routes">

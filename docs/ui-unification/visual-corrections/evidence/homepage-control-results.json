@@ -1,0 +1,6518 @@
+{
+  "method": "Immutable original d3d0a44 frontend and candidate compared with same exact Playwright, Chrome, captured genuine fixture API responses, viewport, software rendering, and warm-up full-page capture.",
+  "route": "/",
+  "softwareRendering": true,
+  "playwright": "1.64.0",
+  "comparisons": [
+    {
+      "label": "desktop",
+      "geometryIdentical": true,
+      "fullPageIdentical": true,
+      "viewportIdentical": true
+    },
+    {
+      "label": "mobile",
+      "geometryIdentical": true,
+      "fullPageIdentical": true,
+      "viewportIdentical": true
+    }
+  ],
+  "results": [
+    {
+      "phase": "before",
+      "label": "desktop",
+      "base": "http://127.0.0.1:5174",
+      "geometry": [
+        {
+          "tag": "A",
+          "text": "Skip to content",
+          "rect": [
+            16,
+            -89.59375,
+            145.796875,
+            52.796875
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgb(8, 17, 19)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "HEADER",
+          "text": "INFOPUNKSRADAR / INTELLIGENCE TERMINALRadarSolanaRobinhood ChainProofDevelopersONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.",
+          "rect": [
+            16,
+            16,
+            1408,
+            70
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "INFOPUNKSRADAR / INTELLIGENCE TERMINAL",
+          "rect": [
+            37,
+            28.75,
+            327.078125,
+            44.484375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "23px",
+            "750",
+            "25.3px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "BUTTON",
+          "text": "",
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(8, 17, 19)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Radar",
+          "rect": [
+            506.515625,
+            29,
+            44.125,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Solana",
+          "rect": [
+            562.640625,
+            29,
+            51.359375,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Robinhood Chain",
+          "rect": [
+            626,
+            29,
+            116.375,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Proof",
+          "rect": [
+            754.375,
+            29,
+            44.125,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Developers",
+          "rect": [
+            810.5,
+            29,
+            80.25,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "[ 01 ] INFOPUNKS RADAR / TWO ECONOMIESBefore your agent spends, check the evidence.Radar evaluates routes, providers, and payment risk before funds move. Evidence-bound decisions. Inspectable reasoning. Accountable receipts.Route, endpoint, or provider identifier>Use a catalog identifier or endpoint. Review intent and policy in the Spend Terminal.▶ Run Spend Check  Inspect judgment formatNo wallet required to explore. Advisory checks; no automatic payment.INTELLIGENCEBEFORETHE WALLETACTS.VERIFIABLEEVIDENCE.ACCOUNTABLEDECISIONS. JUDGMENT PREVIEWNO CHECK RUNYour next spend routeService / provider / payment endpointSubject network and fee rail are independent.Outcome AWAITING EVIDENCEConfidence—A policy-bound decision appears after a check. Missing or stale evidence cannot become permission to spend.Evidence summaryProvider verificationNOT CHECKEDView ↗A reviewed identity and evidence provenance must support the provider. No provider has been checked in this preview.Route historyNOT CHECKEDView ↗Fresh, accepted execution outcomes and relevant independent evaluations inform the check. No route history is loaded here.Payment risk analysisNOT CHECKEDView ↗Price, budget and the service payment method must satisfy policy. The Judgment fee rail is independent of the subject network.Policy match (your rules)REQUIREDView ↗A supported policy and its frozen version must match the requested action. Market inspection does not authorize a trade.ReceiptNot issued. No check or execution has occurred.NOT ISSUEDJudgment is advisory. Execution requires separate authorization.",
+          "rect": [
+            16,
+            100,
+            1408,
+            593.90625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229) rgb(241, 240, 229) rgb(37, 61, 67)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 01 ] INFOPUNKS RADAR / TWO ECONOMIES",
+          "rect": [
+            28,
+            124,
+            530.703125,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H1",
+          "text": "Before your agent spends, check the evidence.",
+          "rect": [
+            28,
+            155.1875,
+            530.703125,
+            165.609375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "51.12px",
+            "800",
+            "55.2096px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Radar evaluates routes, providers, and payment risk before funds move. Evidence-bound decisions. Inspectable reasoning. Accountable receipts.",
+          "rect": [
+            28,
+            338.796875,
+            530.703125,
+            78.421875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "15.84px",
+            "400",
+            "26.136px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "INPUT",
+          "text": "",
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(8, 17, 19)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "INPUT",
+          "text": "",
+          "rect": [
+            64.640625,
+            454.21875,
+            477.0625,
+            36
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "14px",
+            "400",
+            "normal"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Use a catalog identifier or endpoint. Review intent and policy in the Spend Terminal.",
+          "rect": [
+            45,
+            498.21875,
+            496.703125,
+            40.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "BUTTON",
+          "text": "▶ Run Spend Check ",
+          "rect": [
+            28,
+            570,
+            259.34375,
+            48
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "750",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(5, 11, 12)",
+            "rgb(0, 238, 228)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": " Inspect judgment format",
+          "rect": [
+            299.34375,
+            570,
+            259.359375,
+            48
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "No wallet required to explore. Advisory checks; no automatic payment.",
+          "rect": [
+            28,
+            618,
+            530.703125,
+            20.390625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": " JUDGMENT PREVIEW",
+          "rect": [
+            887.671875,
+            128,
+            153.234375,
+            20
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "13px",
+            "650",
+            "18.2px"
+          ],
+          "colors": [
+            "rgb(220, 145, 255)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(220, 145, 255)"
+          ]
+        },
+        {
+          "tag": "H3",
+          "text": "Your next spend route",
+          "rect": [
+            957.671875,
+            172,
+            325.109375,
+            24.796875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "700",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Service / provider / payment endpoint",
+          "rect": [
+            957.671875,
+            203.796875,
+            325.109375,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Subject network and fee rail are independent.",
+          "rect": [
+            957.671875,
+            225.984375,
+            325.109375,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Outcome",
+          "rect": [
+            887.671875,
+            273.96875,
+            228.203125,
+            18.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Confidence",
+          "rect": [
+            1322.75,
+            271.171875,
+            72.25,
+            18.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "A policy-bound decision appears after a check. Missing or stale evidence cannot become permission to spend.",
+          "rect": [
+            887.671875,
+            330.359375,
+            507.328125,
+            40.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H3",
+          "text": "Evidence summary",
+          "rect": [
+            887.671875,
+            381.140625,
+            507.328125,
+            29.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "600",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125) rgb(241, 240, 229) rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "A reviewed identity and evidence provenance must support the provider. No provider has been checked in this preview.",
+          "rect": [
+            888.671875,
+            455.734375,
+            505.328125,
+            52.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Fresh, accepted execution outcomes and relevant independent evaluations inform the check. No route history is loaded here.",
+          "rect": [
+            888.671875,
+            492.734375,
+            505.328125,
+            52.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Price, budget and the service payment method must satisfy policy. The Judgment fee rail is independent of the subject network.",
+          "rect": [
+            888.671875,
+            529.734375,
+            505.328125,
+            73.171875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "A supported policy and its frozen version must match the requested action. Market inspection does not authorize a trade.",
+          "rect": [
+            888.671875,
+            566.734375,
+            505.328125,
+            52.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Not issued. No check or execution has occurred.",
+          "rect": [
+            921.671875,
+            617.53125,
+            377.078125,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Judgment is advisory. Execution requires separate authorization.",
+          "rect": [
+            887.671875,
+            644.71875,
+            507.328125,
+            27.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "[ 02 ]One Judgment ProtocolFrom evidence to accountable action.ONE CANONICAL RECEIPT ARCHITECTURE.DIFFERENT EVIDENCE ADAPTERS. SAME STANDARD.Learn more Architecture reference · no stage records claimed01 / OBSERVATIONCollect evidence. Preserve provenance and gaps.02 / JUDGMENTApply frozen policy. Make an evidence-bound decision.03 / EXECUTIONSeparate authorization. Independently verify what happened.04 / EVALUATIONAttest outcomes. Eligible evaluations inform future checks.Execution and Evaluation receipts appear only when their proof exists.",
+          "rect": [
+            16,
+            707.90625,
+            1408,
+            247.921875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 02 ]",
+          "rect": [
+            33,
+            722.90625,
+            48.03125,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "One Judgment Protocol",
+          "rect": [
+            99,
+            720.90625,
+            269.0625,
+            27.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "23px",
+            "700",
+            "27.6px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "From evidence to accountable action.",
+          "rect": [
+            99,
+            753.5,
+            269.0625,
+            18.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Learn more ",
+          "rect": [
+            1308.75,
+            724.5,
+            98.25,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "Architecture reference · no stage records claimed01 / OBSERVATIONCollect evidence. Preserve provenance and gaps.02 / JUDGMENTApply frozen policy. Make an evidence-bound decision.03 / EXECUTIONSeparate authorization. Independently verify what happened.04 / EVALUATIONAttest outcomes. Eligible evaluations inform future checks.",
+          "rect": [
+            33,
+            780.09375,
+            1374,
+            143.546875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Architecture reference · no stage records claimed",
+          "rect": [
+            33,
+            780.09375,
+            1374,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Collect evidence. Preserve provenance and gaps.",
+          "rect": [
+            99,
+            853.078125,
+            252.5,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Apply frozen policy. Make an evidence-bound decision.",
+          "rect": [
+            446.5,
+            853.078125,
+            252.5,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Separate authorization. Independently verify what happened.",
+          "rect": [
+            794,
+            853.078125,
+            252.5,
+            57.5625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Attest outcomes. Eligible evaluations inform future checks.",
+          "rect": [
+            1141.5,
+            853.078125,
+            252.5,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Execution and Evaluation receipts appear only when their proof exists.",
+          "rect": [
+            33,
+            923.640625,
+            1374,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "[ 03 ] PRIMARY UTILITYSolana RadarShould this agent spend?Inspect service routes, providers, payment risk, and evidence before funds move.Advisory checks · execution separately authorizedRoutesProvidersPaymentsRiskEvidence[ 04 ] MARKET INTELLIGENCERobinhood ChainDoes this market deserve trust?Inspect contracts, PLTR markets, liquidity, counterparties, and proof.Read-only inspection · trading policy unqualifiedContractsLiquidityCounterpartiesProof[ 05 ] PRINCIPLESNo receipt,no trust.Every decision should be inspectable, verifiable, and accountable.Inspect receipt evidence ",
+          "rect": [
+            16,
+            969.828125,
+            1408,
+            220.4375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "ARTICLE",
+          "text": "[ 03 ] PRIMARY UTILITYSolana RadarShould this agent spend?Inspect service routes, providers, payment risk, and evidence before funds move.Advisory checks · execution separately authorizedRoutesProvidersPaymentsRiskEvidence",
+          "rect": [
+            16,
+            969.828125,
+            449.34375,
+            220.4375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 03 ] PRIMARY UTILITY",
+          "rect": [
+            31,
+            984.828125,
+            419.34375,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "Solana Radar",
+          "rect": [
+            101,
+            1017.796875,
+            173.390625,
+            26.4375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "23px",
+            "700",
+            "26.45px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Should this agent spend?",
+          "rect": [
+            101,
+            1048.234375,
+            173.390625,
+            18
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "",
+          "rect": [
+            406.34375,
+            1020.015625,
+            44,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Inspect service routes, providers, payment risk, and evidence before funds move.",
+          "rect": [
+            31,
+            1070.015625,
+            419.34375,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Advisory checks · execution separately authorized",
+          "rect": [
+            31,
+            1116.390625,
+            419.34375,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "ARTICLE",
+          "text": "[ 04 ] MARKET INTELLIGENCERobinhood ChainDoes this market deserve trust?Inspect contracts, PLTR markets, liquidity, counterparties, and proof.Read-only inspection · trading policy unqualifiedContractsLiquidityCounterpartiesProof",
+          "rect": [
+            477.34375,
+            969.828125,
+            449.34375,
+            220.4375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 04 ] MARKET INTELLIGENCE",
+          "rect": [
+            492.34375,
+            984.828125,
+            419.34375,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "Robinhood Chain",
+          "rect": [
+            562.34375,
+            1017.796875,
+            223.96875,
+            26.4375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "23px",
+            "700",
+            "26.45px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Does this market deserve trust?",
+          "rect": [
+            562.34375,
+            1048.234375,
+            223.96875,
+            18
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "",
+          "rect": [
+            867.6875,
+            1020.015625,
+            44,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Inspect contracts, PLTR markets, liquidity, counterparties, and proof.",
+          "rect": [
+            492.34375,
+            1070.015625,
+            419.34375,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Read-only inspection · trading policy unqualified",
+          "rect": [
+            492.34375,
+            1116.390625,
+            419.34375,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "ARTICLE",
+          "text": "[ 05 ] PRINCIPLESNo receipt,no trust.Every decision should be inspectable, verifiable, and accountable.Inspect receipt evidence ",
+          "rect": [
+            938.6875,
+            969.828125,
+            485.3125,
+            220.4375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 05 ] PRINCIPLES",
+          "rect": [
+            953.6875,
+            984.828125,
+            455.3125,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "No receipt,no trust.",
+          "rect": [
+            1023.6875,
+            1014.015625,
+            140.9375,
+            52.875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "23px",
+            "700",
+            "26.45px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Every decision should be inspectable, verifiable, and accountable.",
+          "rect": [
+            953.6875,
+            1084.890625,
+            341.484375,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Inspect receipt evidence ",
+          "rect": [
+            953.6875,
+            1131.265625,
+            209.390625,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "[ 06 ] ONE RADAR. TWO ECONOMIES.One Standard of Proof.Intelligence before the wallet acts.Solana leads with service spending intelligence. Robinhood Chain leads with read-only market inspection. Both use the same trust principles and receipt authority.Pay.sh is a spend rail. Judgment assesses the action under policy. Separately authorized infrastructure handles execution.Integration documentation POST /v1/pre-spend/check · illustrative request{\n  \"agent_id\": \"your-agent\",\n  \"intent\": \"buy_market_research\",\n  \"budget\": 25,\n  \"risk_tolerance\": \"low\",\n  \"preferred_settlement\": \"stablecoin\",\n  \"required_confidence\": 80\n}Illustrative advisory request; inspect the API contract for required fields. This request does not execute or pay.",
+          "rect": [
+            16,
+            1204.265625,
+            1408,
+            340.125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 06 ] ONE RADAR. TWO ECONOMIES.",
+          "rect": [
+            41,
+            1229.265625,
+            655,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "One Standard of Proof.",
+          "rect": [
+            41,
+            1260.453125,
+            655,
+            41.46875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "34.56px",
+            "700",
+            "41.472px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Intelligence before the wallet acts.",
+          "rect": [
+            41,
+            1315.921875,
+            655,
+            20.390625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Solana leads with service spending intelligence. Robinhood Chain leads with read-only market inspection. Both use the same trust principles and receipt authority.",
+          "rect": [
+            41,
+            1348.3125,
+            655,
+            40.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Pay.sh is a spend rail. Judgment assesses the action under policy. Separately authorized infrastructure handles execution.",
+          "rect": [
+            41,
+            1401.09375,
+            655,
+            40.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Integration documentation ",
+          "rect": [
+            41,
+            1453.875,
+            216.625,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "POST /v1/pre-spend/check · illustrative request",
+          "rect": [
+            744,
+            1229.265625,
+            655,
+            18.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Illustrative advisory request; inspect the API contract for required fields. This request does not execute or pay.",
+          "rect": [
+            744,
+            1466.609375,
+            655,
+            40.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "FOOTER",
+          "text": "INFOPUNKS RADAR // THE INTELLIGENCE TERMINALONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.API CONTRACT ",
+          "rect": [
+            16,
+            1558.390625,
+            1408,
+            54
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "INFOPUNKS RADAR // THE INTELLIGENCE TERMINAL",
+          "rect": [
+            33,
+            1563.390625,
+            308.09375,
+            44
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "API CONTRACT ",
+          "rect": [
+            1292.921875,
+            1563.390625,
+            114.078125,
+            44
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "after",
+      "label": "desktop",
+      "base": "http://127.0.0.1:5173",
+      "geometry": [
+        {
+          "tag": "A",
+          "text": "Skip to content",
+          "rect": [
+            16,
+            -89.59375,
+            145.796875,
+            52.796875
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgb(8, 17, 19)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "HEADER",
+          "text": "INFOPUNKSRADAR / INTELLIGENCE TERMINALRadarSolanaRobinhood ChainProofDevelopersONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.",
+          "rect": [
+            16,
+            16,
+            1408,
+            70
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "INFOPUNKSRADAR / INTELLIGENCE TERMINAL",
+          "rect": [
+            37,
+            28.75,
+            327.078125,
+            44.484375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "23px",
+            "750",
+            "25.3px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "BUTTON",
+          "text": "",
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(8, 17, 19)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Radar",
+          "rect": [
+            506.515625,
+            29,
+            44.125,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Solana",
+          "rect": [
+            562.640625,
+            29,
+            51.359375,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Robinhood Chain",
+          "rect": [
+            626,
+            29,
+            116.375,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Proof",
+          "rect": [
+            754.375,
+            29,
+            44.125,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Developers",
+          "rect": [
+            810.5,
+            29,
+            80.25,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "[ 01 ] INFOPUNKS RADAR / TWO ECONOMIESBefore your agent spends, check the evidence.Radar evaluates routes, providers, and payment risk before funds move. Evidence-bound decisions. Inspectable reasoning. Accountable receipts.Route, endpoint, or provider identifier>Use a catalog identifier or endpoint. Review intent and policy in the Spend Terminal.▶ Run Spend Check  Inspect judgment formatNo wallet required to explore. Advisory checks; no automatic payment.INTELLIGENCEBEFORETHE WALLETACTS.VERIFIABLEEVIDENCE.ACCOUNTABLEDECISIONS. JUDGMENT PREVIEWNO CHECK RUNYour next spend routeService / provider / payment endpointSubject network and fee rail are independent.Outcome AWAITING EVIDENCEConfidence—A policy-bound decision appears after a check. Missing or stale evidence cannot become permission to spend.Evidence summaryProvider verificationNOT CHECKEDView ↗A reviewed identity and evidence provenance must support the provider. No provider has been checked in this preview.Route historyNOT CHECKEDView ↗Fresh, accepted execution outcomes and relevant independent evaluations inform the check. No route history is loaded here.Payment risk analysisNOT CHECKEDView ↗Price, budget and the service payment method must satisfy policy. The Judgment fee rail is independent of the subject network.Policy match (your rules)REQUIREDView ↗A supported policy and its frozen version must match the requested action. Market inspection does not authorize a trade.ReceiptNot issued. No check or execution has occurred.NOT ISSUEDJudgment is advisory. Execution requires separate authorization.",
+          "rect": [
+            16,
+            100,
+            1408,
+            593.90625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229) rgb(241, 240, 229) rgb(37, 61, 67)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 01 ] INFOPUNKS RADAR / TWO ECONOMIES",
+          "rect": [
+            28,
+            124,
+            530.703125,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H1",
+          "text": "Before your agent spends, check the evidence.",
+          "rect": [
+            28,
+            155.1875,
+            530.703125,
+            165.609375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "51.12px",
+            "800",
+            "55.2096px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Radar evaluates routes, providers, and payment risk before funds move. Evidence-bound decisions. Inspectable reasoning. Accountable receipts.",
+          "rect": [
+            28,
+            338.796875,
+            530.703125,
+            78.421875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "15.84px",
+            "400",
+            "26.136px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "INPUT",
+          "text": "",
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(8, 17, 19)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "INPUT",
+          "text": "",
+          "rect": [
+            64.640625,
+            454.21875,
+            477.0625,
+            36
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "14px",
+            "400",
+            "normal"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Use a catalog identifier or endpoint. Review intent and policy in the Spend Terminal.",
+          "rect": [
+            45,
+            498.21875,
+            496.703125,
+            40.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "BUTTON",
+          "text": "▶ Run Spend Check ",
+          "rect": [
+            28,
+            570,
+            259.34375,
+            48
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "750",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(5, 11, 12)",
+            "rgb(0, 238, 228)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": " Inspect judgment format",
+          "rect": [
+            299.34375,
+            570,
+            259.359375,
+            48
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "No wallet required to explore. Advisory checks; no automatic payment.",
+          "rect": [
+            28,
+            618,
+            530.703125,
+            20.390625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": " JUDGMENT PREVIEW",
+          "rect": [
+            887.671875,
+            128,
+            153.234375,
+            20
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "13px",
+            "650",
+            "18.2px"
+          ],
+          "colors": [
+            "rgb(220, 145, 255)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(220, 145, 255)"
+          ]
+        },
+        {
+          "tag": "H3",
+          "text": "Your next spend route",
+          "rect": [
+            957.671875,
+            172,
+            325.109375,
+            24.796875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "700",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Service / provider / payment endpoint",
+          "rect": [
+            957.671875,
+            203.796875,
+            325.109375,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Subject network and fee rail are independent.",
+          "rect": [
+            957.671875,
+            225.984375,
+            325.109375,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Outcome",
+          "rect": [
+            887.671875,
+            273.96875,
+            228.203125,
+            18.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Confidence",
+          "rect": [
+            1322.75,
+            271.171875,
+            72.25,
+            18.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "A policy-bound decision appears after a check. Missing or stale evidence cannot become permission to spend.",
+          "rect": [
+            887.671875,
+            330.359375,
+            507.328125,
+            40.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H3",
+          "text": "Evidence summary",
+          "rect": [
+            887.671875,
+            381.140625,
+            507.328125,
+            29.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "600",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125) rgb(241, 240, 229) rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "A reviewed identity and evidence provenance must support the provider. No provider has been checked in this preview.",
+          "rect": [
+            888.671875,
+            455.734375,
+            505.328125,
+            52.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Fresh, accepted execution outcomes and relevant independent evaluations inform the check. No route history is loaded here.",
+          "rect": [
+            888.671875,
+            492.734375,
+            505.328125,
+            52.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Price, budget and the service payment method must satisfy policy. The Judgment fee rail is independent of the subject network.",
+          "rect": [
+            888.671875,
+            529.734375,
+            505.328125,
+            73.171875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "A supported policy and its frozen version must match the requested action. Market inspection does not authorize a trade.",
+          "rect": [
+            888.671875,
+            566.734375,
+            505.328125,
+            52.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Not issued. No check or execution has occurred.",
+          "rect": [
+            921.671875,
+            617.53125,
+            377.078125,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Judgment is advisory. Execution requires separate authorization.",
+          "rect": [
+            887.671875,
+            644.71875,
+            507.328125,
+            27.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "[ 02 ]One Judgment ProtocolFrom evidence to accountable action.ONE CANONICAL RECEIPT ARCHITECTURE.DIFFERENT EVIDENCE ADAPTERS. SAME STANDARD.Learn more Architecture reference · no stage records claimed01 / OBSERVATIONCollect evidence. Preserve provenance and gaps.02 / JUDGMENTApply frozen policy. Make an evidence-bound decision.03 / EXECUTIONSeparate authorization. Independently verify what happened.04 / EVALUATIONAttest outcomes. Eligible evaluations inform future checks.Execution and Evaluation receipts appear only when their proof exists.",
+          "rect": [
+            16,
+            707.90625,
+            1408,
+            247.921875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 02 ]",
+          "rect": [
+            33,
+            722.90625,
+            48.03125,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "One Judgment Protocol",
+          "rect": [
+            99,
+            720.90625,
+            269.0625,
+            27.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "23px",
+            "700",
+            "27.6px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "From evidence to accountable action.",
+          "rect": [
+            99,
+            753.5,
+            269.0625,
+            18.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Learn more ",
+          "rect": [
+            1308.75,
+            724.5,
+            98.25,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "Architecture reference · no stage records claimed01 / OBSERVATIONCollect evidence. Preserve provenance and gaps.02 / JUDGMENTApply frozen policy. Make an evidence-bound decision.03 / EXECUTIONSeparate authorization. Independently verify what happened.04 / EVALUATIONAttest outcomes. Eligible evaluations inform future checks.",
+          "rect": [
+            33,
+            780.09375,
+            1374,
+            143.546875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Architecture reference · no stage records claimed",
+          "rect": [
+            33,
+            780.09375,
+            1374,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Collect evidence. Preserve provenance and gaps.",
+          "rect": [
+            99,
+            853.078125,
+            252.5,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Apply frozen policy. Make an evidence-bound decision.",
+          "rect": [
+            446.5,
+            853.078125,
+            252.5,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Separate authorization. Independently verify what happened.",
+          "rect": [
+            794,
+            853.078125,
+            252.5,
+            57.5625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Attest outcomes. Eligible evaluations inform future checks.",
+          "rect": [
+            1141.5,
+            853.078125,
+            252.5,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Execution and Evaluation receipts appear only when their proof exists.",
+          "rect": [
+            33,
+            923.640625,
+            1374,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "[ 03 ] PRIMARY UTILITYSolana RadarShould this agent spend?Inspect service routes, providers, payment risk, and evidence before funds move.Advisory checks · execution separately authorizedRoutesProvidersPaymentsRiskEvidence[ 04 ] MARKET INTELLIGENCERobinhood ChainDoes this market deserve trust?Inspect contracts, PLTR markets, liquidity, counterparties, and proof.Read-only inspection · trading policy unqualifiedContractsLiquidityCounterpartiesProof[ 05 ] PRINCIPLESNo receipt,no trust.Every decision should be inspectable, verifiable, and accountable.Inspect receipt evidence ",
+          "rect": [
+            16,
+            969.828125,
+            1408,
+            220.4375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "ARTICLE",
+          "text": "[ 03 ] PRIMARY UTILITYSolana RadarShould this agent spend?Inspect service routes, providers, payment risk, and evidence before funds move.Advisory checks · execution separately authorizedRoutesProvidersPaymentsRiskEvidence",
+          "rect": [
+            16,
+            969.828125,
+            449.34375,
+            220.4375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 03 ] PRIMARY UTILITY",
+          "rect": [
+            31,
+            984.828125,
+            419.34375,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "Solana Radar",
+          "rect": [
+            101,
+            1017.796875,
+            173.390625,
+            26.4375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "23px",
+            "700",
+            "26.45px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Should this agent spend?",
+          "rect": [
+            101,
+            1048.234375,
+            173.390625,
+            18
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "",
+          "rect": [
+            406.34375,
+            1020.015625,
+            44,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Inspect service routes, providers, payment risk, and evidence before funds move.",
+          "rect": [
+            31,
+            1070.015625,
+            419.34375,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Advisory checks · execution separately authorized",
+          "rect": [
+            31,
+            1116.390625,
+            419.34375,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "ARTICLE",
+          "text": "[ 04 ] MARKET INTELLIGENCERobinhood ChainDoes this market deserve trust?Inspect contracts, PLTR markets, liquidity, counterparties, and proof.Read-only inspection · trading policy unqualifiedContractsLiquidityCounterpartiesProof",
+          "rect": [
+            477.34375,
+            969.828125,
+            449.34375,
+            220.4375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 04 ] MARKET INTELLIGENCE",
+          "rect": [
+            492.34375,
+            984.828125,
+            419.34375,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "Robinhood Chain",
+          "rect": [
+            562.34375,
+            1017.796875,
+            223.96875,
+            26.4375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "23px",
+            "700",
+            "26.45px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Does this market deserve trust?",
+          "rect": [
+            562.34375,
+            1048.234375,
+            223.96875,
+            18
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "",
+          "rect": [
+            867.6875,
+            1020.015625,
+            44,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Inspect contracts, PLTR markets, liquidity, counterparties, and proof.",
+          "rect": [
+            492.34375,
+            1070.015625,
+            419.34375,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Read-only inspection · trading policy unqualified",
+          "rect": [
+            492.34375,
+            1116.390625,
+            419.34375,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "ARTICLE",
+          "text": "[ 05 ] PRINCIPLESNo receipt,no trust.Every decision should be inspectable, verifiable, and accountable.Inspect receipt evidence ",
+          "rect": [
+            938.6875,
+            969.828125,
+            485.3125,
+            220.4375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 05 ] PRINCIPLES",
+          "rect": [
+            953.6875,
+            984.828125,
+            455.3125,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "No receipt,no trust.",
+          "rect": [
+            1023.6875,
+            1014.015625,
+            140.9375,
+            52.875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "23px",
+            "700",
+            "26.45px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Every decision should be inspectable, verifiable, and accountable.",
+          "rect": [
+            953.6875,
+            1084.890625,
+            341.484375,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Inspect receipt evidence ",
+          "rect": [
+            953.6875,
+            1131.265625,
+            209.390625,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "[ 06 ] ONE RADAR. TWO ECONOMIES.One Standard of Proof.Intelligence before the wallet acts.Solana leads with service spending intelligence. Robinhood Chain leads with read-only market inspection. Both use the same trust principles and receipt authority.Pay.sh is a spend rail. Judgment assesses the action under policy. Separately authorized infrastructure handles execution.Integration documentation POST /v1/pre-spend/check · illustrative request{\n  \"agent_id\": \"your-agent\",\n  \"intent\": \"buy_market_research\",\n  \"budget\": 25,\n  \"risk_tolerance\": \"low\",\n  \"preferred_settlement\": \"stablecoin\",\n  \"required_confidence\": 80\n}Illustrative advisory request; inspect the API contract for required fields. This request does not execute or pay.",
+          "rect": [
+            16,
+            1204.265625,
+            1408,
+            340.125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 06 ] ONE RADAR. TWO ECONOMIES.",
+          "rect": [
+            41,
+            1229.265625,
+            655,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "One Standard of Proof.",
+          "rect": [
+            41,
+            1260.453125,
+            655,
+            41.46875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "34.56px",
+            "700",
+            "41.472px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Intelligence before the wallet acts.",
+          "rect": [
+            41,
+            1315.921875,
+            655,
+            20.390625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Solana leads with service spending intelligence. Robinhood Chain leads with read-only market inspection. Both use the same trust principles and receipt authority.",
+          "rect": [
+            41,
+            1348.3125,
+            655,
+            40.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Pay.sh is a spend rail. Judgment assesses the action under policy. Separately authorized infrastructure handles execution.",
+          "rect": [
+            41,
+            1401.09375,
+            655,
+            40.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Integration documentation ",
+          "rect": [
+            41,
+            1453.875,
+            216.625,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "POST /v1/pre-spend/check · illustrative request",
+          "rect": [
+            744,
+            1229.265625,
+            655,
+            18.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Illustrative advisory request; inspect the API contract for required fields. This request does not execute or pay.",
+          "rect": [
+            744,
+            1466.609375,
+            655,
+            40.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "FOOTER",
+          "text": "INFOPUNKS RADAR // THE INTELLIGENCE TERMINALONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.API CONTRACT ",
+          "rect": [
+            16,
+            1558.390625,
+            1408,
+            54
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "INFOPUNKS RADAR // THE INTELLIGENCE TERMINAL",
+          "rect": [
+            33,
+            1563.390625,
+            308.09375,
+            44
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "API CONTRACT ",
+          "rect": [
+            1292.921875,
+            1563.390625,
+            114.078125,
+            44
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "before",
+      "label": "mobile",
+      "base": "http://127.0.0.1:5174",
+      "geometry": [
+        {
+          "tag": "A",
+          "text": "Skip to content",
+          "rect": [
+            16,
+            -89.59375,
+            145.796875,
+            52.796875
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgb(8, 17, 19)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "HEADER",
+          "text": "INFOPUNKSRADAR / INTELLIGENCE TERMINALRadarSolanaRobinhood ChainProofDevelopersONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.",
+          "rect": [
+            10,
+            10,
+            370,
+            64
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "INFOPUNKSRADAR / INTELLIGENCE TERMINAL",
+          "rect": [
+            23,
+            20,
+            271.40625,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "20px",
+            "750",
+            "22px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "BUTTON",
+          "text": "",
+          "rect": [
+            323,
+            20,
+            44,
+            44
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(8, 17, 19)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Radar",
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Solana",
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Robinhood Chain",
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Proof",
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Developers",
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "[ 01 ] INFOPUNKS RADAR / TWO ECONOMIESBefore your agent spends, check the evidence.Radar evaluates routes, providers, and payment risk before funds move. Evidence-bound decisions. Inspectable reasoning. Accountable receipts.Route, endpoint, or provider identifier>Use a catalog identifier or endpoint. Review intent and policy in the Spend Terminal.▶ Run Spend Check  Inspect judgment formatNo wallet required to explore. Advisory checks; no automatic payment.INTELLIGENCEBEFORETHE WALLETACTS.VERIFIABLEEVIDENCE.ACCOUNTABLEDECISIONS. JUDGMENT PREVIEWNO CHECK RUNYour next spend routeService / provider / payment endpointSubject network and fee rail are independent.Outcome AWAITING EVIDENCEConfidence—A policy-bound decision appears after a check. Missing or stale evidence cannot become permission to spend.Evidence summaryProvider verificationNOT CHECKEDView ↗A reviewed identity and evidence provenance must support the provider. No provider has been checked in this preview.Route historyNOT CHECKEDView ↗Fresh, accepted execution outcomes and relevant independent evaluations inform the check. No route history is loaded here.Payment risk analysisNOT CHECKEDView ↗Price, budget and the service payment method must satisfy policy. The Judgment fee rail is independent of the subject network.Policy match (your rules)REQUIREDView ↗A supported policy and its frozen version must match the requested action. Market inspection does not authorize a trade.ReceiptNot issued. No check or execution has occurred.NOT ISSUEDJudgment is advisory. Execution requires separate authorization.",
+          "rect": [
+            10,
+            86,
+            370,
+            1260.96875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229) rgb(241, 240, 229) rgb(37, 61, 67)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 01 ] INFOPUNKS RADAR / TWO ECONOMIES",
+          "rect": [
+            14,
+            94,
+            362,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H1",
+          "text": "Before your agent spends, check the evidence.",
+          "rect": [
+            14,
+            125.1875,
+            362,
+            103.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "31.98px",
+            "800",
+            "34.5384px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Radar evaluates routes, providers, and payment risk before funds move. Evidence-bound decisions. Inspectable reasoning. Accountable receipts.",
+          "rect": [
+            14,
+            242.78125,
+            362,
+            61.171875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "INPUT",
+          "text": "",
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(8, 17, 19)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "INPUT",
+          "text": "",
+          "rect": [
+            44.640625,
+            330.953125,
+            320.359375,
+            36
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "normal"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Use a catalog identifier or endpoint. Review intent and policy in the Spend Terminal.",
+          "rect": [
+            25,
+            374.953125,
+            340,
+            40.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "BUTTON",
+          "text": "▶ Run Spend Check ",
+          "rect": [
+            14,
+            442.734375,
+            362,
+            48
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "13px",
+            "750",
+            "18.2px"
+          ],
+          "colors": [
+            "rgb(5, 11, 12)",
+            "rgb(0, 238, 228)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": " Inspect judgment format",
+          "rect": [
+            14,
+            498.734375,
+            362,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "No wallet required to explore. Advisory checks; no automatic payment.",
+          "rect": [
+            14,
+            542.734375,
+            362,
+            40.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": " JUDGMENT PREVIEW",
+          "rect": [
+            27,
+            631.515625,
+            143.59375,
+            20
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "650",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(220, 145, 255)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(220, 145, 255)"
+          ]
+        },
+        {
+          "tag": "H3",
+          "text": "Your next spend route",
+          "rect": [
+            97,
+            683.515625,
+            266,
+            24.796875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "700",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Service / provider / payment endpoint",
+          "rect": [
+            97,
+            715.3125,
+            266,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Subject network and fee rail are independent.",
+          "rect": [
+            97,
+            756.6875,
+            266,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Outcome",
+          "rect": [
+            27,
+            829.0625,
+            198.78125,
+            18.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Confidence",
+          "rect": [
+            290.75,
+            829.15625,
+            72.25,
+            18.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "A policy-bound decision appears after a check. Missing or stale evidence cannot become permission to spend.",
+          "rect": [
+            27,
+            878.65625,
+            336,
+            61.171875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H3",
+          "text": "Evidence summary",
+          "rect": [
+            27,
+            953.828125,
+            336,
+            29.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "600",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125) rgb(241, 240, 229) rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "A reviewed identity and evidence provenance must support the provider. No provider has been checked in this preview.",
+          "rect": [
+            28,
+            1036.421875,
+            334,
+            93.5625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Fresh, accepted execution outcomes and relevant independent evaluations inform the check. No route history is loaded here.",
+          "rect": [
+            28,
+            1081.421875,
+            334,
+            93.5625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Price, budget and the service payment method must satisfy policy. The Judgment fee rail is independent of the subject network.",
+          "rect": [
+            28,
+            1126.421875,
+            334,
+            93.5625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "A supported policy and its frozen version must match the requested action. Market inspection does not authorize a trade.",
+          "rect": [
+            28,
+            1171.421875,
+            334,
+            93.5625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Not issued. No check or execution has occurred.",
+          "rect": [
+            61,
+            1230.21875,
+            205.75,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Judgment is advisory. Execution requires separate authorization.",
+          "rect": [
+            27,
+            1278.59375,
+            336,
+            50.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "[ 02 ]One Judgment ProtocolFrom evidence to accountable action.ONE CANONICAL RECEIPT ARCHITECTURE.DIFFERENT EVIDENCE ADAPTERS. SAME STANDARD.Learn more Architecture reference · no stage records claimed01 / OBSERVATIONCollect evidence. Preserve provenance and gaps.02 / JUDGMENTApply frozen policy. Make an evidence-bound decision.03 / EXECUTIONSeparate authorization. Independently verify what happened.04 / EVALUATIONAttest outcomes. Eligible evaluations inform future checks.Execution and Evaluation receipts appear only when their proof exists.",
+          "rect": [
+            10,
+            1358.96875,
+            370,
+            663.40625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 02 ]",
+          "rect": [
+            25,
+            1373.96875,
+            260.09375,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "One Judgment Protocol",
+          "rect": [
+            25,
+            1401.15625,
+            260.09375,
+            25.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "21px",
+            "700",
+            "25.2px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "From evidence to accountable action.",
+          "rect": [
+            25,
+            1431.34375,
+            260.09375,
+            18.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Learn more ",
+          "rect": [
+            25,
+            1457.9375,
+            98.25,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "Architecture reference · no stage records claimed01 / OBSERVATIONCollect evidence. Preserve provenance and gaps.02 / JUDGMENTApply frozen policy. Make an evidence-bound decision.03 / EXECUTIONSeparate authorization. Independently verify what happened.04 / EVALUATIONAttest outcomes. Eligible evaluations inform future checks.",
+          "rect": [
+            25,
+            1509.9375,
+            340,
+            459.0625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Architecture reference · no stage records claimed",
+          "rect": [
+            25,
+            1509.9375,
+            340,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Collect evidence. Preserve provenance and gaps.",
+          "rect": [
+            91,
+            1602.109375,
+            261,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Apply frozen policy. Make an evidence-bound decision.",
+          "rect": [
+            91,
+            1707.28125,
+            261,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Separate authorization. Independently verify what happened.",
+          "rect": [
+            91,
+            1812.453125,
+            261,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Attest outcomes. Eligible evaluations inform future checks.",
+          "rect": [
+            91,
+            1917.625,
+            261,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Execution and Evaluation receipts appear only when their proof exists.",
+          "rect": [
+            25,
+            1969,
+            340,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "[ 03 ] PRIMARY UTILITYSolana RadarShould this agent spend?Inspect service routes, providers, payment risk, and evidence before funds move.Advisory checks · execution separately authorizedRoutesProvidersPaymentsRiskEvidence[ 04 ] MARKET INTELLIGENCERobinhood ChainDoes this market deserve trust?Inspect contracts, PLTR markets, liquidity, counterparties, and proof.Read-only inspection · trading policy unqualifiedContractsLiquidityCounterpartiesProof[ 05 ] PRINCIPLESNo receipt,no trust.Every decision should be inspectable, verifiable, and accountable.Inspect receipt evidence ",
+          "rect": [
+            10,
+            2034.375,
+            370,
+            814.671875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "ARTICLE",
+          "text": "[ 03 ] PRIMARY UTILITYSolana RadarShould this agent spend?Inspect service routes, providers, payment risk, and evidence before funds move.Advisory checks · execution separately authorizedRoutesProvidersPaymentsRiskEvidence",
+          "rect": [
+            10,
+            2034.375,
+            370,
+            271.3125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 03 ] PRIMARY UTILITY",
+          "rect": [
+            25,
+            2049.375,
+            340,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "Solana Radar",
+          "rect": [
+            95,
+            2082.90625,
+            173.390625,
+            25.296875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "22px",
+            "700",
+            "25.3px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Should this agent spend?",
+          "rect": [
+            95,
+            2112.203125,
+            173.390625,
+            18
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "",
+          "rect": [
+            321,
+            2084.5625,
+            44,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Inspect service routes, providers, payment risk, and evidence before funds move.",
+          "rect": [
+            25,
+            2134.5625,
+            340,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Advisory checks · execution separately authorized",
+          "rect": [
+            25,
+            2180.9375,
+            340,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "ARTICLE",
+          "text": "[ 04 ] MARKET INTELLIGENCERobinhood ChainDoes this market deserve trust?Inspect contracts, PLTR markets, liquidity, counterparties, and proof.Read-only inspection · trading policy unqualifiedContractsLiquidityCounterpartiesProof",
+          "rect": [
+            10,
+            2317.6875,
+            370,
+            280.609375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 04 ] MARKET INTELLIGENCE",
+          "rect": [
+            25,
+            2332.6875,
+            340,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "Robinhood Chain",
+          "rect": [
+            95,
+            2361.875,
+            212,
+            25.296875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "22px",
+            "700",
+            "25.3px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Does this market deserve trust?",
+          "rect": [
+            95,
+            2391.171875,
+            212,
+            36
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "",
+          "rect": [
+            321,
+            2372.515625,
+            44,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Inspect contracts, PLTR markets, liquidity, counterparties, and proof.",
+          "rect": [
+            25,
+            2427.171875,
+            340,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Read-only inspection · trading policy unqualified",
+          "rect": [
+            25,
+            2473.546875,
+            340,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "ARTICLE",
+          "text": "[ 05 ] PRINCIPLESNo receipt,no trust.Every decision should be inspectable, verifiable, and accountable.Inspect receipt evidence ",
+          "rect": [
+            10,
+            2610.296875,
+            370,
+            238.75
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 05 ] PRINCIPLES",
+          "rect": [
+            25,
+            2625.296875,
+            340,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "No receipt,no trust.",
+          "rect": [
+            95,
+            2655.1875,
+            134.8125,
+            50.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "22px",
+            "700",
+            "25.3px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Every decision should be inspectable, verifiable, and accountable.",
+          "rect": [
+            25,
+            2724.484375,
+            255,
+            57.5625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Inspect receipt evidence ",
+          "rect": [
+            25,
+            2790.046875,
+            209.390625,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "[ 06 ] ONE RADAR. TWO ECONOMIES.One Standard of Proof.Intelligence before the wallet acts.Solana leads with service spending intelligence. Robinhood Chain leads with read-only market inspection. Both use the same trust principles and receipt authority.Pay.sh is a spend rail. Judgment assesses the action under policy. Separately authorized infrastructure handles execution.Integration documentation POST /v1/pre-spend/check · illustrative request{\n  \"agent_id\": \"your-agent\",\n  \"intent\": \"buy_market_research\",\n  \"budget\": 25,\n  \"risk_tolerance\": \"low\",\n  \"preferred_settlement\": \"stablecoin\",\n  \"required_confidence\": 80\n}Illustrative advisory request; inspect the API contract for required fields. This request does not execute or pay.",
+          "rect": [
+            10,
+            2861.046875,
+            370,
+            704.21875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 06 ] ONE RADAR. TWO ECONOMIES.",
+          "rect": [
+            29,
+            2880.046875,
+            332,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "One Standard of Proof.",
+          "rect": [
+            29,
+            2911.234375,
+            332,
+            28.796875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "24px",
+            "700",
+            "28.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Intelligence before the wallet acts.",
+          "rect": [
+            29,
+            2954.03125,
+            332,
+            20.390625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Solana leads with service spending intelligence. Robinhood Chain leads with read-only market inspection. Both use the same trust principles and receipt authority.",
+          "rect": [
+            29,
+            2986.421875,
+            332,
+            81.5625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Pay.sh is a spend rail. Judgment assesses the action under policy. Separately authorized infrastructure handles execution.",
+          "rect": [
+            29,
+            3079.984375,
+            332,
+            61.171875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Integration documentation ",
+          "rect": [
+            29,
+            3153.15625,
+            216.625,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "POST /v1/pre-spend/check · illustrative request",
+          "rect": [
+            29,
+            3217.15625,
+            332,
+            37.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Illustrative advisory request; inspect the API contract for required fields. This request does not execute or pay.",
+          "rect": [
+            29,
+            3473.09375,
+            332,
+            61.171875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "FOOTER",
+          "text": "INFOPUNKS RADAR // THE INTELLIGENCE TERMINALONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.API CONTRACT ",
+          "rect": [
+            10,
+            3579.265625,
+            370,
+            149.1875
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "INFOPUNKS RADAR // THE INTELLIGENCE TERMINAL",
+          "rect": [
+            23,
+            3588.265625,
+            112.421875,
+            44
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "API CONTRACT ",
+          "rect": [
+            23,
+            3675.453125,
+            114.078125,
+            44
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "after",
+      "label": "mobile",
+      "base": "http://127.0.0.1:5173",
+      "geometry": [
+        {
+          "tag": "A",
+          "text": "Skip to content",
+          "rect": [
+            16,
+            -89.59375,
+            145.796875,
+            52.796875
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgb(8, 17, 19)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "HEADER",
+          "text": "INFOPUNKSRADAR / INTELLIGENCE TERMINALRadarSolanaRobinhood ChainProofDevelopersONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.",
+          "rect": [
+            10,
+            10,
+            370,
+            64
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "INFOPUNKSRADAR / INTELLIGENCE TERMINAL",
+          "rect": [
+            23,
+            20,
+            271.40625,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "20px",
+            "750",
+            "22px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "BUTTON",
+          "text": "",
+          "rect": [
+            323,
+            20,
+            44,
+            44
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(8, 17, 19)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Radar",
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Solana",
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Robinhood Chain",
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Proof",
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Developers",
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "[ 01 ] INFOPUNKS RADAR / TWO ECONOMIESBefore your agent spends, check the evidence.Radar evaluates routes, providers, and payment risk before funds move. Evidence-bound decisions. Inspectable reasoning. Accountable receipts.Route, endpoint, or provider identifier>Use a catalog identifier or endpoint. Review intent and policy in the Spend Terminal.▶ Run Spend Check  Inspect judgment formatNo wallet required to explore. Advisory checks; no automatic payment.INTELLIGENCEBEFORETHE WALLETACTS.VERIFIABLEEVIDENCE.ACCOUNTABLEDECISIONS. JUDGMENT PREVIEWNO CHECK RUNYour next spend routeService / provider / payment endpointSubject network and fee rail are independent.Outcome AWAITING EVIDENCEConfidence—A policy-bound decision appears after a check. Missing or stale evidence cannot become permission to spend.Evidence summaryProvider verificationNOT CHECKEDView ↗A reviewed identity and evidence provenance must support the provider. No provider has been checked in this preview.Route historyNOT CHECKEDView ↗Fresh, accepted execution outcomes and relevant independent evaluations inform the check. No route history is loaded here.Payment risk analysisNOT CHECKEDView ↗Price, budget and the service payment method must satisfy policy. The Judgment fee rail is independent of the subject network.Policy match (your rules)REQUIREDView ↗A supported policy and its frozen version must match the requested action. Market inspection does not authorize a trade.ReceiptNot issued. No check or execution has occurred.NOT ISSUEDJudgment is advisory. Execution requires separate authorization.",
+          "rect": [
+            10,
+            86,
+            370,
+            1260.96875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229) rgb(241, 240, 229) rgb(37, 61, 67)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 01 ] INFOPUNKS RADAR / TWO ECONOMIES",
+          "rect": [
+            14,
+            94,
+            362,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H1",
+          "text": "Before your agent spends, check the evidence.",
+          "rect": [
+            14,
+            125.1875,
+            362,
+            103.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "31.98px",
+            "800",
+            "34.5384px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Radar evaluates routes, providers, and payment risk before funds move. Evidence-bound decisions. Inspectable reasoning. Accountable receipts.",
+          "rect": [
+            14,
+            242.78125,
+            362,
+            61.171875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "INPUT",
+          "text": "",
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(8, 17, 19)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "INPUT",
+          "text": "",
+          "rect": [
+            44.640625,
+            330.953125,
+            320.359375,
+            36
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "normal"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Use a catalog identifier or endpoint. Review intent and policy in the Spend Terminal.",
+          "rect": [
+            25,
+            374.953125,
+            340,
+            40.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "BUTTON",
+          "text": "▶ Run Spend Check ",
+          "rect": [
+            14,
+            442.734375,
+            362,
+            48
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "13px",
+            "750",
+            "18.2px"
+          ],
+          "colors": [
+            "rgb(5, 11, 12)",
+            "rgb(0, 238, 228)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": " Inspect judgment format",
+          "rect": [
+            14,
+            498.734375,
+            362,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "No wallet required to explore. Advisory checks; no automatic payment.",
+          "rect": [
+            14,
+            542.734375,
+            362,
+            40.78125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": " JUDGMENT PREVIEW",
+          "rect": [
+            27,
+            631.515625,
+            143.59375,
+            20
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "650",
+            "16.8px"
+          ],
+          "colors": [
+            "rgb(220, 145, 255)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(220, 145, 255)"
+          ]
+        },
+        {
+          "tag": "H3",
+          "text": "Your next spend route",
+          "rect": [
+            97,
+            683.515625,
+            266,
+            24.796875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "700",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Service / provider / payment endpoint",
+          "rect": [
+            97,
+            715.3125,
+            266,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Subject network and fee rail are independent.",
+          "rect": [
+            97,
+            756.6875,
+            266,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Outcome",
+          "rect": [
+            27,
+            829.0625,
+            198.78125,
+            18.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Confidence",
+          "rect": [
+            290.75,
+            829.15625,
+            72.25,
+            18.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "A policy-bound decision appears after a check. Missing or stale evidence cannot become permission to spend.",
+          "rect": [
+            27,
+            878.65625,
+            336,
+            61.171875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H3",
+          "text": "Evidence summary",
+          "rect": [
+            27,
+            953.828125,
+            336,
+            29.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "600",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125) rgb(241, 240, 229) rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "A reviewed identity and evidence provenance must support the provider. No provider has been checked in this preview.",
+          "rect": [
+            28,
+            1036.421875,
+            334,
+            93.5625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Fresh, accepted execution outcomes and relevant independent evaluations inform the check. No route history is loaded here.",
+          "rect": [
+            28,
+            1081.421875,
+            334,
+            93.5625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Price, budget and the service payment method must satisfy policy. The Judgment fee rail is independent of the subject network.",
+          "rect": [
+            28,
+            1126.421875,
+            334,
+            93.5625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "A supported policy and its frozen version must match the requested action. Market inspection does not authorize a trade.",
+          "rect": [
+            28,
+            1171.421875,
+            334,
+            93.5625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Not issued. No check or execution has occurred.",
+          "rect": [
+            61,
+            1230.21875,
+            205.75,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Judgment is advisory. Execution requires separate authorization.",
+          "rect": [
+            27,
+            1278.59375,
+            336,
+            50.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "[ 02 ]One Judgment ProtocolFrom evidence to accountable action.ONE CANONICAL RECEIPT ARCHITECTURE.DIFFERENT EVIDENCE ADAPTERS. SAME STANDARD.Learn more Architecture reference · no stage records claimed01 / OBSERVATIONCollect evidence. Preserve provenance and gaps.02 / JUDGMENTApply frozen policy. Make an evidence-bound decision.03 / EXECUTIONSeparate authorization. Independently verify what happened.04 / EVALUATIONAttest outcomes. Eligible evaluations inform future checks.Execution and Evaluation receipts appear only when their proof exists.",
+          "rect": [
+            10,
+            1358.96875,
+            370,
+            663.40625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 02 ]",
+          "rect": [
+            25,
+            1373.96875,
+            260.09375,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "One Judgment Protocol",
+          "rect": [
+            25,
+            1401.15625,
+            260.09375,
+            25.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "21px",
+            "700",
+            "25.2px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "From evidence to accountable action.",
+          "rect": [
+            25,
+            1431.34375,
+            260.09375,
+            18.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Learn more ",
+          "rect": [
+            25,
+            1457.9375,
+            98.25,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "Architecture reference · no stage records claimed01 / OBSERVATIONCollect evidence. Preserve provenance and gaps.02 / JUDGMENTApply frozen policy. Make an evidence-bound decision.03 / EXECUTIONSeparate authorization. Independently verify what happened.04 / EVALUATIONAttest outcomes. Eligible evaluations inform future checks.",
+          "rect": [
+            25,
+            1509.9375,
+            340,
+            459.0625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Architecture reference · no stage records claimed",
+          "rect": [
+            25,
+            1509.9375,
+            340,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Collect evidence. Preserve provenance and gaps.",
+          "rect": [
+            91,
+            1602.109375,
+            261,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Apply frozen policy. Make an evidence-bound decision.",
+          "rect": [
+            91,
+            1707.28125,
+            261,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Separate authorization. Independently verify what happened.",
+          "rect": [
+            91,
+            1812.453125,
+            261,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Attest outcomes. Eligible evaluations inform future checks.",
+          "rect": [
+            91,
+            1917.625,
+            261,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Execution and Evaluation receipts appear only when their proof exists.",
+          "rect": [
+            25,
+            1969,
+            340,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "[ 03 ] PRIMARY UTILITYSolana RadarShould this agent spend?Inspect service routes, providers, payment risk, and evidence before funds move.Advisory checks · execution separately authorizedRoutesProvidersPaymentsRiskEvidence[ 04 ] MARKET INTELLIGENCERobinhood ChainDoes this market deserve trust?Inspect contracts, PLTR markets, liquidity, counterparties, and proof.Read-only inspection · trading policy unqualifiedContractsLiquidityCounterpartiesProof[ 05 ] PRINCIPLESNo receipt,no trust.Every decision should be inspectable, verifiable, and accountable.Inspect receipt evidence ",
+          "rect": [
+            10,
+            2034.375,
+            370,
+            814.671875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "ARTICLE",
+          "text": "[ 03 ] PRIMARY UTILITYSolana RadarShould this agent spend?Inspect service routes, providers, payment risk, and evidence before funds move.Advisory checks · execution separately authorizedRoutesProvidersPaymentsRiskEvidence",
+          "rect": [
+            10,
+            2034.375,
+            370,
+            271.3125
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 03 ] PRIMARY UTILITY",
+          "rect": [
+            25,
+            2049.375,
+            340,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "Solana Radar",
+          "rect": [
+            95,
+            2082.90625,
+            173.390625,
+            25.296875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "22px",
+            "700",
+            "25.3px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Should this agent spend?",
+          "rect": [
+            95,
+            2112.203125,
+            173.390625,
+            18
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "",
+          "rect": [
+            321,
+            2084.5625,
+            44,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Inspect service routes, providers, payment risk, and evidence before funds move.",
+          "rect": [
+            25,
+            2134.5625,
+            340,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Advisory checks · execution separately authorized",
+          "rect": [
+            25,
+            2180.9375,
+            340,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "ARTICLE",
+          "text": "[ 04 ] MARKET INTELLIGENCERobinhood ChainDoes this market deserve trust?Inspect contracts, PLTR markets, liquidity, counterparties, and proof.Read-only inspection · trading policy unqualifiedContractsLiquidityCounterpartiesProof",
+          "rect": [
+            10,
+            2317.6875,
+            370,
+            280.609375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 04 ] MARKET INTELLIGENCE",
+          "rect": [
+            25,
+            2332.6875,
+            340,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "Robinhood Chain",
+          "rect": [
+            95,
+            2361.875,
+            212,
+            25.296875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "22px",
+            "700",
+            "25.3px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Does this market deserve trust?",
+          "rect": [
+            95,
+            2391.171875,
+            212,
+            36
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "",
+          "rect": [
+            321,
+            2372.515625,
+            44,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Inspect contracts, PLTR markets, liquidity, counterparties, and proof.",
+          "rect": [
+            25,
+            2427.171875,
+            340,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Read-only inspection · trading policy unqualified",
+          "rect": [
+            25,
+            2473.546875,
+            340,
+            38.375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "ARTICLE",
+          "text": "[ 05 ] PRINCIPLESNo receipt,no trust.Every decision should be inspectable, verifiable, and accountable.Inspect receipt evidence ",
+          "rect": [
+            10,
+            2610.296875,
+            370,
+            238.75
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 05 ] PRINCIPLES",
+          "rect": [
+            25,
+            2625.296875,
+            340,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "No receipt,no trust.",
+          "rect": [
+            95,
+            2655.1875,
+            134.8125,
+            50.59375
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "22px",
+            "700",
+            "25.3px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Every decision should be inspectable, verifiable, and accountable.",
+          "rect": [
+            25,
+            2724.484375,
+            255,
+            57.5625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Inspect receipt evidence ",
+          "rect": [
+            25,
+            2790.046875,
+            209.390625,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "SECTION",
+          "text": "[ 06 ] ONE RADAR. TWO ECONOMIES.One Standard of Proof.Intelligence before the wallet acts.Solana leads with service spending intelligence. Robinhood Chain leads with read-only market inspection. Both use the same trust principles and receipt authority.Pay.sh is a spend rail. Judgment assesses the action under policy. Separately authorized infrastructure handles execution.Integration documentation POST /v1/pre-spend/check · illustrative request{\n  \"agent_id\": \"your-agent\",\n  \"intent\": \"buy_market_research\",\n  \"budget\": 25,\n  \"risk_tolerance\": \"low\",\n  \"preferred_settlement\": \"stablecoin\",\n  \"required_confidence\": 80\n}Illustrative advisory request; inspect the API contract for required fields. This request does not execute or pay.",
+          "rect": [
+            10,
+            2861.046875,
+            370,
+            704.21875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "16px",
+            "400",
+            "24.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgb(5, 11, 12)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "[ 06 ] ONE RADAR. TWO ECONOMIES.",
+          "rect": [
+            29,
+            2880.046875,
+            332,
+            19.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "19.2px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "H2",
+          "text": "One Standard of Proof.",
+          "rect": [
+            29,
+            2911.234375,
+            332,
+            28.796875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "24px",
+            "700",
+            "28.8px"
+          ],
+          "colors": [
+            "rgb(241, 240, 229)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(241, 240, 229)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Intelligence before the wallet acts.",
+          "rect": [
+            29,
+            2954.03125,
+            332,
+            20.390625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Solana leads with service spending intelligence. Robinhood Chain leads with read-only market inspection. Both use the same trust principles and receipt authority.",
+          "rect": [
+            29,
+            2986.421875,
+            332,
+            81.5625
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Pay.sh is a spend rail. Judgment assesses the action under policy. Separately authorized infrastructure handles execution.",
+          "rect": [
+            29,
+            3079.984375,
+            332,
+            61.171875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "Integration documentation ",
+          "rect": [
+            29,
+            3153.15625,
+            216.625,
+            44
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "POST /v1/pre-spend/check · illustrative request",
+          "rect": [
+            29,
+            3217.15625,
+            332,
+            37.1875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(0, 238, 228)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(0, 238, 228)"
+          ]
+        },
+        {
+          "tag": "P",
+          "text": "Illustrative advisory request; inspect the API contract for required fields. This request does not execute or pay.",
+          "rect": [
+            29,
+            3473.09375,
+            332,
+            61.171875
+          ],
+          "font": [
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            "12px",
+            "400",
+            "20.4px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "FOOTER",
+          "text": "INFOPUNKS RADAR // THE INTELLIGENCE TERMINALONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.API CONTRACT ",
+          "rect": [
+            10,
+            3579.265625,
+            370,
+            149.1875
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(78, 115, 125)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "INFOPUNKS RADAR // THE INTELLIGENCE TERMINAL",
+          "rect": [
+            23,
+            3588.265625,
+            112.421875,
+            44
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        },
+        {
+          "tag": "A",
+          "text": "API CONTRACT ",
+          "rect": [
+            23,
+            3675.453125,
+            114.078125,
+            44
+          ],
+          "font": [
+            "ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+            "12px",
+            "400",
+            "18.6px"
+          ],
+          "colors": [
+            "rgb(160, 194, 208)",
+            "rgba(0, 0, 0, 0)",
+            "rgb(160, 194, 208)"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "directory": "/private/tmp/radar-ui-vr-pg-u_wxkspx",
+  "version": "16.15",
+  "host": "127.0.0.1",
+  "port": 55433,
+  "role": "postgres",
+  "databases": [
+    "radar_ui_cyan_final",
+    "radar_ui_cyan_final_resilience"
+  ],
+  "scope": "Fresh disposable test cluster. Original owned stopped cluster retained; pre-existing localhost:5432 not touched."
+}

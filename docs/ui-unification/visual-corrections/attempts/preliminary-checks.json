@@ -1,0 +1,70 @@
+[
+  {
+    "name": "frontend",
+    "command": [
+      "npm",
+      "test",
+      "--",
+      "tests/radar-subpage-presentation.test.tsx",
+      "tests/radar-endpoint-intelligence.test.tsx",
+      "tests/rh-chain-pages.test.tsx",
+      "tests/rh-chain-signal-desk-selectors.test.ts",
+      "tests/radar-network-navigation.test.tsx",
+      "tests/homepage-performance.test.tsx",
+      "tests/web-accessibility.test.tsx",
+      "tests/render-spa-routing.test.ts",
+      "tests/frontend-evidence.test.tsx",
+      "--maxWorkers=2",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile.json=docs/ui-unification/visual-corrections/frontend-tests.json"
+    ],
+    "exitCode": 0,
+    "seconds": 7.485,
+    "log": "frontend.log"
+  },
+  {
+    "name": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "seconds": 17.999,
+    "log": "lint.log"
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "npm",
+      "run",
+      "typecheck"
+    ],
+    "exitCode": 0,
+    "seconds": 17.3,
+    "log": "typecheck.log"
+  },
+  {
+    "name": "build",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exitCode": 0,
+    "seconds": 6.68,
+    "log": "build.log"
+  },
+  {
+    "name": "design",
+    "command": [
+      "npm",
+      "run",
+      "check:design"
+    ],
+    "exitCode": 0,
+    "seconds": 0.575,
+    "log": "design.log"
+  }
+]

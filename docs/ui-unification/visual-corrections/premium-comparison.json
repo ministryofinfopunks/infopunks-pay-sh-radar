@@ -1,0 +1,14 @@
+{
+  "baselineFindings": 57,
+  "currentFindings": 57,
+  "newFindings": [],
+  "resolvedFindings": [],
+  "currentSummary": {
+    "errors": 57,
+    "total": 57,
+    "unresolved": 13,
+    "violations": 44,
+    "warnings": 0
+  },
+  "strictExitCode": 2
+}

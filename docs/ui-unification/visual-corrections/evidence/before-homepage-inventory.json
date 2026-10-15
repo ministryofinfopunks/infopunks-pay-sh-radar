@@ -1,0 +1,227 @@
+{
+  "title": "INFOPUNKS RADAR / Radar · Infopunks Radar",
+  "text": "Skip to content\nINFOPUNKS\nRADAR / INTELLIGENCE TERMINAL\nRADAR\nSOLANA\nROBINHOOD CHAIN\nPROOF\nDEVELOPERS\nONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.\n\n[ 01 ] INFOPUNKS RADAR / TWO ECONOMIES\n\nBefore your agent\nspends, check\nthe evidence.\n\nRadar evaluates routes, providers, and payment risk before funds move. Evidence-bound decisions. Inspectable reasoning. Accountable receipts.\n\nRoute, endpoint, or provider identifier\n>\n\nUse a catalog identifier or endpoint. Review intent and policy in the Spend Terminal.\n\n▶\nRun Spend Check\nInspect judgment format\n\nNo wallet required to explore. Advisory checks; no automatic payment.\n\nINTELLIGENCE\nBEFORE\nTHE WALLET\nACTS.\nVERIFIABLE\nEVIDENCE.\nACCOUNTABLE\nDECISIONS.\nJUDGMENT PREVIEW\nNO CHECK RUN\nYour next spend route\n\nService / provider / payment endpoint\n\nSubject network and fee rail are independent.\n\nOutcome\n\nAWAITING EVIDENCE\n\nConfidence\n\n—\n\nA policy-bound decision appears after a check. Missing or stale evidence cannot become permission to spend.\n\nEvidence summary\nProvider verification\nNOT CHECKED\nView ↗\nRoute history\nNOT CHECKED\nView ↗\nPayment risk analysis\nNOT CHECKED\nView ↗\nPolicy match (your rules)\nREQUIRED\nView ↗\nReceipt\n\nNot issued. No check or execution has occurred.\n\nNOT ISSUED\n\nJudgment is advisory. Execution requires separate authorization.\n\n[ 02 ]\n\nOne Judgment Protocol\n\nFrom evidence to accountable action.\n\nONE CANONICAL RECEIPT ARCHITECTURE.\nDIFFERENT EVIDENCE ADAPTERS. SAME STANDARD.\nLearn more\n\nArchitecture reference · no stage records claimed\n\n01 / OBSERVATION\n\nCollect evidence. Preserve provenance and gaps.\n\n02 / JUDGMENT\n\nApply frozen policy. Make an evidence-bound decision.\n\n03 / EXECUTION\n\nSeparate authorization. Independently verify what happened.\n\n04 / EVALUATION\n\nAttest outcomes. Eligible evaluations inform future checks.\n\nExecution and Evaluation receipts appear only when their proof exists.\n\n[ 03 ] PRIMARY UTILITY\n\nSolana Radar\n\nShould this agent spend?\n\nInspect service routes, providers, payment risk, and evidence before funds move.\n\nAdvisory checks · execution separately authorized\n\nROUTES\nPROVIDERS\nPAYMENTS\nRISK\nEVIDENCE\n\n[ 04 ] MARKET INTELLIGENCE\n\nRobinhood Chain\n\nDoes this market deserve trust?\n\nInspect contracts, PLTR markets, liquidity, counterparties, and proof.\n\nRead-only inspection · trading policy unqualified\n\nCONTRACTS\nLIQUIDITY\nCOUNTERPARTIES\nPROOF\n\n[ 05 ] PRINCIPLES\n\nNo receipt,\nno trust.\n\nEvery decision should be inspectable, verifiable, and accountable.\n\nInspect receipt evidence\n\n[ 06 ] ONE RADAR. TWO ECONOMIES.\n\nOne Standard of Proof.\n\nIntelligence before the wallet acts.\n\nSolana leads with service spending intelligence. Robinhood Chain leads with read-only market inspection. Both use the same trust principles and receipt authority.\n\nPay.sh is a spend rail. Judgment assesses the action under policy. Separately authorized infrastructure handles execution.\n\nIntegration documentation\n\nPOST /v1/pre-spend/check · illustrative request\n\n{\n  \"agent_id\": \"your-agent\",\n  \"intent\": \"buy_market_research\",\n  \"budget\": 25,\n  \"risk_tolerance\": \"low\",\n  \"preferred_settlement\": \"stablecoin\",\n  \"required_confidence\": 80\n}\n\nIllustrative advisory request; inspect the API contract for required fields. This request does not execute or pay.\n\nINFOPUNKS RADAR\n// THE INTELLIGENCE TERMINAL\nONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.\nAPI CONTRACT",
+  "headings": [
+    {
+      "level": "H1",
+      "text": "Before your agent spends, check the evidence."
+    },
+    {
+      "level": "H2",
+      "text": "JUDGMENT PREVIEW"
+    },
+    {
+      "level": "H3",
+      "text": "Your next spend route"
+    },
+    {
+      "level": "H3",
+      "text": "Evidence summary"
+    },
+    {
+      "level": "H2",
+      "text": "One Judgment Protocol"
+    },
+    {
+      "level": "H2",
+      "text": "Solana Radar"
+    },
+    {
+      "level": "H2",
+      "text": "Robinhood Chain"
+    },
+    {
+      "level": "H2",
+      "text": "No receipt,no trust."
+    },
+    {
+      "level": "H2",
+      "text": "One Standard of Proof."
+    }
+  ],
+  "links": [
+    {
+      "text": "Skip to content",
+      "href": "#radar-page-content",
+      "target": null
+    },
+    {
+      "text": "INFOPUNKSRADAR / INTELLIGENCE TERMINAL",
+      "href": "/",
+      "target": null
+    },
+    {
+      "text": "Radar",
+      "href": "/",
+      "target": null
+    },
+    {
+      "text": "Solana",
+      "href": "/solana",
+      "target": null
+    },
+    {
+      "text": "Robinhood Chain",
+      "href": "/rh-chain-signal-desk",
+      "target": null
+    },
+    {
+      "text": "Proof",
+      "href": "/receipts",
+      "target": null
+    },
+    {
+      "text": "Developers",
+      "href": "/developers",
+      "target": null
+    },
+    {
+      "text": "Inspect judgment format",
+      "href": "#judgment-preview",
+      "target": null
+    },
+    {
+      "text": "Learn more",
+      "href": "/developers",
+      "target": null
+    },
+    {
+      "text": "",
+      "href": "/spend-terminal",
+      "target": null
+    },
+    {
+      "text": "",
+      "href": "/rh-chain-signal-desk/market",
+      "target": null
+    },
+    {
+      "text": "Inspect receipt evidence",
+      "href": "/receipts",
+      "target": null
+    },
+    {
+      "text": "Integration documentation",
+      "href": "/developers",
+      "target": null
+    },
+    {
+      "text": "INFOPUNKS RADAR // THE INTELLIGENCE TERMINAL",
+      "href": "/",
+      "target": null
+    },
+    {
+      "text": "API CONTRACT",
+      "href": "/openapi.json",
+      "target": null
+    }
+  ],
+  "controls": [
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "id": "",
+      "type": "button",
+      "name": null,
+      "label": "Open navigation",
+      "pressed": null,
+      "expanded": "false",
+      "disabled": false
+    },
+    {
+      "tag": "INPUT",
+      "text": "",
+      "id": "",
+      "type": "hidden",
+      "name": "settlement",
+      "label": null,
+      "pressed": null,
+      "expanded": null,
+      "disabled": false
+    },
+    {
+      "tag": "INPUT",
+      "text": "",
+      "id": "home-route",
+      "type": null,
+      "name": "subject",
+      "label": null,
+      "pressed": null,
+      "expanded": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "▶ Run Spend Check",
+      "id": "",
+      "type": "submit",
+      "name": null,
+      "label": null,
+      "pressed": null,
+      "expanded": null,
+      "disabled": false
+    },
+    {
+      "tag": "SUMMARY",
+      "text": "Provider verificationNOT CHECKEDView ↗",
+      "id": "",
+      "type": null,
+      "name": null,
+      "label": null,
+      "pressed": null,
+      "expanded": null
+    },
+    {
+      "tag": "SUMMARY",
+      "text": "Route historyNOT CHECKEDView ↗",
+      "id": "",
+      "type": null,
+      "name": null,
+      "label": null,
+      "pressed": null,
+      "expanded": null
+    },
+    {
+      "tag": "SUMMARY",
+      "text": "Payment risk analysisNOT CHECKEDView ↗",
+      "id": "",
+      "type": null,
+      "name": null,
+      "label": null,
+      "pressed": null,
+      "expanded": null
+    },
+    {
+      "tag": "SUMMARY",
+      "text": "Policy match (your rules)REQUIREDView ↗",
+      "id": "",
+      "type": null,
+      "name": null,
+      "label": null,
+      "pressed": null,
+      "expanded": null
+    }
+  ],
+  "landmarks": [
+    {
+      "tag": "HEADER",
+      "label": null
+    },
+    {
+      "tag": "NAV",
+      "label": "Infopunks product navigation"
+    },
+    {
+      "tag": "MAIN",
+      "label": null
+    },
+    {
+      "tag": "ASIDE",
+      "label": null
+    },
+    {
+      "tag": "FOOTER",
+      "label": null
+    }
+  ]
+}

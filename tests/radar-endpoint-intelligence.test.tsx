@@ -1010,9 +1010,17 @@ describe('radar endpoint intelligence UI', () => {
     expect(metrics).toEqual({ Providers: '1', Endpoints: '1', 'Avg Trust': score === null ? 'unknown' : '0', 'Avg Signal': score === null ? 'unknown' : '0' });
     expect(evidence.textContent).toContain('FIXTURE-BACKED RADAR STATE');
     expect(evidence.textContent).not.toContain('LIVE PAY.SH CATALOG');
+    expect(evidence.querySelector('h2')?.textContent).toBe('Radar coverage / source state');
+    expect(evidence.children[1].querySelector('.solana-hero-source-badge')?.textContent).toBe('FIXTURE-BACKED RADAR STATE');
+    expect(evidence.querySelector('dl')!.compareDocumentPosition(evidence.querySelector('.solana-hero-doctrine')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(evidence.querySelector('[data-unavailable="true"] dd')?.textContent).toBe(score === null ? 'unknown' : undefined);
     expect(container.querySelector('.solana-terminal-hero a[href="/spend-terminal"]')?.textContent).toBe('Check a Spend Route');
     expect(container.querySelector('.solana-terminal-hero a[href="#explore-solana-radar"]')?.textContent).toBe('Explore the Radar');
     expect(container.querySelectorAll('.radar-directory-card')).toHaveLength(6);
+    for (const card of container.querySelectorAll('.radar-directory-card')) {
+      const count = card.querySelectorAll('.radar-directory-featured-routes a').length;
+      expect(card.querySelector('.radar-directory-card-head > span')?.textContent).toBe(`${count.toString().padStart(2, '0')} surfaces`);
+    }
   });
 
   it('renders selected provider with no endpoint rows without hiding the provider', async () => {

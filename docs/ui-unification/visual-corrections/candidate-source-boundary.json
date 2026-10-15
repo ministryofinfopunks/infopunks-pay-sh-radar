@@ -1,0 +1,72 @@
+{
+  "baseline": "7f44417fcad683a48397dad251f5d4245aa34643",
+  "protectedTrackedFiles": 1834,
+  "unpermittedChanges": [],
+  "checks": [
+    {
+      "file": "src/web/radarApp.tsx",
+      "unchanged": true,
+      "counts": {
+        "handlers": 141,
+        "navigation": 188,
+        "stateAndRequests": 460
+      }
+    },
+    {
+      "file": "src/web/radarNetworks.tsx",
+      "unchanged": true,
+      "counts": {
+        "handlers": 17,
+        "navigation": 5,
+        "stateAndRequests": 6
+      }
+    },
+    {
+      "file": "src/web/rhChainSignalDeskV2.tsx",
+      "unchanged": true,
+      "counts": {
+        "handlers": 15,
+        "navigation": 28,
+        "stateAndRequests": 28
+      }
+    }
+  ],
+  "protectedExamples": [
+    {
+      "file": "src/web/homepage.tsx",
+      "sha256": "028655c318c9cb6fecefe11b46060d02b4b491b879ea566c7a7b27b3515dbf2c",
+      "unchanged": true
+    },
+    {
+      "file": "src/web/homepage.css",
+      "sha256": "144f51bcf958722d82c30cdd4939e3941ba89b8a7b21b00c334fb306653a6a3e",
+      "unchanged": true
+    },
+    {
+      "file": "src/web/radarTokens.css",
+      "sha256": "fe25d88c9eebc81e3192e0933ab0fa76107a79cbc3c405a605b02d226742a793",
+      "unchanged": true
+    },
+    {
+      "file": "src/web/radarAppShell.tsx",
+      "sha256": "e8b6a025060096002f3732a42ca5cebc06ff95986f9d73044ffa7a71a195526a",
+      "unchanged": true
+    },
+    {
+      "file": "src/web/styles.css",
+      "sha256": "8dd38db3a2f9b2ab58a64a9f98e1b92c6d60fb5b8e18a8b3f4ccb4094e56c328",
+      "unchanged": true
+    },
+    {
+      "file": "package.json",
+      "sha256": "afcb2be783e8a078d00d5e490703310838a7fcc904727400ac9aa6dd9c38a758",
+      "unchanged": true
+    },
+    {
+      "file": "package-lock.json",
+      "sha256": "42cc2afd6cf52d6a3b30b0af1ec74f8d4126f0aa867135204c6e4f35e4044c00",
+      "unchanged": true
+    }
+  ],
+  "passed": true
+}
