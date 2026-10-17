@@ -1,3 +1,4 @@
+import { localSimulationProvenance } from '../../../src/security/evidenceProvenance';
 import catalog from "../scenarios/catalog.json";
 import {
   mkdirSync,
@@ -131,13 +132,7 @@ export async function openLab(
             ? "insufficient"
             : "sufficient",
         evidence_refs: ["lab-artifact/observation/" + id],
-        // "live" is the existing engine's active-source discriminator. This source is a running LOCAL simulator, never a live market/provider claim.
-        provenance: {
-          catalog_source: "live",
-          simulation: true,
-          environment: "isolated-local-spend-lab",
-          external_economic_activity: false,
-        },
+        provenance: { ...localSimulationProvenance },
         payload: {
           version: "infopunks.economic-evidence.v1",
           candidate_hash: hashCanonical(job.candidates[0]),

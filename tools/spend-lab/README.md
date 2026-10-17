@@ -1,6 +1,8 @@
 # INFOPUNKS / FIRST SPENDER
 
-Local simulation of economic intent → Radar judgment → separate execution capability → provider delivery → outcome evaluation. **HOLD: staging, live payments and production remain unauthorized.** No real purchase has occurred. No endpoint, deployment, wallet integration or public proof card is added.
+**The localhost successor and blinded comparison are documented in [successor/README.md](successor/README.md), with an [independent-review packet](successor/review-packet.md). Frozen reports below describe PR #15 at `7605310bce2b6d3adf193b9f97395c5251e0ad4f`; they are not updated or reinterpreted as successor evidence.**
+
+Legacy local simulation of economic intent → Radar judgment → separate execution capability → provider delivery → outcome evaluation. **HOLD: staging, live payments and production remain unauthorized.** No real purchase has occurred. The legacy runner adds no endpoint, deployment, wallet integration or public proof card.
 
 Run from the repository root after installing its locked dependencies:
 
@@ -18,13 +20,13 @@ Four deterministic buyer roles propose typed task manifests through `request_rad
 
 The controller reuses Radar's economic judgment engine, Ed25519 judgment issuer, separately keyed execution issuer, execution gate, reservations, canonical receipt authority and evaluation service. Every executable state is canonical: `proceed`, `test_spend_first`, `do_not_spend`, `insufficient_evidence`. There is no paid chain for insufficient evidence. Simulated judgments are zero-fee; this loop does not claim to qualify the paid x402 HTTP workflow. Existing x402/SDK regression tests are reported separately.
 
-`integrations/radar-sdk.ts` exposes the existing tenant-aware SDK for separately configured loopback integration. It refuses remote hosts and requires explicit payment approval through the SDK's adapter. A paid judgment never grants execution authority. It is not wired into the offline runner. Current [official Agents SDK guidance](https://developers.openai.com/api/docs/guides/agents/sdk) supports application-owned tools/state/approval; a later LLM orchestrator may expose only the intent tool. Adding one requires separately scoped credentials, API budget and qualification. No managed coding-agent harness is a payment executor.
+`integrations/radar-sdk.ts` now connects the successor's bounded intent tool to the canonical SDK using a disposable localhost lab and its non-EVM simulated payment adapter. It is not wired into this legacy offline runner. A paid judgment never grants execution authority. No model or managed coding-agent harness is a payment executor.
 
 ## Evidence meaning and isolation
 
 All simulated operations use `lab:simulation/MOCK`, `spend-lab/mock-service-v1`, lab-only recipients and a lab-only issuer. They cannot represent Base, Solana or Robinhood settlement. Every case/report has `simulation: true`, `external_purchases: 0` and HOLD. Raw canonical receipts are enclosed by that simulation record; never publish them as economic proof.
 
-The unmodified economic engine accepts reviewed active-source observations only (`catalog_source: live`), and deliberately rejects `fixture: true`. The lab's running local simulator uses that source discriminator alongside `simulation: true`, `environment: isolated-local-spend-lab`, `external_economic_activity: false`, lab subjects and a lab issuer. It means an active local simulator observation, **not external live evidence**. This adapter is restricted to `tools/`; it never writes into application persistence or changes production policy. The authenticity/finality fields describe the synthetic model only. Independent reviewers must explicitly assess this modeling choice before any reuse.
+PR #15's simulator used `catalog_source: live` alongside simulation markers to satisfy an active-source eligibility discriminator. That historical modeling ambiguity is preserved in the frozen reports for audit. The active simulator now uses strict `catalog_source: simulation` provenance and a branded local-only evidence domain. Default live eligibility rejects simulation markers; the simulation domain cannot qualify real spending operations. See the successor's provenance and authority description for the shared-core guard and its limits.
 
 The control database contains disposable signing keys and state; the separate provider database contains deliveries and no keys. Files are mode 0600; new run directories are 0700. The evaluator opens only provider evidence and has no write handle. These are code-level separations under one local OS user, not a credential/OS security sandbox. An arbitrary malicious script under that same user can read lab files. A real pilot needs a separately operated evaluator identity, service account and access policy. Internal evidence is not independent market demand or release approval.
 

@@ -48,7 +48,11 @@ export type EconomicEngineOptions = {
   deterministicSelect?: (job: EconomicJob, observations: ObservationReceipt[]) => Promise<{ candidate_id: string; rule_id: string } | null>;
 };
 export function createEconomicJudgmentEngine(options: EconomicEngineOptions) {
+  if (options.receipts.evidenceDomain && process.env.NODE_ENV === 'production') throw new Error('simulation_production_forbidden');
   const now = options.now ?? (() => new Date());
+  if (options.receipts.evidenceDomain && (!options.judgmentIssuer?.publicKeys().issuer.startsWith('spend-lab/')
+    || (options.allowAuthorizations && !options.authorizationIssuer?.publicKeys().issuer.startsWith('spend-lab/'))
+    || options.executors.some(e => !e.profile_id.startsWith('spend-lab/')))) throw new Error('simulation_authority_scope_denied');
   const profiles = new Map(options.executors.map(e => [e.profile_id, e]));
   if (profiles.size !== options.executors.length) throw new Error('duplicate_execution_profile');
   const authority = createReceiptAuthorityService(options.receipts, options.threshold, options.judgmentIssuer);
@@ -130,7 +134,7 @@ export function createEconomicJudgmentEngine(options: EconomicEngineOptions) {
         : await requestJevWitness(job, envelope, options.provider, now, options.inferenceTimeoutMs);
       const assessedAt = now();
       let result = judgeEconomicDecision({ job, envelope, witness, observations, authenticatedPrincipal,
-        enabledProfiles: [...profiles.keys()], now: assessedAt });
+        evidenceDomain: options.receipts.evidenceDomain, enabledProfiles: [...profiles.keys()], now: assessedAt });
       const currentPolicy = await options.currentPolicy(job.principal_id);
       if (!currentPolicy || hashCanonical(currentPolicy) !== envelope.policy_hash) result = { ...result, verdict: 'UNPROVEN',
         decision: 'insufficient_evidence', rules: ['host_policy_binding_missing'], evidence_ids: [], confidence: 0, dissent: witness.answer.kind === 'choice' };

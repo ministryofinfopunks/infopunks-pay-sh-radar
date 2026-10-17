@@ -1,3 +1,4 @@
+import { localSimulationDomain } from '../../../src/security/evidenceProvenance';
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync, chmodSync } from "node:fs";
 import { dirname } from "node:path";
@@ -83,7 +84,8 @@ export async function openReceipts(
   database: LabDatabase,
   trust: JudgmentIssuerTrust,
 ) {
-  const memory = new MemoryCanonicalReceiptStore(80, trust);
+  class LocalReceiptMemory extends MemoryCanonicalReceiptStore { readonly evidenceDomain = localSimulationDomain(); }
+  const memory = new LocalReceiptMemory(80, trust);
   for (const row of database.db
     .prepare("SELECT kind,body FROM receipts ORDER BY sequence")
     .all())
@@ -95,6 +97,7 @@ export async function openReceipts(
     poisoned = false;
   return {
     judgmentTrust: trust,
+    evidenceDomain: localSimulationDomain(),
     async get(kind: ReceiptKind, id: string) {
       if (poisoned) throw new Error("lab_storage_restart_required");
       return memory.get(kind, id);

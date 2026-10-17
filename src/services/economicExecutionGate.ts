@@ -123,7 +123,7 @@ export function createEconomicExecutionGate(engine: EconomicJudgmentEngine) {
           || Date.parse(reservation.expires_at) <= now().getTime()) throw new EconomicEngineError('execution_reservation_invalid');
         const attempt = await tx.get<DecisionAttempt>('attempt', reservation.attempt_id);
         if (!attempt?.witness || hashCanonical(attempt.envelope) !== p.envelope_hash || hashCanonical(attempt.witness) !== p.witness_hash) throw new EconomicEngineError('execution_attempt_binding_invalid');
-        const verdict = judgeEconomicDecision({ job: attempt.job, envelope: attempt.envelope, witness: attempt.witness,
+        const verdict = judgeEconomicDecision({ evidenceDomain: options.receipts.evidenceDomain, job: attempt.job, envelope: attempt.envelope, witness: attempt.witness,
           observations, authenticatedPrincipal: p.principal_id, enabledProfiles: [...profiles.keys()], now: now() });
         if (!['ALLOW', 'DEGRADE'].includes(verdict.verdict) || verdict.candidate?.id !== p.candidate_id) throw new EconomicEngineError('execution_evidence_no_longer_qualified', 403);
         const record: EconomicExecutionRecord = { execution_id: executionId, authorization_id: p.authorization_id, principal_id: p.principal_id,

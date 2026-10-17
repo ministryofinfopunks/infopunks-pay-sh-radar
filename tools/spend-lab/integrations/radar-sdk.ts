@@ -1,20 +1,12 @@
-import {
-  createInfopunksClient,
-  type CreateInfopunksClientOptions,
-} from "../../../src/sdk/judgmentClient";
-/** Explicit opt-in integration seam; never used by the offline runner.
- * SDK handles tenant binding, protected sessions, x402 and signed receipt verification.
- * Caller must supply its own narrowly scoped payment approval. No wallet keys here.
- * A verified paid judgment is returned as evidence, never as execution permission.
+import type { CreateInfopunksClientOptions } from '../../../src/sdk/judgmentClient';
+import type { HttpLab } from '../successor/http-client';
+/** Controller-only SDK seam. The lab supplies a disposable non-EVM payment adapter.
+ * Agents cannot inject wallet callbacks, transports, credentials, or spending policy.
  */
-export function radarSdkAssessment(options: CreateInfopunksClientOptions) {
-  if (
-    !options.baseUrl ||
-    !["localhost", "127.0.0.1", "[::1]"].includes(
-      new URL(options.baseUrl).hostname,
-    )
-  )
-    throw new Error("spend_lab_remote_sdk_hold");
-  const client = createInfopunksClient(options);
+export function radarSdkAssessment(
+  lab: Pick<HttpLab, 'client'>,
+  options: Pick<CreateInfopunksClientOptions, 'sessionStore' | 'onTransition'> = {},
+) {
+  const client = lab.client(options);
   return { requestJudgment: client.judge, resumeJudgment: client.resume };
 }
