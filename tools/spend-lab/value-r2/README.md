@@ -13,6 +13,7 @@ npx tsc --noEmit
 npx tsc -p tools/spend-lab/tsconfig.json
 npx vitest run tests/spend-lab-value-r2.test.ts tests/spend-lab-successor.test.ts tests/spend-lab.test.ts tests/economic-judgment-engine.test.ts tests/economic-engine-api.test.ts tests/judgment-dx-sdk.test.ts tests/pre-spend-sdk.test.ts tests/unit/judgment-service.test.ts tests/decision-context.test.ts tests/integration/pre-spend-judgment.test.ts tests/integration/pre-spend-payment.test.ts
 npx tsx tools/spend-lab/value-r2/cli.ts .data/value-r2/evaluation
+npx tsx tools/spend-lab/value-r2/verify-retained.ts .data/value-r2/evaluation
 node tools/spend-lab/value-r2/source-manifest.mjs .data/value-r2/source-after.json
 ```
 

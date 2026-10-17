@@ -26,6 +26,7 @@ jobs:
       - run: npx tsc -p tools/spend-lab/tsconfig.json
       - run: npx vitest run tests/spend-lab-value-r2.test.ts
       - run: npx tsx tools/spend-lab/value-r2/cli.ts .data/value-r2/evaluation
+      - run: npx tsx tools/spend-lab/value-r2/verify-retained.ts .data/value-r2/evaluation
       - run: node tools/spend-lab/value-r2/source-manifest.mjs .data/value-r2/source-after.json
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
