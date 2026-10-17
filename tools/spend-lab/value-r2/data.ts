@@ -4,6 +4,7 @@ import { z } from "zod";
 import { hashCanonical } from "../../../src/services/receiptIntegrityService";
 import { tasks } from "../successor/profiles";
 import { reference } from "../successor/oracle";
+import { declaredDevelopmentProbe } from "./curation/development-probes";
 import { holdoutReference } from "./curation/reference";
 import {
   OfferSchema,
@@ -32,7 +33,6 @@ export function loadDevelopment() {
     Record<string, any>
   >;
   const offers: Offer[] = tasks.map((t) => {
-    const d = rows.find((r) => r.task_id === t.id)!.baseline_delivery;
     return OfferSchema.parse({
       id: t.id,
       family: t.family,
@@ -58,11 +58,7 @@ export function loadDevelopment() {
         sufficient: t.probe.sufficient,
         authority_explicit: true,
       },
-      cheap_probe: {
-        reachable: d.status === "ok",
-        schema_valid: true,
-        within_latency_bound: d.elapsed_ms <= t.deadline_ms,
-      },
+      cheap_probe: declaredDevelopmentProbe(t.implementation),
     });
   });
   const artifacts: Artifact[] = offers.map((o) => {
