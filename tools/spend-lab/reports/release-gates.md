@@ -1,0 +1,13 @@
+# Reviewer packet and restricted-live proposal
+
+**Decision: HOLD. Reviewer identity, authority, approval and date: unassigned/null.** Local engineering results are not independent sign-off.
+
+Review the pinned reference, source manifest, scenario expectations, canonical receipt samples, raw local case DBs (private operator access only), process-death test, shared-budget concurrency test and rejected-proof cases. Verify no application/runtime deployment file changed. Assess the active-source simulator discriminator explicitly. Evaluate code separation versus the stronger process/credential boundary required for live use.
+
+Required before any pilot: independently approved exact-source security/release boundary; migration/schema/runtime compatibility where applicable; human accessibility and visual approvals for any changed product surface; artifact/supply-chain/operations qualification; explicit staging authorization; separate human approval of provider, rail, wallet custody, spending caps and operational recovery. This packet grants none of them.
+
+Proposed pilot (not authorized): one allowlisted API/service provider using the repository's supported external Base USDC proof profile. Provider identity, exact route, verified recipient, fee quote, approved task, daily and per-call budgets, start/end time, execution wallet operator, reviewer and evaluator credentials must be filled in and approved before enabling any rail. Limits remain unspecified here rather than inventing approved money amounts. Radar must never hold wallet keys. The isolated executor uses an independently held wallet and scoped capabilities; the evaluator uses separately controlled read-only evidence credentials.
+
+Go/no-go requires independently verified source and receipt signatures, a genuine finalized external event, delivery verification, complete reconciliation, exact budget and recipient binding, replay suppression and a tested stop/recovery plan. Any ambiguity stops new submissions and preserves pending status. No repeated payment to resolve an unknown result. A denied or insufficient judgment forbids execution; a bounded trial permits only its approved test amount.
+
+The first publishable proof report must bind one genuine event to the actual intent, policy, judgment, separate authorization, external settlement, deliverable hash and independent outcome. Strip credentials/private tenant details with explicit publication consent and preserve verifiable ancestry. Simulator receipts must never be relabeled as that event. Only independent human authorization can move this packet from HOLD.

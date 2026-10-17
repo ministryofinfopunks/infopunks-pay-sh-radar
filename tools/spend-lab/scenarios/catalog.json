@@ -1,0 +1,121 @@
+[
+  {
+    "scenario": "approved-service",
+    "simulation": true,
+    "expected_decision": "proceed",
+    "expected_execution": true,
+    "expected_outcome": "confirmed"
+  },
+  {
+    "scenario": "insufficient-evidence",
+    "simulation": true,
+    "expected_decision": "insufficient_evidence",
+    "expected_execution": false,
+    "expected_outcome": null
+  },
+  {
+    "scenario": "malicious-provider",
+    "simulation": true,
+    "expected_decision": "do_not_spend",
+    "expected_execution": false,
+    "expected_outcome": null
+  },
+  {
+    "scenario": "expired-judgment",
+    "simulation": true,
+    "expected_decision": "proceed",
+    "expected_execution": false,
+    "expected_outcome": null
+  },
+  {
+    "scenario": "settlement-timeout",
+    "simulation": true,
+    "expected_decision": "proceed",
+    "expected_execution": true,
+    "expected_outcome": "confirmed"
+  },
+  {
+    "scenario": "duplicate-request",
+    "simulation": true,
+    "expected_decision": "proceed",
+    "expected_execution": true,
+    "expected_outcome": "confirmed"
+  },
+  {
+    "scenario": "bounded-trial",
+    "simulation": true,
+    "expected_decision": "test_spend_first",
+    "expected_execution": true,
+    "expected_outcome": "confirmed"
+  },
+  {
+    "scenario": "missing-authorization",
+    "simulation": true,
+    "expected_decision": "proceed",
+    "expected_execution": false,
+    "expected_outcome": null
+  },
+  {
+    "scenario": "recipient-mismatch",
+    "simulation": true,
+    "expected_decision": "proceed",
+    "expected_execution": false,
+    "expected_outcome": null
+  },
+  {
+    "scenario": "unsupported-rail",
+    "simulation": true,
+    "expected_decision": "proceed",
+    "expected_execution": false,
+    "expected_outcome": null
+  },
+  {
+    "scenario": "forged-capability",
+    "simulation": true,
+    "expected_decision": "proceed",
+    "expected_execution": false,
+    "expected_outcome": null
+  },
+  {
+    "scenario": "provider-failure",
+    "simulation": true,
+    "expected_decision": "proceed",
+    "expected_execution": false,
+    "expected_outcome": null
+  },
+  {
+    "scenario": "forged-proof",
+    "simulation": true,
+    "expected_decision": "proceed",
+    "expected_execution": true,
+    "expected_outcome": "confirmed"
+  },
+  {
+    "scenario": "bad-deliverable",
+    "simulation": true,
+    "expected_decision": "proceed",
+    "expected_execution": true,
+    "expected_outcome": "contradicted"
+  },
+  {
+    "scenario": "changed-evidence",
+    "simulation": true,
+    "expected_decision": "proceed",
+    "expected_execution": false,
+    "expected_outcome": null
+  },
+  {
+    "scenario": "crash-recovery",
+    "simulation": true,
+    "expected_decision": "proceed",
+    "expected_execution": true,
+    "expected_outcome": "confirmed"
+  },
+  {
+    "scenario": "aggregate-budget",
+    "simulation": true,
+    "expected_decision": "proceed",
+    "expected_execution": true,
+    "expected_outcome": "confirmed"
+  }
+]

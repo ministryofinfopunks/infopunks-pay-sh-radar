@@ -1,0 +1,175 @@
+{
+  "id": "case-00000",
+  "scenario": "approved-service",
+  "role": "research-buyer",
+  "simulation": true,
+  "decision": "proceed",
+  "blocker": null,
+  "charges": 1,
+  "pending_reconciliation": 0,
+  "executed": true,
+  "evaluation": "confirmed",
+  "verification": "passed",
+  "violations": [],
+  "latency_ms": 1803.7796670000002,
+  "chains": [
+    {
+      "kind": "observation",
+      "receipt": {
+        "schema_version": "canonical-receipts.v1",
+        "observation_id": "obs-case-00000",
+        "subject_type": "provider",
+        "subject_id": "lab-provider",
+        "intent_hash": "sha256:33d01e67632fd86aed958fd5d35a38efe309c652ef8b99b59b7f70f0e33aa877",
+        "source_type": "reviewed_economic_facts",
+        "source_id": "lab-local-observer",
+        "observed_at": "2026-10-08T00:00:00Z",
+        "ingested_at": "2026-10-08T00:00:01Z",
+        "freshness_expires_at": "2026-10-08T00:10:00Z",
+        "evidence_state": "sufficient",
+        "evidence_refs": [
+          "lab-artifact/observation/case-00000"
+        ],
+        "provenance": {
+          "catalog_source": "live",
+          "simulation": true,
+          "environment": "isolated-local-spend-lab",
+          "external_economic_activity": false
+        },
+        "payload": {
+          "version": "infopunks.economic-evidence.v1",
+          "candidate_hash": "sha256:a1dc3a46a18d711033069ff579db4f6e0f6ee03df12c5567c43a668e3f9689eb",
+          "authenticity": "verified",
+          "completeness": "complete",
+          "finality": "finalized",
+          "confidence": 95,
+          "deterministic_veto": false,
+          "bounded_test_required": false,
+          "policy_hash": "sha256:cdf50a6e2d360614c91f112d13eba2faf0bd0adc309b2f8853e82a915377976e"
+        },
+        "payload_hash": "sha256:9131b4710216d9cfebf4a125e2b00764e036f5451286024e2ce2341e1c492aa2",
+        "receipt_hash": "sha256:a542d51930f88a8d585bd56db711db6073fe93a79aa69c9b777f9a6dd4b734ae"
+      }
+    },
+    {
+      "kind": "judgment",
+      "receipt": {
+        "schema_version": "canonical-receipts.v1",
+        "judgment_id": "economic_judgment_ee28910c9ae702de4d1ed54a5421932cebf0823de5d8a06404524590c998f98e",
+        "subject_type": "provider",
+        "subject_id": "lab-provider",
+        "intent_hash": "sha256:33d01e67632fd86aed958fd5d35a38efe309c652ef8b99b59b7f70f0e33aa877",
+        "decision": "proceed",
+        "proceed_confidence_threshold": 80,
+        "confidence": 95,
+        "reasons": [
+          "all_deterministic_gates_passed"
+        ],
+        "cited_observation_ids": [
+          "obs-case-00000"
+        ],
+        "issued_at": "2026-10-08T00:00:02.000Z",
+        "valid_until": "2026-10-08T00:01:02.000Z",
+        "payment_required": false,
+        "payment_receipt_ref": null,
+        "charge": "0",
+        "issuer_signature": {
+          "issuer": "spend-lab/judgment",
+          "key_id": "lab-key-judgment",
+          "algorithm": "Ed25519",
+          "signature": "daz5yOyTxkKB1JwmTJAeKsu0i3MuexfP8IPrsq+ZJtV3u920QQZNPUiKuzohwveVMv3foYvia54miS4Q1HGrBQ=="
+        },
+        "policy_version": "receipt-authority.v1",
+        "parent_hashes": [
+          "sha256:a542d51930f88a8d585bd56db711db6073fe93a79aa69c9b777f9a6dd4b734ae"
+        ],
+        "receipt_hash": "sha256:76e14f328df009610bb01c17f424e431a6517da478f57fc5a2a809a4ceaed0f1"
+      }
+    },
+    {
+      "kind": "execution",
+      "receipt": {
+        "schema_version": "canonical-receipts.v1",
+        "execution_id": "economic_execution_ee28910c9ae702de4d1ed54a5421932cebf0823de5d8a06404524590c998f98e",
+        "judgment_id": "economic_judgment_ee28910c9ae702de4d1ed54a5421932cebf0823de5d8a06404524590c998f98e",
+        "executed_at": "2026-10-08T00:00:02.000Z",
+        "settlement_rail": "spend-lab/mock-service-v1",
+        "settlement_ref": "lab-settlement/authorization_ee28910c9ae702de4d1ed54a5421932cebf0823de5d8a06404524590c998f98e",
+        "request_hash": "sha256:33d01e67632fd86aed958fd5d35a38efe309c652ef8b99b59b7f70f0e33aa877",
+        "response_hash": "sha256:b50cae55670364e8286bb3a9113e5f76169e4ddf4cc39f67dd21696b2751341c",
+        "payload_signature": "nBI/7x8FQPOu6Ajqi1ZID4oklllpp8If2jJY8oYDSTJlJFK3VHbL5+1ZRTrj7d0UVgAuz9DsXS1pFnoa6Na6Ag==",
+        "latency_ms": 26.025082999999995,
+        "status": "succeeded",
+        "cost_amount": "0.010000",
+        "cost_asset": "lab:simulation/MOCK",
+        "artifact_refs": [
+          "lab-artifact/authorization_ee28910c9ae702de4d1ed54a5421932cebf0823de5d8a06404524590c998f98e"
+        ],
+        "parent_hash": "sha256:76e14f328df009610bb01c17f424e431a6517da478f57fc5a2a809a4ceaed0f1",
+        "receipt_hash": "sha256:2ca8d5020eaad51b930cc872f8ce711fddc1291fbf7c79f9de781dcaaf4aaae5",
+        "execution_authorization": {
+          "version": "infopunks.execution-authorization.v1",
+          "authorization_id": "authorization_ee28910c9ae702de4d1ed54a5421932cebf0823de5d8a06404524590c998f98e",
+          "payload_hash": "sha256:a18fcd45e7994140dbaec1a88481a45c08ee3e7addd356e3b54d8da0bec4d576"
+        }
+      }
+    },
+    {
+      "kind": "evaluation",
+      "receipt": {
+        "schema_version": "canonical-receipts.v1",
+        "evaluation_id": "economic_evaluation_9bd634767d5463586e2e5e0896b19a3f70a7110619d7279b8a5356747b75ac4a",
+        "execution_id": "economic_execution_ee28910c9ae702de4d1ed54a5421932cebf0823de5d8a06404524590c998f98e",
+        "evaluated_at": "2026-10-08T00:00:02.000Z",
+        "outcome": "confirmed",
+        "reasons": [
+          "independently_verified_execution_outcome"
+        ],
+        "evidence_refs": [
+          "lab-artifact/authorization_ee28910c9ae702de4d1ed54a5421932cebf0823de5d8a06404524590c998f98e",
+          "sha256:b50cae55670364e8286bb3a9113e5f76169e4ddf4cc39f67dd21696b2751341c"
+        ],
+        "policy_version": "score-policy.v1",
+        "evaluator": {
+          "type": "internal",
+          "id": "evaluation-service",
+          "verification": "internal"
+        },
+        "score_delta": 5,
+        "parent_hash": "sha256:2ca8d5020eaad51b930cc872f8ce711fddc1291fbf7c79f9de781dcaaf4aaae5",
+        "receipt_hash": "sha256:87b5c1439e9dd311baf1b98e668a3a2504a8caede168c456bf8bca111c580b86"
+      }
+    }
+  ],
+  "initial_preference": "cheap-unqualified",
+  "selected": "qualified-local",
+  "economic_usefulness": "unmeasured_synthetic_comparison_only",
+  "profile": "spend-lab/mock-service-v1",
+  "lab_public_trust": [
+    {
+      "issuer": "spend-lab/execution",
+      "keys": [
+        {
+          "key_id": "lab-key-execution",
+          "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEABmww5Brj4CSlBAfIO8xOmwFitZyy5kDiB9/sMzUvnRw=\n-----END PUBLIC KEY-----\n",
+          "valid_from": "2026-01-01T00:00:00Z",
+          "valid_until": null,
+          "revoked": false
+        }
+      ]
+    },
+    {
+      "issuer": "spend-lab/judgment",
+      "keys": [
+        {
+          "key_id": "lab-key-judgment",
+          "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAAr4XHNvGZe/lP1aYzksoQp4P4AzZ1rmzNxiPDlqYtyI=\n-----END PUBLIC KEY-----\n",
+          "valid_from": "2026-01-01T00:00:00Z",
+          "valid_until": null,
+          "revoked": false
+        }
+      ]
+    }
+  ],
+  "trust_scope": "Self-issued disposable simulation keys; no external issuer or settlement trust."
+}

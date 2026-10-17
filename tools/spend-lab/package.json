@@ -1,0 +1,9 @@
+{
+  "name": "@infopunks/spend-lab",
+  "private": true,
+  "scripts": {
+    "run": "tsx cli.ts",
+    "test": "vitest run --root ../.. tests/spend-lab.test.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}
