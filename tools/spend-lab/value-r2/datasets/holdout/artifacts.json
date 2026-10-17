@@ -1,0 +1,962 @@
+[
+  {
+    "id": "weighted-invoice--qualified",
+    "output": 38,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "weighted-invoice--verified-risk",
+    "output": 43,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 9,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "weighted-invoice--silent-defect",
+    "output": 43,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 7,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "weighted-invoice--missing-good",
+    "output": 38,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "weighted-invoice--stale-good",
+    "output": 38,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 5,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "weighted-invoice--noisy-veto-good",
+    "output": 38,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "weighted-invoice--cheap-detected-failure",
+    "output": 43,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "weighted-invoice--delivery-too-late",
+    "output": 38,
+    "status": "ok",
+    "elapsed_ms": 250,
+    "charged_units": 7,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "weighted-invoice--negative-margin",
+    "output": 38,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 40,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "weighted-invoice--invalid-scope",
+    "output": 38,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 5,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "weighted-invoice--weak-confidence",
+    "output": 38,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "weighted-invoice--unverified-authority",
+    "output": 43,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "dedupe-case-sensitive--qualified",
+    "output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "dedupe-case-sensitive--verified-risk",
+    "output": [
+      "red",
+      "blue"
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 9,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "dedupe-case-sensitive--silent-defect",
+    "output": [
+      "red",
+      "blue"
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 7,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "dedupe-case-sensitive--missing-good",
+    "output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "dedupe-case-sensitive--stale-good",
+    "output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 5,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "dedupe-case-sensitive--noisy-veto-good",
+    "output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "dedupe-case-sensitive--cheap-detected-failure",
+    "output": [
+      "red",
+      "blue"
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "dedupe-case-sensitive--delivery-too-late",
+    "output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "status": "ok",
+    "elapsed_ms": 250,
+    "charged_units": 7,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "dedupe-case-sensitive--negative-margin",
+    "output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 40,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "dedupe-case-sensitive--invalid-scope",
+    "output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 5,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "dedupe-case-sensitive--weak-confidence",
+    "output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "dedupe-case-sensitive--unverified-authority",
+    "output": [
+      "red",
+      "blue"
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inclusive-date-range--qualified",
+    "output": 3,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inclusive-date-range--verified-risk",
+    "output": 2,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 9,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inclusive-date-range--silent-defect",
+    "output": 2,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 7,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inclusive-date-range--missing-good",
+    "output": 3,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inclusive-date-range--stale-good",
+    "output": 3,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 5,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inclusive-date-range--noisy-veto-good",
+    "output": 3,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inclusive-date-range--cheap-detected-failure",
+    "output": 2,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inclusive-date-range--delivery-too-late",
+    "output": 3,
+    "status": "ok",
+    "elapsed_ms": 250,
+    "charged_units": 7,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inclusive-date-range--negative-margin",
+    "output": 3,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 40,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inclusive-date-range--invalid-scope",
+    "output": 3,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 5,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inclusive-date-range--weak-confidence",
+    "output": 3,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inclusive-date-range--unverified-authority",
+    "output": 2,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "decimal-rounding--qualified",
+    "output": 50,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "decimal-rounding--verified-risk",
+    "output": 51,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 9,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "decimal-rounding--silent-defect",
+    "output": 51,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 7,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "decimal-rounding--missing-good",
+    "output": 50,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "decimal-rounding--stale-good",
+    "output": 50,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 5,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "decimal-rounding--noisy-veto-good",
+    "output": 50,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "decimal-rounding--cheap-detected-failure",
+    "output": 51,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "decimal-rounding--delivery-too-late",
+    "output": 50,
+    "status": "ok",
+    "elapsed_ms": 250,
+    "charged_units": 7,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "decimal-rounding--negative-margin",
+    "output": 50,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 40,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "decimal-rounding--invalid-scope",
+    "output": 50,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 5,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "decimal-rounding--weak-confidence",
+    "output": 50,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "decimal-rounding--unverified-authority",
+    "output": 51,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inventory-availability--qualified",
+    "output": false,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inventory-availability--verified-risk",
+    "output": true,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 9,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inventory-availability--silent-defect",
+    "output": true,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 7,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inventory-availability--missing-good",
+    "output": false,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inventory-availability--stale-good",
+    "output": false,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 5,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inventory-availability--noisy-veto-good",
+    "output": false,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inventory-availability--cheap-detected-failure",
+    "output": true,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inventory-availability--delivery-too-late",
+    "output": false,
+    "status": "ok",
+    "elapsed_ms": 250,
+    "charged_units": 7,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inventory-availability--negative-margin",
+    "output": false,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 40,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inventory-availability--invalid-scope",
+    "output": false,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 5,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inventory-availability--weak-confidence",
+    "output": false,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "inventory-availability--unverified-authority",
+    "output": true,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "pagination-completeness--qualified",
+    "output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "pagination-completeness--verified-risk",
+    "output": [
+      1,
+      2
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 9,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "pagination-completeness--silent-defect",
+    "output": [
+      1,
+      2
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 7,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "pagination-completeness--missing-good",
+    "output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "pagination-completeness--stale-good",
+    "output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 5,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "pagination-completeness--noisy-veto-good",
+    "output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "pagination-completeness--cheap-detected-failure",
+    "output": [
+      1,
+      2
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "pagination-completeness--delivery-too-late",
+    "output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "status": "ok",
+    "elapsed_ms": 250,
+    "charged_units": 7,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "pagination-completeness--negative-margin",
+    "output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 40,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "pagination-completeness--invalid-scope",
+    "output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 5,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "pagination-completeness--weak-confidence",
+    "output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "pagination-completeness--unverified-authority",
+    "output": [
+      1,
+      2
+    ],
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "utf8-bytes--qualified",
+    "output": 7,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "utf8-bytes--verified-risk",
+    "output": 4,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 9,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "utf8-bytes--silent-defect",
+    "output": 4,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 7,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "utf8-bytes--missing-good",
+    "output": 7,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "utf8-bytes--stale-good",
+    "output": 7,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 5,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "utf8-bytes--noisy-veto-good",
+    "output": 7,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "utf8-bytes--cheap-detected-failure",
+    "output": 4,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "utf8-bytes--delivery-too-late",
+    "output": 7,
+    "status": "ok",
+    "elapsed_ms": 250,
+    "charged_units": 7,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "utf8-bytes--negative-margin",
+    "output": 7,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 40,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "utf8-bytes--invalid-scope",
+    "output": 7,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 5,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "utf8-bytes--weak-confidence",
+    "output": 7,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "utf8-bytes--unverified-authority",
+    "output": 4,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "currency-threshold--qualified",
+    "output": true,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "currency-threshold--verified-risk",
+    "output": false,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 9,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "currency-threshold--silent-defect",
+    "output": false,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 7,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "currency-threshold--missing-good",
+    "output": true,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "currency-threshold--stale-good",
+    "output": true,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 5,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "currency-threshold--noisy-veto-good",
+    "output": true,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "currency-threshold--cheap-detected-failure",
+    "output": false,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "currency-threshold--delivery-too-late",
+    "output": true,
+    "status": "ok",
+    "elapsed_ms": 250,
+    "charged_units": 7,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "currency-threshold--negative-margin",
+    "output": true,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 40,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "currency-threshold--invalid-scope",
+    "output": true,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 5,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "currency-threshold--weak-confidence",
+    "output": true,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 6,
+    "provider_fee_units": 1,
+    "simulation": true
+  },
+  {
+    "id": "currency-threshold--unverified-authority",
+    "output": false,
+    "status": "ok",
+    "elapsed_ms": 12,
+    "charged_units": 8,
+    "provider_fee_units": 1,
+    "simulation": true
+  }
+]

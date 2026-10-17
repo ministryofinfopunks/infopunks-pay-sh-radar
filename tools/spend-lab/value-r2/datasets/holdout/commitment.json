@@ -1,0 +1,16 @@
+{
+  "version": "first-spender.holdout-commitment.v1",
+  "status": "HOLD",
+  "economic_usefulness": "NOT_ESTABLISHED",
+  "curation": "separate local track; same operator; no external independence",
+  "simulation": true,
+  "cases": 96,
+  "families": 8,
+  "offers_hash": "sha256:2ea9a060e07d4158c503c71d5963acdf2fbbf2bff9f75ef682454ae3468be742",
+  "artifacts_hash": "sha256:9aebcd2a6df4566e4d4dbf1423d3e5be90c328d794c838b1f9f55f5a8fce5761",
+  "labels_hash": "sha256:48eb66b508825a2ff1cd9713c92d587d0443e9ff47b104e9d906f8f67c3f59ad",
+  "policy_evaluation_performed": false,
+  "development_inputs_imported": false,
+  "timing": "predeclared synthetic durations, not measured provider latency",
+  "unit": "toy utility; no currency mapping"
+}
