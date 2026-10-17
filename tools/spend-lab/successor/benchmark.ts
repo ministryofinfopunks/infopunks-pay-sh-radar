@@ -9,11 +9,15 @@ import { radarSdkAssessment } from '../integrations/radar-sdk';
 import { startHttpLab, freePort, seedHttpEvidence } from './http-client';
 import { startEvaluator } from './evaluator';
 import { boundedIntentTool, openController } from './controller';
+import type { PreflightResult } from './preflight';
 import type { JudgmentResult } from '../../../src/sdk/judgmentClient';
 
 const save = (path: string, value: unknown) =>
   writeFileSync(path, JSON.stringify(value, null, 2) + '\n', { mode: 0o600 });
-export async function runBenchmark(directory: string) {
+export async function runBenchmark(
+  directory: string,
+  options: { preflight?: (task: Task) => PreflightResult } = {},
+) {
   mkdirSync(directory, { recursive: true, mode: 0o700 });
   const auditDirectory = join(directory, 'audit');
   mkdirSync(auditDirectory, { mode: 0o700 });
@@ -71,19 +75,38 @@ export async function runBenchmark(directory: string) {
       const start = performance.now();
       // Both arms use exactly this budget/offer policy; the treatment adds only Radar's veto/abstention gate.
       const baseline = t.price_units + t.fee_units <= 50;
-      const result = (await intentTool.invoke(t.id)) as JudgmentResult;
-      results.set(t.id, result);
+      const preliminary = options.preflight?.(t);
+      if (
+        preliminary &&
+        (preliminary.execution_authorized !== false ||
+          !['no_spend', 'full_judgment_required'].includes(preliminary.route) ||
+          (preliminary.route === 'no_spend' &&
+            !['do_not_spend', 'insufficient_evidence'].includes(preliminary.decision ?? '')) ||
+          (preliminary.route === 'full_judgment_required' && preliminary.decision !== null))
+      )
+        throw new Error('preflight_execution_bypass_forbidden');
+      const result =
+        preliminary?.route === 'no_spend'
+          ? null
+          : ((await intentTool.invoke(t.id)) as JudgmentResult);
+      if (result) results.set(t.id, result);
       decisions.push({
         task_id: t.id,
         baseline_spend: baseline,
         radar_spend:
-          baseline && result.decision === 'proceed' && result.state === 'RECEIPT_VERIFIED',
-        radar_decision: result.decision,
-        judgment_fee_units: result.payment_required ? 1 : 0,
-        judgment_fee_atomic: result.payment_required ? '10000' : '0',
+          baseline && result?.decision === 'proceed' && result.state === 'RECEIPT_VERIFIED',
+        radar_decision: result?.decision ?? preliminary!.decision!,
+        ...(preliminary
+          ? {
+              preflight: preliminary,
+              decision_authority: result ? 'canonical_judgment' : 'preflight_no_spend',
+            }
+          : {}),
+        judgment_fee_units: result?.payment_required ? 1 : 0,
+        judgment_fee_atomic: result?.payment_required ? '10000' : '0',
         radar_latency_ms: performance.now() - start,
-        judgment_id: result.judgment_id,
-        judgment_hash: result.receipt?.receipt_hash ?? null,
+        judgment_id: result?.judgment_id ?? null,
+        judgment_hash: result?.receipt?.receipt_hash ?? null,
       });
     }
     const decisionsPath = join(directory, 'frozen-decisions.json');

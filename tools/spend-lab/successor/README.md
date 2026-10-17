@@ -54,3 +54,7 @@ Both arms use the same offer/budget rule, tasks, provider code, price, fees and 
 The observed deterministic comparison is baseline **101**, Radar **68**, difference **−33 toy units**: **46** prevented losses, **62** missed gains, **17** judgment-fee units, **6** correct abstentions and **3** false blocks. Latency varies by host. This negative result is preserved, not tuned away. The fee mapping (one toy unit per paid judgment), utility values and profile selection are authored local assumptions. Independent task-correctness labels are not independent market valuations, a representative provider population, an independently collected economic dataset or evidence of real economic usefulness.
 
 See [review-packet.md](review-packet.md) for the independent reviewer handoff and remaining gates.
+
+## Two-stage economic hypothesis
+
+See [two-stage-protocol.md](two-stage-protocol.md) for the registered local preflight experiment and per-task/per-risk Net Judgment Value report. It preserves this fixed-fee comparison, retains full judgment before every possible execution, distinguishes fee-only value from unknown fully costed value, and makes no commercial validation claim.

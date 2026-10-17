@@ -39,3 +39,7 @@ Status: **HOLD / external independent review PENDING**. Scope: reproducible loca
 ## Release gates (all remain HOLD)
 
 Staging; real purchases; wallet/remote payment access; public payments; production; external proof publication; merge; deployment. No automation in this successor opens these gates. A draft PR and CI results do not change them. Future merge additionally requires the repository's human visual approval.
+
+## Two-stage follow-up
+
+Review [two-stage-protocol.md](two-stage-protocol.md), `preflight.ts`, `net-judgment-value.ts`, the registration and both per-task/risk value files. Verify that free preflight can only stop spending, never authorize it; all potential executions still require the unchanged SDK judgment and capability. Risk strata precede labels. This is exploratory reuse of the inspected fixture suite; full assessment has no independently calibrated incremental-value estimate. Fee-only improvements and missing costs must not become commercial usefulness claims.

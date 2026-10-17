@@ -28,9 +28,11 @@ jobs:
       - run: npm ci
       - run: npx tsc --noEmit && npx tsc -p tools/spend-lab/tsconfig.json
       - name: Boundary, lifecycle and canonical regressions
-        run: npx vitest run tests/spend-lab-successor.test.ts tests/spend-lab.test.ts tests/economic-judgment-engine.test.ts tests/economic-engine-api.test.ts tests/judgment-dx-sdk.test.ts tests/pre-spend-sdk.test.ts tests/unit/judgment-service.test.ts tests/decision-context.test.ts tests/integration/pre-spend-judgment.test.ts tests/integration/pre-spend-payment.test.ts
+        run: npx vitest run tests/spend-lab-value.test.ts tests/spend-lab-successor.test.ts tests/spend-lab.test.ts tests/economic-judgment-engine.test.ts tests/economic-engine-api.test.ts tests/judgment-dx-sdk.test.ts tests/pre-spend-sdk.test.ts tests/unit/judgment-service.test.ts tests/decision-context.test.ts tests/integration/pre-spend-judgment.test.ts tests/integration/pre-spend-payment.test.ts
       - name: Reproduce paired local comparison
         run: npx tsx tools/spend-lab/successor/cli.ts .data/first-spender/comparison
+      - name: Reproduce conservative two-stage experiment and risk-stratified net value
+        run: npx tsx tools/spend-lab/successor/two-stage-cli.ts .data/first-spender/two-stage
       - name: Reproduce legacy safety matrix without updating frozen reports
         run: npx tsx tools/spend-lab/cli.ts --cases 1020 --concurrency 100 --output .data/first-spender/legacy
       - name: Confirm source remained unchanged
@@ -46,6 +48,14 @@ jobs:
             .data/first-spender/comparison/label-commitment.json
             .data/first-spender/comparison/labels.json
             .data/first-spender/comparison/trust.json
+            .data/first-spender/two-stage/registration.json
+            .data/first-spender/two-stage/*net-value.json
+            .data/first-spender/two-stage/two-stage-summary.json
+            .data/first-spender/two-stage/*/comparison-metrics.json
+            .data/first-spender/two-stage/*/frozen-decisions.json
+            .data/first-spender/two-stage/*/label-commitment.json
+            .data/first-spender/two-stage/*/labels.json
+            .data/first-spender/two-stage/*/trust.json
             .data/first-spender/legacy/verification-report.json
           if-no-files-found: error
           retention-days: 14
