@@ -1,0 +1,53 @@
+{
+  "version": "spend-lab.blinded-comparison.v1",
+  "status": "HOLD",
+  "provenance": "LOCAL_SIMULATION_ONLY",
+  "real_spending_authorized": false,
+  "label_authority": "separate_process_independent_task_oracle_same_operator_not_external_review",
+  "economic_usefulness": "NOT_ESTABLISHED",
+  "unique_tasks": 20,
+  "unique_families": 20,
+  "unique_provider_implementations": 20,
+  "repetitions_per_task": 1,
+  "decisions_hash": "sha256:10dc252a4fc92666807a5fb734a37923a740ee895f69b257f7b557f4c6ac1799",
+  "label_commitment": "sha256:f1cb1e4ed032485d7462eba13beb0e99152f34939aaea9054b39e3163bc06aaa",
+  "assumptions": {
+    "unit": "toy_utility_unit_not_currency",
+    "judgment_fee_units_per_paid_decision": 1,
+    "usdc_wire_metadata": "simulation_only_no_wallet_no_chain",
+    "value_source": "predeclared_task_spec_not_independently_procured_market_value",
+    "audit_provider_cost_units": 157,
+    "actual_monetary_cost": null,
+    "inference_cost": null,
+    "cpu_monetary_cost": null
+  },
+  "baseline": {
+    "net_units": 101,
+    "correct_abstentions": 0,
+    "provider_fees_units": 22,
+    "provider_cost_units": 135,
+    "total_latency_ms": 20.72087200000169,
+    "latency": {
+      "mean_ms": 1.0360436000000846,
+      "p50_ms": 0.009042000000590633,
+      "p95_ms": 0.09700000000066211
+    }
+  },
+  "radar": {
+    "net_units": 68,
+    "correct_abstentions": 6,
+    "prevented_losses_units": 46,
+    "false_blocks": 3,
+    "missed_gains_units": 62,
+    "judgment_fees_units": 17,
+    "provider_fees_units": 13,
+    "provider_cost_units": 79,
+    "total_latency_ms": 2185.5001690000017,
+    "latency": {
+      "mean_ms": 109.27500845000009,
+      "p50_ms": 110.69775000000027,
+      "p95_ms": 140.50954100000035
+    }
+  },
+  "paired_net_difference_units": -33
+}

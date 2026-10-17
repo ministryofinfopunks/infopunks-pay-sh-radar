@@ -1,0 +1,22 @@
+{
+  "version": "first-spender.economic-protocol.v1",
+  "status": "HOLD",
+  "economic_usefulness": "NOT_ESTABLISHED",
+  "baseline_sha": "9712fa304751565fac998460eca030d6247d4a1e",
+  "holdout_freeze_sha": "d4bb90ebed2ccdae0a5191af19f4b881b7744bf1",
+  "primary_strategies": ["no_radar", "simple_policy", "cheap_preflight", "full_paid_radar"],
+  "common_rule": "recipient allowlist, supported rail, exact quote fits maximum service budget; modeled authorization is never executable",
+  "simple_policy": "common rule plus identity, quote validity and declared value greater than quoted cost",
+  "cheap_preflight": "simple policy plus predeclared reachability, output-schema and latency-bound probes",
+  "full_paid_radar": "common rule plus unchanged canonical judgment; sufficient evidence and confidence >= 80, all hard vetoes retained",
+  "optimization": "stage simple and cheap reject-only filters before unchanged full Radar; never promote a block or abstention",
+  "costs": {"judgment_fee_units":1,"simple_check_units":0.05,"cheap_probe_units":0.2},
+  "fee_grid": [0,0.1,0.25,0.5,1,2,5],
+  "risk_grid": [0,0.5,1,2,5],
+  "transaction_scale_grid": [0.25,0.5,1,2,5,10],
+  "task_value_scale_grid": [0.5,1,2],
+  "evidence_grid": ["as_recorded","drop_25_percent","drop_50_percent","all_missing","all_stale","confidence_minus_20"],
+  "decision_rule_tuning": "none; no threshold search or holdout-trained selection",
+  "uncertainty": "descriptive finite synthetic sets; no population confidence interval, causal market effect or independent external truth",
+  "multiple_comparisons": "all grid rows reported, no held-out significance claims; any future tuning requires new holdout"
+}

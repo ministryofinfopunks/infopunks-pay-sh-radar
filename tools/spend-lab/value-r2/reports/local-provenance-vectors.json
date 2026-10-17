@@ -1,0 +1,812 @@
+{
+  "status": "HOLD",
+  "production_population_scanned": false,
+  "production_record_count": null,
+  "application_policy_changed": false,
+  "finding": "Legacy absent authority declarations can satisfy the current live predicate; declarations alone do not establish verified external authority.",
+  "severity": "RELEASE_REVIEW_BLOCKER",
+  "vectors": [
+    {
+      "id": "legacy-only-catalog-live",
+      "provenance": {
+        "catalog_source": "live"
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "complete-declaration-not-independent-proof",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": true
+    },
+    {
+      "id": "simulation",
+      "provenance": {
+        "catalog_source": "simulation",
+        "evidence_class": "local_simulation",
+        "simulation": true,
+        "environment": "isolated-local-spend-lab",
+        "external_economic_activity": false,
+        "spending_authority": "none"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "fixture-absent",
+      "provenance": {
+        "catalog_source": "live",
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "fixture-null",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": null,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "fixture-\"true\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": "true",
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "fixture-\"false\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": "false",
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "fixture-\"\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": "",
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "fixture-0",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": 0,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "fixture-1",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": 1,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "fixture-false",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": true
+    },
+    {
+      "id": "fixture-true",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": true,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "simulation-absent",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "simulation-null",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": null,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "simulation-\"true\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": "true",
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "simulation-\"false\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": "false",
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "simulation-\"\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": "",
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "simulation-0",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": 0,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "simulation-1",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": 1,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "simulation-false",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": true
+    },
+    {
+      "id": "simulation-true",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": true,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "evidence_class-absent",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "evidence_class-null",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": null,
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "evidence_class-\"true\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "true",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "evidence_class-\"false\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "false",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "evidence_class-\"\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "evidence_class-0",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": 0,
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "evidence_class-1",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": 1,
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "evidence_class-false",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": false,
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "evidence_class-true",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": true,
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "spending_authority-absent",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "spending_authority-null",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": null,
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "spending_authority-\"true\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "true",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "spending_authority-\"false\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "false",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "spending_authority-\"\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "spending_authority-0",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": 0,
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "spending_authority-1",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": 1,
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "spending_authority-false",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": false,
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "spending_authority-true",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": true,
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "external_economic_activity-absent",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "environment": "production"
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "external_economic_activity-null",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": null,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "external_economic_activity-\"true\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": "true",
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "external_economic_activity-\"false\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": "false",
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "external_economic_activity-\"\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": "",
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "external_economic_activity-0",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": 0,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "external_economic_activity-1",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": 1,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "external_economic_activity-false",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": false,
+        "environment": "production"
+      },
+      "current_eligibility": false,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "external_economic_activity-true",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "production"
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": true
+    },
+    {
+      "id": "environment-absent",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "environment-null",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": null
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "environment-\"true\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "true"
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "environment-\"false\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": "false"
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "environment-\"\"",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": ""
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "environment-0",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": 0
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "environment-1",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": 1
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "environment-false",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": false
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": false
+    },
+    {
+      "id": "environment-true",
+      "provenance": {
+        "catalog_source": "live",
+        "fixture": false,
+        "simulation": false,
+        "evidence_class": "live_evidence",
+        "spending_authority": "reviewed_live",
+        "external_economic_activity": true,
+        "environment": true
+      },
+      "current_eligibility": true,
+      "explicit_diagnostic": false
+    }
+  ],
+  "permissive_relative_to_explicit_diagnostic": [
+    "legacy-only-catalog-live",
+    "fixture-absent",
+    "simulation-absent",
+    "evidence_class-absent",
+    "spending_authority-absent",
+    "external_economic_activity-absent",
+    "environment-absent",
+    "environment-null",
+    "environment-\"true\"",
+    "environment-\"false\"",
+    "environment-\"\"",
+    "environment-0",
+    "environment-1",
+    "environment-false",
+    "environment-true"
+  ]
+}

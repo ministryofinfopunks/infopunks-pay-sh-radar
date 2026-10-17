@@ -1,0 +1,25 @@
+{
+  "version":"first-spender.restricted-pilot-proposal.v1",
+  "status":"HOLD",
+  "authorization":"NONE",
+  "economic_usefulness":"NOT_ESTABLISHED",
+  "source_baseline":"9712fa304751565fac998460eca030d6247d4a1e",
+  "reviewer_assignment_status":"UNASSIGNED",
+  "required_reviewers":[
+    {"role":"Independent security and protocol authority","person":null,"approval":null},
+    {"role":"Independent provenance and data custodian","person":null,"approval":null},
+    {"role":"Independent economic methodology and holdout curator","person":null,"approval":null},
+    {"role":"Provider identity and deliverable correctness reviewer","person":null,"approval":null},
+    {"role":"Separate execution-wallet custodian and budget approver","person":null,"approval":null},
+    {"role":"Independent evaluator service-account custodian","person":null,"approval":null},
+    {"role":"Operations and reconciliation reviewer","person":null,"approval":null},
+    {"role":"Existing database, artifact, accessibility and release gate owners","person":null,"approval":null}
+  ],
+  "provider":{"identity":null,"route":null,"exact_recipient":null,"allowlist_approval":null,"contract":"One bounded API/data task with independently specified expected deliverable, invoice/refund terms and observable final settlement","selection_status":"UNSELECTED_BLOCKER"},
+  "custody":{"execution_wallet_operator":null,"evaluator_credential_operator":null,"radar_holds_wallet_keys":false,"codex_receives_wallet_credentials":false,"executor_and_evaluator_must_have_distinct_administrators":true,"credentials_provisioned":false},
+  "proposed_limits_not_authorized":{"rail":"Existing qualified external Base USDC proof profile, subject to separate approval","providers":1,"service_purchases":1,"service_amount_usdc":"0.10","judgment_fee_usdc":"0.01","maximum_other_fees_usdc":"0.01","aggregate_total_usdc":"0.12","window":"one explicitly dated session; start/end unassigned","quote_ttl_seconds_max":60,"automatic_resubmission":false,"unknown_cost_policy":"ABORT; no assumed zero gas, verification, probe or recovery cost"},
+  "preconditions":["All independent release approvals and explicit live-pilot authorization","Exact source and deployed schema/artifact identity","No legacy absent/ambiguous authority admitted for new spend","External curator and independent ex-ante valuation with full comparator costs","Credible positive incremental value relative to cheap checks and abstaining, or explicitly authorized measurement-only purpose","Provider finality, response binding, expected output and evaluator independence qualified","Separately held execution wallet, scoped capability, allowlist and combined budget","Reviewed reconciliation, stop and evidence-retention procedures"],
+  "recovery":{"ambiguous_submission":"STOP new spending; retain pending; query existing durable idempotency reference only","expired_or_revoked":"No new execution; reconcile historical submission only","failed_deliverable":"Record contradicted/disputed/unverified using independent evidence, preserve cost and possible loss","refund":"Never presumed; separately authorized and independently evidenced","resume_authority":"Independent operator after reconciliation and budget verification; no blanket wallet capability"},
+  "publication":{"authorized":false,"proof_cards":false,"marketing_claims":false},
+  "approval_record":{"exact_candidate_sha":null,"provider_binding":null,"limit_binding":null,"environment":null,"reviewers":null,"decision":null,"timestamp":null}
+}

@@ -1,0 +1,3482 @@
+[
+  {
+    "id": "weighted-invoice--qualified",
+    "family": "weighted-invoice",
+    "contract": "integer quantities times price minus discount",
+    "input": {
+      "items": [
+        [
+          3,
+          7
+        ],
+        [
+          2,
+          11
+        ]
+      ],
+      "discount": 5
+    },
+    "provider_id": "holdout/weighted-invoice/qualified",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 40,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "weighted-invoice--verified-risk",
+    "family": "weighted-invoice",
+    "contract": "integer quantities times price minus discount",
+    "input": {
+      "items": [
+        [
+          3,
+          7
+        ],
+        [
+          2,
+          11
+        ]
+      ],
+      "discount": 5
+    },
+    "provider_id": "holdout/weighted-invoice/verified-risk",
+    "price_units": 9,
+    "provider_fee_units": 1,
+    "value_units": 45,
+    "loss_exposure_units": 15,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": true,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "weighted-invoice--silent-defect",
+    "family": "weighted-invoice",
+    "contract": "integer quantities times price minus discount",
+    "input": {
+      "items": [
+        [
+          3,
+          7
+        ],
+        [
+          2,
+          11
+        ]
+      ],
+      "discount": 5
+    },
+    "provider_id": "holdout/weighted-invoice/silent-defect",
+    "price_units": 7,
+    "provider_fee_units": 1,
+    "value_units": 50,
+    "loss_exposure_units": 30,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "weighted-invoice--missing-good",
+    "family": "weighted-invoice",
+    "contract": "integer quantities times price minus discount",
+    "input": {
+      "items": [
+        [
+          3,
+          7
+        ],
+        [
+          2,
+          11
+        ]
+      ],
+      "discount": 5
+    },
+    "provider_id": "holdout/weighted-invoice/missing-good",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 34,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "missing",
+      "confidence": 0,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "weighted-invoice--stale-good",
+    "family": "weighted-invoice",
+    "contract": "integer quantities times price minus discount",
+    "input": {
+      "items": [
+        [
+          3,
+          7
+        ],
+        [
+          2,
+          11
+        ]
+      ],
+      "discount": 5
+    },
+    "provider_id": "holdout/weighted-invoice/stale-good",
+    "price_units": 5,
+    "provider_fee_units": 1,
+    "value_units": 32,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "stale",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "weighted-invoice--noisy-veto-good",
+    "family": "weighted-invoice",
+    "contract": "integer quantities times price minus discount",
+    "input": {
+      "items": [
+        [
+          3,
+          7
+        ],
+        [
+          2,
+          11
+        ]
+      ],
+      "discount": 5
+    },
+    "provider_id": "holdout/weighted-invoice/noisy-veto-good",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 38,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": true,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "weighted-invoice--cheap-detected-failure",
+    "family": "weighted-invoice",
+    "contract": "integer quantities times price minus discount",
+    "input": {
+      "items": [
+        [
+          3,
+          7
+        ],
+        [
+          2,
+          11
+        ]
+      ],
+      "discount": 5
+    },
+    "provider_id": "holdout/weighted-invoice/cheap-detected-failure",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 42,
+    "loss_exposure_units": 25,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "missing",
+      "confidence": 0,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": false,
+      "schema_valid": true,
+      "within_latency_bound": false
+    }
+  },
+  {
+    "id": "weighted-invoice--delivery-too-late",
+    "family": "weighted-invoice",
+    "contract": "integer quantities times price minus discount",
+    "input": {
+      "items": [
+        [
+          3,
+          7
+        ],
+        [
+          2,
+          11
+        ]
+      ],
+      "discount": 5
+    },
+    "provider_id": "holdout/weighted-invoice/delivery-too-late",
+    "price_units": 7,
+    "provider_fee_units": 1,
+    "value_units": 48,
+    "loss_exposure_units": 8,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": false,
+      "schema_valid": true,
+      "within_latency_bound": false
+    }
+  },
+  {
+    "id": "weighted-invoice--negative-margin",
+    "family": "weighted-invoice",
+    "contract": "integer quantities times price minus discount",
+    "input": {
+      "items": [
+        [
+          3,
+          7
+        ],
+        [
+          2,
+          11
+        ]
+      ],
+      "discount": 5
+    },
+    "provider_id": "holdout/weighted-invoice/negative-margin",
+    "price_units": 40,
+    "provider_fee_units": 1,
+    "value_units": 25,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "weighted-invoice--invalid-scope",
+    "family": "weighted-invoice",
+    "contract": "integer quantities times price minus discount",
+    "input": {
+      "items": [
+        [
+          3,
+          7
+        ],
+        [
+          2,
+          11
+        ]
+      ],
+      "discount": 5
+    },
+    "provider_id": "holdout/weighted-invoice/invalid-scope",
+    "price_units": 5,
+    "provider_fee_units": 1,
+    "value_units": 37,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": false,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "weighted-invoice--weak-confidence",
+    "family": "weighted-invoice",
+    "contract": "integer quantities times price minus discount",
+    "input": {
+      "items": [
+        [
+          3,
+          7
+        ],
+        [
+          2,
+          11
+        ]
+      ],
+      "discount": 5
+    },
+    "provider_id": "holdout/weighted-invoice/weak-confidence",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 35,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 65,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "weighted-invoice--unverified-authority",
+    "family": "weighted-invoice",
+    "contract": "integer quantities times price minus discount",
+    "input": {
+      "items": [
+        [
+          3,
+          7
+        ],
+        [
+          2,
+          11
+        ]
+      ],
+      "discount": 5
+    },
+    "provider_id": "holdout/weighted-invoice/unverified-authority",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 46,
+    "loss_exposure_units": 40,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "legacy-absent",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": false
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "dedupe-case-sensitive--qualified",
+    "family": "dedupe-case-sensitive",
+    "contract": "exact string uniqueness, preserve first occurrence and whitespace",
+    "input": [
+      "red",
+      "Red",
+      "red",
+      " blue "
+    ],
+    "provider_id": "holdout/dedupe-case-sensitive/qualified",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 40,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "dedupe-case-sensitive--verified-risk",
+    "family": "dedupe-case-sensitive",
+    "contract": "exact string uniqueness, preserve first occurrence and whitespace",
+    "input": [
+      "red",
+      "Red",
+      "red",
+      " blue "
+    ],
+    "provider_id": "holdout/dedupe-case-sensitive/verified-risk",
+    "price_units": 9,
+    "provider_fee_units": 1,
+    "value_units": 45,
+    "loss_exposure_units": 15,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": true,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "dedupe-case-sensitive--silent-defect",
+    "family": "dedupe-case-sensitive",
+    "contract": "exact string uniqueness, preserve first occurrence and whitespace",
+    "input": [
+      "red",
+      "Red",
+      "red",
+      " blue "
+    ],
+    "provider_id": "holdout/dedupe-case-sensitive/silent-defect",
+    "price_units": 7,
+    "provider_fee_units": 1,
+    "value_units": 50,
+    "loss_exposure_units": 30,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "dedupe-case-sensitive--missing-good",
+    "family": "dedupe-case-sensitive",
+    "contract": "exact string uniqueness, preserve first occurrence and whitespace",
+    "input": [
+      "red",
+      "Red",
+      "red",
+      " blue "
+    ],
+    "provider_id": "holdout/dedupe-case-sensitive/missing-good",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 34,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "missing",
+      "confidence": 0,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "dedupe-case-sensitive--stale-good",
+    "family": "dedupe-case-sensitive",
+    "contract": "exact string uniqueness, preserve first occurrence and whitespace",
+    "input": [
+      "red",
+      "Red",
+      "red",
+      " blue "
+    ],
+    "provider_id": "holdout/dedupe-case-sensitive/stale-good",
+    "price_units": 5,
+    "provider_fee_units": 1,
+    "value_units": 32,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "stale",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "dedupe-case-sensitive--noisy-veto-good",
+    "family": "dedupe-case-sensitive",
+    "contract": "exact string uniqueness, preserve first occurrence and whitespace",
+    "input": [
+      "red",
+      "Red",
+      "red",
+      " blue "
+    ],
+    "provider_id": "holdout/dedupe-case-sensitive/noisy-veto-good",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 38,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": true,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "dedupe-case-sensitive--cheap-detected-failure",
+    "family": "dedupe-case-sensitive",
+    "contract": "exact string uniqueness, preserve first occurrence and whitespace",
+    "input": [
+      "red",
+      "Red",
+      "red",
+      " blue "
+    ],
+    "provider_id": "holdout/dedupe-case-sensitive/cheap-detected-failure",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 42,
+    "loss_exposure_units": 25,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "missing",
+      "confidence": 0,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": false,
+      "schema_valid": true,
+      "within_latency_bound": false
+    }
+  },
+  {
+    "id": "dedupe-case-sensitive--delivery-too-late",
+    "family": "dedupe-case-sensitive",
+    "contract": "exact string uniqueness, preserve first occurrence and whitespace",
+    "input": [
+      "red",
+      "Red",
+      "red",
+      " blue "
+    ],
+    "provider_id": "holdout/dedupe-case-sensitive/delivery-too-late",
+    "price_units": 7,
+    "provider_fee_units": 1,
+    "value_units": 48,
+    "loss_exposure_units": 8,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": false,
+      "schema_valid": true,
+      "within_latency_bound": false
+    }
+  },
+  {
+    "id": "dedupe-case-sensitive--negative-margin",
+    "family": "dedupe-case-sensitive",
+    "contract": "exact string uniqueness, preserve first occurrence and whitespace",
+    "input": [
+      "red",
+      "Red",
+      "red",
+      " blue "
+    ],
+    "provider_id": "holdout/dedupe-case-sensitive/negative-margin",
+    "price_units": 40,
+    "provider_fee_units": 1,
+    "value_units": 25,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "dedupe-case-sensitive--invalid-scope",
+    "family": "dedupe-case-sensitive",
+    "contract": "exact string uniqueness, preserve first occurrence and whitespace",
+    "input": [
+      "red",
+      "Red",
+      "red",
+      " blue "
+    ],
+    "provider_id": "holdout/dedupe-case-sensitive/invalid-scope",
+    "price_units": 5,
+    "provider_fee_units": 1,
+    "value_units": 37,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": false,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "dedupe-case-sensitive--weak-confidence",
+    "family": "dedupe-case-sensitive",
+    "contract": "exact string uniqueness, preserve first occurrence and whitespace",
+    "input": [
+      "red",
+      "Red",
+      "red",
+      " blue "
+    ],
+    "provider_id": "holdout/dedupe-case-sensitive/weak-confidence",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 35,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 65,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "dedupe-case-sensitive--unverified-authority",
+    "family": "dedupe-case-sensitive",
+    "contract": "exact string uniqueness, preserve first occurrence and whitespace",
+    "input": [
+      "red",
+      "Red",
+      "red",
+      " blue "
+    ],
+    "provider_id": "holdout/dedupe-case-sensitive/unverified-authority",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 46,
+    "loss_exposure_units": 40,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "legacy-absent",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": false
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inclusive-date-range--qualified",
+    "family": "inclusive-date-range",
+    "contract": "count inclusive calendar dates in UTC",
+    "input": {
+      "start": "2026-11-01",
+      "end": "2026-11-03"
+    },
+    "provider_id": "holdout/inclusive-date-range/qualified",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 40,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inclusive-date-range--verified-risk",
+    "family": "inclusive-date-range",
+    "contract": "count inclusive calendar dates in UTC",
+    "input": {
+      "start": "2026-11-01",
+      "end": "2026-11-03"
+    },
+    "provider_id": "holdout/inclusive-date-range/verified-risk",
+    "price_units": 9,
+    "provider_fee_units": 1,
+    "value_units": 45,
+    "loss_exposure_units": 15,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": true,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inclusive-date-range--silent-defect",
+    "family": "inclusive-date-range",
+    "contract": "count inclusive calendar dates in UTC",
+    "input": {
+      "start": "2026-11-01",
+      "end": "2026-11-03"
+    },
+    "provider_id": "holdout/inclusive-date-range/silent-defect",
+    "price_units": 7,
+    "provider_fee_units": 1,
+    "value_units": 50,
+    "loss_exposure_units": 30,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inclusive-date-range--missing-good",
+    "family": "inclusive-date-range",
+    "contract": "count inclusive calendar dates in UTC",
+    "input": {
+      "start": "2026-11-01",
+      "end": "2026-11-03"
+    },
+    "provider_id": "holdout/inclusive-date-range/missing-good",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 34,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "missing",
+      "confidence": 0,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inclusive-date-range--stale-good",
+    "family": "inclusive-date-range",
+    "contract": "count inclusive calendar dates in UTC",
+    "input": {
+      "start": "2026-11-01",
+      "end": "2026-11-03"
+    },
+    "provider_id": "holdout/inclusive-date-range/stale-good",
+    "price_units": 5,
+    "provider_fee_units": 1,
+    "value_units": 32,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "stale",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inclusive-date-range--noisy-veto-good",
+    "family": "inclusive-date-range",
+    "contract": "count inclusive calendar dates in UTC",
+    "input": {
+      "start": "2026-11-01",
+      "end": "2026-11-03"
+    },
+    "provider_id": "holdout/inclusive-date-range/noisy-veto-good",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 38,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": true,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inclusive-date-range--cheap-detected-failure",
+    "family": "inclusive-date-range",
+    "contract": "count inclusive calendar dates in UTC",
+    "input": {
+      "start": "2026-11-01",
+      "end": "2026-11-03"
+    },
+    "provider_id": "holdout/inclusive-date-range/cheap-detected-failure",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 42,
+    "loss_exposure_units": 25,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "missing",
+      "confidence": 0,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": false,
+      "schema_valid": true,
+      "within_latency_bound": false
+    }
+  },
+  {
+    "id": "inclusive-date-range--delivery-too-late",
+    "family": "inclusive-date-range",
+    "contract": "count inclusive calendar dates in UTC",
+    "input": {
+      "start": "2026-11-01",
+      "end": "2026-11-03"
+    },
+    "provider_id": "holdout/inclusive-date-range/delivery-too-late",
+    "price_units": 7,
+    "provider_fee_units": 1,
+    "value_units": 48,
+    "loss_exposure_units": 8,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": false,
+      "schema_valid": true,
+      "within_latency_bound": false
+    }
+  },
+  {
+    "id": "inclusive-date-range--negative-margin",
+    "family": "inclusive-date-range",
+    "contract": "count inclusive calendar dates in UTC",
+    "input": {
+      "start": "2026-11-01",
+      "end": "2026-11-03"
+    },
+    "provider_id": "holdout/inclusive-date-range/negative-margin",
+    "price_units": 40,
+    "provider_fee_units": 1,
+    "value_units": 25,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inclusive-date-range--invalid-scope",
+    "family": "inclusive-date-range",
+    "contract": "count inclusive calendar dates in UTC",
+    "input": {
+      "start": "2026-11-01",
+      "end": "2026-11-03"
+    },
+    "provider_id": "holdout/inclusive-date-range/invalid-scope",
+    "price_units": 5,
+    "provider_fee_units": 1,
+    "value_units": 37,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": false,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inclusive-date-range--weak-confidence",
+    "family": "inclusive-date-range",
+    "contract": "count inclusive calendar dates in UTC",
+    "input": {
+      "start": "2026-11-01",
+      "end": "2026-11-03"
+    },
+    "provider_id": "holdout/inclusive-date-range/weak-confidence",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 35,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 65,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inclusive-date-range--unverified-authority",
+    "family": "inclusive-date-range",
+    "contract": "count inclusive calendar dates in UTC",
+    "input": {
+      "start": "2026-11-01",
+      "end": "2026-11-03"
+    },
+    "provider_id": "holdout/inclusive-date-range/unverified-authority",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 46,
+    "loss_exposure_units": 40,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "legacy-absent",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": false
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "decimal-rounding--qualified",
+    "family": "decimal-rounding",
+    "contract": "fee = floor(integer minor units * basis points / 10000)",
+    "input": {
+      "minor_units": 1005,
+      "rate_bps": 500
+    },
+    "provider_id": "holdout/decimal-rounding/qualified",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 40,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "decimal-rounding--verified-risk",
+    "family": "decimal-rounding",
+    "contract": "fee = floor(integer minor units * basis points / 10000)",
+    "input": {
+      "minor_units": 1005,
+      "rate_bps": 500
+    },
+    "provider_id": "holdout/decimal-rounding/verified-risk",
+    "price_units": 9,
+    "provider_fee_units": 1,
+    "value_units": 45,
+    "loss_exposure_units": 15,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": true,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "decimal-rounding--silent-defect",
+    "family": "decimal-rounding",
+    "contract": "fee = floor(integer minor units * basis points / 10000)",
+    "input": {
+      "minor_units": 1005,
+      "rate_bps": 500
+    },
+    "provider_id": "holdout/decimal-rounding/silent-defect",
+    "price_units": 7,
+    "provider_fee_units": 1,
+    "value_units": 50,
+    "loss_exposure_units": 30,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "decimal-rounding--missing-good",
+    "family": "decimal-rounding",
+    "contract": "fee = floor(integer minor units * basis points / 10000)",
+    "input": {
+      "minor_units": 1005,
+      "rate_bps": 500
+    },
+    "provider_id": "holdout/decimal-rounding/missing-good",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 34,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "missing",
+      "confidence": 0,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "decimal-rounding--stale-good",
+    "family": "decimal-rounding",
+    "contract": "fee = floor(integer minor units * basis points / 10000)",
+    "input": {
+      "minor_units": 1005,
+      "rate_bps": 500
+    },
+    "provider_id": "holdout/decimal-rounding/stale-good",
+    "price_units": 5,
+    "provider_fee_units": 1,
+    "value_units": 32,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "stale",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "decimal-rounding--noisy-veto-good",
+    "family": "decimal-rounding",
+    "contract": "fee = floor(integer minor units * basis points / 10000)",
+    "input": {
+      "minor_units": 1005,
+      "rate_bps": 500
+    },
+    "provider_id": "holdout/decimal-rounding/noisy-veto-good",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 38,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": true,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "decimal-rounding--cheap-detected-failure",
+    "family": "decimal-rounding",
+    "contract": "fee = floor(integer minor units * basis points / 10000)",
+    "input": {
+      "minor_units": 1005,
+      "rate_bps": 500
+    },
+    "provider_id": "holdout/decimal-rounding/cheap-detected-failure",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 42,
+    "loss_exposure_units": 25,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "missing",
+      "confidence": 0,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": false,
+      "schema_valid": true,
+      "within_latency_bound": false
+    }
+  },
+  {
+    "id": "decimal-rounding--delivery-too-late",
+    "family": "decimal-rounding",
+    "contract": "fee = floor(integer minor units * basis points / 10000)",
+    "input": {
+      "minor_units": 1005,
+      "rate_bps": 500
+    },
+    "provider_id": "holdout/decimal-rounding/delivery-too-late",
+    "price_units": 7,
+    "provider_fee_units": 1,
+    "value_units": 48,
+    "loss_exposure_units": 8,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": false,
+      "schema_valid": true,
+      "within_latency_bound": false
+    }
+  },
+  {
+    "id": "decimal-rounding--negative-margin",
+    "family": "decimal-rounding",
+    "contract": "fee = floor(integer minor units * basis points / 10000)",
+    "input": {
+      "minor_units": 1005,
+      "rate_bps": 500
+    },
+    "provider_id": "holdout/decimal-rounding/negative-margin",
+    "price_units": 40,
+    "provider_fee_units": 1,
+    "value_units": 25,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "decimal-rounding--invalid-scope",
+    "family": "decimal-rounding",
+    "contract": "fee = floor(integer minor units * basis points / 10000)",
+    "input": {
+      "minor_units": 1005,
+      "rate_bps": 500
+    },
+    "provider_id": "holdout/decimal-rounding/invalid-scope",
+    "price_units": 5,
+    "provider_fee_units": 1,
+    "value_units": 37,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": false,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "decimal-rounding--weak-confidence",
+    "family": "decimal-rounding",
+    "contract": "fee = floor(integer minor units * basis points / 10000)",
+    "input": {
+      "minor_units": 1005,
+      "rate_bps": 500
+    },
+    "provider_id": "holdout/decimal-rounding/weak-confidence",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 35,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 65,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "decimal-rounding--unverified-authority",
+    "family": "decimal-rounding",
+    "contract": "fee = floor(integer minor units * basis points / 10000)",
+    "input": {
+      "minor_units": 1005,
+      "rate_bps": 500
+    },
+    "provider_id": "holdout/decimal-rounding/unverified-authority",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 46,
+    "loss_exposure_units": 40,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "legacy-absent",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": false
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inventory-availability--qualified",
+    "family": "inventory-availability",
+    "contract": "available stock after reservations must cover requested units",
+    "input": {
+      "stock": 5,
+      "reserved": 3,
+      "requested": 3
+    },
+    "provider_id": "holdout/inventory-availability/qualified",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 40,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inventory-availability--verified-risk",
+    "family": "inventory-availability",
+    "contract": "available stock after reservations must cover requested units",
+    "input": {
+      "stock": 5,
+      "reserved": 3,
+      "requested": 3
+    },
+    "provider_id": "holdout/inventory-availability/verified-risk",
+    "price_units": 9,
+    "provider_fee_units": 1,
+    "value_units": 45,
+    "loss_exposure_units": 15,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": true,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inventory-availability--silent-defect",
+    "family": "inventory-availability",
+    "contract": "available stock after reservations must cover requested units",
+    "input": {
+      "stock": 5,
+      "reserved": 3,
+      "requested": 3
+    },
+    "provider_id": "holdout/inventory-availability/silent-defect",
+    "price_units": 7,
+    "provider_fee_units": 1,
+    "value_units": 50,
+    "loss_exposure_units": 30,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inventory-availability--missing-good",
+    "family": "inventory-availability",
+    "contract": "available stock after reservations must cover requested units",
+    "input": {
+      "stock": 5,
+      "reserved": 3,
+      "requested": 3
+    },
+    "provider_id": "holdout/inventory-availability/missing-good",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 34,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "missing",
+      "confidence": 0,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inventory-availability--stale-good",
+    "family": "inventory-availability",
+    "contract": "available stock after reservations must cover requested units",
+    "input": {
+      "stock": 5,
+      "reserved": 3,
+      "requested": 3
+    },
+    "provider_id": "holdout/inventory-availability/stale-good",
+    "price_units": 5,
+    "provider_fee_units": 1,
+    "value_units": 32,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "stale",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inventory-availability--noisy-veto-good",
+    "family": "inventory-availability",
+    "contract": "available stock after reservations must cover requested units",
+    "input": {
+      "stock": 5,
+      "reserved": 3,
+      "requested": 3
+    },
+    "provider_id": "holdout/inventory-availability/noisy-veto-good",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 38,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": true,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inventory-availability--cheap-detected-failure",
+    "family": "inventory-availability",
+    "contract": "available stock after reservations must cover requested units",
+    "input": {
+      "stock": 5,
+      "reserved": 3,
+      "requested": 3
+    },
+    "provider_id": "holdout/inventory-availability/cheap-detected-failure",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 42,
+    "loss_exposure_units": 25,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "missing",
+      "confidence": 0,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": false,
+      "schema_valid": true,
+      "within_latency_bound": false
+    }
+  },
+  {
+    "id": "inventory-availability--delivery-too-late",
+    "family": "inventory-availability",
+    "contract": "available stock after reservations must cover requested units",
+    "input": {
+      "stock": 5,
+      "reserved": 3,
+      "requested": 3
+    },
+    "provider_id": "holdout/inventory-availability/delivery-too-late",
+    "price_units": 7,
+    "provider_fee_units": 1,
+    "value_units": 48,
+    "loss_exposure_units": 8,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": false,
+      "schema_valid": true,
+      "within_latency_bound": false
+    }
+  },
+  {
+    "id": "inventory-availability--negative-margin",
+    "family": "inventory-availability",
+    "contract": "available stock after reservations must cover requested units",
+    "input": {
+      "stock": 5,
+      "reserved": 3,
+      "requested": 3
+    },
+    "provider_id": "holdout/inventory-availability/negative-margin",
+    "price_units": 40,
+    "provider_fee_units": 1,
+    "value_units": 25,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inventory-availability--invalid-scope",
+    "family": "inventory-availability",
+    "contract": "available stock after reservations must cover requested units",
+    "input": {
+      "stock": 5,
+      "reserved": 3,
+      "requested": 3
+    },
+    "provider_id": "holdout/inventory-availability/invalid-scope",
+    "price_units": 5,
+    "provider_fee_units": 1,
+    "value_units": 37,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": false,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inventory-availability--weak-confidence",
+    "family": "inventory-availability",
+    "contract": "available stock after reservations must cover requested units",
+    "input": {
+      "stock": 5,
+      "reserved": 3,
+      "requested": 3
+    },
+    "provider_id": "holdout/inventory-availability/weak-confidence",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 35,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 65,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "inventory-availability--unverified-authority",
+    "family": "inventory-availability",
+    "contract": "available stock after reservations must cover requested units",
+    "input": {
+      "stock": 5,
+      "reserved": 3,
+      "requested": 3
+    },
+    "provider_id": "holdout/inventory-availability/unverified-authority",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 46,
+    "loss_exposure_units": 40,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "legacy-absent",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": false
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "pagination-completeness--qualified",
+    "family": "pagination-completeness",
+    "contract": "concatenate all pages through empty sentinel",
+    "input": {
+      "pages": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        []
+      ]
+    },
+    "provider_id": "holdout/pagination-completeness/qualified",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 40,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "pagination-completeness--verified-risk",
+    "family": "pagination-completeness",
+    "contract": "concatenate all pages through empty sentinel",
+    "input": {
+      "pages": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        []
+      ]
+    },
+    "provider_id": "holdout/pagination-completeness/verified-risk",
+    "price_units": 9,
+    "provider_fee_units": 1,
+    "value_units": 45,
+    "loss_exposure_units": 15,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": true,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "pagination-completeness--silent-defect",
+    "family": "pagination-completeness",
+    "contract": "concatenate all pages through empty sentinel",
+    "input": {
+      "pages": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        []
+      ]
+    },
+    "provider_id": "holdout/pagination-completeness/silent-defect",
+    "price_units": 7,
+    "provider_fee_units": 1,
+    "value_units": 50,
+    "loss_exposure_units": 30,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "pagination-completeness--missing-good",
+    "family": "pagination-completeness",
+    "contract": "concatenate all pages through empty sentinel",
+    "input": {
+      "pages": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        []
+      ]
+    },
+    "provider_id": "holdout/pagination-completeness/missing-good",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 34,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "missing",
+      "confidence": 0,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "pagination-completeness--stale-good",
+    "family": "pagination-completeness",
+    "contract": "concatenate all pages through empty sentinel",
+    "input": {
+      "pages": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        []
+      ]
+    },
+    "provider_id": "holdout/pagination-completeness/stale-good",
+    "price_units": 5,
+    "provider_fee_units": 1,
+    "value_units": 32,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "stale",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "pagination-completeness--noisy-veto-good",
+    "family": "pagination-completeness",
+    "contract": "concatenate all pages through empty sentinel",
+    "input": {
+      "pages": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        []
+      ]
+    },
+    "provider_id": "holdout/pagination-completeness/noisy-veto-good",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 38,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": true,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "pagination-completeness--cheap-detected-failure",
+    "family": "pagination-completeness",
+    "contract": "concatenate all pages through empty sentinel",
+    "input": {
+      "pages": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        []
+      ]
+    },
+    "provider_id": "holdout/pagination-completeness/cheap-detected-failure",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 42,
+    "loss_exposure_units": 25,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "missing",
+      "confidence": 0,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": false,
+      "schema_valid": true,
+      "within_latency_bound": false
+    }
+  },
+  {
+    "id": "pagination-completeness--delivery-too-late",
+    "family": "pagination-completeness",
+    "contract": "concatenate all pages through empty sentinel",
+    "input": {
+      "pages": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        []
+      ]
+    },
+    "provider_id": "holdout/pagination-completeness/delivery-too-late",
+    "price_units": 7,
+    "provider_fee_units": 1,
+    "value_units": 48,
+    "loss_exposure_units": 8,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": false,
+      "schema_valid": true,
+      "within_latency_bound": false
+    }
+  },
+  {
+    "id": "pagination-completeness--negative-margin",
+    "family": "pagination-completeness",
+    "contract": "concatenate all pages through empty sentinel",
+    "input": {
+      "pages": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        []
+      ]
+    },
+    "provider_id": "holdout/pagination-completeness/negative-margin",
+    "price_units": 40,
+    "provider_fee_units": 1,
+    "value_units": 25,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "pagination-completeness--invalid-scope",
+    "family": "pagination-completeness",
+    "contract": "concatenate all pages through empty sentinel",
+    "input": {
+      "pages": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        []
+      ]
+    },
+    "provider_id": "holdout/pagination-completeness/invalid-scope",
+    "price_units": 5,
+    "provider_fee_units": 1,
+    "value_units": 37,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": false,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "pagination-completeness--weak-confidence",
+    "family": "pagination-completeness",
+    "contract": "concatenate all pages through empty sentinel",
+    "input": {
+      "pages": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        []
+      ]
+    },
+    "provider_id": "holdout/pagination-completeness/weak-confidence",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 35,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 65,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "pagination-completeness--unverified-authority",
+    "family": "pagination-completeness",
+    "contract": "concatenate all pages through empty sentinel",
+    "input": {
+      "pages": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        []
+      ]
+    },
+    "provider_id": "holdout/pagination-completeness/unverified-authority",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 46,
+    "loss_exposure_units": 40,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "legacy-absent",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": false
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "utf8-bytes--qualified",
+    "family": "utf8-bytes",
+    "contract": "length of UTF-8 encoded bytes",
+    "input": "Aé😀",
+    "provider_id": "holdout/utf8-bytes/qualified",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 40,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "utf8-bytes--verified-risk",
+    "family": "utf8-bytes",
+    "contract": "length of UTF-8 encoded bytes",
+    "input": "Aé😀",
+    "provider_id": "holdout/utf8-bytes/verified-risk",
+    "price_units": 9,
+    "provider_fee_units": 1,
+    "value_units": 45,
+    "loss_exposure_units": 15,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": true,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "utf8-bytes--silent-defect",
+    "family": "utf8-bytes",
+    "contract": "length of UTF-8 encoded bytes",
+    "input": "Aé😀",
+    "provider_id": "holdout/utf8-bytes/silent-defect",
+    "price_units": 7,
+    "provider_fee_units": 1,
+    "value_units": 50,
+    "loss_exposure_units": 30,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "utf8-bytes--missing-good",
+    "family": "utf8-bytes",
+    "contract": "length of UTF-8 encoded bytes",
+    "input": "Aé😀",
+    "provider_id": "holdout/utf8-bytes/missing-good",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 34,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "missing",
+      "confidence": 0,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "utf8-bytes--stale-good",
+    "family": "utf8-bytes",
+    "contract": "length of UTF-8 encoded bytes",
+    "input": "Aé😀",
+    "provider_id": "holdout/utf8-bytes/stale-good",
+    "price_units": 5,
+    "provider_fee_units": 1,
+    "value_units": 32,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "stale",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "utf8-bytes--noisy-veto-good",
+    "family": "utf8-bytes",
+    "contract": "length of UTF-8 encoded bytes",
+    "input": "Aé😀",
+    "provider_id": "holdout/utf8-bytes/noisy-veto-good",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 38,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": true,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "utf8-bytes--cheap-detected-failure",
+    "family": "utf8-bytes",
+    "contract": "length of UTF-8 encoded bytes",
+    "input": "Aé😀",
+    "provider_id": "holdout/utf8-bytes/cheap-detected-failure",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 42,
+    "loss_exposure_units": 25,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "missing",
+      "confidence": 0,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": false,
+      "schema_valid": true,
+      "within_latency_bound": false
+    }
+  },
+  {
+    "id": "utf8-bytes--delivery-too-late",
+    "family": "utf8-bytes",
+    "contract": "length of UTF-8 encoded bytes",
+    "input": "Aé😀",
+    "provider_id": "holdout/utf8-bytes/delivery-too-late",
+    "price_units": 7,
+    "provider_fee_units": 1,
+    "value_units": 48,
+    "loss_exposure_units": 8,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": false,
+      "schema_valid": true,
+      "within_latency_bound": false
+    }
+  },
+  {
+    "id": "utf8-bytes--negative-margin",
+    "family": "utf8-bytes",
+    "contract": "length of UTF-8 encoded bytes",
+    "input": "Aé😀",
+    "provider_id": "holdout/utf8-bytes/negative-margin",
+    "price_units": 40,
+    "provider_fee_units": 1,
+    "value_units": 25,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "utf8-bytes--invalid-scope",
+    "family": "utf8-bytes",
+    "contract": "length of UTF-8 encoded bytes",
+    "input": "Aé😀",
+    "provider_id": "holdout/utf8-bytes/invalid-scope",
+    "price_units": 5,
+    "provider_fee_units": 1,
+    "value_units": 37,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": false,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "utf8-bytes--weak-confidence",
+    "family": "utf8-bytes",
+    "contract": "length of UTF-8 encoded bytes",
+    "input": "Aé😀",
+    "provider_id": "holdout/utf8-bytes/weak-confidence",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 35,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 65,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "utf8-bytes--unverified-authority",
+    "family": "utf8-bytes",
+    "contract": "length of UTF-8 encoded bytes",
+    "input": "Aé😀",
+    "provider_id": "holdout/utf8-bytes/unverified-authority",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 46,
+    "loss_exposure_units": 40,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "legacy-absent",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": false
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "currency-threshold--qualified",
+    "family": "currency-threshold",
+    "contract": "threshold is inclusive and amounts use exact integer units",
+    "input": {
+      "amount_minor": 10000,
+      "max_minor": 10000
+    },
+    "provider_id": "holdout/currency-threshold/qualified",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 40,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "currency-threshold--verified-risk",
+    "family": "currency-threshold",
+    "contract": "threshold is inclusive and amounts use exact integer units",
+    "input": {
+      "amount_minor": 10000,
+      "max_minor": 10000
+    },
+    "provider_id": "holdout/currency-threshold/verified-risk",
+    "price_units": 9,
+    "provider_fee_units": 1,
+    "value_units": 45,
+    "loss_exposure_units": 15,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": true,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "currency-threshold--silent-defect",
+    "family": "currency-threshold",
+    "contract": "threshold is inclusive and amounts use exact integer units",
+    "input": {
+      "amount_minor": 10000,
+      "max_minor": 10000
+    },
+    "provider_id": "holdout/currency-threshold/silent-defect",
+    "price_units": 7,
+    "provider_fee_units": 1,
+    "value_units": 50,
+    "loss_exposure_units": 30,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "currency-threshold--missing-good",
+    "family": "currency-threshold",
+    "contract": "threshold is inclusive and amounts use exact integer units",
+    "input": {
+      "amount_minor": 10000,
+      "max_minor": 10000
+    },
+    "provider_id": "holdout/currency-threshold/missing-good",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 34,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "missing",
+      "confidence": 0,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "currency-threshold--stale-good",
+    "family": "currency-threshold",
+    "contract": "threshold is inclusive and amounts use exact integer units",
+    "input": {
+      "amount_minor": 10000,
+      "max_minor": 10000
+    },
+    "provider_id": "holdout/currency-threshold/stale-good",
+    "price_units": 5,
+    "provider_fee_units": 1,
+    "value_units": 32,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "stale",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "currency-threshold--noisy-veto-good",
+    "family": "currency-threshold",
+    "contract": "threshold is inclusive and amounts use exact integer units",
+    "input": {
+      "amount_minor": 10000,
+      "max_minor": 10000
+    },
+    "provider_id": "holdout/currency-threshold/noisy-veto-good",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 38,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": true,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "currency-threshold--cheap-detected-failure",
+    "family": "currency-threshold",
+    "contract": "threshold is inclusive and amounts use exact integer units",
+    "input": {
+      "amount_minor": 10000,
+      "max_minor": 10000
+    },
+    "provider_id": "holdout/currency-threshold/cheap-detected-failure",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 42,
+    "loss_exposure_units": 25,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "missing",
+      "confidence": 0,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": false,
+      "schema_valid": true,
+      "within_latency_bound": false
+    }
+  },
+  {
+    "id": "currency-threshold--delivery-too-late",
+    "family": "currency-threshold",
+    "contract": "threshold is inclusive and amounts use exact integer units",
+    "input": {
+      "amount_minor": 10000,
+      "max_minor": 10000
+    },
+    "provider_id": "holdout/currency-threshold/delivery-too-late",
+    "price_units": 7,
+    "provider_fee_units": 1,
+    "value_units": 48,
+    "loss_exposure_units": 8,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": false,
+      "schema_valid": true,
+      "within_latency_bound": false
+    }
+  },
+  {
+    "id": "currency-threshold--negative-margin",
+    "family": "currency-threshold",
+    "contract": "threshold is inclusive and amounts use exact integer units",
+    "input": {
+      "amount_minor": 10000,
+      "max_minor": 10000
+    },
+    "provider_id": "holdout/currency-threshold/negative-margin",
+    "price_units": 40,
+    "provider_fee_units": 1,
+    "value_units": 25,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "currency-threshold--invalid-scope",
+    "family": "currency-threshold",
+    "contract": "threshold is inclusive and amounts use exact integer units",
+    "input": {
+      "amount_minor": 10000,
+      "max_minor": 10000
+    },
+    "provider_id": "holdout/currency-threshold/invalid-scope",
+    "price_units": 5,
+    "provider_fee_units": 1,
+    "value_units": 37,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": false,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "currency-threshold--weak-confidence",
+    "family": "currency-threshold",
+    "contract": "threshold is inclusive and amounts use exact integer units",
+    "input": {
+      "amount_minor": 10000,
+      "max_minor": 10000
+    },
+    "provider_id": "holdout/currency-threshold/weak-confidence",
+    "price_units": 6,
+    "provider_fee_units": 1,
+    "value_units": 35,
+    "loss_exposure_units": 0,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "fresh",
+      "confidence": 65,
+      "veto": false,
+      "sufficient": true,
+      "authority_explicit": true
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  },
+  {
+    "id": "currency-threshold--unverified-authority",
+    "family": "currency-threshold",
+    "contract": "threshold is inclusive and amounts use exact integer units",
+    "input": {
+      "amount_minor": 10000,
+      "max_minor": 10000
+    },
+    "provider_id": "holdout/currency-threshold/unverified-authority",
+    "price_units": 8,
+    "provider_fee_units": 1,
+    "value_units": 46,
+    "loss_exposure_units": 40,
+    "deadline_ms": 100,
+    "static": {
+      "identity_verified": true,
+      "recipient_allowlisted": true,
+      "quote_valid": true,
+      "rail_supported": true,
+      "budget_units": 50
+    },
+    "evidence": {
+      "quality": "legacy-absent",
+      "confidence": 95,
+      "veto": false,
+      "sufficient": false,
+      "authority_explicit": false
+    },
+    "cheap_probe": {
+      "reachable": true,
+      "schema_valid": true,
+      "within_latency_bound": true
+    }
+  }
+]

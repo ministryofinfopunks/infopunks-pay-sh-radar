@@ -1,0 +1,1166 @@
+[
+  {
+    "id": "weighted-invoice--qualified",
+    "expected_output": 38,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:55ad3b616cbab14ea74895388e8ed6dff3858452819aedbb275acbad8b3e3878",
+    "offer_hash": "sha256:b8e6f3d4a7e11e9bfd47b60f637c45dbc7838f09cca1a4e149d2913b84e53db1"
+  },
+  {
+    "id": "weighted-invoice--verified-risk",
+    "expected_output": 38,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -25,
+    "should_spend": false,
+    "artifact_hash": "sha256:1f715e082ebbf84dbac6c4515c5ecd1b398e2e6665d4b9029f13ccf40ada7aa3",
+    "offer_hash": "sha256:683c3a3bcda47fa8942db11b1f45289a28b29d72e04c90bf5cf73d443d0ea729"
+  },
+  {
+    "id": "weighted-invoice--silent-defect",
+    "expected_output": 38,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -38,
+    "should_spend": false,
+    "artifact_hash": "sha256:54a64e59abf7eb815d695a693cd77f10c9f4f7eb6add2fd1441b1c7672eaf518",
+    "offer_hash": "sha256:84cc42105cc9ce74508474088599c11be64327f3b44521071eac34761a378bdf"
+  },
+  {
+    "id": "weighted-invoice--missing-good",
+    "expected_output": 38,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 27,
+    "should_spend": true,
+    "artifact_hash": "sha256:67ab82cf5352fc0c89f7589c3c58eb1d08a45410068c4eaa3e71f94ca5faed57",
+    "offer_hash": "sha256:38ebeb93daeb5083fa34f7e45b9e53a47932ae10936149b45682914b178fa854"
+  },
+  {
+    "id": "weighted-invoice--stale-good",
+    "expected_output": 38,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 26,
+    "should_spend": true,
+    "artifact_hash": "sha256:c1f6cfad46a314cccb7f8e5aa57936def8aeb834b5354e422732b3e2642c30af",
+    "offer_hash": "sha256:f4f63e8252288ce533501982fb8646bb753d97cfea03f128d9b1397586c5bef9"
+  },
+  {
+    "id": "weighted-invoice--noisy-veto-good",
+    "expected_output": 38,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:8efa7216686e24110a477824552f6e2d0c264eef673d19d6e5958bfae3e5d902",
+    "offer_hash": "sha256:67a07de00eac7d1ae1d1ee6fdd5ea63c2f8986402cb0aad71e7148b02784ff26"
+  },
+  {
+    "id": "weighted-invoice--cheap-detected-failure",
+    "expected_output": 38,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -34,
+    "should_spend": false,
+    "artifact_hash": "sha256:fb3293407ee411af199668a71e3e839306766ddb0fb76978ba004a9ef730b307",
+    "offer_hash": "sha256:eb861d8c748f529e4ec31928115d87e5d4371ec88b73b2729b0164282d3a90b1"
+  },
+  {
+    "id": "weighted-invoice--delivery-too-late",
+    "expected_output": 38,
+    "output_correct": true,
+    "within_deadline": false,
+    "success": false,
+    "net_units": -16,
+    "should_spend": false,
+    "artifact_hash": "sha256:73924fe5d1a0991b823a04d77fa41201284d1735f21d03b39ad678448abc282d",
+    "offer_hash": "sha256:d7dd5ca57d50e386dadc66e7049c113ea8e630bfd271e0a89752e2a19359cdc7"
+  },
+  {
+    "id": "weighted-invoice--negative-margin",
+    "expected_output": 38,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": -16,
+    "should_spend": false,
+    "artifact_hash": "sha256:b2c1ea0723b83d8875ff86ba86abf8758bc2c16dd915915ef83f7e9539ecf2c4",
+    "offer_hash": "sha256:d564d0c6445dcd7e169180ed88cfee43cee8394340bd3364c00724ab80a35f1f"
+  },
+  {
+    "id": "weighted-invoice--invalid-scope",
+    "expected_output": 38,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:f3d6838a074020f11807c12b7b4ba131aea39ae71fbb0327f23b43044c31736d",
+    "offer_hash": "sha256:463cb83e03352efc67ff90aafdeec85713a1a0ef44d88ab3f2465530e6042e87"
+  },
+  {
+    "id": "weighted-invoice--weak-confidence",
+    "expected_output": 38,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 28,
+    "should_spend": true,
+    "artifact_hash": "sha256:fa99e5477eb8f065a137128b710d615d81ab493339b727f8b30ff277fc0e104d",
+    "offer_hash": "sha256:0488e268854f040839afe0d135edc064c4da45392efab82665fde0072ef49435"
+  },
+  {
+    "id": "weighted-invoice--unverified-authority",
+    "expected_output": 38,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -49,
+    "should_spend": false,
+    "artifact_hash": "sha256:c9de6f9edec392cb11e5eaffab3129bcb7579b0c5c08b39b464bc5da9594c0e5",
+    "offer_hash": "sha256:c5e2997c4596c30041d0228abade313577f0e4575bfa5d6897dd795cbb0f14e8"
+  },
+  {
+    "id": "dedupe-case-sensitive--qualified",
+    "expected_output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:837885d7c66c497e362e8f08d716576a0b93b9abbfd4918292a7eabf0e6eea80",
+    "offer_hash": "sha256:2b10b700ceb5ae8e76235229406850c10cdb8c07e7660bed5f67d5b6828cbe9f"
+  },
+  {
+    "id": "dedupe-case-sensitive--verified-risk",
+    "expected_output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -25,
+    "should_spend": false,
+    "artifact_hash": "sha256:d137a0de1318c7993a3a2323af88715644b90284afd576a017a881b52fdcca8f",
+    "offer_hash": "sha256:04dd4a43844b90d7e27719b57e346478b821d760a8462bf4900c39fcd4710ccf"
+  },
+  {
+    "id": "dedupe-case-sensitive--silent-defect",
+    "expected_output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -38,
+    "should_spend": false,
+    "artifact_hash": "sha256:e573e5a170877d8d1516d5a61e8448bdfdc41e8e153e5a101c6433e21de2cb37",
+    "offer_hash": "sha256:c7572bdbd61c6eb15db835e03a6dbe3e576d314a21456233b1988e56a9f20de0"
+  },
+  {
+    "id": "dedupe-case-sensitive--missing-good",
+    "expected_output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 27,
+    "should_spend": true,
+    "artifact_hash": "sha256:2f838a22f06904d210cf8028e213199dedd10dbfe5f414e44bea5e8ce90fc819",
+    "offer_hash": "sha256:df4f3938c33c1273815fd8843afe48c3405091cea10940adfd60088e51f7e106"
+  },
+  {
+    "id": "dedupe-case-sensitive--stale-good",
+    "expected_output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 26,
+    "should_spend": true,
+    "artifact_hash": "sha256:6148d66d79de0cc339fddf30d6d264750a94b6ef5a5b0cf1c8eb48e0d8bc9908",
+    "offer_hash": "sha256:a2d3816334b56cdac27b041e56e89774b97644c24fcb405dec29b0eac2818786"
+  },
+  {
+    "id": "dedupe-case-sensitive--noisy-veto-good",
+    "expected_output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:766ebfe66ed4e35e7038175f9d5b85c0b1e5f3ce8673b95f1562458e61c9e4a2",
+    "offer_hash": "sha256:b0b3b2be0eed98645dbdb2dc31ebc8a3e6630a5fb5d1b881cbac1a6a282feee4"
+  },
+  {
+    "id": "dedupe-case-sensitive--cheap-detected-failure",
+    "expected_output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -34,
+    "should_spend": false,
+    "artifact_hash": "sha256:1dc9617d2aed390dc81ba9b5dc8b71887b4ac3a631debc647e01d6b62ed10c0a",
+    "offer_hash": "sha256:88361b1fd5fb545a9d50a59608393295db01c25cd5577d4c3fdcf541993cf0af"
+  },
+  {
+    "id": "dedupe-case-sensitive--delivery-too-late",
+    "expected_output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "output_correct": true,
+    "within_deadline": false,
+    "success": false,
+    "net_units": -16,
+    "should_spend": false,
+    "artifact_hash": "sha256:f40bcfda1d134b2bed270da5226ad48840c04a44bc46a114b94756d0bfcd9ea5",
+    "offer_hash": "sha256:e6c853574abc4caddf5498e962c4f4d9b2634efbcd40be8b5611f7559b63ece4"
+  },
+  {
+    "id": "dedupe-case-sensitive--negative-margin",
+    "expected_output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": -16,
+    "should_spend": false,
+    "artifact_hash": "sha256:662a5444248b5b5a72de1207f16f9652ac8904cdf3cc4c1f61b1a837b72a2506",
+    "offer_hash": "sha256:b5074d5dfd6e9c7f5523a2f75e17c34763a9d5a9a80893ee7a36d0438c7464d7"
+  },
+  {
+    "id": "dedupe-case-sensitive--invalid-scope",
+    "expected_output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:365dc0c588f1f32f154ee4c99d9843ce25ecc6de53a3bf897945bb76854d6140",
+    "offer_hash": "sha256:a82ff258254e4414f4e74d75d2c364d2bbe19725ec9f285cae00e2b4728d8d59"
+  },
+  {
+    "id": "dedupe-case-sensitive--weak-confidence",
+    "expected_output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 28,
+    "should_spend": true,
+    "artifact_hash": "sha256:4346b3d2f5099c5c317dcdacb7cf1814c48d627192b613b58aa5d3bfb3fb462c",
+    "offer_hash": "sha256:7e2e5cc0bf26a414f3e33b10b5d816faf11db46d8cf066e15b59da59fc4ed2fd"
+  },
+  {
+    "id": "dedupe-case-sensitive--unverified-authority",
+    "expected_output": [
+      "red",
+      "Red",
+      " blue "
+    ],
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -49,
+    "should_spend": false,
+    "artifact_hash": "sha256:ac54948f30a5f53a0de70cd5ec63c55635317bdfa20e45eabfb20480d83e7368",
+    "offer_hash": "sha256:fd097f400865887255ea377d395a68389aed5955a178fcf79b8d009d260bb969"
+  },
+  {
+    "id": "inclusive-date-range--qualified",
+    "expected_output": 3,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:0f3f729ad678de5e07e7e553595219fa31509adffef5bc39f36453b03bff03b3",
+    "offer_hash": "sha256:48b48c5ec762b0009ed4faa44a09eed2b2f36cda039288cad51526b92145930b"
+  },
+  {
+    "id": "inclusive-date-range--verified-risk",
+    "expected_output": 3,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -25,
+    "should_spend": false,
+    "artifact_hash": "sha256:8facc0c93e41894088572d92d14227a6c196786c42f6c45257fcc797735930bb",
+    "offer_hash": "sha256:58e08f167ca2395e93bd4f1e0735293d057177d41afd2e8289f40a9c86dc421c"
+  },
+  {
+    "id": "inclusive-date-range--silent-defect",
+    "expected_output": 3,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -38,
+    "should_spend": false,
+    "artifact_hash": "sha256:d1f75ca6afc39ffb58d468c0e336371e60a7ad569c188a8957298f083518d363",
+    "offer_hash": "sha256:36906df621b821ea4c46eee84a40fb8231d1d208958ab934e1ef8bca72457b27"
+  },
+  {
+    "id": "inclusive-date-range--missing-good",
+    "expected_output": 3,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 27,
+    "should_spend": true,
+    "artifact_hash": "sha256:a9ab018aa432e717657a3ca98296954c892782a1a4368f207fefd766e7f35d83",
+    "offer_hash": "sha256:491e8b717fec0f578d4c9addc511f9a8385e5a6d74463c13ecde28a444c3eb43"
+  },
+  {
+    "id": "inclusive-date-range--stale-good",
+    "expected_output": 3,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 26,
+    "should_spend": true,
+    "artifact_hash": "sha256:7104f701ee18bd6421083370977db40923584ec10b8f4058ae7439f9671a47a2",
+    "offer_hash": "sha256:ec5240b72c500657ad0f8707fb6a160990e03eb4e496367094c0469ea448820f"
+  },
+  {
+    "id": "inclusive-date-range--noisy-veto-good",
+    "expected_output": 3,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:aab7d5b0d1e41b4acb2e22258227009aae2577459e40f7409fb8a09f7c527d12",
+    "offer_hash": "sha256:c2525e6f05cacdca64c7423ae1e45779d9da876869815995644f48313f455fa6"
+  },
+  {
+    "id": "inclusive-date-range--cheap-detected-failure",
+    "expected_output": 3,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -34,
+    "should_spend": false,
+    "artifact_hash": "sha256:ada16ba21c59d4af5e8768cf583b18554ab511a726293e830641e47b6a3603a7",
+    "offer_hash": "sha256:cb73fbd4689691bf9afbfc984e66b4407e1d85b45cbda237720f1f51c61bb66a"
+  },
+  {
+    "id": "inclusive-date-range--delivery-too-late",
+    "expected_output": 3,
+    "output_correct": true,
+    "within_deadline": false,
+    "success": false,
+    "net_units": -16,
+    "should_spend": false,
+    "artifact_hash": "sha256:a0e0913c0e0f1be9fe18c4144c7784c1b650ecfb0034277f54b829bf2485da03",
+    "offer_hash": "sha256:fcc793d0097e5795ec44ec7ca8224232ce6606d69c01bedd3233b3d1c55a5740"
+  },
+  {
+    "id": "inclusive-date-range--negative-margin",
+    "expected_output": 3,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": -16,
+    "should_spend": false,
+    "artifact_hash": "sha256:3d886db87406e84c76f31f4ee6a8d32b9ca4ce8ec4d75fec1be0fe2d01bde80e",
+    "offer_hash": "sha256:a076bad1e4804bbbadb380dff0698d77667e19a8f3d55734f2ec404abdd8c0d2"
+  },
+  {
+    "id": "inclusive-date-range--invalid-scope",
+    "expected_output": 3,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:1fb48ac12bf56a47961ed08751f6ac4abac5581020a5c8b4e1fd5b8eb24c10e4",
+    "offer_hash": "sha256:ca322be154048549d9df8cca64853b89327856ad8e1481c4cdacab42fcb489c6"
+  },
+  {
+    "id": "inclusive-date-range--weak-confidence",
+    "expected_output": 3,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 28,
+    "should_spend": true,
+    "artifact_hash": "sha256:55c4903056b693b4e23dd33e0a9781c8c791c3beffee8094938f8047af30c5c6",
+    "offer_hash": "sha256:8fa0188a8ab6f95ff92dcaf6fda844845ddc7c970690a56a1bcf998b92c4de7c"
+  },
+  {
+    "id": "inclusive-date-range--unverified-authority",
+    "expected_output": 3,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -49,
+    "should_spend": false,
+    "artifact_hash": "sha256:18bed645796932e964e897dabb4c1ee72a6780b604ca7930d731a02b4ce2ee9e",
+    "offer_hash": "sha256:46cf86373246b1e70c999fad812e9e1091d3aa7e36010378f3fc1ac058ad22d5"
+  },
+  {
+    "id": "decimal-rounding--qualified",
+    "expected_output": 50,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:c55690f32b9beaa3be32b025a2d0894cb5242eb16b634f97346eb8ecee6da6e1",
+    "offer_hash": "sha256:8c169525d1a6421c7390321b58139e037c07afb3be737fad3e72550009ef5cf8"
+  },
+  {
+    "id": "decimal-rounding--verified-risk",
+    "expected_output": 50,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -25,
+    "should_spend": false,
+    "artifact_hash": "sha256:88495f8f6c8cdd173f49675dd96e536ed92a762acebea1c30a69da40ca46cdfd",
+    "offer_hash": "sha256:d0636db0a8645ecc6713c399a7e1ac1e6f449af99396560b102f46dfff1086f5"
+  },
+  {
+    "id": "decimal-rounding--silent-defect",
+    "expected_output": 50,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -38,
+    "should_spend": false,
+    "artifact_hash": "sha256:08791dc03cfa4d0d32f46cb64e2f6fcd4062de90f71fa3a6c0e88c448e1bf16a",
+    "offer_hash": "sha256:c0bad6563385fb45d09ebcdfc42c1f2ec70595020f96557bfb34f9a6799e1fde"
+  },
+  {
+    "id": "decimal-rounding--missing-good",
+    "expected_output": 50,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 27,
+    "should_spend": true,
+    "artifact_hash": "sha256:1fc127b888a2905d09c4fd7fbfc685958350774b005a74315c104ce3e7068b0b",
+    "offer_hash": "sha256:1896fc7917dbb7da43f950349d06c3d87110a481365b6ade432d767b60d7f210"
+  },
+  {
+    "id": "decimal-rounding--stale-good",
+    "expected_output": 50,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 26,
+    "should_spend": true,
+    "artifact_hash": "sha256:67aad896d58b7b9b505a8c5eaa7f17d54b11435016d1c63112dd5ffe671ba3db",
+    "offer_hash": "sha256:4ad6a9ebb7a7dd6e54f317589f063f3d726bb080c92e8f49efa0bfd120328360"
+  },
+  {
+    "id": "decimal-rounding--noisy-veto-good",
+    "expected_output": 50,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:a4c812eb5bc535b41f6236afbc719d09985dac9e32df5587fb1326629727edf4",
+    "offer_hash": "sha256:52c48ed1cf7a57e50d13da1b44cc501d37ca62058963dc0f1690a82b85ccc6fb"
+  },
+  {
+    "id": "decimal-rounding--cheap-detected-failure",
+    "expected_output": 50,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -34,
+    "should_spend": false,
+    "artifact_hash": "sha256:c1c47bc0bcb3ecd3c9246d8906d4d78632d54f16aa5825f024580b77675e154e",
+    "offer_hash": "sha256:04ef99023841aa7db783de00a763e9d99d9415022f104a7f1e8fd0b71e178558"
+  },
+  {
+    "id": "decimal-rounding--delivery-too-late",
+    "expected_output": 50,
+    "output_correct": true,
+    "within_deadline": false,
+    "success": false,
+    "net_units": -16,
+    "should_spend": false,
+    "artifact_hash": "sha256:8142f1d27b7ddf13a34cb41f151e038c5217f813ae42955753b765d55d711412",
+    "offer_hash": "sha256:312ebd89ed08f58df2dc98fb58a1a22a430e2f086764a181c54805f3a25472c4"
+  },
+  {
+    "id": "decimal-rounding--negative-margin",
+    "expected_output": 50,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": -16,
+    "should_spend": false,
+    "artifact_hash": "sha256:8f5e74480798cb4e6b211f3aa8da8501f77e4ca836c20eb39ee0b210e0610ae9",
+    "offer_hash": "sha256:c3c64beeb20d7d1caa9db955b9c7a9cfeb70a182ea35b364c4eb2cf23467cf5b"
+  },
+  {
+    "id": "decimal-rounding--invalid-scope",
+    "expected_output": 50,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:73ab8663d5aa614bfd23b3d0b23fdb450a99c0cc57462f94db01452ce6225a84",
+    "offer_hash": "sha256:6b9e5967f016c127a30811a2b2b0f53effaf94d85fb546bd57898a883de99d2e"
+  },
+  {
+    "id": "decimal-rounding--weak-confidence",
+    "expected_output": 50,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 28,
+    "should_spend": true,
+    "artifact_hash": "sha256:ef7088e053dbbb3468c9256d9b5d7f75755d5d8a266e2a48ffd52f9b3276cf2b",
+    "offer_hash": "sha256:0f3581f63ee3745e5cf9736d757a774dbf547d93ffdc5eefc8e1740ff0b5bf4e"
+  },
+  {
+    "id": "decimal-rounding--unverified-authority",
+    "expected_output": 50,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -49,
+    "should_spend": false,
+    "artifact_hash": "sha256:7bdaa4df4e1e5e23293757c882638ad237bd5437057425ed375f59d0fcf3370f",
+    "offer_hash": "sha256:89278cfd2bb76437cc1f31a0011bbb2c28d1ff3ea0b32cfd9993a6e6cff230f2"
+  },
+  {
+    "id": "inventory-availability--qualified",
+    "expected_output": false,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:390e2ee452447555fc7241dd875e1a2909acfb7b5cf3740dcbce3542b4af4112",
+    "offer_hash": "sha256:2927dcebb8dd539b49372198819272814f8d4f4fd0cd2041043e69bab0b07094"
+  },
+  {
+    "id": "inventory-availability--verified-risk",
+    "expected_output": false,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -25,
+    "should_spend": false,
+    "artifact_hash": "sha256:3c531f183396b1bebb497973da227a4fcc68851cefa89d1b827ee31cbdd824c3",
+    "offer_hash": "sha256:d493b2efe583e152ab18e9d0e8f8a94e56643ee02bf8a7a330225bf9165be68c"
+  },
+  {
+    "id": "inventory-availability--silent-defect",
+    "expected_output": false,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -38,
+    "should_spend": false,
+    "artifact_hash": "sha256:2151fa233b820065d48d5503a15474e44cfe834bc644df041bd6f741b7303a8a",
+    "offer_hash": "sha256:dd3b192ba1e21e5910ceff449d10eed0babb228cc10203c918409ade324b3977"
+  },
+  {
+    "id": "inventory-availability--missing-good",
+    "expected_output": false,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 27,
+    "should_spend": true,
+    "artifact_hash": "sha256:ee99ff16c6941f85fb3796cd206426386bcc5556d2a0a74cdb3615a8be93e0cf",
+    "offer_hash": "sha256:f30384dbc0425adad28c5f287f6e0d0d90bc1021f5929e34554cb2375fa89456"
+  },
+  {
+    "id": "inventory-availability--stale-good",
+    "expected_output": false,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 26,
+    "should_spend": true,
+    "artifact_hash": "sha256:7f1e2a69b06f63c23e676f732deca061bc667052d633178e178ef1c3ca5fcd1e",
+    "offer_hash": "sha256:60d83b66eebf6890d8d1610a00931d4f10473a37a4818803a0288fd2d671f14f"
+  },
+  {
+    "id": "inventory-availability--noisy-veto-good",
+    "expected_output": false,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:32ae8de6288e86cf0e180fbec0f393e0b72f41737edff9a6e90063e8f3493848",
+    "offer_hash": "sha256:508bffb2434bea56a7c66636fd511bb9953ec61a1055c70c08f3818e4de13ad9"
+  },
+  {
+    "id": "inventory-availability--cheap-detected-failure",
+    "expected_output": false,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -34,
+    "should_spend": false,
+    "artifact_hash": "sha256:c700dc55dff36ec39746f313b858bdb71e36dab4ce42756444da0dbe2f6b118a",
+    "offer_hash": "sha256:f9a0d47634b2c9db8c3cfe6c24b723f93069a6f41d119db3afc50a876727181f"
+  },
+  {
+    "id": "inventory-availability--delivery-too-late",
+    "expected_output": false,
+    "output_correct": true,
+    "within_deadline": false,
+    "success": false,
+    "net_units": -16,
+    "should_spend": false,
+    "artifact_hash": "sha256:6ac32242db4554b0dfc22e038b6e5290a7783639abb86b29034b30f79c6722c0",
+    "offer_hash": "sha256:4da215fec1b16b9194dfc7ea37abc5a175a31e1acb9f494a4696f9faf7f935bc"
+  },
+  {
+    "id": "inventory-availability--negative-margin",
+    "expected_output": false,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": -16,
+    "should_spend": false,
+    "artifact_hash": "sha256:cfd1b72459aea71114abe5fdc2276d52af1198e20b3b160bc00f099cacb8aef2",
+    "offer_hash": "sha256:970b030ea9b470df3d0bf56ce99f1cf01127e916fed0a40204e453ee56971269"
+  },
+  {
+    "id": "inventory-availability--invalid-scope",
+    "expected_output": false,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:4cd31b6a47a66caeb696220261b16f7fca92f810cc06b3614f75d322e2f96620",
+    "offer_hash": "sha256:0a2c33654f14c3c974d6d05914eb6079612340bf360bff10444705d924688f28"
+  },
+  {
+    "id": "inventory-availability--weak-confidence",
+    "expected_output": false,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 28,
+    "should_spend": true,
+    "artifact_hash": "sha256:cbfb904c37c303bd5b329ff5d2dce215da369f45760bb1ec28cbe15c3a8126f5",
+    "offer_hash": "sha256:d8ade6bc7767caea50b263b4305d9038fd66c1d7abef661020c13cd53cc53afc"
+  },
+  {
+    "id": "inventory-availability--unverified-authority",
+    "expected_output": false,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -49,
+    "should_spend": false,
+    "artifact_hash": "sha256:ec4215267631241fdd2b5e88361915773c7364a2594e02574de4bc1ff0ba2a8f",
+    "offer_hash": "sha256:433d97504115fd67c10e2fa8fd72534e00123871ba52e15810df5840a700df3b"
+  },
+  {
+    "id": "pagination-completeness--qualified",
+    "expected_output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:d35a83a7b86d20f952c2a87140ebe723ba808fe8790c7380c7047746f23a1302",
+    "offer_hash": "sha256:9154613c7ad3afd50b86a0c1aa660552f3e506b68037156acfd51ebd309d4237"
+  },
+  {
+    "id": "pagination-completeness--verified-risk",
+    "expected_output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -25,
+    "should_spend": false,
+    "artifact_hash": "sha256:b714bb9528f77bb37b108c8d770f31cb792e7e0954514286c633f86bf11c7eba",
+    "offer_hash": "sha256:942f032513f21e7580eecfb42eb3136b8d169005611cdede45547a57015faee5"
+  },
+  {
+    "id": "pagination-completeness--silent-defect",
+    "expected_output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -38,
+    "should_spend": false,
+    "artifact_hash": "sha256:e857e75a2bd9e25c9eae163d0ffb506d381ff3f47c66c6c154ead921cdc2b89a",
+    "offer_hash": "sha256:e0ceffd93fe18db1fa9c01c5f86db27248c46e7a2ffe32fb686d1c50cab95545"
+  },
+  {
+    "id": "pagination-completeness--missing-good",
+    "expected_output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 27,
+    "should_spend": true,
+    "artifact_hash": "sha256:1286b3edc692aa95980b13da5131f3d78d1c7efd98d248b73522971836548e71",
+    "offer_hash": "sha256:47b7a15e18416ea44bf74c747f2ab3a713f638fef1f947a9e5514924c5bfd3bb"
+  },
+  {
+    "id": "pagination-completeness--stale-good",
+    "expected_output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 26,
+    "should_spend": true,
+    "artifact_hash": "sha256:f30125bf134814a236362253e1ffff29e051eb2fb7400e8a3909ffe22eea834d",
+    "offer_hash": "sha256:e147393a2cc37a62d609cfb8076a8a6ffbe9c7464906ccffbe21ba759b7a5a8d"
+  },
+  {
+    "id": "pagination-completeness--noisy-veto-good",
+    "expected_output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:bd4422f9493b0a15c0c05eff530ded14285b90755e4b2012dfedc027c19c7fa2",
+    "offer_hash": "sha256:d0e1168420ea1c866112ac29321f93373f167ce5785c7e3db2df486116bbb85a"
+  },
+  {
+    "id": "pagination-completeness--cheap-detected-failure",
+    "expected_output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -34,
+    "should_spend": false,
+    "artifact_hash": "sha256:d07cd8aea1cb34b0f09de909e355a5eccd19a5e24b24a6e291e4afbbcc975f6e",
+    "offer_hash": "sha256:358b5abd3beef372df18b9af5168d3c4b201c98610165654ad269192c9ff40ce"
+  },
+  {
+    "id": "pagination-completeness--delivery-too-late",
+    "expected_output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "output_correct": true,
+    "within_deadline": false,
+    "success": false,
+    "net_units": -16,
+    "should_spend": false,
+    "artifact_hash": "sha256:d85fbd33e692c9757a2912de274b34980dac483c5342cfd62d808d8be278ef99",
+    "offer_hash": "sha256:79e0e43148405a08227d1968210f23620c38d8fa5f79ef6649722867a35e6062"
+  },
+  {
+    "id": "pagination-completeness--negative-margin",
+    "expected_output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": -16,
+    "should_spend": false,
+    "artifact_hash": "sha256:a87d016ca402ce4841eef8e10bd423f95939619579ab71432a09343a234f50e4",
+    "offer_hash": "sha256:a9a7404db46ea529d8c402ab6e4e42832ae8c8a57d991eb113a294000711fdf0"
+  },
+  {
+    "id": "pagination-completeness--invalid-scope",
+    "expected_output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:3d10191b24c5cc4848fccc42a14cb8f871c3112c02eff3e955b1e949b6c6c442",
+    "offer_hash": "sha256:13012549bc21b089042996fa9d470ae8620a5f02a514a199469bd2fa73fee884"
+  },
+  {
+    "id": "pagination-completeness--weak-confidence",
+    "expected_output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 28,
+    "should_spend": true,
+    "artifact_hash": "sha256:e5b21359644407e05bde97420d7232c0e363cdacbfa8ceea63f0b0dc888e845e",
+    "offer_hash": "sha256:5b885c048cd60476102793435b75ecabac874f63c14822fa5702fac1e7d4d16d"
+  },
+  {
+    "id": "pagination-completeness--unverified-authority",
+    "expected_output": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -49,
+    "should_spend": false,
+    "artifact_hash": "sha256:f4c23b0cc6f9379fb2ea8a00e26e9d597465edb04e822fd186c6125624c0919f",
+    "offer_hash": "sha256:62e7c5737e623ca77a27b03b4e3073f606390df827bb61647cdc677e8530bc57"
+  },
+  {
+    "id": "utf8-bytes--qualified",
+    "expected_output": 7,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:a53375bc37192b8fb87fee96dd0526607d66dd97b0131dd6d2e23981610e0510",
+    "offer_hash": "sha256:5226c0928c9bee6e05c2d0e7d14a80ddd609ca0c72cd5e3e858c8de7289a673b"
+  },
+  {
+    "id": "utf8-bytes--verified-risk",
+    "expected_output": 7,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -25,
+    "should_spend": false,
+    "artifact_hash": "sha256:e1ee3d7f505746d54ad487a86da1366d63d3ae31b5a7aa73c8ad35a75aa8b833",
+    "offer_hash": "sha256:7321c6b6d1c5654e3dae5ab63cf40bf7598ad61eb94d4cae3317c38de821ed71"
+  },
+  {
+    "id": "utf8-bytes--silent-defect",
+    "expected_output": 7,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -38,
+    "should_spend": false,
+    "artifact_hash": "sha256:fa0ad02fe125a35032e9615da5598fa31c749b32a66730df20ecc4ed3d5e5498",
+    "offer_hash": "sha256:ade633e97333e4ea43164edeb9b181e6b2d42573c9789927866b2c776eb96dc3"
+  },
+  {
+    "id": "utf8-bytes--missing-good",
+    "expected_output": 7,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 27,
+    "should_spend": true,
+    "artifact_hash": "sha256:c8eaa2b2cdc7ecb5547d02072b28dc2111a373693c652a969afe13f54e75f430",
+    "offer_hash": "sha256:cf2bc94d5801a1de690f717619a90e19a6bbbba6f1f881a6922cc04c5470984f"
+  },
+  {
+    "id": "utf8-bytes--stale-good",
+    "expected_output": 7,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 26,
+    "should_spend": true,
+    "artifact_hash": "sha256:9981bdac29e783bcc33e3f953a417c77cbc98aec7e3c1c1dd3ec3ba11bf88f3f",
+    "offer_hash": "sha256:cef4760497f15ae6aed8edcabc728033f6d80e4ebb3a3b40a773319bb32fb187"
+  },
+  {
+    "id": "utf8-bytes--noisy-veto-good",
+    "expected_output": 7,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:ac856e9fd34a6451fc35dbe92cc01b64db51b2a4f5cc9f1bcef444b9422dea71",
+    "offer_hash": "sha256:92c6e29ce392070a8fb4a6b5474e94b33e5827681f55290a18797a294fa71b27"
+  },
+  {
+    "id": "utf8-bytes--cheap-detected-failure",
+    "expected_output": 7,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -34,
+    "should_spend": false,
+    "artifact_hash": "sha256:ae2199249282d9f6b26e1bdc301a779bde5ee5605856bd7de2e6a1b4b6c52e90",
+    "offer_hash": "sha256:d81d5ada50e4ad1c67f1fc0657634f3fd9ead71f283c09bc9d16cf786a448bae"
+  },
+  {
+    "id": "utf8-bytes--delivery-too-late",
+    "expected_output": 7,
+    "output_correct": true,
+    "within_deadline": false,
+    "success": false,
+    "net_units": -16,
+    "should_spend": false,
+    "artifact_hash": "sha256:7e16bd88d5fe75eb37162fcaf28dace28132a2df66f363ee4c8d1ca50833586b",
+    "offer_hash": "sha256:8454d4c4d66648e3a7d7aafc774e9533c06b62a570952342aee0ace8fabbda71"
+  },
+  {
+    "id": "utf8-bytes--negative-margin",
+    "expected_output": 7,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": -16,
+    "should_spend": false,
+    "artifact_hash": "sha256:3f778e39859d23e6b1a167b6391a771c82def3034e6054f6af2b4a817ab2d4c9",
+    "offer_hash": "sha256:e6e840752f94dfa32c5a3a606369143407c644f248237abe78c5b1bc1a35141e"
+  },
+  {
+    "id": "utf8-bytes--invalid-scope",
+    "expected_output": 7,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:20d4099546e8a595a80df4d8bcbee48c5654e4734e154e05962d89bb4ec8f126",
+    "offer_hash": "sha256:49f20d33516b5751469d9e61069405c827131d81178fd46dd268c2a36134f282"
+  },
+  {
+    "id": "utf8-bytes--weak-confidence",
+    "expected_output": 7,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 28,
+    "should_spend": true,
+    "artifact_hash": "sha256:c8f440c604edae36e59cdee364b55e11ac18ef7232e56329b26697dd5912cdb8",
+    "offer_hash": "sha256:4481738c256c72289c0bf04a21fc92fe643efec70c7cdf800ede75d9d4620af0"
+  },
+  {
+    "id": "utf8-bytes--unverified-authority",
+    "expected_output": 7,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -49,
+    "should_spend": false,
+    "artifact_hash": "sha256:fa372546b2bc8c1db57bda3d2846711f83c80eb256b1fa7a9b5964447e838543",
+    "offer_hash": "sha256:fa6180af9259f9defb2819bda7e8c8ddd90fd0b0db4bf64e4abf061abbb9cbbc"
+  },
+  {
+    "id": "currency-threshold--qualified",
+    "expected_output": true,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:3fd3c3dd5724f8d903d43abc9cebec175ea64300e8f754dc80f8aaad16b76262",
+    "offer_hash": "sha256:c7a32f09fbb121439c13d3703e8b3a54ed4f1041775f93b4b4b2da2793a46036"
+  },
+  {
+    "id": "currency-threshold--verified-risk",
+    "expected_output": true,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -25,
+    "should_spend": false,
+    "artifact_hash": "sha256:2cfba11cc78d8d03fa712d5338486c3cb23a4fc22dd6f80ad2b5de109beed97e",
+    "offer_hash": "sha256:6c646490a7757f963784e64f3aa10282ca6b6ddc49afcf12335dd8586738dd95"
+  },
+  {
+    "id": "currency-threshold--silent-defect",
+    "expected_output": true,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -38,
+    "should_spend": false,
+    "artifact_hash": "sha256:59ad012e54e38494f8ea5a96c95bee2fff0ec1fab1a85210d2d70d9380f3bc4d",
+    "offer_hash": "sha256:922141c3339d086a8da0fbe4fbe929e74a84de40e4fb6c81162d528048c780dc"
+  },
+  {
+    "id": "currency-threshold--missing-good",
+    "expected_output": true,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 27,
+    "should_spend": true,
+    "artifact_hash": "sha256:e5cad702ad48515328cfeb3184a462795539c1d11b77b2ecf0242bfa57768e37",
+    "offer_hash": "sha256:13efd14327e151f01af1133704e3036a9910711af64bc4cbfdf6c06a311b5d2a"
+  },
+  {
+    "id": "currency-threshold--stale-good",
+    "expected_output": true,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 26,
+    "should_spend": true,
+    "artifact_hash": "sha256:363ac26b04167ca1da1379e7f37e3515e49768aa1741863e2aaca5fe341485d4",
+    "offer_hash": "sha256:a180070434567349af3d06daef83446b7a488fb1cd3dad5774be4c44acd66c34"
+  },
+  {
+    "id": "currency-threshold--noisy-veto-good",
+    "expected_output": true,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:6009586c0ce2e0a19ef5ab5389386021a4e01f2e11954d266326795e9c944da0",
+    "offer_hash": "sha256:10b8daf53125afb1159057dab2cae365fef6d72be640866269d5aa314c9cf947"
+  },
+  {
+    "id": "currency-threshold--cheap-detected-failure",
+    "expected_output": true,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -34,
+    "should_spend": false,
+    "artifact_hash": "sha256:a2eee490bb80ab4a268d0b0b13998bc7603b9184ae6ae8a6db696bd4d72b6a3a",
+    "offer_hash": "sha256:1dd418f3e7f132d06f661827cb4263415dbf4da270255a8abf7751f1175ed7d8"
+  },
+  {
+    "id": "currency-threshold--delivery-too-late",
+    "expected_output": true,
+    "output_correct": true,
+    "within_deadline": false,
+    "success": false,
+    "net_units": -16,
+    "should_spend": false,
+    "artifact_hash": "sha256:619bfb8da701087976c5490d3bd4992358f5565d2f163609a52b994863c67c25",
+    "offer_hash": "sha256:b0e4fe4a1055d1b195a2588101856f347a2a02b186d2cb507e5e6646339cc7a1"
+  },
+  {
+    "id": "currency-threshold--negative-margin",
+    "expected_output": true,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": -16,
+    "should_spend": false,
+    "artifact_hash": "sha256:1a97a7ad3c56f58feefa51dae0e98bf04175e665d349b125150344a963f8c84f",
+    "offer_hash": "sha256:5991e33dc96e181922b4252aeda2b5119a285b15f77a538829706227d3a9cb57"
+  },
+  {
+    "id": "currency-threshold--invalid-scope",
+    "expected_output": true,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 31,
+    "should_spend": true,
+    "artifact_hash": "sha256:8aa0c72cd89f44819b10bcafcbe2590235adec614b8e6d34c6298692777071d7",
+    "offer_hash": "sha256:cd08cb825e77a3b6a0a8ef1212986e096d1ce676565d03cc406c5046c70a0d88"
+  },
+  {
+    "id": "currency-threshold--weak-confidence",
+    "expected_output": true,
+    "output_correct": true,
+    "within_deadline": true,
+    "success": true,
+    "net_units": 28,
+    "should_spend": true,
+    "artifact_hash": "sha256:bee3f3727bea978fc50708a91869f8e916e22cddabbe4c51156bddd56e1383ce",
+    "offer_hash": "sha256:abe4d8d48b42f51086c55c3dec2fd54984b5dcd543fba07eb3f277d0ddde189c"
+  },
+  {
+    "id": "currency-threshold--unverified-authority",
+    "expected_output": true,
+    "output_correct": false,
+    "within_deadline": true,
+    "success": false,
+    "net_units": -49,
+    "should_spend": false,
+    "artifact_hash": "sha256:5ec7e4870e58703fe17e23abc3fd5e26fbb5b03b2c2c80946c40501595c379b4",
+    "offer_hash": "sha256:274ebfd0fccc31fc260f2221bb0ff95017cb5f395ac8da62f314296b6a662c2e"
+  }
+]
