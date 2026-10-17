@@ -1,3 +1,4 @@
+import { eligibleEvidenceProvenance, isLocalSimulationOperation, type LocalSimulationDomain } from '../security/evidenceProvenance';
 import { EconomicEvidenceFactsSchema, EconomicJobSchema, JevWitnessSchema, type EconomicJob, type DecisionEnvelope,
   type JevWitness, type EconomicCandidate } from '../schemas/economicEngine';
 import type { ObservationReceipt } from '../schemas/receipts';
@@ -9,7 +10,7 @@ export type JudgeResult = { verdict: JudgeVerdict; decision: 'proceed' | 'test_s
 const decisions = { ALLOW: 'proceed', DEGRADE: 'test_spend_first', BLOCK: 'do_not_spend', UNPROVEN: 'insufficient_evidence' } as const;
 /** Pure deterministic policy core. Semantic confidence never establishes source truth. */
 export function judgeEconomicDecision(input: { job: EconomicJob; envelope: DecisionEnvelope; witness: JevWitness;
-  observations: ObservationReceipt[]; authenticatedPrincipal: string; enabledProfiles: string[]; now: Date }): JudgeResult {
+  observations: ObservationReceipt[]; evidenceDomain?: LocalSimulationDomain; authenticatedPrincipal: string; enabledProfiles: string[]; now: Date }): JudgeResult {
   const { job, envelope, observations, now } = input;
   let candidate: EconomicCandidate | null = null;
   const result = (verdict: JudgeVerdict, rule: string, confidence = 0, ids: string[] = []): JudgeResult => ({
@@ -36,7 +37,7 @@ export function judgeEconomicDecision(input: { job: EconomicJob; envelope: Decis
   const relevant = observations.filter(o => job.evidence_ids.includes(o.observation_id));
   const qualified = relevant.filter(o => verifyReceiptIntegrity('observation', o) && o.subject_id === job.subject_id
     && o.subject_type === job.subject_type && o.intent_hash === job.intent_hash && o.source_type === 'reviewed_economic_facts'
-    && o.provenance.catalog_source === 'live' && o.provenance.fixture !== true && o.evidence_state === 'sufficient'
+    && eligibleEvidenceProvenance(o.provenance, input.evidenceDomain) && o.evidence_state === 'sufficient'
     && o.evidence_refs.length > 0 && Date.parse(o.ingested_at) <= now.getTime() && Date.parse(o.observed_at) <= now.getTime()
     && o.freshness_expires_at !== null && Date.parse(o.freshness_expires_at) > now.getTime()
     && EconomicEvidenceFactsSchema.safeParse(o.payload).success);
@@ -69,6 +70,7 @@ export function judgeEconomicDecision(input: { job: EconomicJob; envelope: Decis
   const op = candidate.operation;
   if (candidate.action === 'execute_route' && !op) return result('UNPROVEN', 'execution_operation_missing');
   if (op) {
+    if (input.evidenceDomain && !isLocalSimulationOperation(op)) return result('BLOCK', 'simulation_real_spending_forbidden');
     if (!policy.allowed_profiles.includes(op.profile_id) || !input.enabledProfiles.includes(op.profile_id)) return result('UNPROVEN', 'execution_profile_unsupported');
     if (!policy.allowed_chains.includes(op.chain_id) || !policy.allowed_assets.includes(op.asset_id) || !policy.allowed_payers.includes(op.payer)
       || !policy.allowed_recipients.includes(op.recipient) || !policy.allowed_routers.includes(op.router)) return result('BLOCK', 'execution_scope_denied');

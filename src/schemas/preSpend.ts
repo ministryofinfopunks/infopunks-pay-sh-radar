@@ -5,7 +5,7 @@ export const CanonicalDecisionSchema = z.enum(['proceed', 'test_spend_first', 'd
 export type CanonicalDecision = z.infer<typeof CanonicalDecisionSchema>;
 /** Reviewed materialized policy facts, never accepted from a public check request. */
 export const JudgmentFactsSchema = z.object({
-  catalog_live: z.literal(true), identity_resolved: z.literal(true),
+  catalog_live: z.boolean(), identity_resolved: z.literal(true),
   required_proof_complete: z.literal(true), intent_satisfied: z.literal(true),
   constraints_satisfied: z.literal(true), confidence: z.number().min(0).max(100),
   route_id: z.string().min(1),

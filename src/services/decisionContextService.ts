@@ -1,3 +1,4 @@
+import { eligibleEvidenceProvenance, type LocalSimulationDomain } from '../security/evidenceProvenance';
 import { domainPolicyBlockers } from './judgmentEvidenceAdapters';
 import type { PreSpendCheckRequest, PreSpendCheckResponse } from './preSpendDecisionService';
 import type { DecisionState } from './preSpendDecisionService';
@@ -25,7 +26,7 @@ export function adaptDecision(state: string, bounded: boolean, veto = false): Ca
 
 /** This pure rule is shared by issuance and offline replay of the frozen inputs. */
 export function assessFrozenDecision(input: PreSpendCheckRequest, legacy: PreSpendCheckResponse,
-  observations: ObservationReceipt[], history: ScoreProjection | null, at: Date, policy: DecisionPolicy): DecisionOutput {
+  observations: ObservationReceipt[], history: ScoreProjection | null, at: Date, policy: DecisionPolicy, evidenceDomain?: LocalSimulationDomain): DecisionOutput {
   const domainBlockers = domainPolicyBlockers(input, legacy, observations, at);
   if (domainBlockers.length) return { decision: 'insufficient_evidence', confidence: 0, reasons: domainBlockers, valid_until: at.toISOString() };
   const subject = input.subject_id ?? legacy.recommended_route ?? '';
@@ -34,10 +35,9 @@ export function assessFrozenDecision(input: PreSpendCheckRequest, legacy: PreSpe
   const sufficient = observations.length > 0 && observations.every((o, i) =>
     verifyReceiptIntegrity('observation', o) && o.subject_id === subject && o.intent_hash === intentHash &&
     o.subject_type === observations[0].subject_type && o.evidence_state === 'sufficient' && o.evidence_refs.length > 0 &&
-    o.source_type === 'reviewed_judgment_facts' && o.provenance.catalog_source === 'live' &&
-    o.provenance.fixture !== true && Date.parse(o.ingested_at) <= at.getTime() &&
+    o.source_type === 'reviewed_judgment_facts' && eligibleEvidenceProvenance(o.provenance, evidenceDomain) && Date.parse(o.ingested_at) <= at.getTime() &&
     o.freshness_expires_at !== null && Date.parse(o.freshness_expires_at) > at.getTime() && facts[i].success &&
-    facts[i].data!.settlement === input.preferred_settlement && facts[i].data!.max_cost <= input.budget &&
+    facts[i].data!.catalog_live === !evidenceDomain && facts[i].data!.settlement === input.preferred_settlement && facts[i].data!.max_cost <= input.budget &&
     facts[i].data!.route_id === legacy.recommended_route);
   const policies = facts.flatMap(f => f.success ? [f.data] : []);
   const confidence = sufficient ? Math.min(...policies.map(f => f.confidence)) : 0;
@@ -105,6 +105,7 @@ export async function verifyDecisionContext(context: DecisionContext, judgment: 
     }
     const frozen = {
       judgmentTrust: store.judgmentTrust,
+      evidenceDomain: store.evidenceDomain,
       getDecisionContext: store.getDecisionContext?.bind(store),
       getAcceptance: store.getAcceptance?.bind(store),
       get: store.get.bind(store),
@@ -113,7 +114,7 @@ export async function verifyDecisionContext(context: DecisionContext, judgment: 
     const projection = await createDerivedScoreService(frozen, parsed.policy.threshold).project(parsed.subject_type, parsed.subject_id,
       parsed.version === 'pre-spend-decision-context.v2' ? parsed.projection_boundary.accepted_sequence : undefined);
     if (canonicalSerialize(projection) !== canonicalSerialize(parsed.score_projection)) return false;
-    const expected = assessFrozenDecision(parsed.request, parsed.legacy, observations, projection, new Date(parsed.assessed_at), parsed.policy);
+    const expected = assessFrozenDecision(parsed.request, parsed.legacy, observations, projection, new Date(parsed.assessed_at), parsed.policy, store.evidenceDomain);
     return canonicalSerialize(expected) === canonicalSerialize(parsed.output) &&
       judgment.decision === expected.decision && judgment.confidence === expected.confidence &&
       canonicalSerialize(judgment.reasons) === canonicalSerialize(expected.reasons) && judgment.valid_until === expected.valid_until;

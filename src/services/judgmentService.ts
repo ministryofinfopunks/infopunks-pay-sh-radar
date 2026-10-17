@@ -1,3 +1,4 @@
+import { isLocalSimulationDomain } from '../security/evidenceProvenance';
 import type { PltrPreflightState } from './rhChainPltrPreflightService';
 import { normalizeRhMarketEvidence, serviceDiagnosticRequest } from './judgmentEvidenceAdapters';
 import { ECONOMIC_RAILS, EconomicNetworkSchema } from '../security/economicRails';
@@ -36,6 +37,10 @@ export type JudgmentServiceOptions = {
   onTiming?: (timing: { local_ms: number; payment_ms: number; total_ms: number }) => void;
 };
 export function createJudgmentService(options: JudgmentServiceOptions) {
+  if (options.store.evidenceDomain && (process.env.NODE_ENV === 'production' || options.requireIndependentEvaluationReview)) throw new Error('simulation_production_forbidden');
+  if (options.store.evidenceDomain && (!isLocalSimulationDomain(options.store.evidenceDomain) || !isLocalSimulationDomain(options.gateway?.evidenceDomain))) throw new Error('simulation_gateway_required');
+  if (!options.store.evidenceDomain && options.gateway?.evidenceDomain) throw new Error('simulation_gateway_live_store_forbidden');
+  if (options.store.evidenceDomain && !options.issuer?.publicKeys().issuer.startsWith('spend-lab/')) throw new Error('simulation_issuer_required');
   const now = options.now ?? (() => new Date());
   function paymentEvent(stage: 'challenge' | 'verified' | 'settled' | 'duplicate_prevented') {
     try { options.onPaymentEvent?.(stage); } catch { /* Telemetry cannot interrupt settlement journaling. */ }
@@ -128,13 +133,13 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
           ? { decision: 'insufficient_evidence' as const, confidence: 0, reasons: [...(market?.blockers ?? ['token_market_policy_unqualified']), ...(railMismatch ? ['requested_settlement_network_unavailable'] : [])], valid_until: at.toISOString() }
           : railMismatch
           ? { decision: 'insufficient_evidence' as const, confidence: 0, reasons: ['requested_settlement_network_unavailable'], valid_until: at.toISOString() }
-          : assessFrozenDecision(input, legacy, observations, null, at, policy);
+          : assessFrozenDecision(input, legacy, observations, null, at, policy, options.store.evidenceDomain);
         const boundary = preliminary.decision === 'insufficient_evidence' ? null : await options.store.acceptanceBoundary?.();
         if (preliminary.decision !== 'insufficient_evidence' && !boundary) throw new JudgmentError(503, 'acceptance_boundary_unavailable');
         const history = preliminary.decision === 'insufficient_evidence' ? null : await scores.project(observations[0].subject_type, subject, boundary!.sequence);
         if (options.requireIndependentEvaluationReview && history?.contributing_evaluation_ids.length)
           throw new JudgmentError(503, 'independent_evaluation_history_review_unavailable');
-        const output = history ? assessFrozenDecision(input, legacy, observations, history, at, policy) : preliminary;
+        const output = history ? assessFrozenDecision(input, legacy, observations, history, at, policy, options.store.evidenceDomain) : preliminary;
         const response: CanonicalJudgmentResponse = {
           judgment_id: 'judgment_' + key.slice(7), decision: output.decision, confidence: output.confidence, issued_at: at.toISOString(),
           valid_until: output.valid_until, reasons: output.reasons,
@@ -225,7 +230,7 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
       if (binding) record.payment_authorization = binding;
       // An ambiguous failure stays settling: a retry must never re-submit settlement.
       const settlement = await paymentCall(() => options.gateway!.settle(signature, requirement));
-      if (settlement.success !== true || !/^0x[a-fA-F0-9]{64}$/.test(settlement.transaction) || settlement.network !== requirement.network ||
+      if (settlement.success !== true || !(options.store.evidenceDomain ? /^simulation:x402\/[a-f0-9]{64}$/.test(settlement.transaction) : /^0x[a-fA-F0-9]{64}$/.test(settlement.transaction)) || settlement.network !== requirement.network ||
         (binding && settlement.payer && settlement.payer.toLowerCase() !== binding.payer)) throw new JudgmentError(402, 'payment_settlement_failed');
       settlement.transaction = settlement.transaction.toLowerCase();
       if (binding && !settlement.payer) settlement.payer = binding.payer;

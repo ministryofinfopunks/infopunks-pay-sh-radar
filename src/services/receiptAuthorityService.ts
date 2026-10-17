@@ -1,3 +1,4 @@
+import { isLocalSimulationDomain, eligibleEvidenceProvenance } from '../security/evidenceProvenance';
 import { ECONOMIC_RAILS } from '../security/economicRails';
 import type { JudgmentIssuer, JudgmentIssuerTrust } from '../security/judgmentIssuer';
 import { CANONICAL_RECEIPT_SCHEMA_VERSION, type ObservationReceipt, type JudgmentReceipt, type ExecutionReceipt, type EvaluationReceipt, type ReceiptKind } from '../schemas/receipts';
@@ -15,6 +16,7 @@ export class ReceiptAuthorityError extends Error {
 }
 export type ReceiptRecord = ObservationReceipt | JudgmentReceipt | ExecutionReceipt | EvaluationReceipt;
 export interface ReceiptReader {
+  readonly evidenceDomain?: import('../security/evidenceProvenance').LocalSimulationDomain;
   readonly judgmentTrust?: JudgmentIssuerTrust;
   get(kind: ReceiptKind, id: string): Promise<ReceiptRecord | null>;
   getDecisionContext?(assessmentId: string): Promise<DecisionContext | null>;
@@ -31,6 +33,7 @@ export async function assertReceiptAuthority(kind: ReceiptKind, receipt: Receipt
   if (kind === 'observation') return;
   if (kind === 'judgment') {
     const judgment = receipt as JudgmentReceipt;
+    if (judgment.payment_receipt_ref?.startsWith('simulation:')) requireAuthority(isLocalSimulationDomain(reader.evidenceDomain), 'simulation_receipt_domain_required');
     if (judgment.issuer_signature) requireAuthority(reader.judgmentTrust?.verify(judgment), 'judgment_issuer_signature_invalid');
     requireAuthority(judgment.policy_version === (judgment.schema_version === 'canonical-receipts.v2' ? RECEIPT_POLICY_VERSION_V2 : RECEIPT_POLICY_VERSION), 'unsupported_receipt_policy');
     if (judgment.schema_version === 'canonical-receipts.v2') {
@@ -41,6 +44,9 @@ export async function assertReceiptAuthority(kind: ReceiptKind, receipt: Receipt
       const observation = await reader.get('observation', id) as ObservationReceipt | null;
       requireAuthority(observation, 'observation_not_found');
       if (!observation) return;
+      if (reader.evidenceDomain || observation.provenance.catalog_source === 'simulation' || observation.provenance.simulation === true) {
+        requireAuthority(isLocalSimulationDomain(reader.evidenceDomain) && eligibleEvidenceProvenance(observation.provenance, reader.evidenceDomain), 'simulation_receipt_domain_required');
+      }
       await assertReceiptAuthority('observation', observation, reader, threshold);
       requireAuthority(judgment.parent_hashes[index] === observation.receipt_hash, 'parent_hash_mismatch');
       requireAuthority(observation.subject_id === judgment.subject_id && observation.subject_type === judgment.subject_type && observation.intent_hash === judgment.intent_hash, 'observation_scope_mismatch');

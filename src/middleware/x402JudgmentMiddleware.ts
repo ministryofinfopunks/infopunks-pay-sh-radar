@@ -4,6 +4,7 @@ import { ExactEvmScheme } from '@x402/evm/exact/server';
 import { decodePaymentSignatureHeader, encodePaymentRequiredHeader, encodePaymentResponseHeader } from '@x402/core/http';
 import type { PaymentRequired, PaymentRequirements, SettleResponse } from '@x402/core/types';
 export type JudgmentPaymentGateway = {
+  readonly evidenceDomain?: import('../security/evidenceProvenance').LocalSimulationDomain;
   asset?: 'USDC' | 'USDG';
   requirements: PaymentRequirements[];
   challenge(): Promise<PaymentRequired>;
