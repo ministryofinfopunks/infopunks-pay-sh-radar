@@ -1,0 +1,33 @@
+name: First Spender R3 offline contract review
+on:
+  pull_request:
+    paths:
+      - 'tools/first-spender-trust-r3/**'
+      - '.github/workflows/first-spender-trust-r3.yml'
+permissions:
+  contents: read
+jobs:
+  offline-review-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      FIRST_SPENDER_R3_EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24.21.0
+      - run: node tools/first-spender-trust-r3/source-manifest.mjs .data/trust-r3/exact-head-before.json
+      - run: node --test tools/first-spender-trust-r3/tests/*.test.mjs
+      - run: node tools/first-spender-trust-r3/source-manifest.mjs .data/trust-r3/exact-head-after.json
+      # Only source digests: no provider data, keys, raw receipts, labels or economic claims.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: first-spender-trust-r3-${{ github.event.pull_request.head.sha }}
+          include-hidden-files: true
+          path: .data/trust-r3/exact-head-*.json
+          if-no-files-found: error
+          retention-days: 14
