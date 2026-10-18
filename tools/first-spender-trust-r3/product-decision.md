@@ -1,0 +1,39 @@
+# Revised product decision — 18 October 2026
+
+**Decision: HOLD full Radar commercialization and all new spend authority. Recommend a narrower provenance and cheap preflight product for further validation.** Full Radar's incremental assurance, positive net economic value and willingness to pay are not established. This package is engineering/review infrastructure, not new economic evidence or a production provenance fix.
+
+## Exact baselines remain separate
+
+| Frozen evidence | Supported engineering/economic statement | Qualification limit |
+|---|---|---|
+| PR #16 `d6b77e573f9939d4af70bdbd9416619001bf3cf9` | Local 20-case fixed-fee vs two-stage comparison: fee-only NJV −33 vs −27; 46 losses prevented and 62 opportunity lost unchanged; 17 vs 11 fee units. | Six-unit improvement is fee avoidance, not improved decisions. Fully costed NJV null. Same-operator fixtures; no independently verified commercial effect. |
+| PR #17 `d859c5dc13948f312c3652539704cea06d903cd3` | Its own development comparison: no Radar 101, cheap preflight 121.2, full Radar 68. Synthetic 96-case holdout: no Radar −280, cheap preflight 227.2, full Radar −368. No tested grid cell made full Radar positive and better than all reference strategies plus abstention. | #17 is based on earlier `9712fa304751565fac998460eca030d6247d4a1e`, not #16's later two-stage head. Toy units, authored costs/utility/probe access and same-operator labels; external truth and actual fully costed value absent. |
+
+Relative to cheap preflight in **#17's own** base assumptions, full Radar is worse by 53.2 development units and 595.2 holdout units. These are subtraction of retained modeled totals, not currency, new experiment or a causal market estimate. #16's two-stage result must not be silently substituted into #17. All prior case ledgers, negative cases, fees and qualification limits remain unchanged. R3 has no new external outcomes and does not tune any existing heldout policy or rerun a favorable grid subset.
+
+## What full Radar could add, and what is actually supported
+
+| Candidate increment beyond a feasible cheap preflight | Testable distinction | Present evidence |
+|---|---|---|
+| Independently authenticated source identity, contract authority and exact permitted-use scope | Full-only evidence identifies a preflight-passing source mismatch/unauthorized use using independently signed source/collector evidence available before the decision. Cheap comparator has equivalent access constraints and real costs. | A reference contract and audit gap exist. No actual source contract/profile, authenticated production population, independent review or demonstrated discriminative benefit. Provenance checks may themselves be cheap preflight. |
+| Independent contradictions, delivery history and current adverse events | A fresh external adverse fact unavailable to cheap checks changes a decision correctly under independently established delivery/value truth. Include false blocks and evidence acquisition costs. | Receipt/history infrastructure exists; externally administered economic truth and incremental availability are absent. Historic integrity does not imply current authority. |
+| Task-specific instrument/route/provider assurance | Verified instrument restrictions, binding or externally adjudicated delivery reliability changes safe economic choice beyond basic reachability/schema/quote checks. | Specialized verification paths exist, but external applicability and incremental advantage have not been qualified. More inference over identical labels is insufficient. |
+| Reusable audit/reconciliation evidence | Independent buyer measures reduced audit/dispute/recovery labor beyond cheap tooling, with validated obligations and private evidence access. | Possible narrower buyer value hypothesis; no measured savings, demand, defensible price or permission to publish claims. |
+
+The distinction to optimize is **when requesting full judgment has positive expected incremental value**, not call volume. Source validation, abstention and honest unknowns can be product strengths even if a paid full judgment has no advantage. Never withhold a cheap safety check to manufacture a paid feature.
+
+## Preregistered commercial pass conditions, none met
+
+Before a fee proposition, an independent methodology owner must specify target population, feasible comparator, actual cheap access/pricing, meaningful effect margin, clustered uncertainty method and sample size using external development data. Freeze a request/abstain policy using only information available before the call, calibrated outside heldout. Declare the intended fee and all source, check, inference, verification, payment, infrastructure, latency and recovery costs. Freeze source/contract versions and independent valuations before outcome reveal. A heldout set already inspected cannot serve this confirmation.
+
+Full Radar is commercially supported only if **all** of the following hold on a fresh independently administered heldout population:
+
+1. Actual source contracts, identities, authority, scope, freshness and permitted use pass independent security/data/migration reviews. New-decision quarantine is implemented and independently qualified while historical receipt integrity remains unchanged. Economic benefit cannot clear this gate.
+2. Full Radar supplies identified independently verifiable additional information/verification beyond the cheapest feasible safe preflight. Additional evidence availability, acquisition cost and decision impact are measurable before the call; no hindsight enrichment or favorable-task filtering.
+3. For the frozen request policy, the preregistered conservative uncertainty bound on `avoided losses − foregone gains − incremental non-fee costs` exceeds the proposed fee **and** meaningful effect margin. Its fully costed absolute net value must also beat abstention. Compare no Radar, static, cheap checks, preflight and abstention under the same admissible intents, not only an intentionally weak baseline. Refused, inconclusive and failed calls retain their costs. Unknown counterfactuals/costs preclude claiming the gate is passed.
+4. The request policy is itself calibrated for expected value of information and selective coverage on heldout, including tasks it abstains from judging. Demonstrate incremental benefit over spending only on cheap preflight; uncertainty, false-block costs, coverage and worst-case subgroup losses remain visible. No fee-adjustment/policy tuning after holdout reveal; changed hypotheses require a fresh holdout.
+5. Independently observed buyer demand supports the fee at that assurance level, with evidence of the buyer's benefit and alternatives. Software metrics, a successful purchase, low fee or internal valuation cannot establish willingness to pay. Any later customer experiment requires separate authorization; none is approved here.
+
+An admissible fee window is `0 < fee < conservative incremental benefit − incremental non-fee costs − margin`, provided full strategy net is positive and better than all feasible references plus abstention. That window is a hypothesis, not an estimated price: external data, confidence bounds and supported numerator/costs are missing. Current baselines provide no defensible positive fee for full Radar.
+
+If no such window is independently supported, record the negative result rather than choosing a favorable grid cell or charging for identical evidence. Narrow scope to source/authority provenance checks, non-authorizing cheap preflight, signed receipt verification and private audit/reconciliation tooling. Validate those users and savings independently; do not assert even that narrower product is proven. Retain full judgment as research until it supplies a measured increment. No paid API, live test, public trust claim, deployment or release follows from this memo.

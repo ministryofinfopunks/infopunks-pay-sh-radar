@@ -1,0 +1,31 @@
+{
+  "version": "infopunks.live-evidence.v1",
+  "status": "DRAFT_REVIEW_REQUIRED",
+  "implementation": "assurance.mjs#liveEvidence",
+  "canonicalization": "recursive-lexical-JSON-safe-integers.v1",
+  "signature_algorithm": "Ed25519",
+  "signature_domain": "INFOPUNKS-R3/{role}/v1\\n{canonical-body}",
+  "trust_registry_version": "infopunks.review-trust.v1",
+  "registry_pin_source": "independent custodian outside submitted evidence",
+  "exact_required_fields": ["version", "observation_id", "receipt_hash", "artifact_hash", "source_id", "collector_id", "source_contract_hash", "collection_method", "environment", "fixture", "simulation", "authority", "permitted_use", "spending_authority", "external_economic_activity", "scope", "observed_at", "ingested_at", "expires_at", "source_signature", "collector_signature", "review_signature"],
+  "explicit_constants": {
+    "collection_method": "ed25519_source_and_collector",
+    "environment": "production",
+    "fixture": false,
+    "simulation": false,
+    "authority": "reviewed_live",
+    "permitted_use": ["new_judgment_evidence"],
+    "spending_authority": "none",
+    "external_economic_activity": true
+  },
+  "exact_scope_fields": ["tenant_id", "principal_id", "subject_type", "subject_id", "network", "recipient", "route_id", "intent_hash", "candidate_hash", "policy_hash"],
+  "signature_roles": ["source", "collector", "provenance-reviewer"],
+  "independence": "three externally verified organizations; exact-scope grants; no self-review",
+  "freshness": "observed <= ingested <= now < expires <= observed + policy.max_age_ms; now-observed < policy.max_age_ms",
+  "detached_binding": "original immutable observation receipt plus raw source artifact bytes; no rewrite or circular embedded receipt hash",
+  "success_status": "CANDIDATE_EVIDENCE_ONLY",
+  "failure_status": "QUARANTINE_FOR_NEW_DECISIONS",
+  "execution_authorized": false,
+  "hold": true,
+  "historical_replay_policy": "preserve original canonical receipt/context/hash semantics; new admission requires a separately versioned reader after independent reviews"
+}
