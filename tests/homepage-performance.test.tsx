@@ -31,8 +31,8 @@ describe('unified homepage performance and honest capability boundary', () => {
     expect(source).toContain("lazy(() => import('./spendTerminalPage')");
     expect(source).not.toContain('preSpendBuilderPages'); expect(source).not.toContain('rhChainUi');
   });
-  it('keeps all five product destinations visible in the landing navigation', async () => {
+  it('keeps all six product destinations visible in the landing navigation', async () => {
     await act(async () => { root = createRoot(container); root.render(<RadarAppShell path="/"><UniversalHomepage /></RadarAppShell>); });
-    expect([...container.querySelectorAll('nav a')].map(a => a.textContent)).toEqual(['Radar', 'Solana', 'Robinhood Chain', 'Proof', 'Developers']);
+    expect([...container.querySelectorAll('nav a')].map(a => a.textContent)).toEqual(['Radar', 'Solana', 'Robinhood Chain', 'Economic OS', 'Proof', 'Developers']);
   });
 });
