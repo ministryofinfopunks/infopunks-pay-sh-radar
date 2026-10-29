@@ -34,7 +34,7 @@ import cors from '@fastify/cors';
 import Fastify, { FastifyReply, FastifyRequest } from 'fastify';
 import { createReadStream, existsSync } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
-import { extname, join, normalize, resolve } from 'node:path';
+import { extname, join, normalize, resolve, sep } from 'node:path';
 import { z } from 'zod';
 import { payShCatalogFixture } from '../data/payShCatalogFixture';
 import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, listSignalSurfaces } from '../data/narrativeIntel';
@@ -5011,7 +5011,7 @@ export async function createApp(
       }
       const relative = urlPath === '/' ? 'index.html' : urlPath.replace(/^\/+/, '');
       const target = normalize(join(clientDistDir, relative));
-      if (!target.startsWith(clientDistDir)) return reply.code(403).send({ error: 'forbidden' });
+      if (target !== clientDistDir && !target.startsWith(clientDistDir + sep)) return reply.code(403).send({ error: 'forbidden' });
       try {
         const file = await stat(target);
         if (file.isFile()) {
