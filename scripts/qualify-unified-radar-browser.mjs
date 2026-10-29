@@ -15,7 +15,7 @@ const browser = await chromium.launch({ headless: true, ...(process.env.RADAR_QA
 const sourceSha = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 const reports = [];
 const checkRequestKeys = new Map();
-const routes = ['/', '/solana', '/4663', '/rh-chain-signal-desk', '/spend-terminal', '/rh-chain-signal-desk/market', '/radar/cards', '/receipts', '/receipts/receipt_001', '/loops', '/developers'];
+const routes = ['/', '/solana', '/4663', '/rh-chain-signal-desk', '/economic-os/overview', '/spend-terminal', '/rh-chain-signal-desk/market', '/radar/cards', '/receipts', '/receipts/receipt_001', '/loops', '/developers'];
 for (const [viewportName, viewport] of Object.entries({ desktop: { width: 1440, height: 1000 }, tablet: { width: 768, height: 1024 }, mobile: { width: 390, height: 844 } })) {
   for (const route of routes) {
     const page = await browser.newPage({ viewport });

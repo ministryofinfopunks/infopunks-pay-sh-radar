@@ -10,6 +10,7 @@ import { RadarAppShell } from './radarAppShell';
 
 const LazySpendTerminal = lazy(() => import('./spendTerminalPage').then(module => ({ default: module.SpendTerminalPage })));
 const LazyCanonicalReceipt = lazy(() => import('./canonicalReceiptPage'));
+const LazyEconomicOsOverview = lazy(() => import('./economicOsOverviewPage').then(module => ({ default: module.EconomicOsOverviewPage })));
 const LazyRadarApp = lazy(() => import('./radarApp'));
 
 export function App() {
@@ -17,6 +18,7 @@ export function App() {
   if (receipt) return <RadarAppShell><Suspense fallback={<main role="status">Opening authenticated receipt…</main>}><LazyCanonicalReceipt kind={receipt[1] as 'observation' | 'judgment' | 'execution' | 'evaluation'} id={decodeURIComponent(receipt[2])} /></Suspense></RadarAppShell>;
   if (typeof window !== 'undefined' && /^\/$/.test(window.location.pathname)) return <RadarAppShell><UniversalHomepage /></RadarAppShell>;
   if (typeof window !== 'undefined' && /^\/spend-terminal\/?$/.test(window.location.pathname)) return <RadarAppShell><Suspense fallback={<main role="status">Opening Spend Check…</main>}><LazySpendTerminal /></Suspense></RadarAppShell>;
+  if (typeof window !== 'undefined' && /^\/economic-os\/overview\/?$/.test(window.location.pathname)) return <RadarAppShell><Suspense fallback={<main role="status">Opening Economic OS…</main>}><LazyEconomicOsOverview /></Suspense></RadarAppShell>;
   return <RadarAppShell><Suspense fallback={<main className="radar-route-loading" role="status" aria-live="polite">Opening Radar surface…</main>}><LazyRadarApp /></Suspense></RadarAppShell>;
 }
 
