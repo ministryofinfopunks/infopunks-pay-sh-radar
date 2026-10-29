@@ -75,7 +75,7 @@ Controls and panels use the canonical .25rem corner radius. Identifiers wrap; pr
 | Canvas, text, action, caution | `radarTokens.css`: `--bg`, `--text`, `--muted`, `--signal-action`, `--amber` | `--radar-*` aliases in both subpage stylesheets |
 | Font roles | `--font-ui`, `--font-mono` → `--radar-font`, `--radar-mono` | Solana hero/directory/evidence, RH hero/receipt/cards |
 | Corners and borders | `--radius-control/surface/panel`, `--line`, `--radar-line-soft` | Panels, controls, evidence rows |
-| Page shell / global navigation | `RadarAppShell`, `ProductHeader`, `ProductFooter` | All three routes, unchanged |
+| Page shell / global navigation | `RadarAppShell`, `ProductHeader`, `ProductFooter` | All routes share the global six-item navigation and indexed framing |
 | Indexed labels | `RadarSectionHeader` | Directory and RH section labels |
 | Evidence framing | Homepage `.terminal-panel`, `.terminal-panel-heading`, `.terminal-state` | Solana real coverage panel, RH Today/receipt panels |
 | Actions / input | Existing `.execute` and homepage action/input geometry | Original CTAs and contract check |
