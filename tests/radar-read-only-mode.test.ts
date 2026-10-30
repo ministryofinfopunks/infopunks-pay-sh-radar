@@ -56,7 +56,10 @@ describe('complete Radar read-only mode', () => {
     const app = await createApp(emptyIntelligenceStore());
     let closed = false;
     let requestFinished = false;
+    let requestEntered = () => {};
+    const entered = new Promise<void>((resolve) => { requestEntered = resolve; });
     app.get('/__read_only_drain_fixture', async () => {
+      requestEntered();
       await new Promise((resolve) => setTimeout(resolve, 100));
       requestFinished = true;
       return { ok: true };
@@ -64,7 +67,7 @@ describe('complete Radar read-only mode', () => {
     const address = await app.listen({ host: '127.0.0.1', port: 0 });
     try {
       const request = fetch(address + '/__read_only_drain_fixture', { headers: { connection: 'close' } });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await entered;
       let closeFinished = false;
       const closing = app.close().then(() => { closeFinished = true; closed = true; });
       const response = await request;
