@@ -757,6 +757,27 @@ export async function createApp(
   if (config.adminToken && identity.authenticate('Bearer ' + config.adminToken)) throw new Error('judgment_operator_credential_reused');
   if (config.isProduction && config.judgmentPaymentEnabled && !identity.configured) throw new Error('judgment_identity_unavailable');
   const app = Fastify({ logger: config.isProduction ? { redact: ['req.headers.authorization', 'req.headers.payment-signature'] } : false, disableRequestLogging: true });
+  let shuttingDown = false;
+  const activeBackgroundWork = new Set<Promise<unknown>>();
+  const trackBackgroundWork = <T>(work: Promise<T>): Promise<T> => {
+    activeBackgroundWork.add(work);
+    void work.then(() => activeBackgroundWork.delete(work), () => activeBackgroundWork.delete(work));
+    return work;
+  };
+  const launchBackgroundWork = (work: () => Promise<unknown>) => {
+    if (shuttingDown) return;
+    void trackBackgroundWork(Promise.resolve().then(work));
+  };
+  app.addHook('onClose', async () => {
+    shuttingDown = true;
+    while (activeBackgroundWork.size) await Promise.allSettled([...activeBackgroundWork]);
+  });
+  app.addHook('onRequest', async (req, reply) => {
+    if (config.radarReadOnlyMode && !['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+      reply.header('Cache-Control', 'no-store');
+      return reply.code(503).send({ error: 'radar_read_only_mode' });
+    }
+  });
   app.addHook('onRequest', async (req, reply) => {
     if (!config.controlledStaging) return;
     const error = controlledStagingRequestError(req.method, req.routeOptions.url ?? '');
@@ -1554,9 +1575,23 @@ export async function createApp(
     { includePropagation: false, includeInterpretations: true, propagationFallback: analyzePropagation(fixturePulseStore) }
   ).interpretations;
 
-  if (!preloadedStore) {
+  if (!preloadedStore && config.radarReadOnlyMode) {
+    startupLoadPromise = repository.loadSnapshot()
+      .then((snapshot) => {
+        if (snapshot) {
+          copyStoreInto(store, snapshot);
+          bootstrapped = snapshot.providers.length > 0;
+        }
+        liveBootstrapStatus = bootstrapped ? 'ready' : 'failed';
+        liveBootstrapError = bootstrapped ? null : 'read_only_snapshot_unavailable';
+        refreshBackgroundAnalytics();
+      })
+      .catch((error) => {
+        logDbDegraded('read_only_startup_load', classifyBootstrapFailure(error), error);
+      });
+  } else if (!preloadedStore) {
     const bootstrapStartMs = Date.now();
-    startupLoadPromise = createIntelligenceStore(repository)
+    startupLoadPromise = trackBackgroundWork(createIntelligenceStore(repository)
       .then((loadedStore) => {
         copyStoreInto(store, loadedStore);
         bootstrapped = Boolean(loadedStore.providers.length > 0);
@@ -1575,8 +1610,8 @@ export async function createApp(
           code: errorCode(error),
           message: errorMessage(error)
         }));
-      });
-    void ensureLiveBootstrap('startup');
+      }));
+    if (!config.radarReadOnlyMode) launchBackgroundWork(() => ensureLiveBootstrap('startup'));
   } else {
     refreshBackgroundAnalytics();
   }
@@ -5031,9 +5066,9 @@ export async function createApp(
   }
 
   const intervalMs = config.ingestionEnabled ? (config.payShIngestIntervalMs ?? 0) : 0;
-  if (intervalMs > 0) {
+  if (!config.radarReadOnlyMode && intervalMs > 0) {
     const timer = setInterval(() => {
-      void runPayShIngestion(store, repository)
+      launchBackgroundWork(() => runPayShIngestion(store, repository)
         .then(() => refreshBackgroundAnalytics())
         .catch((error) => {
           logDbDegraded('ingestion_scheduler', classifyBootstrapFailure(error), error);
@@ -5049,7 +5084,7 @@ export async function createApp(
             code: errorCode(error),
             message: errorMessage(error)
           }));
-        });
+        }));
     }, intervalMs);
     timer.unref();
     app.addHook('onClose', async () => {
@@ -5058,9 +5093,9 @@ export async function createApp(
       console.log(JSON.stringify({ event: 'hook_exit', hook: 'onClose', source: 'ingestion_timer' }));
     });
   }
-  if (isMonitorEnabled() && monitorIntervalMs() > 0) {
+  if (!config.radarReadOnlyMode && isMonitorEnabled() && monitorIntervalMs() > 0) {
     const timer = setInterval(() => {
-      void runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() })
+      launchBackgroundWork(() => runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() })
         .then(() => refreshBackgroundAnalytics())
         .catch((error) => {
           logDbDegraded('monitor_scheduler', classifyBootstrapFailure(error), error);
@@ -5069,7 +5104,7 @@ export async function createApp(
             code: errorCode(error),
             message: errorMessage(error)
           }));
-        });
+        }));
     }, monitorIntervalMs());
     timer.unref();
     app.addHook('onClose', async () => {
@@ -5079,9 +5114,9 @@ export async function createApp(
     });
   }
 
-  if (config.rhChainAutomationEnabled || (config.rh4663Phase3Enabled && config.rh4663Phase3IngestionEnabled)) {
+  if (!config.radarReadOnlyMode && (config.rhChainAutomationEnabled || (config.rh4663Phase3Enabled && config.rh4663Phase3IngestionEnabled))) {
     const schedule = (jobName: import('../services/rhChainAutomationService').RhChainAutomationJobName, intervalMs: number) => {
-      const timer = setInterval(() => { void runRhChainAutomationJob(jobName); }, intervalMs);
+      const timer = setInterval(() => { launchBackgroundWork(() => runRhChainAutomationJob(jobName)); }, intervalMs);
       timer.unref();
       app.addHook('onClose', async () => clearInterval(timer));
     };
@@ -5101,7 +5136,7 @@ export async function createApp(
         const minuteKey = now.toISOString().slice(0, 16);
         if (minuteKey !== lastReceiptDraftMinute && cronMatches(config.rhChainReceiptDraftCron!, now)) {
           lastReceiptDraftMinute = minuteKey;
-          void runRhChainAutomationJob('rh_daily_receipt_draft');
+          launchBackgroundWork(() => runRhChainAutomationJob('rh_daily_receipt_draft'));
         }
       }, 30_000);
       timer.unref();
@@ -5110,15 +5145,15 @@ export async function createApp(
   }
   const ipxPltrShadowObservationEnabled = options.ipxPltrShadowObservation?.enabled ?? config.ipxPltrShadowObservationEnabled;
   const ipxPltrShadowObservationIntervalMs = options.ipxPltrShadowObservation?.intervalMs ?? config.ipxPltrShadowObservationIntervalMs;
-  if (ipxPltrShadowObservationEnabled && ipxPltrShadowObservationIntervalMs > 0) {
+  if (!config.radarReadOnlyMode && ipxPltrShadowObservationEnabled && ipxPltrShadowObservationIntervalMs > 0) {
     const runShadowObservation = () => {
-      void observeShadowWithLease()
+      launchBackgroundWork(() => observeShadowWithLease()
         .then((status) => {
           console.log(JSON.stringify({ event: 'ipx_pltr_shadow_observation_run', latest_ready_snapshot: status.latest_ready_snapshot?.observation_id ?? null, ready_snapshot_count: status.ready_snapshot_count, evidence_window_satisfied: status.evidence_window.satisfied, next_action: status.next_action, last_error: status.last_error?.code ?? null }));
         })
         .catch((error) => {
           console.log(JSON.stringify({ event: 'ipx_pltr_shadow_observation_failed', code: errorCode(error), message: errorMessage(error) }));
-        });
+        }));
     };
     runShadowObservation();
     const timer = setInterval(runShadowObservation, ipxPltrShadowObservationIntervalMs);
@@ -5172,6 +5207,7 @@ export async function createApp(
   }
 
   async function ensureLiveBootstrap(reason: 'startup' | 'route:/v1/pulse' | 'route:/v1/providers' | 'route:/v1/radar/endpoints') {
+    if (config.radarReadOnlyMode) return;
     if (startupLoadPromise) await startupLoadPromise;
     if (isLiveBootstrapSatisfied(store) && (!config.isProduction || (!store.dataSource?.error && store.dataSource?.last_ingested_at && Date.now() - Date.parse(store.dataSource.last_ingested_at) <= 10 * 60_000))) {
       bootstrapped = true;

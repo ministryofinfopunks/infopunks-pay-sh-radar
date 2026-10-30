@@ -13,6 +13,7 @@ describe('runtime environment config', () => {
     expect(config.databaseUrl).toBeNull();
     expect(config.databasePoolMax).toBe(10);
     expect(config.judgmentV2ReceiptsEnabled).toBe(true);
+    expect(config.radarReadOnlyMode).toBe(false);
     expect(config.featuredProviderRotationMs).toBe(600000);
     expect(config.machineDemoSeed).toBe(true);
     expect(config.rhChainAutomationEnabled).toBe(false);
@@ -31,6 +32,11 @@ describe('runtime environment config', () => {
     expect(frozen.judgmentV2ReceiptsEnabled).toBe(false);
     expect(frozen.judgmentPaymentEnabled).toBe(false);
     expect(loadRuntimeConfig(production).judgmentV2ReceiptsEnabled).toBe(true);
+  });
+
+  it('loads an explicit complete read-only fallback mode', () => {
+    expect(loadRuntimeConfig({ ...production, RADAR_READ_ONLY_MODE: 'true' }).radarReadOnlyMode).toBe(true);
+    expect(loadRuntimeConfig(production).radarReadOnlyMode).toBe(false);
   });
 
   it('keeps the read-only Radar shell and liveness route available in v2 freeze mode', async () => {
