@@ -67,11 +67,23 @@ run('lint', ['npm', 'run', 'lint'])
 run('build', ['npm', 'run', 'build'], dict(env, NODE_ENV='production'))
 run('migration-inventory', ['npm', 'run', 'migrations:validate'])
 report = logs / 'full-tests.json'
-run('full-tests', ['npm', 'test', '--', '--maxWorkers=1', '--testTimeout=30000', '--reporter=default', '--reporter=json', '--outputFile=' + str(report)])
+run('full-tests', ['npm', 'test', '--', '--maxWorkers=1', '--testTimeout=30000', '--reporter=default', '--reporter=json', '--outputFile=' + str(report)], tolerated=True)
+test_exit_code = results[-1]['exit_code']
 full = json.loads(report.read_text())
 summary = {key: full[key] for key in ['numTotalTests', 'numPassedTests', 'numFailedTests', 'numPendingTests', 'numTotalTestSuites', 'numPassedTestSuites', 'numFailedTestSuites', 'success']}
 summary['files'] = [{'name': str(Path(item['name']).relative_to(root)), 'status': item['status'], 'tests': len(item['assertionResults'])} for item in full['testResults']]
+summary['source_sha'] = revision
+summary['failed_tests'] = [
+    {'file': str(Path(result['name']).relative_to(root)), 'tests': [
+        assertion.get('fullName') or assertion.get('title', 'unknown')
+        for assertion in result.get('assertionResults', []) if assertion.get('status') == 'failed'
+    ]}
+    for result in full['testResults'] if result.get('status') == 'failed'
+]
 (out / 'full-test-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+if test_exit_code or not full.get('success'):
+    print('Full test failures:', json.dumps(summary['failed_tests'], sort_keys=True), flush=True)
+    raise RuntimeError(f"full-tests failed: {summary['numFailedTests']} failed, {summary['numPassedTests']} passed; see summary and raw log")
 for label, command in [('audit-production', ['npm', 'audit', '--omit=dev', '--json']), ('audit-all', ['npm', 'audit', '--json'])]:
     log = run(label, command, tolerated=(label == 'audit-all'))
     shutil.copyfile(log, out / (label + '.json'))
