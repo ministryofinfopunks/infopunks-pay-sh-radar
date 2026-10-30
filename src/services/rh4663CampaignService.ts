@@ -108,7 +108,11 @@ export class PostgresRh4663CampaignStore implements Rh4663CampaignStore {
   async put(campaign: Rh4663Campaign) { await this.ensure(); await this.pool.query('insert into rh4663_campaigns (campaign_id, campaign, updated_at) values ($1, $2::jsonb, $3) on conflict (campaign_id) do update set campaign = excluded.campaign, updated_at = excluded.updated_at', [campaign.campaign_id, JSON.stringify(campaign), campaign.updated_at]); }
   async snapshots(campaignId: string) { await this.ensure(); const result = await this.pool.query<{ snapshot: CampaignPresentationSnapshot }>('select snapshot from rh4663_campaign_snapshots where campaign_id = $1 order by created_at asc, snapshot_id asc', [campaignId]); return result.rows.map((row) => copy(row.snapshot)); }
   async addSnapshot(snapshot: CampaignPresentationSnapshot) { await this.ensure(); await this.pool.query('insert into rh4663_campaign_snapshots (snapshot_id, campaign_id, stage, snapshot, created_at) values ($1,$2,$3,$4::jsonb,$5) on conflict (campaign_id, stage) do nothing', [snapshot.snapshot_id, snapshot.campaign_id, snapshot.stage, JSON.stringify(snapshot), snapshot.created_at]); }
-  private ensure() { if (!this.initialized) this.initialized = this.pool.query("create table if not exists rh4663_campaigns (campaign_id text primary key, campaign jsonb not null, updated_at timestamptz not null); create table if not exists rh4663_campaign_snapshots (snapshot_id text primary key, campaign_id text not null references rh4663_campaigns(campaign_id) on delete cascade, stage text not null, snapshot jsonb not null, created_at timestamptz not null, unique(campaign_id, stage)); create index if not exists rh4663_campaigns_updated_idx on rh4663_campaigns(updated_at desc); create index if not exists rh4663_campaign_snapshots_history_idx on rh4663_campaign_snapshots(campaign_id, created_at asc)").then(() => undefined).catch((error) => { this.initialized = null; throw error; }); return this.initialized; }
+  private ensure() {
+    if (process.env.RADAR_READ_ONLY_MODE === 'true') return Promise.resolve();
+    if (!this.initialized) this.initialized = this.pool.query("create table if not exists rh4663_campaigns (campaign_id text primary key, campaign jsonb not null, updated_at timestamptz not null); create table if not exists rh4663_campaign_snapshots (snapshot_id text primary key, campaign_id text not null references rh4663_campaigns(campaign_id) on delete cascade, stage text not null, snapshot jsonb not null, created_at timestamptz not null, unique(campaign_id, stage)); create index if not exists rh4663_campaigns_updated_idx on rh4663_campaigns(updated_at desc); create index if not exists rh4663_campaign_snapshots_history_idx on rh4663_campaign_snapshots(campaign_id, created_at asc)").then(() => undefined).catch((error) => { this.initialized = null; throw error; });
+    return this.initialized;
+  }
 }
 
 export class Rh4663CampaignError extends Error {
@@ -147,10 +151,12 @@ export class Rh4663CampaignService {
   async cancel(campaignId: string) { const campaign = await this.require(campaignId); if (['COMPLETE', 'ARCHIVED', 'CANCELLED'].includes(campaign.state)) throw new Rh4663CampaignError('campaign_cannot_be_cancelled', 409); return this.transition(campaign, 'CANCELLED'); }
 
   /** Called only by the cached Front Door. It never reads providers or chains. */
-  async project(frontdoor: Rh4663FrontdoorState, shares: readonly Rh4663ShareObject[]): Promise<Rh4663CampaignProjection> {
+  async project(frontdoor: Rh4663FrontdoorState, shares: readonly Rh4663ShareObject[], readOnly = false): Promise<Rh4663CampaignProjection> {
     const active = (await this.store.list()).filter((item) => item.state === 'LIVE' || item.state === 'RESOLVING').sort((a, b) => b.priority - a.priority || a.created_at.localeCompare(b.created_at))[0];
     if (!active) return inactive();
-    const campaign = await this.autoAdvance(active, frontdoor, shares);
+    // A read-only recovery projection cannot advance a campaign or append a
+    // presentation snapshot as a side effect of a GET.
+    const campaign = readOnly ? active : await this.autoAdvance(active, frontdoor, shares);
     if (!['LIVE', 'RESOLVING'].includes(campaign.state)) return inactive();
     return projection(campaign, frontdoor, shares);
   }

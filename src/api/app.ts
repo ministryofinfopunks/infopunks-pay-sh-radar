@@ -796,7 +796,7 @@ export async function createApp(
   const rh4663CampaignTelemetry = new Rh4663CampaignTelemetry();
   const rh4663FrontdoorTelemetry = new Rh4663FrontdoorTelemetry();
   const rhChainPostgresPool = config.databaseUrl
-    ? getDatabasePool({ connectionString: config.databaseUrl, max: config.databasePoolMax })
+    ? getDatabasePool({ connectionString: config.databaseUrl, max: config.databasePoolMax, readOnly: config.radarReadOnlyMode })
     : null;
   const rh4663ProductIntelligence = new Rh4663ProductIntelligenceService(options.rh4663ProductIntelligenceStore ?? (rhChainPostgresPool ? new PostgresRh4663ProductIntelligenceStore(rhChainPostgresPool) : new InMemoryRh4663ProductIntelligenceStore()));
   const rh4663Campaigns = new Rh4663CampaignService(options.rh4663CampaignStore ?? (rhChainPostgresPool ? new PostgresRh4663CampaignStore(rhChainPostgresPool) : new InMemoryRh4663CampaignStore()));
@@ -1229,16 +1229,23 @@ export async function createApp(
     pulse: rh4663FrontdoorPulseRead,
     signals: () => rh4663Intelligence.publicSignals({ limit: 5 }),
     shadow: () => ipxPltrShadowObservation.status(),
-    // Production must never silently turn the shared ETag namespace into an
-    // ephemeral process-local counter. Development/test may use memory.
-    version_store: rhChainPostgresPool ? new PostgresFrontdoorVersionStore(rhChainPostgresPool, { allow_ephemeral_fallback: !config.isProduction }) : undefined,
-    change_event_store: options.frontdoorChangeEventStore ?? (rhChainPostgresPool ? new PostgresFrontdoorChangeEventStore(rhChainPostgresPool) : new InMemoryFrontdoorChangeEventStore()),
-    require_durable_version: config.isProduction,
+    // Read-only recovery keeps GET projections from creating or advancing
+    // durable presentation metadata. Normal production mode retains durable
+    // versions and change events.
+    version_store: config.radarReadOnlyMode
+      ? undefined
+      : rhChainPostgresPool ? new PostgresFrontdoorVersionStore(rhChainPostgresPool, { allow_ephemeral_fallback: !config.isProduction }) : undefined,
+    change_event_store: config.radarReadOnlyMode
+      ? new InMemoryFrontdoorChangeEventStore()
+      : options.frontdoorChangeEventStore ?? (rhChainPostgresPool
+        ? new PostgresFrontdoorChangeEventStore(rhChainPostgresPool)
+        : new InMemoryFrontdoorChangeEventStore()),
+    require_durable_version: config.isProduction && !config.radarReadOnlyMode,
     ignore_personal_pulse_changes: true,
     // The projection receives the already-built Front Door and only reads the
     // persisted campaign record. It therefore adds no provider/chain reads.
     campaign: config.rh4663CampaignModeEnabled
-      ? (frontdoor) => rh4663Campaigns.project(frontdoor, buildRh4663FrontdoorShareObjects(frontdoor, NARRATIVE_PUBLIC_HOST))
+      ? (frontdoor) => rh4663Campaigns.project(frontdoor, buildRh4663FrontdoorShareObjects(frontdoor, NARRATIVE_PUBLIC_HOST), config.radarReadOnlyMode)
       : undefined
   });
   // Phase 7 is a projection layer only. It reads canonical objects and the
@@ -1578,7 +1585,7 @@ export async function createApp(
   ).interpretations;
 
   if (!preloadedStore && config.radarReadOnlyMode) {
-    startupLoadPromise = repository.loadSnapshot()
+    startupLoadPromise = trackBackgroundWork(repository.loadSnapshot()
       .then((snapshot) => {
         if (snapshot) {
           copyStoreInto(store, snapshot);
@@ -1590,7 +1597,7 @@ export async function createApp(
       })
       .catch((error) => {
         logDbDegraded('read_only_startup_load', classifyBootstrapFailure(error), error);
-      });
+      }));
   } else if (!preloadedStore) {
     const bootstrapStartMs = Date.now();
     startupLoadPromise = createIntelligenceStore(repository)

@@ -356,6 +356,7 @@ export class PostgresRh4663Store implements Rh4663Store {
   private async ready() {
     const result = await this.pool.query<{ missing: string | null }>(`select string_agg(name, ',') as missing from unnest(array['rh_4663_genesis_wallets','rh_4663_pulse_calls','rh_4663_events','rh_4663_today_editions','rh_4663_signals']) name where to_regclass(name) is null`);
     if (result.rows[0]?.missing) throw new Rh4663ServiceError('phase1_migration_not_applied', 503);
+    if (process.env.RADAR_READ_ONLY_MODE === 'true') return;
     if (!this.indexesReady) this.indexesReady = this.pool.query('create index if not exists rh_4663_pulse_calls_window_created_idx on rh_4663_pulse_calls (window_id, created_at desc); create index if not exists rh_4663_pulse_calls_wallet_window_idx on rh_4663_pulse_calls (lower(wallet), window_id desc)').then(() => undefined).catch((error) => { this.indexesReady = null; throw error; });
     await this.indexesReady;
   }

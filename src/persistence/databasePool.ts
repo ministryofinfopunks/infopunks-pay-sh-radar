@@ -27,12 +27,14 @@ export class PersistenceUnavailableError extends Error {
 type PoolOptions = {
   connectionString: string;
   max: number;
+  readOnly?: boolean;
 };
 
 type SharedPoolState = {
   pool: pg.Pool;
   connectionString: string;
   max: number;
+  readOnly: boolean;
   closePromise: Promise<void> | null;
 };
 
@@ -161,17 +163,19 @@ export function parseDatabasePoolMax(value: string | undefined, defaultValue = 1
 export function getDatabasePool(options: PoolOptions): pg.Pool {
   if (sharedPool) {
     if (sharedPool.connectionString !== options.connectionString) throw new Error('database_pool_already_initialized_for_different_database');
+    if (options.readOnly && !sharedPool.readOnly) throw new Error('database_pool_already_initialized_without_read_only_mode');
     return sharedPool.pool;
   }
   const pool = new pg.Pool({
     connectionString: options.connectionString,
     max: options.max,
+    options: options.readOnly ? '-c default_transaction_read_only=on' : undefined,
     connectionTimeoutMillis: CONNECTION_TIMEOUT_MS,
     idleTimeoutMillis: IDLE_TIMEOUT_MS,
     allowExitOnIdle: false
   });
   instrumentPool(pool);
-  sharedPool = { pool, connectionString: options.connectionString, max: options.max, closePromise: null };
+  sharedPool = { pool, connectionString: options.connectionString, max: options.max, readOnly: options.readOnly ?? false, closePromise: null };
   logDatabaseEvent('database_pool_created', {
     database_pool_max: options.max,
     connection_timeout_ms: CONNECTION_TIMEOUT_MS,
@@ -209,7 +213,7 @@ export async function installDatabasePoolForTests(pool: pg.Pool, options: PoolOp
   if (process.env.NODE_ENV !== 'test') throw new Error('installDatabasePoolForTests is only available when NODE_ENV=test');
   await closeDatabasePool();
   instrumentPool(pool);
-  sharedPool = { pool, connectionString: options.connectionString, max: options.max, closePromise: null };
+  sharedPool = { pool, connectionString: options.connectionString, max: options.max, readOnly: options.readOnly ?? false, closePromise: null };
   circuit.state = 'degraded';
   circuit.lastSuccessAt = null;
   circuit.lastFailureAt = null;

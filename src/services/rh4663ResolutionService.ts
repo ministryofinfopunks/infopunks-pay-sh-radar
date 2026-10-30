@@ -391,6 +391,7 @@ export class PostgresRh4663ResolutionStore implements Rh4663ResolutionStore {
   private async ready() {
     const result = await this.pool.query<{ missing: string | null }>(`select string_agg(name, ',') as missing from unnest(array['rh_4663_pulse_window_resolutions','rh_4663_resolution_receipts','rh_4663_window_anchors']) name where to_regclass(name) is null`);
     if (result.rows[0]?.missing) throw new Rh4663ServiceError('phase2_migration_not_applied', 503);
+    if (process.env.RADAR_READ_ONLY_MODE === 'true') return;
     if (!this.indexesReady) this.indexesReady = this.pool.query('create index if not exists rh_4663_resolution_receipts_wallet_window_idx on rh_4663_resolution_receipts (lower(wallet), window_id); create index if not exists rh_4663_resolution_receipts_window_idx on rh_4663_resolution_receipts (window_id)').then(() => undefined).catch((error) => { this.indexesReady = null; throw error; });
     await this.indexesReady;
   }

@@ -23,7 +23,7 @@ name = 'unified_radar_' + uuid.uuid4().hex[:12]
 database_url_base = env.get('RADAR_QUALIFICATION_DATABASE_URL', 'postgresql://localhost')
 def database_url(database):
     return database_url_base.rstrip('/') + '/' + database
-databases = [name, name + '_resilience', name + '_migration', name + '_restore']
+databases = [name, name + '_resilience', name + '_migration', name + '_restore', name + '_readonly']
 for database in databases:
     subprocess.run(['createdb', database], check=True)
 env.update(NODE_ENV='test', RADAR_QUERY_TIMING_ENABLED='true', CANONICAL_RECEIPT_TEST_URL=database_url(name),
@@ -84,6 +84,9 @@ summary['failed_tests'] = [
 if test_exit_code or not full.get('success'):
     print('Full test failures:', json.dumps(summary['failed_tests'], sort_keys=True), flush=True)
     raise RuntimeError(f"full-tests failed: {summary['numFailedTests']} failed, {summary['numPassedTests']} passed; see summary and raw log")
+readonly_env = dict(env, DATABASE_URL=database_url(name + '_readonly'), RADAR_READ_ONLY_POSTGRES_TEST_URL=database_url(name + '_readonly'))
+run('read-only-migration', ['node', 'dist/server/cli/runPostgresMigrations.js'], readonly_env)
+run('read-only-postgres-instrumentation', ['npm', 'test', '--', 'tests/radar-read-only-postgres-instrumentation.test.ts', '--maxWorkers=1'], readonly_env)
 for label, command in [('audit-production', ['npm', 'audit', '--omit=dev', '--json']), ('audit-all', ['npm', 'audit', '--json'])]:
     log = run(label, command, tolerated=(label == 'audit-all'))
     shutil.copyfile(log, out / (label + '.json'))
