@@ -27,6 +27,7 @@ export type JudgmentServiceOptions = {
   observations(subject: string, intentHash: string): Promise<ObservationReceipt[]>;
   marketEvidence?(input: z.infer<typeof PreSpendCheckRequestSchema>): Promise<PltrPreflightState | null>;
   threshold: number; ttlMs: number; amount: string; gateway: JudgmentPaymentGateway | null;
+  v2ReceiptsEnabled?: boolean;
   issuer?: JudgmentIssuer | null;
   /** Existing receipts replay unchanged; new production decisions cannot consume unreviewed history. */
   requireIndependentEvaluationReview?: boolean;
@@ -43,13 +44,14 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
   const authority = createReceiptAuthorityService(options.store, options.threshold, options.issuer);
   const scores = createDerivedScoreService(options.store, options.threshold);
   async function complete(key: string, record: JudgmentRequestRecord) {
-    if (record.decision_context) {
-      if (!options.store.appendDecisionContext || record.response.decision_context_hash !== record.decision_context.context_hash)
-        throw new JudgmentError(503, 'decision_context_unavailable');
-      await options.store.appendDecisionContext(record.decision_context);
-    }
     const result = record.response;
     const existing = await options.store.get('judgment', result.judgment_id) as JudgmentReceipt | null;
+    if (options.v2ReceiptsEnabled === false && !existing) throw new JudgmentError(503, 'judgment_v2_receipts_frozen');
+    if (record.decision_context) {
+      if (!options.store.appendDecisionContext || result.decision_context_hash !== record.decision_context.context_hash)
+        throw new JudgmentError(503, 'decision_context_unavailable');
+      if (!existing) await options.store.appendDecisionContext(record.decision_context);
+    }
     const requirement = record.challenge.accepts.find(r => r.network === record.settlement!.network);
     const network = EconomicNetworkSchema.parse(record.settlement!.network);
     const rail = ECONOMIC_RAILS[network];
@@ -147,6 +149,7 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
             assessed_at: response.issued_at, response, legacy, ...(owner ? { owner } : {}) });
           return { status: 200, headers: {}, response: attempt?.response ?? response, legacy };
         }
+      if (options.v2ReceiptsEnabled === false) throw new JudgmentError(503, 'judgment_v2_receipts_frozen');
         if (options.store.judgmentTrust?.requireSigned && !options.issuer) throw new JudgmentError(503, 'judgment_signing_unavailable');
         if (options.issuer) { try { options.issuer.assertCanSign(response.issued_at, response.valid_until); } catch { throw new JudgmentError(503, 'judgment_signing_unavailable'); } }
         if (!options.gateway) throw new JudgmentError(503, 'judgment_payment_unavailable');
@@ -173,6 +176,7 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
         if (record.request_hash !== requestHash) throw new JudgmentError(409, 'idempotency_conflict');
       }
       if (record.decision_context) {
+        if (options.v2ReceiptsEnabled === false) throw new JudgmentError(503, 'judgment_v2_receipts_frozen');
         if (!options.store.appendDecisionContext || record.response.decision_context_hash !== record.decision_context.context_hash)
           throw new JudgmentError(503, 'decision_context_unavailable');
         await options.store.appendDecisionContext(record.decision_context);

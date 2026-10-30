@@ -90,7 +90,8 @@ export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
 }
 
 export class PostgresCanonicalReceiptStore implements ReceiptAppendStore {
-  constructor(private readonly pool: pg.Pool, private readonly threshold = 80, readonly judgmentTrust?: JudgmentIssuerTrust) {}
+  constructor(private readonly pool: pg.Pool, private readonly threshold = 80, readonly judgmentTrust?: JudgmentIssuerTrust,
+    private readonly judgmentV2ReceiptsEnabled = true) {}
   async getAcceptance(kind: ReceiptKind, id: string) {
     const result = await this.pool.query('select acceptance_sequence, accepted_at from canonical_receipt_acceptances where receipt_kind=$1 and receipt_id=$2', [kind, id]);
     return result.rows[0] ? { sequence: Number(result.rows[0].acceptance_sequence), accepted_at: new Date(result.rows[0].accepted_at).toISOString() } : null;
@@ -109,6 +110,7 @@ export class PostgresCanonicalReceiptStore implements ReceiptAppendStore {
     return result.rows[0] ? DecisionContextSchema.parse(result.rows[0].context) : null;
   }
   async appendDecisionContext(raw: DecisionContext): Promise<DecisionContext> {
+    if (!this.judgmentV2ReceiptsEnabled) throw new ReceiptAuthorityError('judgment_v2_receipts_frozen', 503);
     const context = DecisionContextSchema.parse(raw);
     const { context_hash, ...body } = context;
     if (hashCanonical(body) !== context_hash) throw new ReceiptAuthorityError('decision_context_hash_invalid');
@@ -142,6 +144,8 @@ export class PostgresCanonicalReceiptStore implements ReceiptAppendStore {
   }
   async append(kind: ReceiptKind, raw: ReceiptRecord): Promise<ReceiptRecord> {
     const receipt = receiptSchemas[kind].parse(structuredClone(raw));
+    if (!this.judgmentV2ReceiptsEnabled && kind === 'judgment' && (receipt as JudgmentReceipt).schema_version === 'canonical-receipts.v2')
+      throw new ReceiptAuthorityError('judgment_v2_receipts_frozen', 503);
     if (kind === 'judgment' && (receipt as JudgmentReceipt).proceed_confidence_threshold !== this.threshold) throw new ReceiptAuthorityError('configured_confidence_threshold_required');
     await assertReceiptAuthority(kind, receipt, this, this.threshold);
     if (kind === 'judgment' && this.judgmentTrust?.requireSigned && !this.judgmentTrust.verify(receipt as JudgmentReceipt)) throw new ReceiptAuthorityError('signed_judgment_required');

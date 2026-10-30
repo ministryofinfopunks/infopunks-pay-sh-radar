@@ -4529,7 +4529,7 @@ export async function createApp(
     judgmentIssuer.assertCanSign(new Date().toISOString(), new Date(Date.now() + config.judgmentTtlMs).toISOString());
   }
   const canonicalReceiptStore = options.judgmentReceiptStore ?? (rhChainPostgresPool
-    ? new PostgresCanonicalReceiptStore(rhChainPostgresPool, config.receiptProceedConfidenceThreshold, judgmentTrust)
+    ? new PostgresCanonicalReceiptStore(rhChainPostgresPool, config.receiptProceedConfidenceThreshold, judgmentTrust, config.judgmentV2ReceiptsEnabled)
     : new MemoryCanonicalReceiptStore(config.receiptProceedConfidenceThreshold, judgmentTrust));
   if (rhChainPostgresPool && config.judgmentPaymentEnabled) {
     await rhChainPostgresPool.query('select assessment_id from decision_contexts limit 0');
@@ -4584,6 +4584,7 @@ export async function createApp(
   }
   const judgments = createJudgmentService({
     store: canonicalReceiptStore, journal: judgmentJournal, gateway: judgmentGateway, issuer: judgmentIssuer,
+    v2ReceiptsEnabled: config.judgmentV2ReceiptsEnabled,
     legacyCheck: input => preSpendIntelligence.check(input), threshold: config.receiptProceedConfidenceThreshold,
     ttlMs: config.judgmentTtlMs, amount: config.judgmentPriceUsdc,
     requireIndependentEvaluationReview: config.isProduction || config.controlledStaging,

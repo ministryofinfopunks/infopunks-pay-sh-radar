@@ -10,8 +10,7 @@ import { verifyEvaluationClassification } from './evaluationClassificationServic
 export const RECEIPT_POLICY_VERSION = 'receipt-authority.v1';
 export const RECEIPT_POLICY_VERSION_V2 = 'receipt-authority.v2';
 export class ReceiptAuthorityError extends Error {
-  readonly statusCode: number = 400;
-  constructor(readonly code: string) { super(code); this.name = 'ReceiptAuthorityError'; }
+  constructor(readonly code: string, readonly statusCode = 400) { super(code); this.name = 'ReceiptAuthorityError'; }
 }
 export type ReceiptRecord = ObservationReceipt | JudgmentReceipt | ExecutionReceipt | EvaluationReceipt;
 export interface ReceiptReader {
