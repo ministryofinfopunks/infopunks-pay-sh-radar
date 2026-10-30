@@ -16,7 +16,7 @@ describe('Infopunks //4663 mobile surface', () => {
     window.history.replaceState({}, '', '/4663'); vi.spyOn(globalThis, 'fetch').mockReturnValue(new Promise(() => {}));
     await act(async () => { root = createRoot(container); root.render(<Rh4663Page />); });
     const text = container.textContent ?? '';
-    expect(text).toContain('INFOPUNKS4663'); expect(text).toContain('Robinhood Chain,right now.');
+    expect(text).toContain('INFOPUNKS RADAR4663'); expect(text).toContain('Robinhood Chain,right now.');
     for (const label of ['What matters right now?', 'What is developing?', 'What still needs to be proved?', 'How good is your record?']) expect(text).toContain(label);
     expect(Array.from(container.querySelectorAll('.fd-nav a')).map((node) => node.getAttribute('href'))).toEqual(['#now', '#watch', '#call', '#proof']);
     expect(container.querySelector('.fd-call-action[href^="/4663/pulse"]')?.textContent).toContain('Make the call');
@@ -73,24 +73,15 @@ describe('Infopunks //4663 mobile surface', () => {
     expect(text).toContain('SIGNAL PROOF'); expect(text).toContain('SIGNIFICANCE87'); expect(text).toContain('ANOMALY31'); expect(text).toContain('HEURISTICheuristic-v1'); expect(text).toContain('FIRST SUBMITTED BY@finder'); expect(text).toContain('100,000 → 284,000 · 90 CONF'); expect(text).toContain('ORIGINAL PUBLICATION / IMMUTABLE'); for (const href of ['/landscape', '/square', '/portrait']) expect(container.querySelector(`a[href="${href}"]`)).not.toBeNull();
   });
 
-  it('puts a resolved consequence, proof, share, record, and next call first for returning wallets', async () => {
-    window.history.replaceState({}, '', '/4663/pulse'); const wallet = '0x1111111111111111111111111111111111111111'; Object.defineProperty(window, 'ethereum', { configurable: true, value: { request: vi.fn().mockResolvedValue([wallet]) } });
-    vi.spyOn(globalThis, 'fetch').mockImplementation((input) => { const url = String(input); if (url.includes('/reputation/')) return json({ wallet, calls: 10, resolved_calls: 10, correct_calls: 7, accuracy: .7, current_streak: 3, genesis_position: 317, evidence: [{ window_id: 'rh4663:2026-08-12', call_receipt_id: 'call_prior', resolution_receipt_id: 'IP-RES-ABC', called_category: 'STOCK_TOKENS', resolved_category: 'STOCK_TOKENS', outcome: 'CORRECT', confidence: 78, genesis_ordinal: 317 }] }); return json({ window: { window_id: 'rh4663:2026-08-13', opens_at: '2026-08-13T00:00:00.000Z', closes_at: '2026-08-14T00:00:00.000Z' }, consensus: { total_calls: 2, leading_rotation: 'STOCK_TOKENS', confidence_average: 78, state: 'available' }, options: [] }); });
-    await act(async () => { root = createRoot(container); root.render(<Rh4663Page />); await Promise.resolve(); await Promise.resolve(); await Promise.resolve(); await Promise.resolve(); });
-    const text = container.textContent ?? ''; expect(text).toContain('RESOLVED'); expect(text).toContain('YOU CALLED IT.'); expect(text).toContain('7 / 10'); expect(text).toContain('70.0%'); expect(text).toContain('CURRENT STREAK3'); expect(text).toContain('GENESIS#0317'); expect(text).toContain('SHARE RESULT'); expect(container.querySelector('.i4663-next-call')?.textContent).toContain('CALL TODAY'); expect(container.querySelector('a[href="/4663/resolution/IP-RES-ABC"]')).not.toBeNull();
+  it('does not automatically read wallet reputation when a provider exposes an account', async () => {
+    window.history.replaceState({}, '', '/4663/pulse');
+    const request = vi.fn().mockResolvedValue(['0x1111111111111111111111111111111111111111']);
+    Object.defineProperty(window, 'ethereum', { configurable: true, value: { request } });
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(() => json({ window: { window_id: 'rh4666:today', opens_at: '2026-08-13T00:00:00.000Z', closes_at: '2026-08-14T00:00:00.000Z' }, consensus: { total_calls: 2, leading_rotation: 'STOCK_TOKENS', confidence_average: 78, state: 'available' }, options: [] }));
+    await act(async () => { root = createRoot(container); root.render(<Rh4663Page />); await Promise.resolve(); await Promise.resolve(); await Promise.resolve(); });
+    expect(container.textContent).toContain('CALL THE ROTATION.');
+    expect(request).not.toHaveBeenCalled();
+    expect(fetchSpy.mock.calls.map(([input]) => String(input)).some((url) => url.includes('/reputation/'))).toBe(false);
   });
 
-  it('renders an incorrect non-Genesis result as a shareable miss without inventing provenance', async () => {
-    window.history.replaceState({}, '', '/4663/pulse'); const wallet = '0x2222222222222222222222222222222222222222'; Object.defineProperty(window, 'ethereum', { configurable: true, value: { request: vi.fn().mockResolvedValue([wallet]) } });
-    vi.spyOn(globalThis, 'fetch').mockImplementation((input) => { const url = String(input); if (url.includes('/reputation/')) return json({ wallet, calls: 3, resolved_calls: 2, correct_calls: 1, accuracy: .5, current_streak: 0, genesis_position: null, evidence: [{ window_id: 'rh4663:2026-08-12', call_receipt_id: 'call_missed', resolution_receipt_id: 'IP-RES-MISS', called_category: 'MEMES', resolved_category: 'STOCK_TOKENS', outcome: 'INCORRECT', confidence: 62, genesis_ordinal: null }] }); return json({ window: { window_id: 'rh4663:2026-08-13', opens_at: '2026-08-13T00:00:00.000Z', closes_at: '2026-08-14T00:00:00.000Z' }, consensus: { total_calls: 2, leading_rotation: 'STOCK_TOKENS', confidence_average: 70, state: 'available' }, options: [] }); });
-    await act(async () => { root = createRoot(container); root.render(<Rh4663Page />); await Promise.resolve(); await Promise.resolve(); await Promise.resolve(); await Promise.resolve(); });
-    const text = container.textContent ?? ''; expect(text).toContain('YOUR CALLMEMES'); expect(text).toContain('ACTUALSTOCK TOKENS'); expect(text).toContain('RESOLVED'); expect(text).toContain('SHARE RESULT'); expect(text).not.toContain('GENESIS#'); expect(container.querySelector('a[href="/4663/resolution/IP-RES-MISS"]')).not.toBeNull();
-  });
-
-  it('renders an unresolved call without scoring it', async () => {
-    window.history.replaceState({}, '', '/4663/pulse'); const wallet = '0x1111111111111111111111111111111111111111'; Object.defineProperty(window, 'ethereum', { configurable: true, value: { request: vi.fn().mockResolvedValue([wallet]) } });
-    vi.spyOn(globalThis, 'fetch').mockImplementation((input) => String(input).includes('/reputation/') ? json({ wallet, calls: 1, resolved_calls: 0, correct_calls: 0, accuracy: null, current_streak: 0, genesis_position: null, evidence: [{ window_id: 'rh4663:2026-08-13', call_receipt_id: 'call_open', resolution_receipt_id: null, called_category: 'MEMES', resolved_category: null, outcome: 'UNRESOLVED', confidence: 66, genesis_ordinal: null }] }) : json({ window: { window_id: 'rh4663:2026-08-13', opens_at: '2026-08-13T00:00:00.000Z', closes_at: '2026-08-14T00:00:00.000Z' }, consensus: { total_calls: 1, leading_rotation: 'MEMES', confidence_average: 66, state: 'available' }, options: [] }));
-    await act(async () => { root = createRoot(container); root.render(<Rh4663Page />); await Promise.resolve(); await Promise.resolve(); await Promise.resolve(); await Promise.resolve(); });
-    expect(container.textContent).toContain('STATUSOBSERVATION WINDOW'); expect(container.textContent).not.toContain('CORRECT ✓'); expect(container.textContent).not.toContain('MISSED');
-  });
 });

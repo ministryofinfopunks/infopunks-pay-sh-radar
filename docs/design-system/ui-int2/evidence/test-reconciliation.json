@@ -1,0 +1,329 @@
+{
+  "recovery_sha": "1f3f9f99e81f78c9aa7e79d42c53e395f8e3040c",
+  "target_sha": "4bcaf5731cdadf1d5229ab93faea3a90fa9b17de",
+  "file_changes": [
+    {
+      "status": "A",
+      "file": "tests/acceptance-history.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/agent-mode-command-palette.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "tests/app-error-boundary.test.tsx"
+    },
+    {
+      "status": "A",
+      "file": "tests/causal-tape-witness.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/decision-context.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/economic-accounting-api.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/evaluation-classification.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/execution-score-eligibility.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/frontdoor-4663.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "tests/health-readiness.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/helpers/canonicalReceipts.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/helpers/judgmentDx.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/helpers/judgmentReconciliation.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/helpers/judgments.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/homepage-performance.test.tsx"
+    },
+    {
+      "status": "A",
+      "file": "tests/integration/acceptance-history-durability.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/integration/causal-context-durability.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/integration/derived-score-projection.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/integration/economic-engine-durability.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/integration/evaluate.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/integration/evaluation-judgment-feedback.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/integration/execute-proof.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/integration/execution-proof-durability.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/integration/free-assessment-attempts-durability.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/integration/judgment-dx-postgres.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/integration/judgment-issuer-durability.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/integration/judgment-payment-durability.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/integration/legacy-receipt-upgrade.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/integration/migration-014.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/integration/postgres-migration-runner.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/integration/pre-spend-judgment.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/integration/pre-spend-payment.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/integration/rh-usdg-accounting-durability.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/judgment-domain.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/judgment-dx-sdk.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/judgment-issuer.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/judgment-private-access.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/judgment-reconciliation.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/legacy-write-lockdown.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/machine-preflight.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/migration-inventory.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/openapi.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/pre-spend-builder-pages.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "tests/preflight-cards-page.test.tsx"
+    },
+    {
+      "status": "A",
+      "file": "tests/pricing-display.test.ts"
+    },
+    {
+      "status": "D",
+      "file": "tests/radar-design-system.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "tests/radar-export.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/radar-network-navigation.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "tests/receipt-authority.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/receipt-spine.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/reflexive-radar-page.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "tests/rh-4663-api.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/rh-4663-call-phase3.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/rh-4663-mobile.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "tests/rh-4663-my4663.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/rh-4663-phase5.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/rh-4663-production-hardening.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/rh-4663-proof-profile.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/rh-chain-production-readiness.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/security/controlled-staging.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/security/private-proof-reads.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/spend-terminal-canonical.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "tests/static-discovery.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/unit/derived-score-service.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/unit/execution-proof-service.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/unit/judgment-service.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/unit/x402-judgment.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "tests/web-accessibility.test.tsx"
+    }
+  ],
+  "test_counts": {
+    "recovery": {
+      "passed": 1867,
+      "skipped": 19
+    },
+    "target": {
+      "passed": 2045,
+      "skipped": 0
+    }
+  },
+  "counting_note": "Target 566 Vitest suites include nested describe groups; compare source test-file counts separately, not to recovery 252 files.",
+  "candidate_changes": [
+    {
+      "status": "M",
+      "file": "tests/homepage-performance.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "tests/pre-spend-builder-pages.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "tests/static-discovery.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/ui-int2-receipt-inspection.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "tests/web-accessibility.test.tsx"
+    }
+  ],
+  "candidate_count": {
+    "passed": 2047,
+    "failed": 0,
+    "skipped": 0,
+    "test_files": 282,
+    "vitest_nested_suites": 567,
+    "new_tests": 2
+  },
+  "removed_or_excluded_from_target": [],
+  "remaining_skipped_tests": [],
+  "latest_target_sha": "2c2fe64db173c63048e70353ae926aa199792d1b",
+  "removed_in_target": [
+    {
+      "file": "tests/radar-design-system.test.tsx",
+      "explanation": "Recovery-only suite is absent from qualified R2. Its last two tests require older recovery modifications to collection retry/private-detail states that are not in current target. Do not copy those older workflow implementations. Core lifecycle truth is covered by new canonical receipt tests and authenticated browser journeys; navigation/palette/reflow is covered by design guard plus 139-route sweep. Legacy collection unavailable/permission behavior is not claimed qualified."
+    }
+  ],
+  "candidate_removed_tests": []
+}

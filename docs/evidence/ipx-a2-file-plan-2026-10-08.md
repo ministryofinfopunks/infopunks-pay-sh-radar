@@ -1,0 +1,9 @@
+# A2 file-level change plan
+
+Baseline commit: `cdd2500324a4f721a1572703df140545ae29cdeb` on `codex/ipx-a2-decision-context`. The original shared checkout is not edited by this package.
+
+1. Add a strict, canonical `decision-context.v1` schema and a pure replay function. It will commit the exact request, legacy response, observation IDs/hashes, contributing evaluation IDs/hashes/deltas, score projection/hash, threshold and veto constants, rule version, assessment ID, policy hash and quote time. Verification must recompute the judgment from these frozen inputs and resolve every referenced receipt by hash.
+2. Extend the operational quote journal to persist that context on first quote; retries use the stored response and context. Add immutable context storage in both memory and PostgreSQL adapters, with a new additive migration. No payment verification or settlement may start unless the winning quote's context has been stored and checked.
+3. Version the judgment schema and signature domain. New paid pre-spend judgments commit `decision_context_hash`; historical `canonical-receipts.v1` bytes, hash and signing domain remain unchanged. Keep internal and economic-engine v1 append paths compatible.
+4. Add a read-only context export and verification result for v2 judgments, plus JSON schema/OpenAPI entries where this project's generated API model permits. Return the context hash in the paid judgment response.
+5. Test absent/positive/negative history, changed/missing/conflicting dependency, same-key retry, new-key reassessment and PostgreSQL restart. Run focused tests, typecheck/lint/build and `git diff --check`; report actual skips. A2 proves frozen input replay only. Execution eligibility, deterministic evaluation classification and accepted-ingestion boundaries remain A3–A5 gates.

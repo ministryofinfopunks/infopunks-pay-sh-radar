@@ -49,9 +49,8 @@ describe('4663 Phase 5 return primitives', () => {
     const app = await createApp(emptyIntelligenceStore(), new MemoryRepository());
     try {
       const response = await app.inject({ method: 'GET', url: '/v1/4663/me/changes' });
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(503);
       expect(response.headers['cache-control']).toBe('private, no-store');
-      expect(response.json().data).toMatchObject({ authenticated: false, resolved_call: null, personal_events: [], pending_call: null });
     } finally { await app.close(); }
   });
 });

@@ -201,8 +201,8 @@ describe('agent mode and command palette', () => {
 
     const header = container.querySelector('.site-header');
     const primaryNav = header?.querySelector('[aria-label="Primary destinations"]');
-    expect(primaryNav?.textContent).toContain('Overview');
-    expect(primaryNav?.textContent).toContain('Networks');
+    expect(primaryNav?.textContent).toContain('Radar');
+    expect(primaryNav?.textContent).toContain('Economies');
     expect(primaryNav?.textContent).not.toContain('Providers');
     expect(primaryNav?.textContent).not.toContain('Routes');
     expect(primaryNav?.textContent).not.toContain('Receipts');
@@ -244,7 +244,7 @@ describe('agent mode and command palette', () => {
 
     const header = container.querySelector('.site-header');
     const primaryLabels = Array.from(header?.querySelectorAll('[aria-label="Primary destinations"] a') ?? []).map((node) => node.textContent?.trim()).filter(Boolean);
-    expect(primaryLabels).toEqual(['Overview', 'Networks']);
+    expect(primaryLabels).toEqual(['Radar', 'Economies']);
     expect(new Set(primaryLabels).size).toBe(primaryLabels.length);
     expect((header?.textContent?.match(/Infopunks/g) ?? []).length).toBe(1);
     expect((header?.textContent?.match(/Solana/g) ?? []).length).toBeGreaterThanOrEqual(1);
@@ -257,7 +257,7 @@ describe('agent mode and command palette', () => {
     const utilityText = header?.querySelector('[aria-label="Interface controls"]')?.textContent ?? '';
     expect(utilityText).toContain('Agent Mode');
     expect(utilityText).toContain('Comfortable Density');
-    expect(utilityText).not.toContain('Overview');
+    expect(utilityText).not.toContain('Radar');
     expect(header?.querySelector('.header-secondary-rail')).toBeNull();
   });
 
@@ -272,8 +272,8 @@ describe('agent mode and command palette', () => {
     expect(container.querySelector('h1')?.textContent).toBe('Proof before agent spend.');
     expect(container.textContent).toContain('Route intelligence, provider evidence, narrative memory and machine-market infrastructure for the Solana economy.');
     expect(container.querySelectorAll('h1')).toHaveLength(1);
-    expect(container.querySelector('a[href="#global-pulse"]')?.textContent).toContain('Open Radar');
-    expect(container.querySelector('a[href="#preflight"]')?.textContent).toContain('Run Preflight');
+    expect(container.querySelector('.radar-universal-actions a[href="/spend-terminal"]')?.textContent).toContain('Check a Spend Route');
+    expect(container.querySelector('a[href="#explore-solana-radar"]')?.textContent).toContain('Explore the Radar');
     expect(container.querySelector('section#explore-solana-radar')).not.toBeNull();
     expect(container.textContent).toContain('Explore Solana Radar');
     expect(document.title).toBe('Solana Radar | Infopunks Radar');

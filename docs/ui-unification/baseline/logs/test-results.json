@@ -1,0 +1,39 @@
+[
+  {
+    "name": "frontend",
+    "command": [
+      "npm",
+      "test",
+      "--",
+      "tests/homepage-performance.test.tsx",
+      "tests/radar-network-navigation.test.tsx",
+      "tests/radar-navigation-responsive.test.ts",
+      "tests/rh-chain-pages.test.tsx",
+      "tests/rh-chain-signal-desk-selectors.test.ts",
+      "tests/radar-endpoint-intelligence.test.tsx",
+      "tests/web-accessibility.test.tsx",
+      "tests/render-spa-routing.test.ts",
+      "tests/frontend-evidence.test.tsx",
+      "--maxWorkers=2",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile.json=/private/tmp/radar-ui-cyan-baseline/frontend-tests.json"
+    ],
+    "exit_code": 0,
+    "duration_seconds": 7.089
+  },
+  {
+    "name": "full",
+    "command": [
+      "npm",
+      "test",
+      "--",
+      "--maxWorkers=2",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile.json=/private/tmp/radar-ui-cyan-baseline/full-tests.json"
+    ],
+    "exit_code": 0,
+    "duration_seconds": 107.806
+  }
+]

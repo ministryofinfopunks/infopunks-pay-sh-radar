@@ -1,3 +1,6 @@
+import { requiresOperatorProofRead } from '../security/proofReadBoundary';
+import { controlledStagingRequestError } from '../config/controlledStaging';
+import { timingSafeEqual } from 'node:crypto';
 import { registerIpxLaunchRoutes } from './ipxLaunchRoutes';
 import { MemoryEconomicAccountingStore, PostgresEconomicAccountingStore } from '../persistence/economicAccountingStore';
 import { createEconomicAccountingService } from '../services/economicAccountingService';
@@ -11,7 +14,15 @@ import { createReceiptAuthorityService, ReceiptAuthorityError } from '../service
 import { hasAuthoredScore } from '../schemas/evaluate';
 import { createDerivedScoreService } from '../services/derivedScoreService';
 import { createEvaluationService } from '../services/evaluationService';
+import { createCausalTapeService } from '../services/causalTapeService';
+import { createCausalWitnessService, CausalWitnessError } from '../services/causalWitnessService';
 import { createJudgmentService, JudgmentError } from '../services/judgmentService';
+import { createJudgmentIdentity } from '../security/judgmentIdentity';
+import { registerJudgmentPrivateAccess } from './judgmentPrivateAccess';
+import { judgmentPresentation } from '../services/judgmentPresentation';
+import { judgmentRequestKey } from '../repositories/judgmentRequestRepository';
+import { createJudgmentReconciliationService, JudgmentReconciliationError } from '../services/judgmentReconciliationService';
+import { verifyDecisionContext } from '../services/decisionContextService';
 import { hashCanonical } from '../services/receiptIntegrityService';
 import { createExecutionProofService, ExecutionProofError } from '../services/executionProofService';
 import { baseProofClient, createBaseSettlementProofVerifier, type SettlementProofVerifier } from '../security/settlementProofVerifier';
@@ -23,7 +34,7 @@ import cors from '@fastify/cors';
 import Fastify, { FastifyReply, FastifyRequest } from 'fastify';
 import { createReadStream, existsSync } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
-import { extname, join, normalize, resolve } from 'node:path';
+import { extname, join, normalize, resolve, sep } from 'node:path';
 import { z } from 'zod';
 import { payShCatalogFixture } from '../data/payShCatalogFixture';
 import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, listSignalSurfaces } from '../data/narrativeIntel';
@@ -670,6 +681,8 @@ const CORS_MAX_AGE_SECONDS = 86_400;
 export type CreateAppOptions = {
   economicEngine?: EconomicEngineOverrides;
   judgmentGateway?: JudgmentPaymentGateway;
+  judgmentReceiptStore?: import('../services/receiptAuthorityService').ReceiptAppendStore;
+  judgmentRequestJournal?: import('../repositories/judgmentRequestRepository').JudgmentRequestRepository;
   executionProofVerifier?: SettlementProofVerifier;
   clientDistDir?: string | null;
   rhChainSubmissionStore?: RhChainSubmissionStore;
@@ -740,11 +753,50 @@ export async function createApp(
   options: CreateAppOptions = {}
 ) {
   const config = loadRuntimeConfig();
-  const app = Fastify({ logger: config.isProduction, disableRequestLogging: true });
+  const identity = createJudgmentIdentity(process.env.JUDGMENT_API_KEYS_JSON);
+  if (config.adminToken && identity.authenticate('Bearer ' + config.adminToken)) throw new Error('judgment_operator_credential_reused');
+  if (config.isProduction && config.judgmentPaymentEnabled && !identity.configured) throw new Error('judgment_identity_unavailable');
+  const app = Fastify({ logger: config.isProduction ? { redact: ['req.headers.authorization', 'req.headers.payment-signature'] } : false, disableRequestLogging: true });
+  let shuttingDown = false;
+  const activeBackgroundWork = new Set<Promise<unknown>>();
+  const trackBackgroundWork = <T>(work: Promise<T>): Promise<T> => {
+    activeBackgroundWork.add(work);
+    void work.then(() => activeBackgroundWork.delete(work), () => activeBackgroundWork.delete(work));
+    return work;
+  };
+  const launchBackgroundWork = (work: () => Promise<unknown>) => {
+    if (shuttingDown) return;
+    void trackBackgroundWork(Promise.resolve().then(work));
+  };
+  const drainBackgroundWork = async () => {
+    shuttingDown = true;
+    while (activeBackgroundWork.size) await Promise.allSettled([...activeBackgroundWork]);
+  };
+  app.addHook('onClose', drainBackgroundWork);
+  app.addHook('onRequest', async (req, reply) => {
+    if (config.radarReadOnlyMode && !['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+      reply.header('Cache-Control', 'no-store');
+      return reply.code(503).send({ error: 'radar_read_only_mode' });
+    }
+  });
+  app.addHook('onRequest', async (req, reply) => {
+    if (!config.controlledStaging) return;
+    const error = controlledStagingRequestError(req.method, req.routeOptions.url ?? '');
+    if (error) return reply.code(403).send({ error });
+    if (req.headers['payment-signature']) return reply.code(403).send({ error: 'controlled_staging_payment_forbidden' });
+  });
+  app.addHook('onRequest', async (req, reply) => {
+    const route = req.routeOptions.url ?? safeRequestPath(req.url);
+    if (config.isProduction && req.method === 'POST' && (['/v1/receipts', '/v1/validation/submit', '/v1/claims'].includes(route) || /^\/v1\/claims\/[^/]+\/challenges$/.test(route))) {
+      reply.header('Cache-Control', 'private, no-store');
+      if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'legacy_intake_authorization_required' });
+      return reply.code(503).send({ error: 'legacy_publication_and_durability_unqualified' });
+    }
+  });
   const rh4663CampaignTelemetry = new Rh4663CampaignTelemetry();
   const rh4663FrontdoorTelemetry = new Rh4663FrontdoorTelemetry();
   const rhChainPostgresPool = config.databaseUrl
-    ? getDatabasePool({ connectionString: config.databaseUrl, max: config.databasePoolMax })
+    ? getDatabasePool({ connectionString: config.databaseUrl, max: config.databasePoolMax, readOnly: config.radarReadOnlyMode })
     : null;
   const rh4663ProductIntelligence = new Rh4663ProductIntelligenceService(options.rh4663ProductIntelligenceStore ?? (rhChainPostgresPool ? new PostgresRh4663ProductIntelligenceStore(rhChainPostgresPool) : new InMemoryRh4663ProductIntelligenceStore()));
   const rh4663Campaigns = new Rh4663CampaignService(options.rh4663CampaignStore ?? (rhChainPostgresPool ? new PostgresRh4663CampaignStore(rhChainPostgresPool) : new InMemoryRh4663CampaignStore()));
@@ -1177,16 +1229,23 @@ export async function createApp(
     pulse: rh4663FrontdoorPulseRead,
     signals: () => rh4663Intelligence.publicSignals({ limit: 5 }),
     shadow: () => ipxPltrShadowObservation.status(),
-    // Production must never silently turn the shared ETag namespace into an
-    // ephemeral process-local counter. Development/test may use memory.
-    version_store: rhChainPostgresPool ? new PostgresFrontdoorVersionStore(rhChainPostgresPool, { allow_ephemeral_fallback: !config.isProduction }) : undefined,
-    change_event_store: options.frontdoorChangeEventStore ?? (rhChainPostgresPool ? new PostgresFrontdoorChangeEventStore(rhChainPostgresPool) : new InMemoryFrontdoorChangeEventStore()),
-    require_durable_version: config.isProduction,
+    // Read-only recovery keeps GET projections from creating or advancing
+    // durable presentation metadata. Normal production mode retains durable
+    // versions and change events.
+    version_store: config.radarReadOnlyMode
+      ? undefined
+      : rhChainPostgresPool ? new PostgresFrontdoorVersionStore(rhChainPostgresPool, { allow_ephemeral_fallback: !config.isProduction }) : undefined,
+    change_event_store: config.radarReadOnlyMode
+      ? new InMemoryFrontdoorChangeEventStore()
+      : options.frontdoorChangeEventStore ?? (rhChainPostgresPool
+        ? new PostgresFrontdoorChangeEventStore(rhChainPostgresPool)
+        : new InMemoryFrontdoorChangeEventStore()),
+    require_durable_version: config.isProduction && !config.radarReadOnlyMode,
     ignore_personal_pulse_changes: true,
     // The projection receives the already-built Front Door and only reads the
     // persisted campaign record. It therefore adds no provider/chain reads.
     campaign: config.rh4663CampaignModeEnabled
-      ? (frontdoor) => rh4663Campaigns.project(frontdoor, buildRh4663FrontdoorShareObjects(frontdoor, NARRATIVE_PUBLIC_HOST))
+      ? (frontdoor) => rh4663Campaigns.project(frontdoor, buildRh4663FrontdoorShareObjects(frontdoor, NARRATIVE_PUBLIC_HOST), config.radarReadOnlyMode)
       : undefined
   });
   // Phase 7 is a projection layer only. It reads canonical objects and the
@@ -1333,6 +1392,7 @@ export async function createApp(
   configureMachineDemoSeed(config.machineDemoSeed);
   const responseCache = createResponseCache();
   app.addHook('onClose', async () => {
+    await drainBackgroundWork();
     await rhChainSubmissionStore.close?.();
     await rhChainReviewedClassificationStore.close?.();
     await rhChainProjectClaimsStore.close?.();
@@ -1360,6 +1420,24 @@ export async function createApp(
     strictPreflight: true
   });
   const requestStartedAt = new WeakMap<FastifyRequest, number>();
+  const tenantReceiptRoutes = new Set([
+    '/v1/receipt-spine/:kind/:id',
+    '/v1/receipt-spine/judgment/:id/context',
+    '/v1/receipt-spine/judgment/:id/verify'
+  ]);
+  app.addHook('onRequest', async (req, reply) => {
+    // These exact matched templates are delegated to the credential-bound owner
+    // policy below. Encoded lookalikes still match here only after routing and
+    // must pass the same ownership check before any receipt lookup.
+    const rawPath = req.url.split('?')[0];
+    const canonicalOwnerPath = /^\/v1\/receipt-spine\/(?:observation|judgment|execution|evaluation)\/[A-Za-z0-9_.:-]{1,200}$/.test(rawPath) ||
+      /^\/v1\/receipt-spine\/judgment\/[A-Za-z0-9_.:-]{1,200}\/(?:context|verify)$/.test(rawPath);
+    const ownerRoute = tenantReceiptRoutes.has(req.routeOptions.url ?? '') || canonicalOwnerPath;
+    if (!ownerRoute && (requiresOperatorProofRead(req.routeOptions.url ?? '') || requiresOperatorProofRead(safeRequestPath(req.url)))) {
+      reply.header('Cache-Control', 'private, no-store');
+      if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'proof_read_authorization_required' });
+    }
+  });
   app.addHook('onRequest', async (req, _reply) => {
     const startedAtMs = Date.now();
     requestStartedAt.set(req, startedAtMs);
@@ -1396,6 +1474,7 @@ export async function createApp(
   app.addHook('onSend', async (req, reply, payload) => {
     // Safe defaults for API responses. CSP is intentionally owned by the HTML
     // shell, where nonces can be applied without weakening the policy.
+    if ((requiresOperatorProofRead(req.routeOptions.url ?? '') || requiresOperatorProofRead(safeRequestPath(req.url)))) reply.header('Cache-Control', 'private, no-store');
     reply.header('X-Content-Type-Options', 'nosniff');
     reply.header('Referrer-Policy', 'strict-origin-when-cross-origin');
     reply.header('X-Frame-Options', 'SAMEORIGIN');
@@ -1505,9 +1584,23 @@ export async function createApp(
     { includePropagation: false, includeInterpretations: true, propagationFallback: analyzePropagation(fixturePulseStore) }
   ).interpretations;
 
-  if (!preloadedStore) {
+  if (!preloadedStore && config.radarReadOnlyMode) {
+    startupLoadPromise = trackBackgroundWork(repository.loadSnapshot()
+      .then((snapshot) => {
+        if (snapshot) {
+          copyStoreInto(store, snapshot);
+          bootstrapped = snapshot.providers.length > 0;
+        }
+        liveBootstrapStatus = bootstrapped ? 'ready' : 'failed';
+        liveBootstrapError = bootstrapped ? null : 'read_only_snapshot_unavailable';
+        refreshBackgroundAnalytics();
+      })
+      .catch((error) => {
+        logDbDegraded('read_only_startup_load', classifyBootstrapFailure(error), error);
+      }));
+  } else if (!preloadedStore) {
     const bootstrapStartMs = Date.now();
-    startupLoadPromise = createIntelligenceStore(repository)
+    startupLoadPromise = trackBackgroundWork(createIntelligenceStore(repository)
       .then((loadedStore) => {
         copyStoreInto(store, loadedStore);
         bootstrapped = Boolean(loadedStore.providers.length > 0);
@@ -1526,8 +1619,8 @@ export async function createApp(
           code: errorCode(error),
           message: errorMessage(error)
         }));
-      });
-    void ensureLiveBootstrap('startup');
+      }));
+    if (!config.radarReadOnlyMode) void ensureLiveBootstrap('startup');
   } else {
     refreshBackgroundAnalytics();
   }
@@ -1791,25 +1884,47 @@ export async function createApp(
   const judgmentRateLimiter = new RhChainPublicRateLimiter(true, 60_000, 30);
   const handleJudgmentAssessment = async (req: FastifyRequest, reply: FastifyReply) => {
     const started = performance.now();
+    reply.header('Cache-Control', 'private, no-store');
+    const owner = identity.authenticate(req.headers.authorization);
+    const tenantRequired = config.isProduction || config.controlledStaging || config.judgmentPaymentEnabled || Boolean(judgmentGateway) || identity.configured || req.headers.authorization !== undefined;
+    if (tenantRequired && !owner) return reply.code(identity.configured ? 401 : 503).send({ error: identity.configured ? 'judgment_authentication_required' : 'judgment_identity_unavailable' });
     const rate = judgmentRateLimiter.consume(req.ip);
     if (!rate.allowed) return reply.code(429).header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).send({ error: 'judgment_rate_limited' });
-    const parsed = (req.routeOptions.url === '/v1/decide' ? PreSpendCheckRequestSchema.strict() : PreSpendCheckRequestSchema).safeParse(req.body);
-    if (!parsed.success) return reply.code(400).send({ error: 'invalid_pre_spend_check_request', details: parsed.error.flatten() });
+    // A typed extension is strict; misspelled policy/subject fields cannot silently become legacy approval.
+    const typed = req.body && typeof req.body === 'object' && ['judgment_context', 'subject_network', 'settlement_network', 'subject_type', 'policy'].some(key => key in (req.body as object));
+    const parsed = PreSpendCheckRequestSchema.strict().safeParse(req.body);
+    if (!parsed.success) {
+      req.log.info({ event: 'judgment_request_rejected', request_id: req.id, reason: parsed.error.issues.some(issue => issue.path.includes('policy')) ? 'unsupported_policy' : 'invalid_request' });
+      return reply.code(400).send({ error: 'invalid_pre_spend_check_request', details: parsed.error.flatten() });
+    }
     try {
       const key = req.headers['idempotency-key'];
       const signature = req.headers['payment-signature'];
-      if ((key && typeof key !== 'string') || (signature && typeof signature !== 'string')) return reply.code(400).send({ error: 'invalid_judgment_headers' });
+      if ((key !== undefined && typeof key !== 'string') || (signature !== undefined && typeof signature !== 'string')) return reply.code(400).send({ error: 'invalid_judgment_headers' });
+      // Validate untrusted header bytes before reflecting the idempotency key.
+      if (key !== undefined && !/^[A-Za-z0-9_.:-]{1,128}$/.test(key)) return reply.code(400).send({ error: 'invalid_idempotency_key' });
+      if (signature !== undefined && (signature.length === 0 || signature.length > 16_384)) return reply.code(400).send({ error: 'invalid_payment_signature_length' });
       const stableKey = key ?? hashCanonical(parsed.data);
+      const result = await judgments.check(parsed.data, stableKey, signature, owner ?? undefined);
+      const completedRecord = result.response.receipt ? await judgmentJournal.get('sha256:' + result.response.judgment_id.slice(9)) : null;
+      const paymentConfirmation = completedRecord?.reconciliation ? { version: 'judgment-payment-confirmation.v1', authoritative: false,
+        provenance: 'rpc_finalized_eip3009_transfer', evidence: completedRecord.reconciliation } : undefined;
       reply.header('Idempotency-Key', stableKey);
-      const result = await judgments.check(parsed.data, stableKey, signature);
+      req.log.info({ event: 'judgment_assessed', request_id: req.id, decision: result.response.decision,
+        policy: parsed.data.judgment_context?.policy.id ?? 'legacy.service-spend',
+        domain: parsed.data.judgment_context?.subject.network ?? 'legacy', payment_required: result.response.payment_required,
+        evidence_count: result.response.cited_observations.length, http_status: result.status, receipt_issued: Boolean(result.response.receipt), outcome: result.response.decision === 'insufficient_evidence' ? 'abstained' : 'assessed' });
       for (const [name, value] of Object.entries(result.headers)) if (value) reply.header(name, value);
       reply.header('Server-Timing', `judgment;dur=${(performance.now() - started).toFixed(2)}`);
       // Preserve the original SDK envelope; canonical fields are also available at the top level.
-      return reply.code(result.status).send(safeJsonExport({ ...result.response,
-        ...(req.routeOptions.url === '/v1/decide' ? { execution_authorization: null, execution_authorized: false } : {}),
+      return reply.code(result.status).send(safeJsonExport({ ...result.response, presentation: judgmentPresentation(result.response), ...(paymentConfirmation ? { payment_confirmation: paymentConfirmation } : {}),
+        execution_authorization: null, execution_authorized: false,
         data: { ...result.legacy, canonical_judgment: result.response } }));
     } catch (error) {
-      if (error instanceof JudgmentError) return reply.code(error.statusCode).send({ error: error.code });
+      if (error instanceof JudgmentError) {
+        req.log.info({ event: 'judgment_rejected', request_id: req.id, code: error.code });
+        return reply.code(error.statusCode).send({ error: error.code });
+      }
       req.log.error({ event: 'judgment_unavailable' });
       return reply.code(503).send({ error: 'judgment_unavailable' });
     } finally {
@@ -4457,9 +4572,16 @@ export async function createApp(
     if (!judgmentIssuer) throw new Error('judgment_signing_unavailable');
     judgmentIssuer.assertCanSign(new Date().toISOString(), new Date(Date.now() + config.judgmentTtlMs).toISOString());
   }
-  const canonicalReceiptStore = rhChainPostgresPool
-    ? new PostgresCanonicalReceiptStore(rhChainPostgresPool, config.receiptProceedConfidenceThreshold, judgmentTrust)
-    : new MemoryCanonicalReceiptStore(config.receiptProceedConfidenceThreshold, judgmentTrust);
+  const canonicalReceiptStore = options.judgmentReceiptStore ?? (rhChainPostgresPool
+    ? new PostgresCanonicalReceiptStore(rhChainPostgresPool, config.receiptProceedConfidenceThreshold, judgmentTrust, config.judgmentV2ReceiptsEnabled)
+    : new MemoryCanonicalReceiptStore(config.receiptProceedConfidenceThreshold, judgmentTrust));
+  if (rhChainPostgresPool && config.judgmentPaymentEnabled) {
+    await rhChainPostgresPool.query('select assessment_id from decision_contexts limit 0');
+    await rhChainPostgresPool.query('select acceptance_sequence from canonical_receipt_acceptances limit 0');
+    await rhChainPostgresPool.query('select request_key from free_assessment_attempts limit 0');
+    await rhChainPostgresPool.query('select publication_sequence from free_assessment_attempts limit 0');
+    await rhChainPostgresPool.query('select publication_sequence from canonical_receipt_quarantine limit 0');
+  }
   const receiptAuthority = createReceiptAuthorityService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold, judgmentIssuer);
   const evaluationService = createEvaluationService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold);
   const derivedScores = createDerivedScoreService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold);
@@ -4467,13 +4589,57 @@ export async function createApp(
     facilitatorUrl: config.judgmentFacilitatorUrl!, payTo: config.judgmentPayTo!, amount: config.judgmentPriceUsdc, resourceUrl: config.judgmentResourceUrl!, network: config.judgmentNetwork,
     usdGDomain: config.judgmentNetwork === 'eip155:4663' ? await verifyUsdGMetadata(config.judgmentRhRpcUrl!) : undefined
   }) : null);
-  const judgmentJournal = rhChainPostgresPool ? new PostgresJudgmentRequestRepository(rhChainPostgresPool) : new MemoryJudgmentRequestRepository();
-  if (config.judgmentPaymentEnabled) await rhChainPostgresPool!.query('select request_key from judgment_requests limit 0');
+  const judgmentJournal = options.judgmentRequestJournal ?? (rhChainPostgresPool ? new PostgresJudgmentRequestRepository(rhChainPostgresPool) : new MemoryJudgmentRequestRepository());
+  registerJudgmentPrivateAccess(app, identity, judgmentJournal, canonicalReceiptStore,
+    authorization => isAdmin(config.adminToken, authorization), config.isProduction);
+  const requireOwner = (req: FastifyRequest, reply: FastifyReply) => {
+    reply.header('Cache-Control', 'private, no-store');
+    const owner = identity.authenticate(req.headers.authorization);
+    if (!owner) reply.code(identity.configured ? 401 : 503).send({ error: identity.configured ? 'judgment_authentication_required' : 'judgment_identity_unavailable' });
+    return owner;
+  };
+  app.get('/v1/judgment/session', async (req, reply) => {
+    const owner = requireOwner(req, reply); if (!owner) return reply;
+    return { data: { ...owner, version: 'judgment-session.v1' } };
+  });
+  app.get<{ Params: { key: string } }>('/v1/judgments/requests/:key', async (req, reply) => {
+    const owner = requireOwner(req, reply); if (!owner) return reply;
+    if (!/^[A-Za-z0-9_.:-]{1,128}$/.test(req.params.key)) return reply.code(400).send({ error: 'invalid_idempotency_key' });
+    const key = judgmentRequestKey(owner.agent_id, req.params.key, owner);
+    const [record, free] = await Promise.all([judgmentJournal.get(key), judgmentJournal.getFreeAttempt?.(key) ?? Promise.resolve(null)]);
+    if (!record && !free) return reply.code(404).send({ error: 'judgment_request_not_found' });
+    if (free && free.owner?.tenant_id === owner.tenant_id && free.owner.agent_id === owner.agent_id)
+      return { data: { state: 'assessed_free', result: free.response, presentation: judgmentPresentation(free.response) } };
+    if (!record || record.owner?.tenant_id !== owner.tenant_id || record.owner.agent_id !== owner.agent_id) return reply.code(404).send({ error: 'judgment_request_not_found' });
+    return { data: { state: record.state, judgment_id: record.response.judgment_id } };
+  });
+  app.get('/v1/judgments/history', async (req, reply) => {
+    const owner = requireOwner(req, reply); if (!owner) return reply;
+    if (!judgmentJournal.listOwned) return reply.code(503).send({ error: 'judgment_history_unavailable' });
+    const history = await judgmentJournal.listOwned(owner);
+    return { data: { paid: history.paid.map(r => ({ judgment_id: r.response.judgment_id, state: r.state, decision: r.response.decision })),
+      free: history.free.map(r => ({ judgment_id: r.response.judgment_id, decision: r.response.decision, assessed_at: r.assessed_at })), limit: 100 } };
+  });
+  const causalTape = createCausalTapeService(canonicalReceiptStore, judgmentJournal);
+  const causalWitness = createCausalWitnessService(canonicalReceiptStore, judgmentIssuer);
+  if (config.judgmentPaymentEnabled) {
+    await rhChainPostgresPool!.query('select request_key from judgment_requests limit 0');
+    await rhChainPostgresPool!.query('select assessment_id from decision_contexts limit 0');
+  }
   const judgments = createJudgmentService({
     store: canonicalReceiptStore, journal: judgmentJournal, gateway: judgmentGateway, issuer: judgmentIssuer,
+    v2ReceiptsEnabled: config.judgmentV2ReceiptsEnabled,
     legacyCheck: input => preSpendIntelligence.check(input), threshold: config.receiptProceedConfidenceThreshold,
     ttlMs: config.judgmentTtlMs, amount: config.judgmentPriceUsdc,
+    requireIndependentEvaluationReview: config.isProduction || config.controlledStaging,
     onTiming: timing => app.log.info({ event: 'judgment_hot_path_timing', ...timing }),
+    onEvidence: freshness => app.log.info({ event: 'judgment_evidence_freshness', ...freshness }),
+    onPaymentEvent: stage => app.log.info({ event: 'judgment_payment_stage', stage, proof_scope: 'configured_gateway_attestation' }),
+    marketEvidence: async () => {
+      // Stored public inspection evidence only: no refresh/RPC/provider request in a judgment's critical path.
+      const snapshot = await reflexiveRadar.snapshot();
+      return snapshot.pltr_preflight_states.slice().sort((a, b) => Date.parse(b.observation?.observed_at ?? '') - Date.parse(a.observation?.observed_at ?? ''))[0] ?? null;
+    },
     observations: async (subject, intentHash) => {
       // The latest scoped materialized policy supersedes historical snapshots.
       // Do not filter out negative/stale latest states to find an older approval.
@@ -4489,6 +4655,13 @@ export async function createApp(
   });
   const rhClient = config.judgmentRhRpcUrl ? await rhProofClient(config.judgmentRhRpcUrl) : null;
   if (rhClient && await rhClient.getChainId() !== 4663) throw new Error('execution_proof_rh_rpc_network_mismatch');
+  const reconciliation = createJudgmentReconciliationService(judgmentJournal, { ...(executionClient ? { 'eip155:8453': executionClient } : {}), ...(rhClient ? { 'eip155:4663': rhClient } : {}) });
+  app.post<{ Params: { id: string } }>('/internal/judgments/:id/reconcile', { bodyLimit: 1024 }, async (req, reply) => {
+    reply.header('Cache-Control', 'private, no-store');
+    if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'unauthorized' });
+    try { return { data: await reconciliation.reconcile(req.params.id, req.body) }; }
+    catch (error) { return reply.code(error instanceof JudgmentReconciliationError ? error.statusCode : 503).send({ error: error instanceof JudgmentReconciliationError ? error.code : 'reconciliation_unavailable' }); }
+  });
   if (rhClient && rhChainPostgresPool) {
     const indexes = await rhChainPostgresPool.query("select indexdef from pg_indexes where schemaname=current_schema() and indexname in ('execution_proof_one_authorization_idx','execution_proof_one_settlement_idx')");
     if (indexes.rows.length !== 2 || indexes.rows.some(row => !row.indexdef.includes('rh_usdg_external.v1'))) throw new Error('rh_usdg_accounting_migration_required');
@@ -4536,12 +4709,14 @@ export async function createApp(
       return reply.code(error instanceof ExecutionProofError ? error.statusCode : 503).send({ error: code });
     }
   });
-  app.post('/v1/evaluate', { bodyLimit: 16_384 }, async (req, reply) => {
+  app.post('/v1/evaluate', { bodyLimit: 160_000 }, async (req, reply) => {
     if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'evaluator_authentication_required' });
+    if (config.isProduction || config.controlledStaging) return reply.code(503).send({ error: 'independent_evaluation_review_unavailable' });
     return { data: safeJsonExport(await evaluationService.submit(req.body, 'canonical-admin')) };
   });
   // Subject routing follows the existing typed receipt-spine convention; the alias defaults to provider.
   app.get<{ Params: { subject: string }; Querystring: { subject_type?: string } }>('/v1/score/:subject', async (req, reply) => {
+    if (config.isProduction || config.controlledStaging) return reply.code(503).send({ error: 'evaluation_reputation_projection_disabled' });
     const subjectType = req.query.subject_type ?? 'provider';
     if (!subjectType || subjectType.length > 256 || !req.params.subject || req.params.subject.length > 256) return reply.code(400).send({ error: 'invalid_score_subject' });
     return { data: await derivedScores.project(subjectType, req.params.subject) };
@@ -4550,12 +4725,13 @@ export async function createApp(
   const canonicalWrites = [
     ['observation', z.object(ObservationReceiptSchema.shape).strict().omit({ schema_version: true, payload_hash: true, receipt_hash: true }), receiptAuthority.appendObservation],
     ['judgment', z.object(JudgmentReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, proceed_confidence_threshold: true, parent_hashes: true, receipt_hash: true, issuer_signature: true, payment: true }), receiptAuthority.appendJudgment],
-    ['execution', z.object(ExecutionReceiptSchema.shape).strict().omit({ schema_version: true, parent_hash: true, receipt_hash: true }), receiptAuthority.appendExecution],
-    ['evaluation', z.object(EvaluationReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, score_delta: true, parent_hash: true, receipt_hash: true, evaluator: true, request_hash: true }), evaluationService.createEvaluation]
+    ['execution', z.object(ExecutionReceiptSchema.shape).strict().omit({ schema_version: true, parent_hash: true, receipt_hash: true, score_eligibility: true }), receiptAuthority.appendExecution],
+    ['evaluation', z.object(EvaluationReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, score_delta: true, parent_hash: true, receipt_hash: true, evaluator: true, request_hash: true, classification: true, proposed_outcome: true }), evaluationService.createEvaluation]
   ] as const;
   for (const [kind, schema, append] of canonicalWrites) {
     app.post(`/internal/receipt-spine/${kind}`, async (req, reply) => {
       if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'unauthorized' });
+      if (kind === 'evaluation' && (config.isProduction || config.controlledStaging)) return reply.code(503).send({ error: 'independent_evaluation_review_unavailable' });
       if (kind === 'evaluation' && hasAuthoredScore(req.body)) {
         return reply.code(400).send({ error: 'score_delta_authoring_forbidden' });
       }
@@ -4593,13 +4769,56 @@ export async function createApp(
       assessment_eligible: ancestryValid && signatureValid && inWindow && ['proceed', 'test_spend_first'].includes(judgment.decision),
       execution_authorized: false, authority_requires: 'infopunks.execution-authorization.v1' } };
   });
+  app.get<{ Params: { id: string } }>('/v1/receipt-spine/judgment/:id/context', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const receipt = await canonicalReceiptStore.get('judgment', req.params.id);
+    if (!receipt || !('judgment_id' in receipt)) return reply.code(404).send({ error: 'canonical_receipt_not_found' });
+    if (receipt.schema_version !== 'canonical-receipts.v2') return reply.code(404).send({ error: 'decision_context_not_available_for_v1' });
+    const context = await canonicalReceiptStore.getDecisionContext?.(receipt.judgment_id);
+    if (!context) return reply.code(503).send({ error: 'decision_context_missing' });
+    return { data: safeJsonExport({ context, replay_valid: await verifyDecisionContext(context, receipt, canonicalReceiptStore) }) };
+  });
+  app.get<{ Querystring: { kind?: string; cursor?: string; limit?: string; accepted_through?: string;
+    free_attempts_through?: string; quarantine_through?: string } }>('/v1/receipt-spine/tape', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const { kind, cursor, limit, accepted_through, free_attempts_through, quarantine_through } = req.query;
+    if (kind && !['observation', 'judgment', 'execution', 'evaluation'].includes(kind)) return reply.code(400).send({ error: 'invalid_tape_kind' });
+    try { return { data: safeJsonExport(await causalTape.page({ ...(kind ? { kind: kind as ReceiptKind } : {}),
+      ...(cursor !== undefined ? { cursor: Number(cursor) } : {}), ...(limit !== undefined ? { limit: Number(limit) } : {}),
+      ...(accepted_through !== undefined ? { acceptedThrough: Number(accepted_through) } : {}),
+      ...(free_attempts_through !== undefined ? { freeThrough: Number(free_attempts_through) } : {}),
+      ...(quarantine_through !== undefined ? { quarantineThrough: Number(quarantine_through) } : {}) })) }; }
+    catch (error) { return reply.code(error instanceof Error && error.message === 'unsequenced_receipt_not_publishable' ? 503 : 400)
+      .send({ error: error instanceof Error && error.message === 'unsequenced_receipt_not_publishable'
+        ? 'tape_acceptance_history_incomplete' : 'invalid_tape_request' }); }
+  });
+  app.get<{ Querystring: { cursor?: string; limit?: string; accepted_through?: string;
+    free_attempts_through?: string; quarantine_through?: string } }>('/v1/receipt-spine/attempts', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    try { return { data: safeJsonExport(await causalTape.attemptPage(Number(req.query.cursor ?? 0), Number(req.query.limit ?? 50), {
+      ...(req.query.accepted_through !== undefined ? { acceptedThrough: Number(req.query.accepted_through) } : {}),
+      ...(req.query.free_attempts_through !== undefined ? { freeThrough: Number(req.query.free_attempts_through) } : {}),
+      ...(req.query.quarantine_through !== undefined ? { quarantineThrough: Number(req.query.quarantine_through) } : {}) })) }; }
+    catch (error) { return reply.code(error instanceof Error && error.message === 'unsequenced_receipt_not_publishable' ? 503 : 400)
+      .send({ error: error instanceof Error && error.message === 'unsequenced_receipt_not_publishable'
+        ? 'tape_acceptance_history_incomplete' : 'invalid_attempt_pagination' }); }
+  });
+  app.get<{ Params: { j1: string; evaluation: string; j2: string } }>('/v1/receipt-spine/witness/:j1/:evaluation/:j2', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    if (!judgmentIssuer?.signWitness) return reply.code(503).send({ error: 'causal_witness_signer_unavailable' });
+    try { return { data: safeJsonExport(await causalWitness.build(req.params.j1, req.params.evaluation, req.params.j2)) }; }
+    catch (error) { return reply.code(error instanceof CausalWitnessError ? 409 : 503).send({ error: error instanceof CausalWitnessError ? error.code : 'causal_witness_unavailable' }); }
+  });
   app.get<{ Params: { kind: string; id: string } }>('/v1/receipt-spine/:kind/:id', async (req, reply) => {
     if (!['observation', 'judgment', 'execution', 'evaluation'].includes(req.params.kind)) return reply.code(404).send({ error: 'receipt_kind_not_found' });
     const receipt = await canonicalReceiptStore.get(req.params.kind as ReceiptKind, req.params.id);
     if (!receipt) return reply.code(404).send({ error: 'canonical_receipt_not_found' });
     return { data: safeJsonExport(receipt) };
   });
-  app.get<{ Params: { subject_type: string; subject_id: string } }>('/v1/receipt-spine/scores/:subject_type/:subject_id', async (req) => ({ data: await receiptAuthority.projectScore(req.params.subject_type, req.params.subject_id) }));
+  app.get<{ Params: { subject_type: string; subject_id: string } }>('/v1/receipt-spine/scores/:subject_type/:subject_id', async (req, reply) => {
+    if (config.isProduction || config.controlledStaging) return reply.code(503).send({ error: 'evaluation_reputation_projection_disabled' });
+    return { data: await receiptAuthority.projectScore(req.params.subject_type, req.params.subject_id) };
+  });
 
   app.get('/v1/receipts', async () => ({ data: safeJsonExport({
     generated_at: new Date().toISOString(),
@@ -4607,7 +4826,8 @@ export async function createApp(
     metrics: preSpendIntelligence.getMetrics(),
     receipts: preSpendIntelligence.listReceipts()
   }) }));
-  app.post('/v1/receipts', async (req, reply) => {
+  app.post('/v1/receipts', { bodyLimit: 16_384 }, async (req, reply) => {
+    if (config.isProduction && !isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'legacy_receipt_authorization_required' });
     const parsed = PreSpendReceiptSchema.omit({ receipt_id: true, timestamp: true }).partial({ human_notes: true }).safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_pre_spend_receipt', details: parsed.error.flatten() });
     if (parsed.data.confidence_delta !== 0) return reply.code(400).send({ error: 'legacy_score_mutation_forbidden' });
@@ -4616,7 +4836,8 @@ export async function createApp(
       human_notes: parsed.data.human_notes ?? []
     })) };
   });
-  app.post('/v1/validation/submit', async (req, reply) => {
+  app.post('/v1/validation/submit', { bodyLimit: 16_384 }, async (req, reply) => {
+    if (config.isProduction && !isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'legacy_validation_authorization_required' });
     const parsed = HumanValidationSubmissionSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_human_validation_submission', details: parsed.error.flatten() });
     return { data: safeJsonExport(preSpendIntelligence.submitValidation(parsed.data)) };
@@ -4835,7 +5056,7 @@ export async function createApp(
       }
       const relative = urlPath === '/' ? 'index.html' : urlPath.replace(/^\/+/, '');
       const target = normalize(join(clientDistDir, relative));
-      if (!target.startsWith(clientDistDir)) return reply.code(403).send({ error: 'forbidden' });
+      if (target !== clientDistDir && !target.startsWith(clientDistDir + sep)) return reply.code(403).send({ error: 'forbidden' });
       try {
         const file = await stat(target);
         if (file.isFile()) {
@@ -4854,9 +5075,9 @@ export async function createApp(
   }
 
   const intervalMs = config.ingestionEnabled ? (config.payShIngestIntervalMs ?? 0) : 0;
-  if (intervalMs > 0) {
+  if (!config.radarReadOnlyMode && intervalMs > 0) {
     const timer = setInterval(() => {
-      void runPayShIngestion(store, repository)
+      launchBackgroundWork(() => runPayShIngestion(store, repository)
         .then(() => refreshBackgroundAnalytics())
         .catch((error) => {
           logDbDegraded('ingestion_scheduler', classifyBootstrapFailure(error), error);
@@ -4872,7 +5093,7 @@ export async function createApp(
             code: errorCode(error),
             message: errorMessage(error)
           }));
-        });
+        }));
     }, intervalMs);
     timer.unref();
     app.addHook('onClose', async () => {
@@ -4881,9 +5102,9 @@ export async function createApp(
       console.log(JSON.stringify({ event: 'hook_exit', hook: 'onClose', source: 'ingestion_timer' }));
     });
   }
-  if (isMonitorEnabled() && monitorIntervalMs() > 0) {
+  if (!config.radarReadOnlyMode && isMonitorEnabled() && monitorIntervalMs() > 0) {
     const timer = setInterval(() => {
-      void runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() })
+      launchBackgroundWork(() => runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() })
         .then(() => refreshBackgroundAnalytics())
         .catch((error) => {
           logDbDegraded('monitor_scheduler', classifyBootstrapFailure(error), error);
@@ -4892,7 +5113,7 @@ export async function createApp(
             code: errorCode(error),
             message: errorMessage(error)
           }));
-        });
+        }));
     }, monitorIntervalMs());
     timer.unref();
     app.addHook('onClose', async () => {
@@ -4902,9 +5123,9 @@ export async function createApp(
     });
   }
 
-  if (config.rhChainAutomationEnabled || (config.rh4663Phase3Enabled && config.rh4663Phase3IngestionEnabled)) {
+  if (!config.radarReadOnlyMode && (config.rhChainAutomationEnabled || (config.rh4663Phase3Enabled && config.rh4663Phase3IngestionEnabled))) {
     const schedule = (jobName: import('../services/rhChainAutomationService').RhChainAutomationJobName, intervalMs: number) => {
-      const timer = setInterval(() => { void runRhChainAutomationJob(jobName); }, intervalMs);
+      const timer = setInterval(() => { launchBackgroundWork(() => runRhChainAutomationJob(jobName)); }, intervalMs);
       timer.unref();
       app.addHook('onClose', async () => clearInterval(timer));
     };
@@ -4924,7 +5145,7 @@ export async function createApp(
         const minuteKey = now.toISOString().slice(0, 16);
         if (minuteKey !== lastReceiptDraftMinute && cronMatches(config.rhChainReceiptDraftCron!, now)) {
           lastReceiptDraftMinute = minuteKey;
-          void runRhChainAutomationJob('rh_daily_receipt_draft');
+          launchBackgroundWork(() => runRhChainAutomationJob('rh_daily_receipt_draft'));
         }
       }, 30_000);
       timer.unref();
@@ -4933,15 +5154,15 @@ export async function createApp(
   }
   const ipxPltrShadowObservationEnabled = options.ipxPltrShadowObservation?.enabled ?? config.ipxPltrShadowObservationEnabled;
   const ipxPltrShadowObservationIntervalMs = options.ipxPltrShadowObservation?.intervalMs ?? config.ipxPltrShadowObservationIntervalMs;
-  if (ipxPltrShadowObservationEnabled && ipxPltrShadowObservationIntervalMs > 0) {
+  if (!config.radarReadOnlyMode && ipxPltrShadowObservationEnabled && ipxPltrShadowObservationIntervalMs > 0) {
     const runShadowObservation = () => {
-      void observeShadowWithLease()
+      launchBackgroundWork(() => observeShadowWithLease()
         .then((status) => {
           console.log(JSON.stringify({ event: 'ipx_pltr_shadow_observation_run', latest_ready_snapshot: status.latest_ready_snapshot?.observation_id ?? null, ready_snapshot_count: status.ready_snapshot_count, evidence_window_satisfied: status.evidence_window.satisfied, next_action: status.next_action, last_error: status.last_error?.code ?? null }));
         })
         .catch((error) => {
           console.log(JSON.stringify({ event: 'ipx_pltr_shadow_observation_failed', code: errorCode(error), message: errorMessage(error) }));
-        });
+        }));
     };
     runShadowObservation();
     const timer = setInterval(runShadowObservation, ipxPltrShadowObservationIntervalMs);
@@ -4995,6 +5216,7 @@ export async function createApp(
   }
 
   async function ensureLiveBootstrap(reason: 'startup' | 'route:/v1/pulse' | 'route:/v1/providers' | 'route:/v1/radar/endpoints') {
+    if (config.radarReadOnlyMode) return;
     if (startupLoadPromise) await startupLoadPromise;
     if (isLiveBootstrapSatisfied(store) && (!config.isProduction || (!store.dataSource?.error && store.dataSource?.last_ingested_at && Date.now() - Date.parse(store.dataSource.last_ingested_at) <= 10 * 60_000))) {
       bootstrapped = true;
@@ -5167,9 +5389,15 @@ function contentTypeFor(path: string) {
   return 'application/octet-stream';
 }
 
+function constantTimeTokenEqual(expected: string | null, actual: string | undefined) {
+  if (!expected || !actual) return false;
+  const left = Buffer.from(expected), right = Buffer.from(actual);
+  return left.length === right.length && timingSafeEqual(left, right);
+}
+
 function isAdmin(adminToken: string | null, authorization: string | undefined) {
   const match = authorization?.match(/^Bearer\s+(.+)$/i);
-  return Boolean(adminToken && match?.[1] === adminToken);
+  return constantTimeTokenEqual(adminToken, match?.[1]);
 }
 
 function isRhChainReviewAdmin(reviewToken: string | null, authorization: string | undefined) {
@@ -5177,7 +5405,7 @@ function isRhChainReviewAdmin(reviewToken: string | null, authorization: string 
   // a public/admin token or an implicit allow.
   if (!reviewToken) return false;
   const match = authorization?.match(/^Bearer\s+(.+)$/i);
-  return match?.[1] === reviewToken;
+  return constantTimeTokenEqual(reviewToken, match?.[1]);
 }
 
 function rh4663CategoryFromNarrative(classes: readonly string[]) {

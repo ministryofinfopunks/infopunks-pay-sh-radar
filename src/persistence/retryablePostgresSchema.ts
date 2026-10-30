@@ -43,6 +43,10 @@ export class RetryablePostgresSchema {
   constructor(private readonly service: string) {}
 
   ensure(pool: Pick<pg.Pool, 'query'>, sql: string): Promise<void> {
+    // In recovery mode the deployment migrations are the schema authority.
+    // A read request may query an existing table, but must never lazily create
+    // or alter schema while the application is fenced read-only.
+    if (process.env.RADAR_READ_ONLY_MODE === 'true') return Promise.resolve();
     if (this.inFlight) return this.inFlight;
     const wasDegraded = this.readiness === 'degraded';
     this.readiness = 'checking';

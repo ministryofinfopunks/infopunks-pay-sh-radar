@@ -1,0 +1,17 @@
+{
+  "benchmark": "judgment_hot_path",
+  "adapter": "memory",
+  "external_payment": "mocked",
+  "insufficient": {
+    "samples": 200,
+    "p50_ms": 0.01737500000001546,
+    "p95_ms": 0.02604100000002063,
+    "max_ms": 0.04445800000002009
+  },
+  "paid_replay": {
+    "samples": 200,
+    "p50_ms": 0.39637500000003456,
+    "p95_ms": 0.4842919999999822,
+    "max_ms": 5.933749999999975
+  }
+}

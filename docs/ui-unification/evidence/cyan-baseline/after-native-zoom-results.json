@@ -1,0 +1,106 @@
+{
+  "phase": "after",
+  "sourceCommit": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "base": "http://127.0.0.1:5173",
+  "method": "Changed actual Chrome Page zoom control at chrome://settings/appearance in a fresh isolated temporary browser profile. No viewport emulation, CSS zoom, or user-profile settings.",
+  "reports": [
+    {
+      "route": "/",
+      "zoomPercent": 200,
+      "metrics": {
+        "outerWidth": 1440,
+        "innerWidth": 720,
+        "devicePixelRatio": 2,
+        "documentWidth": 720,
+        "visualViewportScale": 1,
+        "reducedMotion": true
+      },
+      "interaction": {
+        "inputFocused": true
+      },
+      "pass": true
+    },
+    {
+      "route": "/solana",
+      "zoomPercent": 200,
+      "metrics": {
+        "outerWidth": 1440,
+        "innerWidth": 720,
+        "devicePixelRatio": 2,
+        "documentWidth": 720,
+        "visualViewportScale": 1,
+        "reducedMotion": true
+      },
+      "interaction": {
+        "terminalControlsOpen": true
+      },
+      "pass": true
+    },
+    {
+      "route": "/rh-chain-signal-desk",
+      "zoomPercent": 200,
+      "metrics": {
+        "outerWidth": 1440,
+        "innerWidth": 720,
+        "devicePixelRatio": 2,
+        "documentWidth": 720,
+        "visualViewportScale": 1,
+        "reducedMotion": true
+      },
+      "interaction": {
+        "invalidField": "true",
+        "errorVisible": true
+      },
+      "pass": true
+    },
+    {
+      "route": "/",
+      "zoomPercent": 400,
+      "metrics": {
+        "outerWidth": 1440,
+        "innerWidth": 360,
+        "devicePixelRatio": 4,
+        "documentWidth": 360,
+        "visualViewportScale": 1,
+        "reducedMotion": true
+      },
+      "interaction": {
+        "inputFocused": true
+      },
+      "pass": true
+    },
+    {
+      "route": "/solana",
+      "zoomPercent": 400,
+      "metrics": {
+        "outerWidth": 1440,
+        "innerWidth": 360,
+        "devicePixelRatio": 4,
+        "documentWidth": 360,
+        "visualViewportScale": 1,
+        "reducedMotion": true
+      },
+      "interaction": {
+        "terminalControlsOpen": true
+      },
+      "pass": true
+    },
+    {
+      "route": "/rh-chain-signal-desk",
+      "zoomPercent": 400,
+      "metrics": {
+        "outerWidth": 1440,
+        "innerWidth": 360,
+        "devicePixelRatio": 4,
+        "documentWidth": 360,
+        "visualViewportScale": 1,
+        "reducedMotion": true
+      },
+      "interaction": {
+        "invalidField": "true",
+        "errorVisible": true
+      },
+      "pass": true
+    }
+  ]
+}

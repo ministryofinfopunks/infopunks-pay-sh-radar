@@ -2,6 +2,14 @@ import { describe, expect, it, vi } from 'vitest';
 import { setupExecution } from '../helpers/executions';
 import { verifyReceiptIntegrity, sealReceipt } from '../../src/services/receiptIntegrityService';
 import { createExecutionProofService } from '../../src/services/executionProofService';
+import type { JudgmentReceipt } from '../../src/schemas/receipts';
+
+function legacyClone(parent: JudgmentReceipt, changes: Partial<JudgmentReceipt>) {
+  const { decision_context_hash: _context, ...body } = parent;
+  const candidate = { ...body, ...changes, schema_version: 'canonical-receipts.v1' as const, policy_version: 'receipt-authority.v1' };
+  if (candidate.payment === undefined) delete candidate.payment;
+  return sealReceipt('judgment', candidate);
+}
 
 describe('free canonical execution proof intake', () => {
   it('creates one append-only receipt with real signature checks, parent and zero score', async () => {
@@ -29,8 +37,8 @@ describe('free canonical execution proof intake', () => {
   });
   it.each(['do_not_spend', 'insufficient_evidence'] as const)('rejects %s authorization', async decision => {
     const f = await setupExecution();
-    const { payment: ignored, ...unpaid } = f.parent;
-    const parent = sealReceipt('judgment', { ...unpaid, judgment_id: 'negative', decision, payment_required: false, payment_receipt_ref: null, charge: '0' });
+    const parent = legacyClone(f.parent, { judgment_id: 'negative', decision, payment_required: false,
+      payment_receipt_ref: null, charge: '0', payment: undefined });
     await f.store.append('judgment', parent);
     await expect(f.proofService.submit({ ...f.proof, judgment_id: parent.judgment_id })).rejects.toThrow('judgment_blocks_execution');
     expect(await f.store.list('execution')).toHaveLength(0);
@@ -42,7 +50,7 @@ describe('free canonical execution proof intake', () => {
   });
   it('rejects an unrelated parent binding and tampered judgment integrity', async () => {
     const f = await setupExecution();
-    const other = sealReceipt('judgment', { ...f.parent, judgment_id: 'other-parent' });
+    const other = legacyClone(f.parent, { judgment_id: 'other-parent' });
     await f.store.append('judgment', other);
     await expect(f.proofService.submit({ ...f.proof, judgment_id: other.judgment_id })).rejects.toThrow('invalid_execution_payload_signature');
     const get = f.store.get.bind(f.store);
@@ -54,7 +62,7 @@ describe('free canonical execution proof intake', () => {
   });
   it('does not accept the judgment purchase fee as proof of external execution', async () => {
     const f = await setupExecution();
-    const other = sealReceipt('judgment', { ...f.parent, judgment_id: 'fee-substitution', payment_receipt_ref: f.proof.settlement.transaction_hash });
+    const other = legacyClone(f.parent, { judgment_id: 'fee-substitution', payment_receipt_ref: f.proof.settlement.transaction_hash });
     await f.store.append('judgment', other);
     const proof = await f.sign({ ...f.proof, judgment_id: other.judgment_id }, other);
     await expect(f.proofService.submit(proof)).rejects.toThrow('invalid_settlement_proof');

@@ -4,6 +4,7 @@
   "private": true,
   "exports": {
     "./sdk": "./src/sdk.ts",
+    "./sdk/session-store": "./src/sdk/protectedSessionStore.ts",
     "./economic-engine": "./src/economicEngine.ts"
   },
   "scripts": {
@@ -15,6 +16,9 @@
     "verify:runtime-config": "node dist/server/config/verifyRuntimeConfig.js",
     "smoke:production": "tsx scripts/smoke-production.ts",
     "rh-chain:migration-status": "tsx scripts/rh-chain-migration-status.ts",
+    "migrations:validate": "tsx scripts/validate-migration-inventory.ts",
+    "migrations:run": "node dist/server/cli/runPostgresMigrations.js",
+    "migrations:check": "node dist/server/cli/runPostgresMigrations.js --validate",
     "smoke:backend": "node scripts/smoke-backend.mjs",
     "load:4663": "node scripts/load-4663-frontdoor.mjs",
     "launch:scaffold": "python3 .agents/skills/launch/scripts/scaffold_launch_packet.py --root .",
@@ -24,12 +28,15 @@
     "simulate:ipx-pltr": "tsx scripts/run-ipx-pltr-preflight-scenarios.ts",
     "test:postgres-resilience": "vitest run tests/postgres-resilience.test.ts tests/postgres-resilience-failure-matrix.test.ts tests/health-readiness.test.ts",
     "typecheck": "tsc --noEmit",
-    "verify:production": "tsx scripts/verify-production.ts"
+    "verify:production": "tsx scripts/verify-production.ts",
+    "check:design": "node scripts/radar-design-inventory.mjs --check",
+    "test:ui:visuals": "node scripts/compare-ui-int2-visuals.cjs",
+    "test:ui": "node scripts/qualify-ui-int2-routes.cjs",
+    "test:ui:journeys": "node scripts/qualify-ui-int2-journeys.cjs"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",
     "@resvg/resvg-js": "^2.6.2",
-    "@vitejs/plugin-react": "latest",
     "@x402/core": "^2.28.0",
     "@x402/evm": "^2.28.0",
     "fastify": "^5.8.5",
@@ -37,7 +44,6 @@
     "react": "latest",
     "react-dom": "latest",
     "viem": "^2.55.13",
-    "vite": "latest",
     "zod": "latest"
   },
   "devDependencies": {
@@ -45,12 +51,16 @@
     "@types/pg": "^8.20.0",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@vitejs/plugin-react": "^6.1.2",
+    "axe-core": "4.14.0",
     "jsdom": "latest",
+    "playwright": "1.64.0",
     "tsx": "latest",
     "typescript": "latest",
-    "vitest": "latest"
+    "vite": "^8.3.4",
+    "vitest": "^4.1.11"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=24.21.0 <25"
   }
 }

@@ -8,7 +8,7 @@ import { createObservationReceiptRepository } from '../src/repositories/observat
 import { createJudgmentReceiptRepository } from '../src/repositories/judgmentReceiptRepository';
 import { createExecutionReceiptRepository } from '../src/repositories/executionReceiptRepository';
 import { createEvaluationReceiptRepository } from '../src/repositories/evaluationReceiptRepository';
-import { appendChain, observationInput, judgmentInput, executionInput, evaluationInput } from './helpers/canonicalReceipts';
+import { appendChain, observationInput, judgmentInput, executionInput, evaluationInput, qualifyingClassifiedExecution, classifiedArtifact } from './helpers/canonicalReceipts';
 
 describe('canonical receipt authority', () => {
   it('derives scores exclusively from evaluations', async () => {
@@ -17,8 +17,8 @@ describe('canonical receipt authority', () => {
     const score = async () => (await service.projectScore('provider', 'provider_test')).score;
     await service.appendObservation(observationInput()); expect(await score()).toBe(0);
     await service.appendJudgment(judgmentInput()); expect(await score()).toBe(0);
-    await service.appendExecution(executionInput()); expect(await score()).toBe(0);
-    await evaluations.createEvaluation(evaluationInput()); expect(await score()).toBe(5);
+    await service.appendExecution(qualifyingClassifiedExecution(true)); expect(await score()).toBe(0);
+    await evaluations.createEvaluation(evaluationInput(), classifiedArtifact(true)); expect(await score()).toBe(5);
     expect((await service.projectScore('provider', 'other')).score).toBe(0);
   });
   it('does not expose evaluation creation or score policy from receipt authority', () => {

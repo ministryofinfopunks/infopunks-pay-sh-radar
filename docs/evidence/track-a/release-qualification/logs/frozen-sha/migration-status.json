@@ -1,0 +1,408 @@
+{
+  "environment": "development",
+  "repository_migrations": {
+    "valid": true,
+    "entries": [
+      {
+        "file": "20260719_001_rh_chain_market_snapshot_memory.up.sql",
+        "id": "001",
+        "down_file": "20260719_001_rh_chain_market_snapshot_memory.down.sql",
+        "sha256": "ef0892b3d8113942c198be7ecaec59ce8e711a71db2f593525857d07f1afe23e"
+      },
+      {
+        "file": "20260719_002_rh_chain_reviewed_classifications.up.sql",
+        "id": "002",
+        "down_file": "20260719_002_rh_chain_reviewed_classifications.down.sql",
+        "sha256": "2fe457ce7ed9bd6aaa6e3878bc0ca1a1ca6f3d21897c37d0c33810b91a13d63d"
+      },
+      {
+        "file": "20260719_003_rh_chain_classification_layer_vocabulary.up.sql",
+        "id": "003",
+        "down_file": "20260719_003_rh_chain_classification_layer_vocabulary.down.sql",
+        "sha256": "4ebab9a142c918ceeebf94e24961462bea5d2d5f518e0b640f88082d7011efc2"
+      },
+      {
+        "file": "20260719_004_rh_chain_attention_quality_receipts.up.sql",
+        "id": "004",
+        "down_file": "20260719_004_rh_chain_attention_quality_receipts.down.sql",
+        "sha256": "a28686d6505bc79d3787a890192622bbd9ab75b0b75766fd7d78337e876e7049"
+      },
+      {
+        "file": "20260719_005_rh_chain_project_claims.up.sql",
+        "id": "005",
+        "down_file": "20260719_005_rh_chain_project_claims.down.sql",
+        "sha256": "63c4d89b45e28f7b20cef6897987d8d10b10975a67d6e55b7d764fd1a1d73127"
+      },
+      {
+        "file": "20260720_006_rh_chain_reviewer_workflow.up.sql",
+        "id": "006",
+        "down_file": "20260720_006_rh_chain_reviewer_workflow.down.sql",
+        "sha256": "120fd922d3e408112b8f5e24b6b0fb4cc24e2286d21204c068f00c7543366a9b"
+      },
+      {
+        "file": "20260813_007_infopunks_4663_phase1.up.sql",
+        "id": "007",
+        "down_file": "20260813_007_infopunks_4663_phase1.down.sql",
+        "sha256": "f230eeb1483868d0e0910f651a128ed1ad3856e59f272576376ec64653ca9ce1"
+      },
+      {
+        "file": "20260813_008_infopunks_4663_close_the_loop.up.sql",
+        "id": "008",
+        "down_file": "20260813_008_infopunks_4663_close_the_loop.down.sql",
+        "sha256": "f55f1dcf767ce495d0f07e18a2965f80c545ad55d9c309fc29082bd53eb487b7"
+      },
+      {
+        "file": "20260814_009_infopunks_4663_make_the_chain_speak.up.sql",
+        "id": "009",
+        "down_file": "20260814_009_infopunks_4663_make_the_chain_speak.down.sql",
+        "sha256": "756a804d4f8516b585c671cea4212652b4915f1e8a1f7b2a18abec9f2234717b"
+      },
+      {
+        "file": "20260908_010_rh4663_product_intelligence.up.sql",
+        "id": "010",
+        "down_file": "20260908_010_rh4663_product_intelligence.down.sql",
+        "sha256": "a5918a91827a6798fcd5c38c6c0bb2a9ef265b9baa3589452a4493275b4abca1"
+      },
+      {
+        "file": "20261007_011_canonical_receipt_spine.up.sql",
+        "id": "011",
+        "down_file": "20261007_011_canonical_receipt_spine.down.sql",
+        "sha256": "78759614ada801c801920410d5010f6fcb6ec1c563a1974cba836ea3c8ba551f"
+      },
+      {
+        "file": "20261007_012_judgment_requests.up.sql",
+        "id": "012",
+        "down_file": "20261007_012_judgment_requests.down.sql",
+        "sha256": "c810a9df8d663507d9bae0e76259e84c39c3ecb2b854183283bd26cd350884ed"
+      },
+      {
+        "file": "20261007_013_execution_proof_uniqueness.up.sql",
+        "id": "013",
+        "down_file": "20261007_013_execution_proof_uniqueness.down.sql",
+        "sha256": "cbd8ef09fff8461ecbffcfb0c71678ed9f46899abd758656692c36e04175b33e"
+      },
+      {
+        "file": "20261007_014_derived_score_projection.up.sql",
+        "id": "014",
+        "down_file": "20261007_014_derived_score_projection.down.sql",
+        "sha256": "d6f033ee13d73b36477c080d3b38cc6c343cf5bf8f5c64a00373ee2573afbec3"
+      },
+      {
+        "file": "20261007_015_economic_judgment_engine.up.sql",
+        "id": "015",
+        "down_file": "20261007_015_economic_judgment_engine.down.sql",
+        "sha256": "0c0a61601c59bcb746e9179ae8695f50f25184b128c0121fd150aa0c6ee0efae"
+      },
+      {
+        "file": "20261008_016_rh_usdg_accounting.up.sql",
+        "id": "016",
+        "down_file": "20261008_016_rh_usdg_accounting.down.sql",
+        "sha256": "a7db94157975c95b2085ed67a038b0d750b4e37c0d13e54327fe17b4b3c334e9"
+      },
+      {
+        "file": "20261008_017_ipx_launch.up.sql",
+        "id": "017",
+        "down_file": "20261008_017_ipx_launch.down.sql",
+        "sha256": "77583eea4504ce611737f8f73f94172309229378bceefb21068752ee07e6f364"
+      },
+      {
+        "file": "20261008_018_decision_context.up.sql",
+        "id": "018",
+        "down_file": "20261008_018_decision_context.down.sql",
+        "sha256": "388aab7dcfe4b5c41052dd5213a55ee81886b769ff96fef7b1ac93b34697a815"
+      },
+      {
+        "file": "20261008_019_execution_score_eligibility.up.sql",
+        "id": "019",
+        "down_file": "20261008_019_execution_score_eligibility.down.sql",
+        "sha256": "22544b426e91771c9b6beded5c50d657de5d71c0cc9ff017402c7f1411471c71"
+      },
+      {
+        "file": "20261008_020_receipt_acceptance.up.sql",
+        "id": "020",
+        "down_file": "20261008_020_receipt_acceptance.down.sql",
+        "sha256": "4f72db8131c5b3620254a9c8ac52e761397296ec3b581440b69f36ad7da55be7"
+      },
+      {
+        "file": "20261008_021_free_assessment_attempts.up.sql",
+        "id": "021",
+        "down_file": "20261008_021_free_assessment_attempts.down.sql",
+        "sha256": "64cb87863e6f6a425e60aea8145a943a39eb058d0e1dcc0368df8616a39e7989"
+      }
+    ],
+    "errors": []
+  },
+  "database_reachable": true,
+  "migration_runner": "external_only",
+  "migrations": [
+    {
+      "id": "20260719_001",
+      "file": "20260719_001_rh_chain_market_snapshot_memory.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20260719_002",
+      "file": "20260719_002_rh_chain_reviewed_classifications.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20260719_003",
+      "file": "20260719_003_rh_chain_classification_layer_vocabulary.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20260719_004",
+      "file": "20260719_004_rh_chain_attention_quality_receipts.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20260719_005",
+      "file": "20260719_005_rh_chain_project_claims.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20260720_006",
+      "file": "20260720_006_rh_chain_reviewer_workflow.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20260813_007",
+      "file": "20260813_007_infopunks_4663_phase1.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20260813_008",
+      "file": "20260813_008_infopunks_4663_close_the_loop.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20260814_009",
+      "file": "20260814_009_infopunks_4663_make_the_chain_speak.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20260908_010",
+      "file": "20260908_010_rh4663_product_intelligence.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20261007_011",
+      "file": "20261007_011_canonical_receipt_spine.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20261007_012",
+      "file": "20261007_012_judgment_requests.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20261007_013",
+      "file": "20261007_013_execution_proof_uniqueness.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20261007_014",
+      "file": "20261007_014_derived_score_projection.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20261007_015",
+      "file": "20261007_015_economic_judgment_engine.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20261008_016",
+      "file": "20261008_016_rh_usdg_accounting.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20261008_017",
+      "file": "20261008_017_ipx_launch.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20261008_018",
+      "file": "20261008_018_decision_context.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20261008_019",
+      "file": "20261008_019_execution_score_eligibility.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20261008_020",
+      "file": "20261008_020_receipt_acceptance.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    },
+    {
+      "id": "20261008_021",
+      "file": "20261008_021_free_assessment_attempts.up.sql",
+      "state": "applied",
+      "missing_tables": [],
+      "missing_indexes": [],
+      "missing_checks": []
+    }
+  ],
+  "pending_migrations": [],
+  "required_tables": [
+    "rh_chain_market_snapshots",
+    "rh_chain_reviewed_classifications",
+    "rh_chain_reviewed_classification_audit",
+    "rh_chain_attention_receipts",
+    "rh_chain_projects",
+    "rh_chain_project_claims",
+    "rh_chain_project_evidence",
+    "rh_chain_project_observations",
+    "rh_chain_project_verdicts",
+    "rh_chain_intelligence_receipts",
+    "rh_chain_project_audit",
+    "rh_chain_project_contract_relationships",
+    "rh_4663_genesis_wallets",
+    "rh_4663_pulse_calls",
+    "rh_4663_events",
+    "rh_4663_today_editions",
+    "rh_4663_signals",
+    "rh_4663_pulse_window_resolutions",
+    "rh_4663_resolution_receipts",
+    "rh_4663_window_anchors",
+    "rh_4663_observations",
+    "rh_4663_signal_candidates",
+    "rh_4663_signal_publications",
+    "rh_4663_signal_distribution",
+    "rh_4663_signal_corrections",
+    "rh_4663_provider_health",
+    "rh4663_product_intelligence_events",
+    "observation_receipts",
+    "judgment_receipts",
+    "execution_receipts",
+    "evaluation_receipts",
+    "judgment_observations",
+    "judgment_requests",
+    "economic_engine_records",
+    "settled_judgment_revenue",
+    "recorded_protocol_costs",
+    "ipx_genesis_calls_v2",
+    "ipx_launch_policies",
+    "ipx_identity_mappings",
+    "ipx_solana_observations",
+    "ipx_solana_cursors",
+    "ipx_economic_receipts",
+    "decision_contexts",
+    "canonical_receipt_acceptances",
+    "canonical_receipt_quarantine",
+    "free_assessment_attempts"
+  ],
+  "required_indexes": [
+    "rh_chain_market_snapshots_token_captured_idx",
+    "rh_chain_market_snapshots_pair_captured_idx",
+    "rh_chain_market_snapshots_provider_captured_idx",
+    "rh_chain_market_snapshots_captured_at_idx",
+    "rh_chain_reviewed_classifications_status_updated_idx",
+    "rh_chain_reviewed_classifications_approved_effective_idx",
+    "rh_chain_reviewed_classification_audit_contract_time_idx",
+    "rh_chain_attention_receipts_contract_created_idx",
+    "rh_chain_attention_receipts_status_idx",
+    "rh_chain_projects_slug_idx",
+    "rh_chain_projects_review_idx",
+    "rh_chain_project_claims_project_idx",
+    "rh_chain_project_evidence_project_idx",
+    "rh_chain_project_observations_project_idx",
+    "rh_chain_project_verdicts_project_idx",
+    "rh_chain_intelligence_receipts_project_idx",
+    "rh_chain_intelligence_receipts_integrity_hash_idx",
+    "rh_chain_project_audit_project_idx",
+    "rh_chain_project_contract_relationships_project_idx",
+    "rh_chain_project_contract_relationships_contract_idx",
+    "rh_chain_project_contract_relationships_active_contract_idx",
+    "rh_chain_project_contract_relationships_active_primary_idx",
+    "rh_4663_pulse_calls_window_idx",
+    "rh_4663_events_detected_idx",
+    "rh_4663_signals_updated_idx",
+    "rh_4663_resolution_receipts_wallet_idx",
+    "rh_4663_observations_subject_metric_idx",
+    "rh_4663_observations_observed_idx",
+    "rh_4663_signal_candidates_state_idx",
+    "rh_4663_signal_publications_archive_idx",
+    "rh_4663_signal_distribution_state_idx",
+    "rh_4663_signal_corrections_signal_idx",
+    "rh4663_product_intelligence_events_window_idx",
+    "rh4663_product_intelligence_events_campaign_window_idx",
+    "rh4663_product_intelligence_events_call_idx",
+    "observation_receipts_subject_idx",
+    "judgment_receipts_subject_idx",
+    "execution_receipts_judgment_idx",
+    "evaluation_receipts_execution_idx",
+    "judgment_observations_observation_idx",
+    "observation_receipts_judgment_scope_idx",
+    "execution_proof_one_authorization_idx",
+    "execution_proof_one_settlement_idx",
+    "economic_engine_principal_idx",
+    "economic_engine_nonce_idx",
+    "economic_engine_settlement_idx",
+    "execution_qualifying_settlement_once_idx",
+    "execution_qualifying_judgment_once_idx",
+    "canonical_receipt_acceptances_kind_sequence"
+  ],
+  "error_code": null
+}

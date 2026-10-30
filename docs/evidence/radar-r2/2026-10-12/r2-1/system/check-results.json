@@ -1,0 +1,199 @@
+{
+  "source_sha": "095b3b43365fb0bf890568b891074eceaeff74fe",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "databases": [
+    "unified_radar_cbb524d80b3c",
+    "unified_radar_cbb524d80b3c_resilience",
+    "unified_radar_cbb524d80b3c_migration",
+    "unified_radar_cbb524d80b3c_restore"
+  ],
+  "scope": "disposable localhost only; no external payment or production data",
+  "checks": [
+    {
+      "name": "runtime",
+      "command": [
+        "node",
+        "--version"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.004,
+      "raw_log": "output/radar-r2/r2-1/final-logs/runtime.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 16.083,
+      "raw_log": "output/radar-r2/r2-1/final-logs/typecheck.log"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 16.08,
+      "raw_log": "output/radar-r2/r2-1/final-logs/lint.log"
+    },
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.524,
+      "raw_log": "output/radar-r2/r2-1/final-logs/build.log"
+    },
+    {
+      "name": "migration-inventory",
+      "command": [
+        "npm",
+        "run",
+        "migrations:validate"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.279,
+      "raw_log": "output/radar-r2/r2-1/final-logs/migration-inventory.log"
+    },
+    {
+      "name": "full-tests",
+      "command": [
+        "npm",
+        "test",
+        "--",
+        "--maxWorkers=1",
+        "--testTimeout=30000",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=/home/runner/work/infopunks-pay-sh-radar/infopunks-pay-sh-radar/output/radar-r2/r2-1/final-logs/full-tests.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 187.404,
+      "raw_log": "output/radar-r2/r2-1/final-logs/full-tests.log"
+    },
+    {
+      "name": "audit-production",
+      "command": [
+        "npm",
+        "audit",
+        "--omit=dev",
+        "--json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.329,
+      "raw_log": "output/radar-r2/r2-1/final-logs/audit-production.log"
+    },
+    {
+      "name": "audit-all",
+      "command": [
+        "npm",
+        "audit",
+        "--json"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 0.323,
+      "raw_log": "output/radar-r2/r2-1/final-logs/audit-all.log"
+    },
+    {
+      "name": "migration-first",
+      "command": [
+        "node",
+        "dist/server/cli/runPostgresMigrations.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.203,
+      "raw_log": "output/radar-r2/r2-1/final-logs/migration-first.log"
+    },
+    {
+      "name": "migration-check",
+      "command": [
+        "node",
+        "dist/server/cli/runPostgresMigrations.js",
+        "--validate"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.057,
+      "raw_log": "output/radar-r2/r2-1/final-logs/migration-check.log"
+    },
+    {
+      "name": "migration-repeat",
+      "command": [
+        "node",
+        "dist/server/cli/runPostgresMigrations.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.066,
+      "raw_log": "output/radar-r2/r2-1/final-logs/migration-repeat.log"
+    },
+    {
+      "name": "recovery-seed",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "scripts/qualify-unified-radar-recovery.mjs",
+        "seed"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.545,
+      "raw_log": "output/radar-r2/r2-1/final-logs/recovery-seed.log"
+    },
+    {
+      "name": "backup",
+      "command": [
+        "pg_dump",
+        "--format=custom",
+        "--no-owner",
+        "--file=/home/runner/work/infopunks-pay-sh-radar/infopunks-pay-sh-radar/output/radar-r2/r2-1/final-logs/local-recovery.dump",
+        "unified_radar_cbb524d80b3c_migration"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.158,
+      "raw_log": "output/radar-r2/r2-1/final-logs/backup.log"
+    },
+    {
+      "name": "restore",
+      "command": [
+        "pg_restore",
+        "--no-owner",
+        "--dbname=unified_radar_cbb524d80b3c_restore",
+        "/home/runner/work/infopunks-pay-sh-radar/infopunks-pay-sh-radar/output/radar-r2/r2-1/final-logs/local-recovery.dump"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.256,
+      "raw_log": "output/radar-r2/r2-1/final-logs/restore.log"
+    },
+    {
+      "name": "recovery-verify",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "scripts/qualify-unified-radar-recovery.mjs",
+        "verify"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.423,
+      "raw_log": "output/radar-r2/r2-1/final-logs/recovery-verify.log"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.226,
+      "raw_log": "output/radar-r2/r2-1/final-logs/diff-check.log"
+    }
+  ]
+}

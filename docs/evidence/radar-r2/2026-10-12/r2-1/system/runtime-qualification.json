@@ -1,0 +1,23 @@
+{
+  "source_sha": "00d847379a1530848a8789f33cc075bd0a25095e",
+  "runtime": {
+    "node": "v24.21.0",
+    "postgresql": "16.10 (Debian 16.10-1.pgdg13+1)",
+    "browser": "Chromium 156.0.8078.4",
+    "playwright": "1.64.0",
+    "container_os": "os=debian version=12 codename=bookworm",
+    "container_image_id": "sha256:49cd8a5adb30328e0eaafd7c02fb97dbd3fbd4dcd6aecf5a124e0eb3e58c7f1e",
+    "container_platform": "linux/arm64",
+    "container_user": "node",
+    "container_uid": 1000,
+    "container_health_http": 200,
+    "container_health_body": {
+      "ok": true,
+      "status": "live",
+      "service": "infopunks-pay-sh-radar"
+    },
+    "payments_enabled": false,
+    "signing_authority_configured": false,
+    "catalog_fetch_state": "live_fetch_failed (invalid endpoint; fallback disabled; liveness still healthy)"
+  }
+}

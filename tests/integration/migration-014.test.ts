@@ -32,13 +32,15 @@ describe.skipIf(!url)('migration 014 clean schema validation', () => {
         await client.query(readFileSync('migrations/20261007_014_derived_score_projection.up.sql','utf8'));
       } finally { await client.query('rollback'); client.release(); }
       expect(await policy()).toHaveLength(1); expect(await indexes()).toEqual(before);
+      for (const migration of ['20261008_018_decision_context', '20261008_020_receipt_acceptance'])
+        await pool.query(readFileSync(`migrations/${migration}.up.sql`, 'utf8'));
       const store = new PostgresCanonicalReceiptStore(pool); const scores = createDerivedScoreService(store);
       expect((await scores.project('provider','provider_test')).score).toBe(0);
       await executionChain(store);
       const evaluation = await createEvaluationService(store,80,() => new Date('2026-10-07T00:00:04Z')).submit(evaluationRequest,'canonical-admin');
       expect(await verifyReceiptChain('evaluation',evaluation,store)).toBe(true);
       const projection = await scores.project('provider','provider_test');
-      expect(projection.score).toBe(-15);
+      expect(projection.score).toBe(0); // Bare administrative labels are inspectable but nonqualifying.
       await expectRollbackMigrationFailure(pool,'20261007_014_derived_score_projection');
       expect(await scores.project('provider','provider_test')).toEqual(projection);
       mkdirSync('output/phase4.1',{recursive:true});

@@ -14,7 +14,7 @@ describe.skipIf(!process.env.ECONOMIC_ENGINE_TEST_URL)('economic engine PostgreS
     const pool = new pg.Pool({ connectionString: process.env.ECONOMIC_ENGINE_TEST_URL, options: `-c search_path=${schema}`, max: 4 });
     try {
       await pool.query(`create schema ${schema}`);
-      for (const migration of ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_013_execution_proof_uniqueness', '20261007_014_derived_score_projection', '20261007_015_economic_judgment_engine']) {
+      for (const migration of ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_013_execution_proof_uniqueness', '20261007_014_derived_score_projection', '20261007_015_economic_judgment_engine', '20261008_018_decision_context', '20261008_020_receipt_acceptance']) {
         await pool.query(readFileSync(`migrations/${migration}.up.sql`, 'utf8'));
       }
       const f = await economicFixture({}, job => { job.policy.budget_atomic = '11000'; });

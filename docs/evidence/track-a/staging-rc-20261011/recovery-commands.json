@@ -1,0 +1,16 @@
+{
+  "scope": "Disposable local PostgreSQL 14.20 only; synthetic evidence",
+  "commands": [
+    "DATABASE_URL=postgresql://localhost/radar_track_a_rc_20261011 node dist/server/cli/runPostgresMigrations.js",
+    "DATABASE_URL=postgresql://localhost/radar_track_a_rc_20261011 node dist/server/cli/runPostgresMigrations.js --validate",
+    "DATABASE_URL=postgresql://localhost/radar_track_a_rc_20261011 node dist/server/cli/runPostgresMigrations.js",
+    "NODE_ENV=test CANONICAL_RECEIPT_TEST_URL=postgresql://localhost/radar_track_a_rc_20261011 tsx docs/evidence/track-a/staging-rc-20261011/local-recovery.mjs seed",
+    "NODE_ENV=test CANONICAL_RECEIPT_TEST_URL=postgresql://localhost/radar_track_a_rc_20261011 tsx docs/evidence/track-a/staging-rc-20261011/local-recovery.mjs snapshot",
+    "pg_dump -Fc --dbname=postgresql://localhost/radar_track_a_rc_20261011 --file=/tmp/radar-track-a-rc-20261011.dump",
+    "pg_restore --exit-on-error --no-owner --no-privileges --dbname=postgresql://localhost/radar_track_a_rc_restore_20261011 /tmp/radar-track-a-rc-20261011.dump",
+    "NODE_ENV=test CANONICAL_RECEIPT_TEST_URL=postgresql://localhost/radar_track_a_rc_restore_20261011 tsx docs/evidence/track-a/staging-rc-20261011/local-recovery.mjs verify"
+  ],
+  "all_final_exit_codes": 0,
+  "exact_receipt_signature_projection_and_tape_match": true,
+  "first_helper_attempt": "ESM named import of CJS TypeScript fixture failed before DB writes; corrected helper to default import, then seed/snapshot/restore passed"
+}

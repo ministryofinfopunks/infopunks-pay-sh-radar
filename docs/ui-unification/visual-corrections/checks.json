@@ -1,0 +1,66 @@
+[
+  {
+    "name": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "seconds": 19.603,
+    "log": "lint.log",
+    "sourceManifest": "source-hashes.json"
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "npm",
+      "run",
+      "typecheck"
+    ],
+    "exitCode": 0,
+    "seconds": 28.748,
+    "log": "typecheck.log",
+    "sourceManifest": "source-hashes.json"
+  },
+  {
+    "name": "build",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exitCode": 0,
+    "seconds": 9.025,
+    "log": "build.log",
+    "sourceManifest": "source-hashes.json"
+  },
+  {
+    "name": "design",
+    "command": [
+      "npm",
+      "run",
+      "check:design"
+    ],
+    "exitCode": 0,
+    "seconds": 0.525,
+    "log": "design.log",
+    "sourceManifest": "source-hashes.json"
+  },
+  {
+    "name": "full-tests",
+    "command": [
+      "npm",
+      "test",
+      "--",
+      "--maxWorkers=2",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile.json=docs/ui-unification/visual-corrections/full-tests.json"
+    ],
+    "exitCode": 0,
+    "seconds": 111.708,
+    "log": "full-tests.log",
+    "sourceManifest": "source-hashes.json"
+  }
+]

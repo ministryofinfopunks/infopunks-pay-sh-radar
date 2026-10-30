@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/api/app';
 import { loadRuntimeConfig, verifyRuntimeConfiguration } from '../src/config/env';
 
@@ -12,6 +12,8 @@ describe('runtime environment config', () => {
     expect(config.monitorMode).toBe('disabled');
     expect(config.databaseUrl).toBeNull();
     expect(config.databasePoolMax).toBe(10);
+    expect(config.judgmentV2ReceiptsEnabled).toBe(true);
+    expect(config.radarReadOnlyMode).toBe(false);
     expect(config.featuredProviderRotationMs).toBe(600000);
     expect(config.machineDemoSeed).toBe(true);
     expect(config.rhChainAutomationEnabled).toBe(false);
@@ -23,6 +25,30 @@ describe('runtime environment config', () => {
     expect(config.rhChainLiveTokenRouteTimeoutMs).toBe(3_800);
     expect(config.ipxPltrShadowObservationEnabled).toBe(false);
     expect(config.ipxPltrShadowObservationIntervalMs).toBe(1_800_000);
+  });
+
+  it('supports a v2 receipt freeze without changing payment or read-only runtime defaults', () => {
+    const frozen = loadRuntimeConfig({ ...production, JUDGMENT_V2_RECEIPTS_ENABLED: 'false' });
+    expect(frozen.judgmentV2ReceiptsEnabled).toBe(false);
+    expect(frozen.judgmentPaymentEnabled).toBe(false);
+    expect(loadRuntimeConfig(production).judgmentV2ReceiptsEnabled).toBe(true);
+  });
+
+  it('loads an explicit complete read-only fallback mode', () => {
+    expect(loadRuntimeConfig({ ...production, RADAR_READ_ONLY_MODE: 'true' }).radarReadOnlyMode).toBe(true);
+    expect(loadRuntimeConfig(production).radarReadOnlyMode).toBe(false);
+  });
+
+  it('keeps the read-only Radar shell and liveness route available in v2 freeze mode', async () => {
+    vi.stubEnv('NODE_ENV', 'test');
+    vi.stubEnv('JUDGMENT_V2_RECEIPTS_ENABLED', 'false');
+    const app = await createApp();
+    try {
+      expect((await app.inject({ method: 'GET', url: '/healthz' })).statusCode).toBe(200);
+      const home = await app.inject({ method: 'GET', url: '/' });
+      expect(home.statusCode).toBe(200);
+      expect(home.headers['content-type']).toContain('text/html');
+    } finally { await app.close(); vi.unstubAllEnvs(); }
   });
 
   it('supports explicit safe metadata monitor mode and legacy enabled compatibility', () => {

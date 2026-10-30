@@ -1,0 +1,8 @@
+{
+  "source_sha": "8e6c06346e2e4648b3a98b2f3526f9a2b835c40b",
+  "classification": "REAL_LOCAL_BACKEND_STOP_AND_RESTART; synthetic credential and disposable database",
+  "unavailable_message": "Check unavailable. Your wallet has not been used. Try again.",
+  "retry_pass": true,
+  "receipt_issued": false,
+  "restored_backend_pid": 47393
+}

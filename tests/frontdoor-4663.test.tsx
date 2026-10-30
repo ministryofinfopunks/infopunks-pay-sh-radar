@@ -37,6 +37,17 @@ describe('4663 front door', () => {
     expect(container.querySelector('.fd-now-card time')?.textContent).toBe('4m');
   });
 
+  it('keeps anonymous Front Door reads public and derives follows locally without private wallet requests', async () => {
+    const fetchSpy = vi.mocked(globalThis.fetch);
+    await render();
+    const call = container.querySelector('#call');
+    expect(call?.textContent).toContain('Private CALL history requires an approved identity');
+    const calledPaths = fetchSpy.mock.calls.map(([input]) => String(input));
+    expect(calledPaths.some((path) => /\/v1\/4663\/(?:me(?:\/|\?)|proof\/|pulse\/reputation)/.test(path))).toBe(false);
+    expect(calledPaths.some((path) => path.includes('/v1/4663/frontdoor'))).toBe(true);
+    expect(container.querySelector('.fd-my4663')).not.toBeNull();
+  });
+
   it('keeps all primary destinations keyboard reachable and exposes text evidence states', async () => {
     await render();
     const links = Array.from(container.querySelectorAll('.fd-nav a')) as HTMLAnchorElement[];

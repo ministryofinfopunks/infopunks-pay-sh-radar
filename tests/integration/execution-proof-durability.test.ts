@@ -7,11 +7,13 @@ import { createReceiptAuthorityService } from '../../src/services/receiptAuthori
 
 describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('durable execution proof authority', () => {
   it('replays after restart and blocks duplicate authorization/settlement at the database', async () => {
-    const database = await createCanonicalTestDatabase(process.env.CANONICAL_RECEIPT_TEST_URL!, 'execution_proof', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_013_execution_proof_uniqueness']);
+    const database = await createCanonicalTestDatabase(process.env.CANONICAL_RECEIPT_TEST_URL!, 'execution_proof', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_013_execution_proof_uniqueness', '20261008_018_decision_context', '20261008_019_execution_score_eligibility', '20261008_020_receipt_acceptance', '20261008_021_free_assessment_attempts', '20261008_022_publication_boundaries']);
     const pool = database.pool;
     try {
       const f = await setupExecution(); const store = new PostgresCanonicalReceiptStore(pool);
-      await store.append('observation', f.observation); await store.append('judgment', f.parent);
+      await store.append('observation', f.observation);
+      await store.appendDecisionContext((await f.store.getDecisionContext(f.parent.judgment_id))!);
+      await store.append('judgment', f.parent);
       const service = () => createExecutionProofService({ store: new PostgresCanonicalReceiptStore(pool), threshold: 80, verifier: f.verifier });
       const first = await service().submit(f.proof);
       expect(await service().submit(f.proof)).toEqual(first);
@@ -22,6 +24,7 @@ describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('durable execution proo
       await expect(pool.query('delete from execution_receipts')).rejects.toMatchObject({ code: '55000' });
       await expect(pool.query('truncate execution_receipts cascade')).rejects.toMatchObject({ code: '55000' });
       await expectRollbackMigrationFailure(pool, '20261007_013_execution_proof_uniqueness', 'refusing to remove execution authority protections');
+      await expectRollbackMigrationFailure(pool, '20261008_019_execution_score_eligibility', 'refusing to remove qualifying execution replay protection');
     } finally { await database.close(); }
   });
 });

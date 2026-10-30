@@ -1,0 +1,52 @@
+{
+  "gate": "G1",
+  "status": "PASS",
+  "approval_source": "Explicit human reply to UI-INT2 visual checkpoints question",
+  "answer": "Approve both visual checkpoints",
+  "date": "2026-10-12",
+  "scope": "Canonical homepage and shared identity across secure workflows; appearance only. No merge or release authorization.",
+  "review_url": "http://127.0.0.1:5187/ui-int2/review.html",
+  "reference_sha": "1f3f9f99e81f78c9aa7e79d42c53e395f8e3040c",
+  "approved_files": [
+    {
+      "file": "after-mobile-rh-chain-signal-desk.png",
+      "sha256": "7e9ef4790d8d58378f8c706afd84002b3b6558870680b0245db48490cbcdfe42"
+    },
+    {
+      "file": "after-mobile-receipts.png",
+      "sha256": "007ca9adba308873a56021666b1a8768ab151c54a7589425f2761b48879a8c5a"
+    },
+    {
+      "file": "after-desktop-receipts.png",
+      "sha256": "e366bad905dd21dc350b591449533df6d6780d37fa6f1835d3b56da38e814cb9"
+    },
+    {
+      "file": "after-mobile-home.png",
+      "sha256": "c080791bd1d9ec16cfd7da84e4b1a58e11bafbfae437cbb20102a89ac0e60745"
+    },
+    {
+      "file": "after-desktop-solana.png",
+      "sha256": "79920e8c7bfe5354f1f58dfd10ede5aaf561f0131d3fda3d8ce65ecaca9aac85"
+    },
+    {
+      "file": "after-mobile-solana.png",
+      "sha256": "b82a35d245878ea3ee46556b3a40d832368f623ea6a334f209d2072f251b83e0"
+    },
+    {
+      "file": "after-desktop-rh-chain-signal-desk.png",
+      "sha256": "2b795d0d46f85aab1de8e834d3217969c16f01f7208791d6424c047c87fb6541"
+    },
+    {
+      "file": "after-mobile-spend-terminal.png",
+      "sha256": "2b5c7d41cef0ee4ec0538f2f953feb254d3793415e8493ff7052c7c20c2f5abb"
+    },
+    {
+      "file": "after-desktop-home.png",
+      "sha256": "67b45aa7a2264988c664283a6061030c2c97b2aab17ef2f009bd3af4ea8f5893"
+    },
+    {
+      "file": "after-desktop-spend-terminal.png",
+      "sha256": "77ae2158b6b2ab4d6431772a16f518829018159c3d77e73bce3b46e10cba4a99"
+    }
+  ]
+}

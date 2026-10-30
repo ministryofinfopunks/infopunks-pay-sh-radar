@@ -1,0 +1,40 @@
+{
+  "source_sha": "095b3b43365fb0bf890568b891074eceaeff74fe",
+  "environment": "synthetic tenant credentials; disposable PostgreSQL; payment disabled",
+  "results": {
+    "tenant_a_own_request": {
+      "status": 200,
+      "state": "assessed_free",
+      "error": null
+    },
+    "tenant_b_denied_tenant_a": {
+      "status": 404,
+      "state": null,
+      "error": "judgment_request_not_found"
+    },
+    "same_tenant_wrong_agent": {
+      "status": 404,
+      "state": null,
+      "error": "judgment_request_not_found"
+    },
+    "invalid_credential": {
+      "status": 401,
+      "state": null,
+      "error": "judgment_authentication_required"
+    },
+    "expired_credential": {
+      "status": 401,
+      "state": null,
+      "error": "judgment_authentication_required"
+    },
+    "missing_credential": {
+      "status": 401,
+      "state": null,
+      "error": "judgment_authentication_required"
+    },
+    "credential_exposure": {
+      "url_contains_credential": false,
+      "local_storage_contains_credential": false
+    }
+  }
+}

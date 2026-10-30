@@ -1,0 +1,222 @@
+[
+  {
+    "file": "migrations/20260719_001_rh_chain_market_snapshot_memory.down.sql",
+    "sha256": "6a9ca792a58af68189b3a457628637d8cda8b0aaac88cdcf6e51c882989866dd",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260719_001_rh_chain_market_snapshot_memory.up.sql",
+    "sha256": "ef0892b3d8113942c198be7ecaec59ce8e711a71db2f593525857d07f1afe23e",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260719_002_rh_chain_reviewed_classifications.down.sql",
+    "sha256": "beafa8bebb6c7409b6aa4c30a9b3ab513b7716f88a4c2a7a284e34bfdb6f601a",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260719_002_rh_chain_reviewed_classifications.up.sql",
+    "sha256": "2fe457ce7ed9bd6aaa6e3878bc0ca1a1ca6f3d21897c37d0c33810b91a13d63d",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260719_003_rh_chain_classification_layer_vocabulary.down.sql",
+    "sha256": "3ab3e4bd8c537ff687d3d0a4607eafd62fa588d99f08e1c6e8fd157a0fa25fb1",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260719_003_rh_chain_classification_layer_vocabulary.up.sql",
+    "sha256": "4ebab9a142c918ceeebf94e24961462bea5d2d5f518e0b640f88082d7011efc2",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260719_004_rh_chain_attention_quality_receipts.down.sql",
+    "sha256": "edcc7bbb3f3ab30242a0bc31a8ad4dcec432a2d0fdf40812dd16258d3a5bb039",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260719_004_rh_chain_attention_quality_receipts.up.sql",
+    "sha256": "a28686d6505bc79d3787a890192622bbd9ab75b0b75766fd7d78337e876e7049",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260719_005_rh_chain_project_claims.down.sql",
+    "sha256": "3c168dc1988585439bad56b269d4416935d5d6f956a1809798e68cb3ddfee2cc",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260719_005_rh_chain_project_claims.up.sql",
+    "sha256": "63c4d89b45e28f7b20cef6897987d8d10b10975a67d6e55b7d764fd1a1d73127",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260720_006_rh_chain_reviewer_workflow.down.sql",
+    "sha256": "88464c6845775fa8c8b2b03c62567fccc50b917efdb1414031748bfcfd78a47f",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260720_006_rh_chain_reviewer_workflow.up.sql",
+    "sha256": "120fd922d3e408112b8f5e24b6b0fb4cc24e2286d21204c068f00c7543366a9b",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260813_007_infopunks_4663_phase1.down.sql",
+    "sha256": "5709ba546eb017c5721784f60effd8724a64503e76ea4a0b0f4eaebc0b62a4a8",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260813_007_infopunks_4663_phase1.up.sql",
+    "sha256": "f230eeb1483868d0e0910f651a128ed1ad3856e59f272576376ec64653ca9ce1",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260813_008_infopunks_4663_close_the_loop.down.sql",
+    "sha256": "fb14b88c5d99da59d4d3512ad9c469de3ded6eaa994da6f9360d96cc884ec659",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260813_008_infopunks_4663_close_the_loop.up.sql",
+    "sha256": "f55f1dcf767ce495d0f07e18a2965f80c545ad55d9c309fc29082bd53eb487b7",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260814_009_infopunks_4663_make_the_chain_speak.down.sql",
+    "sha256": "b9d2ef665eaa286b013169a6f556b48cea8aa9091ac7efcc3286527de8a5efb0",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260814_009_infopunks_4663_make_the_chain_speak.up.sql",
+    "sha256": "756a804d4f8516b585c671cea4212652b4915f1e8a1f7b2a18abec9f2234717b",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260908_010_rh4663_product_intelligence.down.sql",
+    "sha256": "891c597269b11476f1badc7356d94568fd83280eaa09dbc61ce5dd636896149a",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20260908_010_rh4663_product_intelligence.up.sql",
+    "sha256": "a5918a91827a6798fcd5c38c6c0bb2a9ef265b9baa3589452a4493275b4abca1",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261007_011_canonical_receipt_spine.down.sql",
+    "sha256": "9cfad34b637cdac73d92bf72c2798dbe0173486872eada6d24d8ebbdbcd4147b",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261007_011_canonical_receipt_spine.up.sql",
+    "sha256": "78759614ada801c801920410d5010f6fcb6ec1c563a1974cba836ea3c8ba551f",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261007_012_judgment_requests.down.sql",
+    "sha256": "ec2ece6ee2ba71432f6c63add0c3d506031aac03a5215a5ed531286e41c96f7b",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261007_012_judgment_requests.up.sql",
+    "sha256": "c810a9df8d663507d9bae0e76259e84c39c3ecb2b854183283bd26cd350884ed",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261007_013_execution_proof_uniqueness.down.sql",
+    "sha256": "da57d8e6dd3da1d9df3a388c56cd2d36c86d25106b00f24bf5e1db2e604dacb8",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261007_013_execution_proof_uniqueness.up.sql",
+    "sha256": "cbd8ef09fff8461ecbffcfb0c71678ed9f46899abd758656692c36e04175b33e",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261007_014_derived_score_projection.down.sql",
+    "sha256": "ab00486d1172bc1dc0c6f960a3650155b07204c7eacf7a7e1db79dc404022c48",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261007_014_derived_score_projection.up.sql",
+    "sha256": "d6f033ee13d73b36477c080d3b38cc6c343cf5bf8f5c64a00373ee2573afbec3",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261007_015_economic_judgment_engine.down.sql",
+    "sha256": "de0fc6838c753e588d6386a4414f49c1edf4e8a5722d228996a8574222bb8e0a",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261007_015_economic_judgment_engine.up.sql",
+    "sha256": "0c0a61601c59bcb746e9179ae8695f50f25184b128c0121fd150aa0c6ee0efae",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261008_016_rh_usdg_accounting.down.sql",
+    "sha256": "577367dd0552a704cae09e7c9503e9701df88fc92cf8711a7eafc1e7c1e30a7f",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261008_016_rh_usdg_accounting.up.sql",
+    "sha256": "a7db94157975c95b2085ed67a038b0d750b4e37c0d13e54327fe17b4b3c334e9",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261008_017_ipx_launch.down.sql",
+    "sha256": "c1a0a27871c0f039db463b1915548b483861841d35a21b65830a75357774faf9",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261008_017_ipx_launch.up.sql",
+    "sha256": "77583eea4504ce611737f8f73f94172309229378bceefb21068752ee07e6f364",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261008_018_decision_context.down.sql",
+    "sha256": "342ad18f506aacb24587f49d82fed43582e152d5622f9decb7c4d230bf86a1ce",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261008_018_decision_context.up.sql",
+    "sha256": "388aab7dcfe4b5c41052dd5213a55ee81886b769ff96fef7b1ac93b34697a815",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261008_019_execution_score_eligibility.down.sql",
+    "sha256": "205c3f040b25349314f7f8c91059caf4329d44c1079edb1ad27c05034a6472b7",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261008_019_execution_score_eligibility.up.sql",
+    "sha256": "22544b426e91771c9b6beded5c50d657de5d71c0cc9ff017402c7f1411471c71",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261008_020_receipt_acceptance.down.sql",
+    "sha256": "8708e37fdce608f51d8b1f917b6ebc67b6baa3d6814372c89cfa6d948217a1a3",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261008_020_receipt_acceptance.up.sql",
+    "sha256": "4f72db8131c5b3620254a9c8ac52e761397296ec3b581440b69f36ad7da55be7",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261008_021_free_assessment_attempts.down.sql",
+    "sha256": "96092944d842b2ada57e1d2a88a108636c500229882f370c843ba4a5b044c3f4",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261008_021_free_assessment_attempts.up.sql",
+    "sha256": "64cb87863e6f6a425e60aea8145a943a39eb058d0e1dcc0368df8616a39e7989",
+    "historical_001_021_unchanged": true
+  },
+  {
+    "file": "migrations/20261008_022_publication_boundaries.down.sql",
+    "sha256": "a216afcd3dcc67d0d7b1821a2c176cdc3130cdd3b498bf2bcd9b4691ca925e69",
+    "historical_001_021_unchanged": null
+  },
+  {
+    "file": "migrations/20261008_022_publication_boundaries.up.sql",
+    "sha256": "2c39cd656076f20d3eaae6b1c6d8f4a5f9bee1b65775a93cd80a9c76fc012ca0",
+    "historical_001_021_unchanged": null
+  }
+]

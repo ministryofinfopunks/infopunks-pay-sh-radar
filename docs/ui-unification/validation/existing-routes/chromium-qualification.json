@@ -1,0 +1,326 @@
+[
+  {
+    "route": "/",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Before your agent spends, check the evidence."
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "incomplete": [
+      {
+        "id": "aria-prohibited-attr",
+        "nodes": 4
+      }
+    ],
+    "violations": []
+  },
+  {
+    "route": "/narratives/robinhood-chain",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "RH Chain Signal Desk"
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 2,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 2,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 2,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 2,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 2,
+        "overflow": []
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 2,
+        "overflow": []
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 2,
+        "overflow": []
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "incomplete": [
+      {
+        "id": "aria-prohibited-attr",
+        "nodes": 1
+      },
+      {
+        "id": "aria-valid-attr-value",
+        "nodes": 2
+      },
+      {
+        "id": "color-contrast",
+        "nodes": 6
+      }
+    ],
+    "violations": []
+  },
+  {
+    "route": "/rh-chain-signal-desk",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Know what is moving.Know what is real."
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "incomplete": [
+      {
+        "id": "aria-valid-attr-value",
+        "nodes": 2
+      },
+      {
+        "id": "color-contrast",
+        "nodes": 6
+      }
+    ],
+    "violations": []
+  },
+  {
+    "route": "/solana",
+    "identity": {
+      "headers": 1,
+      "footers": 1,
+      "signal": "#00eee4",
+      "headline": "Proof before agent spend."
+    },
+    "layouts": [
+      {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 375,
+        "client": 375,
+        "scroll": 375,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 430,
+        "client": 430,
+        "scroll": 430,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 768,
+        "client": 768,
+        "scroll": 768,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1024,
+        "client": 1024,
+        "scroll": 1024,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      },
+      {
+        "width": 1440,
+        "client": 1440,
+        "scroll": 1440,
+        "mains": 1,
+        "h1": 1,
+        "overflow": []
+      }
+    ],
+    "menuCheck": true,
+    "errors": [],
+    "incomplete": [
+      {
+        "id": "aria-prohibited-attr",
+        "nodes": 51
+      },
+      {
+        "id": "aria-valid-attr-value",
+        "nodes": 2
+      },
+      {
+        "id": "color-contrast",
+        "nodes": 47
+      }
+    ],
+    "violations": []
+  }
+]

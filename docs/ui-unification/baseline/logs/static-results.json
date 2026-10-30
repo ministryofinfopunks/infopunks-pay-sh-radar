@@ -1,0 +1,51 @@
+[
+  {
+    "name": "runtime",
+    "command": [
+      "node",
+      "--version"
+    ],
+    "exit_code": 0,
+    "duration_seconds": 0.065
+  },
+  {
+    "name": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exit_code": 0,
+    "duration_seconds": 18.252
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "npm",
+      "run",
+      "typecheck"
+    ],
+    "exit_code": 0,
+    "duration_seconds": 16.845
+  },
+  {
+    "name": "build",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exit_code": 0,
+    "duration_seconds": 7.014
+  },
+  {
+    "name": "design",
+    "command": [
+      "npm",
+      "run",
+      "check:design"
+    ],
+    "exit_code": 0,
+    "duration_seconds": 0.504
+  }
+]

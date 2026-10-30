@@ -1,0 +1,13 @@
+{
+  "source_sha": "35f2e54a288311d1df0f8820dacb216c27175791",
+  "route_count": 33,
+  "viewport_count": 3,
+  "http_failures": 0,
+  "document_overflow_failures": 0,
+  "axe_violation_count": 0,
+  "axe_incomplete_node_count": 315,
+  "private_request_failures": 0,
+  "reflow_reports": 8,
+  "keyboard_reduced_motion_recorded": true,
+  "failures": []
+}

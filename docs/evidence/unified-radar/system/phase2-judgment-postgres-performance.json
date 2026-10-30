@@ -1,0 +1,16 @@
+{
+  "adapter": "local_postgres",
+  "external_payment": "mocked",
+  "insufficient": {
+    "samples": 100,
+    "p50_ms": 0.2501249999999686,
+    "p95_ms": 0.34312499999998636,
+    "max_ms": 3.0197919999999954
+  },
+  "paid_replay": {
+    "samples": 100,
+    "p50_ms": 3.147416000000021,
+    "p95_ms": 3.8989579999999933,
+    "max_ms": 4.852665999999999
+  }
+}

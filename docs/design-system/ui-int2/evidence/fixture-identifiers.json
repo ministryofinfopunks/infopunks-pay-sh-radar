@@ -1,0 +1,8 @@
+{
+  "classification": "SYNTHETIC_LOCAL_AUTHORIZED_FIXTURE",
+  "judgment": "judgment_bf5bda24d2e154573f1f302b1cf8b1015dd579b43aefbf2c7f23f538ae3e1b22",
+  "observation": "ui_int2_observation",
+  "pendingExecution": "ui_int2_pending_execution",
+  "evaluation": "ui_int2_evaluation",
+  "issuerSignatureValid": true
+}

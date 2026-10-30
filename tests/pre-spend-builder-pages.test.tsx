@@ -4,6 +4,7 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../src/web/radarApp';
+import { RadarAppShell } from '../src/web/radarAppShell';
 
 const route = { route_id: 'route_pay_sh_market_research_01', provider_id: 'provider_pay_sh_lattice', service_id: 'service_market_research', endpoint: 'POST /market/research', payment_method: 'stablecoin', estimated_cost: '0.25 USDC', latency_ms_p50: 900, latency_ms_p95: 1600, success_rate: 0.91, last_tested_at: '2026-06-15T10:10:00.000Z', last_successful_run: '2026-06-14T09:40:00.000Z', last_failed_run: '2026-06-10T11:05:00.000Z', confidence_score: 82, risk_level: 'medium', known_blockers: ['occasional timeout under high load'], receipt_references: ['receipt_001'], recommended_use_case: 'buy_market_research', avoid_conditions: ['strict sub-second latency required'] };
 const provider = { provider_id: 'provider_pay_sh_lattice', name: 'Lattice Research Relay', service_categories: ['market_research'], reliability_score: 89, pricing_consistency: 'mostly consistent', output_quality_notes: ['prompt-specific variability under vague requests'], uptime_notes: ['minor timeout spikes during high load'], dispute_history: [], human_validation_status: 'human_validated', known_risks: ['broad prompts widen output variance'], agent_compatibility: ['research_agents'], route_coverage: 1, recent_receipt_count: 1 };
@@ -30,7 +31,7 @@ async function render(path: string) {
   let root!: Root;
   await act(async () => {
     root = createRoot(container);
-    root.render(<App />);
+    root.render(<RadarAppShell><App /></RadarAppShell>);
   });
   await act(async () => {
     await Promise.resolve();
@@ -147,7 +148,7 @@ describe('pre-spend builder pages', () => {
       if (path === '/v1/claims/claim_001') return json({ ...claim, challenges: [] });
       if (path === '/v1/claims/missing-claim') return Promise.resolve(new Response(JSON.stringify({ error: 'claim_not_found' }), { status: 404 }));
       if (path === '/v1/claims/claim_001/challenges') return json({ claim_id: 'claim_001', challenges: [] });
-      if (path === '/v1/pre-spend/check') return json(decision);
+      if (path === '/v1/pre-spend/check') return Promise.resolve(new Response(JSON.stringify({ judgment_id: 'test-check', decision: 'insufficient_evidence', confidence: 0, issued_at: '2026-10-07T00:00:02Z', valid_until: '2026-10-07T00:00:02Z', reasons: ['Required fresh evidence is missing.'], cited_observations: [], cost: { amount: '0', asset: 'USDC' }, payment_required: false, receipt: null, data: decision }), { status: 200 }));
       return Promise.resolve(new Response('{}', { status: 404 }));
     });
   });
@@ -168,16 +169,17 @@ describe('pre-spend builder pages', () => {
     await act(async () => {
       await Promise.resolve();
     });
-    expect(container.textContent).toContain('approved_with_warning');
-    expect(container.querySelector('a[href="/routes/route_pay_sh_market_research_01"]')).toBeTruthy();
-    expect(container.querySelector('a[href="/receipts/receipt_001"]')).toBeTruthy();
+    expect(container.textContent).toContain('Insufficient evidence');
+    expect(container.textContent).toContain('Free assessment · no canonical receipt');
+    expect(container.querySelector('a[href="/routes"]')).toBeTruthy();
+    expect(container.querySelector('a[href="/receipts"]')).toBeTruthy();
     root.unmount();
   });
 
   it('preloads MONITOR from the public spend-terminal query surface', async () => {
     const { root, container } = await render('/spend-terminal?intent=allocate_to_pltr_paired_narrative_token&subject=monitor');
-    expect((container.querySelector('input[aria-label="intent"]') as HTMLInputElement).value).toBe('allocate_to_pltr_paired_narrative_token');
-    expect((container.querySelector('input[aria-label="preferred settlement"]') as HTMLInputElement).value).toBe('tokenized_pltr');
+    expect((container.querySelector('input[maxlength="256"]') as HTMLInputElement).value).toBe('allocate_to_pltr_paired_narrative_token');
+    expect((container.querySelector('input[maxlength="64"]') as HTMLInputElement).value).toBe('stablecoin');
 
     const form = container.querySelector('form')!;
     await act(async () => {
@@ -194,9 +196,8 @@ describe('pre-spend builder pages', () => {
     expect(JSON.parse(String(request?.body))).toMatchObject({
       intent: 'allocate_to_pltr_paired_narrative_token',
       subject_id: 'monitor',
-      linked_check_id: 'monitor',
-      preferred_settlement: 'tokenized_pltr',
-      required_confidence: 75
+      preferred_settlement: 'stablecoin',
+      required_confidence: 80
     });
     root.unmount();
   });
@@ -205,14 +206,12 @@ describe('pre-spend builder pages', () => {
     const { root, container } = await render('/developers');
     const text = container.textContent ?? '';
     expect(text).toContain('Before your agent pays, it checks Infopunks.');
-    expect(text).toContain('createInfopunksPreSpendClient');
+    expect(text).toContain('createInfopunksClient');
+    expect(text).toContain('createX402WalletPayment');
     expect(text).toContain('POST /v1/pre-spend/check');
     expect(text).toContain('https://radar.infopunks.fun');
-    expect(text).toContain('approved');
-    expect(text).toContain('approved_with_warning');
-    expect(text).toContain('use_with_caution');
-    expect(text).toContain('requires_human_approval');
-    expect(text).toContain('do_not_use');
+    for (const state of ['proceed', 'test_spend_first', 'do_not_spend', 'insufficient_evidence']) expect(text).toContain(state);
+    expect(text).toContain('This browser check has no payment adapter.');
     expect(text).toContain('No receipt, no trust.');
     expect(text).toContain('Every decision should point back to receipts.');
     expect(text).toContain('Receipts capture route runs, cost, latency, status, validation, confidence delta, and evidence artifacts.');
@@ -222,6 +221,14 @@ describe('pre-spend builder pages', () => {
     expect(text).toContain('A safety API is useful. A registry makes adoption visible.');
     expect(container.querySelector('a[href="/developers/wallet-safety"]')).toBeTruthy();
     expect(container.querySelector('a[href="/developers/wallet-safety/integrations"]')).toBeTruthy();
+    const codeBlocks = Array.from(container.querySelectorAll('pre.builder-code-block')) as HTMLPreElement[];
+    expect(codeBlocks.length).toBeGreaterThanOrEqual(3);
+    for (const block of codeBlocks) {
+      expect(block.tabIndex).toBe(0);
+      expect(block.getAttribute('role')).toBe('region');
+      expect(block.getAttribute('aria-label')).toBe('Integration code example');
+    }
+    expect(container.querySelector('input[aria-label="Tenant access key"]')?.getAttribute('type')).toBe('password');
     expect(container.querySelector('a[href="/spend-terminal"]')).toBeTruthy();
     expect(container.querySelector('a[href="/routes"]')).toBeTruthy();
     expect(container.querySelector('a[href="/providers"]')).toBeTruthy();

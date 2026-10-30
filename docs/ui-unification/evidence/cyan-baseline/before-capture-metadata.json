@@ -1,0 +1,21 @@
+{
+  "phase": "before",
+  "capturedAt": "2026-10-15T03:39:46.969Z",
+  "sourceCommit": "d3d0a445ec20e8c55170c2fc1f52aff220b2a851",
+  "sourceBranch": "codex/radar-subpages-ui-unification",
+  "browserVersion": "155.0.8059.40",
+  "base": "http://127.0.0.1:5173",
+  "viewportSizes": {
+    "desktop": [
+      1440,
+      1000
+    ],
+    "mobile": [
+      390,
+      844
+    ]
+  },
+  "reducedMotion": "reduce",
+  "fixtureApiReplay": false,
+  "qualification": "Local development fixture-backed UI only; no production or manual screen-reader qualification"
+}

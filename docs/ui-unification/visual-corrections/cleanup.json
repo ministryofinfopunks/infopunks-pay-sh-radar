@@ -1,0 +1,32 @@
+{
+  "completedAt": "2026-10-15T09:00:36.432429+00:00",
+  "postgresStop": {
+    "directory": "/private/tmp/radar-ui-vr-pg-u_wxkspx",
+    "exitCode": 0,
+    "output": "waiting for server to shut down.... done\nserver stopped\n"
+  },
+  "ports": {
+    "5173": {
+      "listening": true,
+      "scope": "User-requested local preview retained"
+    },
+    "8787": {
+      "listening": true,
+      "scope": "User-requested local preview retained"
+    },
+    "5174": {
+      "listening": false,
+      "scope": "Temporary qualification service stopped"
+    },
+    "5175": {
+      "listening": false,
+      "scope": "Temporary qualification service stopped"
+    },
+    "55433": {
+      "listening": false,
+      "scope": "Temporary qualification service stopped"
+    }
+  },
+  "preexistingServices": "Unrelated localhost:5432 was never stopped or modified. No other service was terminated.",
+  "snapshots": "Retained for reproducibility"
+}

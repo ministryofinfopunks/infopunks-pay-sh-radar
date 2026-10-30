@@ -3,16 +3,21 @@ import type { JudgmentIssuer, JudgmentIssuerTrust } from '../security/judgmentIs
 import { CANONICAL_RECEIPT_SCHEMA_VERSION, type ObservationReceipt, type JudgmentReceipt, type ExecutionReceipt, type EvaluationReceipt, type ReceiptKind } from '../schemas/receipts';
 import { hashCanonical, sealReceipt, verifyReceiptIntegrity } from './receiptIntegrityService';
 import { createDerivedScoreService } from './derivedScoreService';
+import type { DecisionContext } from '../schemas/decisionContext';
+import { verifyDecisionContext } from './decisionContextService';
+import { verifyEvaluationClassification } from './evaluationClassificationService';
 
 export const RECEIPT_POLICY_VERSION = 'receipt-authority.v1';
+export const RECEIPT_POLICY_VERSION_V2 = 'receipt-authority.v2';
 export class ReceiptAuthorityError extends Error {
-  readonly statusCode: number = 400;
-  constructor(readonly code: string) { super(code); this.name = 'ReceiptAuthorityError'; }
+  constructor(readonly code: string, readonly statusCode = 400) { super(code); this.name = 'ReceiptAuthorityError'; }
 }
 export type ReceiptRecord = ObservationReceipt | JudgmentReceipt | ExecutionReceipt | EvaluationReceipt;
 export interface ReceiptReader {
   readonly judgmentTrust?: JudgmentIssuerTrust;
   get(kind: ReceiptKind, id: string): Promise<ReceiptRecord | null>;
+  getDecisionContext?(assessmentId: string): Promise<DecisionContext | null>;
+  getAcceptance?(kind: ReceiptKind, id: string): Promise<{ sequence: number; accepted_at: string } | null>;
 }
 const requireAuthority = (condition: unknown, code: string): void => { if (!condition) throw new ReceiptAuthorityError(code); };
 
@@ -26,7 +31,11 @@ export async function assertReceiptAuthority(kind: ReceiptKind, receipt: Receipt
   if (kind === 'judgment') {
     const judgment = receipt as JudgmentReceipt;
     if (judgment.issuer_signature) requireAuthority(reader.judgmentTrust?.verify(judgment), 'judgment_issuer_signature_invalid');
-    requireAuthority(judgment.policy_version === RECEIPT_POLICY_VERSION, 'unsupported_receipt_policy');
+    requireAuthority(judgment.policy_version === (judgment.schema_version === 'canonical-receipts.v2' ? RECEIPT_POLICY_VERSION_V2 : RECEIPT_POLICY_VERSION), 'unsupported_receipt_policy');
+    if (judgment.schema_version === 'canonical-receipts.v2') {
+      const context = await reader.getDecisionContext?.(judgment.judgment_id);
+      requireAuthority(context && await verifyDecisionContext(context, judgment, reader), 'decision_context_invalid');
+    }
     for (const [index, id] of judgment.cited_observation_ids.entries()) {
       const observation = await reader.get('observation', id) as ObservationReceipt | null;
       requireAuthority(observation, 'observation_not_found');
@@ -50,6 +59,15 @@ export async function assertReceiptAuthority(kind: ReceiptKind, receipt: Receipt
       const rail = ECONOMIC_RAILS[execution.verification.settlement.network];
       requireAuthority(execution.verification.profile === rail.profile && execution.verification.settlement.provenance === rail.provenance && execution.settlement_rail === rail.rail && execution.cost_asset === rail.asset && execution.settlement_ref.toLowerCase() === execution.verification.settlement.transaction_hash.toLowerCase(), 'execution_settlement_identity_mismatch');
     }
+    if (execution.score_eligibility?.state === 'qualifying') {
+      requireAuthority(
+        Boolean(execution.verification)
+          && execution.score_eligibility.intake === 'external_proof_gateway.v1'
+          && execution.score_eligibility.proof_profile === execution.verification?.profile
+          && execution.score_eligibility.reason === 'finalized_settlement_and_payload_verified',
+        'execution_score_eligibility_invalid'
+      );
+    }
     const judgment = await reader.get('judgment', execution.judgment_id) as JudgmentReceipt | null;
     requireAuthority(judgment, 'judgment_not_found');
     if (!judgment) return;
@@ -67,14 +85,21 @@ export async function assertReceiptAuthority(kind: ReceiptKind, receipt: Receipt
   requireAuthority(execution, 'execution_not_found');
   if (!execution) return;
   await assertReceiptAuthority('execution', execution, reader, threshold);
+  if (evaluation.classification) {
+    const judgment = await reader.get('judgment', execution.judgment_id) as JudgmentReceipt | null;
+    requireAuthority(judgment && verifyEvaluationClassification(evaluation, execution, judgment), 'evaluation_classification_invalid');
+  }
   requireAuthority(evaluation.parent_hash === execution.receipt_hash, 'parent_hash_mismatch');
   requireAuthority(Date.parse(evaluation.evaluated_at) >= Date.parse(execution.executed_at), 'evaluation_before_execution');
 }
 
 export interface ReceiptAppendStore extends ReceiptReader {
   append(kind: ReceiptKind, receipt: ReceiptRecord): Promise<ReceiptRecord>;
+  appendDecisionContext?(context: DecisionContext): Promise<DecisionContext>;
   list(kind: ReceiptKind): Promise<ReceiptRecord[]>;
-  evaluationHistory?(subjectType: string, subjectId: string): Promise<ReceiptRecord[]>;
+  evaluationHistory?(subjectType: string, subjectId: string, acceptedThrough?: number): Promise<ReceiptRecord[]>;
+  acceptanceBoundary?(): Promise<{ sequence: number; accepted_at: string }>;
+  listQuarantine?(): Promise<Array<{ receipt_kind: ReceiptKind; receipt_id: string; receipt_hash: string; reason: string; publication_sequence: number }>>;
 }
 export function createReceiptAuthorityService(store: ReceiptAppendStore, threshold = 80, issuer?: JudgmentIssuer | null) {
   return {
@@ -85,7 +110,10 @@ export function createReceiptAuthorityService(store: ReceiptAppendStore, thresho
     async appendJudgment(input: Omit<JudgmentReceipt, 'schema_version' | 'policy_version' | 'proceed_confidence_threshold' | 'parent_hashes' | 'receipt_hash' | 'issuer_signature'>) {
       const parents = await Promise.all(input.cited_observation_ids.map((id) => store.get('observation', id)));
       requireAuthority(parents.every(Boolean), 'observation_not_found');
-      const receipt = sealReceipt('judgment', { ...input, schema_version: CANONICAL_RECEIPT_SCHEMA_VERSION, policy_version: RECEIPT_POLICY_VERSION, proceed_confidence_threshold: threshold, parent_hashes: parents.map((parent) => parent!.receipt_hash) }) as JudgmentReceipt;
+      const receipt = sealReceipt('judgment', { ...input,
+        schema_version: input.decision_context_hash ? 'canonical-receipts.v2' : CANONICAL_RECEIPT_SCHEMA_VERSION,
+        policy_version: input.decision_context_hash ? RECEIPT_POLICY_VERSION_V2 : RECEIPT_POLICY_VERSION,
+        proceed_confidence_threshold: threshold, parent_hashes: parents.map((parent) => parent!.receipt_hash) }) as JudgmentReceipt;
       const existing = await store.get('judgment', input.judgment_id) as JudgmentReceipt | null;
       if (existing) {
         requireAuthority(existing.receipt_hash === receipt.receipt_hash, 'receipt_id_conflict');

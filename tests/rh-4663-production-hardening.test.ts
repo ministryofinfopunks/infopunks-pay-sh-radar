@@ -28,16 +28,12 @@ describe('4663 production hardening contracts', () => {
     expect(service.metrics().last_source_reads.census).toMatchObject({ failure_class: 'TIMEOUT' });
   });
 
-  it('keeps a changing wallet proof URL short-cacheable rather than immutable', async () => {
+  it('keeps a changing wallet proof URL private until credential-bound ownership is available', async () => {
     const app = await createApp(emptyIntelligenceStore());
     try {
       const response = await app.inject({ method: 'GET', url: '/og/4663/proof/0x1111111111111111111111111111111111111111.png' });
-      expect(response.statusCode).toBe(200);
-      expect(response.headers['cache-control']).toContain('max-age=60');
-      expect(response.headers['cache-control']).not.toContain('immutable');
-      expect(response.headers.etag).toMatch(/^"proof-/);
-      const revalidated = await app.inject({ method: 'GET', url: '/og/4663/proof/0x1111111111111111111111111111111111111111.png', headers: { 'if-none-match': response.headers.etag! } });
-      expect(revalidated.statusCode).toBe(304);
+      expect(response.statusCode).toBe(503);
+      expect(response.headers['cache-control']).toBe('private, no-store');
     } finally { await app.close(); }
   });
 

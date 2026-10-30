@@ -1,0 +1,343 @@
+{
+  "source_sha": "00d847379a1530848a8789f33cc075bd0a25095e",
+  "full_suite": {
+    "total": 2045,
+    "passed": 2045,
+    "failed": 0,
+    "pending": 0,
+    "test_suites": 566
+  },
+  "focused_regressions": [
+    {
+      "file": "tests/judgment-dx-sdk.test.ts",
+      "status": "passed",
+      "test_count": 24,
+      "tests": [
+        {
+          "status": "passed",
+          "name": "DX-1 deterministic SDK returns free insufficient evidence and never authorizes payment"
+        },
+        {
+          "status": "passed",
+          "name": "DX-1 deterministic SDK verifies receipt parents/context, exposes every paid transition and retains the proof privately"
+        },
+        {
+          "status": "passed",
+          "name": "DX-1 deterministic SDK coalesces identical calls and rejects concurrent/sequential conflicting key reuse"
+        },
+        {
+          "status": "passed",
+          "name": "DX-1 deterministic SDK requires explicit payment authorization: absent"
+        },
+        {
+          "status": "passed",
+          "name": "DX-1 deterministic SDK requires explicit payment authorization: exceeded"
+        },
+        {
+          "status": "passed",
+          "name": "DX-1 deterministic SDK requires explicit payment authorization: declined"
+        },
+        {
+          "status": "passed",
+          "name": "DX-1 deterministic SDK rejects invalid-challenge before settlement"
+        },
+        {
+          "status": "passed",
+          "name": "DX-1 deterministic SDK rejects invalid-proof before settlement"
+        },
+        {
+          "status": "passed",
+          "name": "DX-1 deterministic SDK rejects unsupported-network before settlement"
+        },
+        {
+          "status": "passed",
+          "name": "DX-1 deterministic SDK rejects foreign-payee before settlement"
+        },
+        {
+          "status": "passed",
+          "name": "DX-1 deterministic SDK recovers a timeout before payment submission with the same key"
+        },
+        {
+          "status": "passed",
+          "name": "DX-1 deterministic SDK recovers a lost settled response across SDK/server restart with encrypted proof storage"
+        },
+        {
+          "status": "passed",
+          "name": "DX-1 deterministic SDK keeps an ambiguous settlement pending without retrying or exposing facilitator secrets"
+        },
+        {
+          "status": "passed",
+          "name": "DX-1 deterministic SDK honors cancellation before a proof is submitted"
+        },
+        {
+          "status": "passed",
+          "name": "DX-1 deterministic SDK rejects expired quotes and tampered receipt integrity without repurchasing"
+        },
+        {
+          "status": "passed",
+          "name": "DX-1 deterministic SDK rejects forged agents, market shorthand and invalid credentials"
+        },
+        {
+          "status": "passed",
+          "name": "does not let observers or wallet callbacks mutate the checked spending authority"
+        },
+        {
+          "status": "passed",
+          "name": "replays an expired historical receipt without renewing its authority or charging again"
+        },
+        {
+          "status": "passed",
+          "name": "preserves a failed settlement claim and refuses a cancellation or retry that could charge twice"
+        },
+        {
+          "status": "passed",
+          "name": "supports the three-field developer call and keeps unqualified token-market policy free"
+        },
+        {
+          "status": "passed",
+          "name": "rejects an assessment for a different request before asking the wallet to authorize"
+        },
+        {
+          "status": "passed",
+          "name": "recovers an independently confirmed ambiguous payment without inventing facilitator settlement attestation"
+        },
+        {
+          "status": "passed",
+          "name": "hides x402 proof construction behind an explicitly approved standard EVM signer"
+        },
+        {
+          "status": "passed",
+          "name": "does not ask the standard signer to sign a declined fee"
+        }
+      ]
+    },
+    {
+      "file": "tests/judgment-private-access.test.ts",
+      "status": "passed",
+      "test_count": 11,
+      "tests": [
+        {
+          "status": "passed",
+          "name": "judgment identity and private access closes production wallet-selector history /v1/4663/me without a trusted wallet ownership model"
+        },
+        {
+          "status": "passed",
+          "name": "judgment identity and private access closes production wallet-selector history /v1/4663/me/call without a trusted wallet ownership model"
+        },
+        {
+          "status": "passed",
+          "name": "judgment identity and private access closes production wallet-selector history /v1/4663/me/proof without a trusted wallet ownership model"
+        },
+        {
+          "status": "passed",
+          "name": "judgment identity and private access closes production wallet-selector history /v1/4663/me/changes without a trusted wallet ownership model"
+        },
+        {
+          "status": "passed",
+          "name": "judgment identity and private access closes production wallet-selector history /v1/4663/proof/:wallet without a trusted wallet ownership model"
+        },
+        {
+          "status": "passed",
+          "name": "judgment identity and private access closes production wallet-selector history /v1/4663/pulse/reputation/:wallet without a trusted wallet ownership model"
+        },
+        {
+          "status": "passed",
+          "name": "judgment identity and private access closes production wallet-selector history /og/4663/proof/:wallet.png without a trusted wallet ownership model"
+        },
+        {
+          "status": "passed",
+          "name": "judgment identity and private access closes production wallet-selector history /4663/proof/wallet without a trusted wallet ownership model"
+        },
+        {
+          "status": "passed",
+          "name": "judgment identity and private access closes private routes if identity/tenant authority is not configured"
+        },
+        {
+          "status": "passed",
+          "name": "judgment identity and private access permits only credential-bound owner reads and prevents cross-tenant/request history disclosure"
+        },
+        {
+          "status": "passed",
+          "name": "judgment identity and private access validates identity configuration without printing keys and refuses duplicate credentials"
+        }
+      ]
+    },
+    {
+      "file": "tests/judgment-reconciliation.test.ts",
+      "status": "passed",
+      "test_count": 9,
+      "tests": [
+        {
+          "status": "passed",
+          "name": "independent ambiguous payment reconciliation requires finalized matching transfer and exact authorization nonce, preserves the hash and never re-settles"
+        },
+        {
+          "status": "passed",
+          "name": "independent ambiguous payment reconciliation keeps rpc-failure pending without clearing a hash or publishing a receipt"
+        },
+        {
+          "status": "passed",
+          "name": "independent ambiguous payment reconciliation keeps wrong-chain pending without clearing a hash or publishing a receipt"
+        },
+        {
+          "status": "passed",
+          "name": "independent ambiguous payment reconciliation keeps reverted pending without clearing a hash or publishing a receipt"
+        },
+        {
+          "status": "passed",
+          "name": "independent ambiguous payment reconciliation keeps unfinalized pending without clearing a hash or publishing a receipt"
+        },
+        {
+          "status": "passed",
+          "name": "independent ambiguous payment reconciliation keeps missing-nonce pending without clearing a hash or publishing a receipt"
+        },
+        {
+          "status": "passed",
+          "name": "independent ambiguous payment reconciliation keeps wrong-amount pending without clearing a hash or publishing a receipt"
+        },
+        {
+          "status": "passed",
+          "name": "independent ambiguous payment reconciliation keeps wrong-nonce pending without clearing a hash or publishing a receipt"
+        },
+        {
+          "status": "passed",
+          "name": "independent ambiguous payment reconciliation admits only one concurrent confirmation and rejects conflicting transaction hints"
+        }
+      ]
+    },
+    {
+      "file": "tests/pre-spend-sdk.test.ts",
+      "status": "passed",
+      "test_count": 7,
+      "tests": [
+        {
+          "status": "passed",
+          "name": "pre-spend SDK is importable from the package sdk export path"
+        },
+        {
+          "status": "passed",
+          "name": "pre-spend SDK posts check requests to the pre-spend endpoint and returns typed decisions"
+        },
+        {
+          "status": "passed",
+          "name": "pre-spend SDK surfaces API errors with status and code"
+        },
+        {
+          "status": "passed",
+          "name": "pre-spend SDK throws a typed error when fetch is unavailable and no fetch is injected"
+        },
+        {
+          "status": "passed",
+          "name": "pre-spend SDK surfaces invalid JSON responses as typed errors"
+        },
+        {
+          "status": "passed",
+          "name": "pre-spend SDK surfaces unexpected response shapes as typed errors"
+        },
+        {
+          "status": "passed",
+          "name": "pre-spend SDK works end-to-end against the live Fastify app contract"
+        }
+      ]
+    },
+    {
+      "file": "tests/integration/judgment-dx-postgres.test.ts",
+      "status": "passed",
+      "test_count": 2,
+      "tests": [
+        {
+          "status": "passed",
+          "name": "DX-1 SDK and reconciliation on disposable PostgreSQL runs real HTTP/SDK, verifies a pinned issuer, and recovers after server/client restart with one settlement"
+        },
+        {
+          "status": "passed",
+          "name": "DX-1 SDK and reconciliation on disposable PostgreSQL persists finalized reconciliation with a compare-and-set across concurrent fresh repositories"
+        }
+      ]
+    },
+    {
+      "file": "tests/integration/judgment-payment-durability.test.ts",
+      "status": "passed",
+      "test_count": 1,
+      "tests": [
+        {
+          "status": "passed",
+          "name": "durable judgment payment journal reconstructs after restart, recovers settled receipts and refuses uncertain retries"
+        }
+      ]
+    },
+    {
+      "file": "tests/integration/postgres-migration-runner.test.ts",
+      "status": "passed",
+      "test_count": 7,
+      "tests": [
+        {
+          "status": "passed",
+          "name": "PostgreSQL migration runner applies a clean install once and repeat boot is idempotent"
+        },
+        {
+          "status": "passed",
+          "name": "PostgreSQL migration runner serializes concurrent runners and records each migration exactly once"
+        },
+        {
+          "status": "passed",
+          "name": "PostgreSQL migration runner refuses implicit adoption and performs a pinned, verified 017 historical upgrade"
+        },
+        {
+          "status": "passed",
+          "name": "PostgreSQL migration runner supports the verified 020 baseline and applies migrations 021\u2013022"
+        },
+        {
+          "status": "passed",
+          "name": "PostgreSQL migration runner records failure, leaves failed DDL unapplied, and retries from the failed migration"
+        },
+        {
+          "status": "passed",
+          "name": "PostgreSQL migration runner rejects checksum drift and modified historical baselines"
+        },
+        {
+          "status": "passed",
+          "name": "PostgreSQL migration runner fails closed on unknown or reordered applied ledger identities"
+        }
+      ]
+    },
+    {
+      "file": "tests/integration/pre-spend-payment.test.ts",
+      "status": "passed",
+      "test_count": 3,
+      "tests": [
+        {
+          "status": "passed",
+          "name": "pre-spend HTTP payment lifecycle issues a V2 challenge and proof-bound receipt replay at /v1/pre-spend/check"
+        },
+        {
+          "status": "passed",
+          "name": "pre-spend HTTP payment lifecycle issues a V2 challenge and proof-bound receipt replay at /v1/decide"
+        },
+        {
+          "status": "passed",
+          "name": "cannot import a paid judgment through the internal receipt writer"
+        }
+      ]
+    },
+    {
+      "file": "tests/security/private-proof-reads.test.ts",
+      "status": "passed",
+      "test_count": 3,
+      "tests": [
+        {
+          "status": "passed",
+          "name": "canonical proof privacy boundary denies enumeration and raw history to anonymous/wrong-token callers before data lookup"
+        },
+        {
+          "status": "passed",
+          "name": "canonical proof privacy boundary denies private reads when operator authentication is unconfigured"
+        },
+        {
+          "status": "passed",
+          "name": "does not populate synthetic compatibility evidence in production"
+        }
+      ]
+    }
+  ]
+}

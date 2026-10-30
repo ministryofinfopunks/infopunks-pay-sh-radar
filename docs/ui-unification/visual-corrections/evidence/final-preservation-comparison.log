@@ -1,0 +1,221 @@
+{
+  "homepageControl": {
+    "method": "Immutable original d3d0a44 frontend and candidate compared with same exact Playwright, Chrome, captured genuine fixture API responses, viewport, software rendering, and warm-up full-page capture.",
+    "comparisons": [
+      {
+        "label": "desktop",
+        "geometryIdentical": true,
+        "fullPageIdentical": true,
+        "viewportIdentical": true
+      },
+      {
+        "label": "mobile",
+        "geometryIdentical": true,
+        "fullPageIdentical": true,
+        "viewportIdentical": true
+      }
+    ]
+  },
+  "homepageImages": [
+    {
+      "suffix": "desktop",
+      "beforeSha256": "67b45aa7a2264988c664283a6061030c2c97b2aab17ef2f009bd3af4ea8f5893",
+      "afterSha256": "67b45aa7a2264988c664283a6061030c2c97b2aab17ef2f009bd3af4ea8f5893",
+      "identical": true
+    },
+    {
+      "suffix": "desktop-viewport",
+      "beforeSha256": "14ebbe69a4295e1ef76713207030882107092b0cb93c672d2c1c2b191bd92edf",
+      "afterSha256": "14ebbe69a4295e1ef76713207030882107092b0cb93c672d2c1c2b191bd92edf",
+      "identical": true
+    },
+    {
+      "suffix": "mobile",
+      "beforeSha256": "c080791bd1d9ec16cfd7da84e4b1a58e11bafbfae437cbb20102a89ac0e60745",
+      "afterSha256": "c080791bd1d9ec16cfd7da84e4b1a58e11bafbfae437cbb20102a89ac0e60745",
+      "identical": true
+    },
+    {
+      "suffix": "mobile-viewport",
+      "beforeSha256": "930a1c91c902036e3fbc52455aaf54fc25df46c7238185be5dcaf968db876cc2",
+      "afterSha256": "930a1c91c902036e3fbc52455aaf54fc25df46c7238185be5dcaf968db876cc2",
+      "identical": true
+    }
+  ],
+  "inventories": [
+    {
+      "name": "homepage",
+      "titlePreserved": true,
+      "before": {
+        "headings": 9,
+        "links": 15,
+        "controls": 8
+      },
+      "after": {
+        "headings": 9,
+        "links": 15,
+        "controls": 8
+      },
+      "missingLinkDestinations": [],
+      "missingLinkLabels": [],
+      "missingControlIdentities": [],
+      "missingHeadings": []
+    },
+    {
+      "name": "solana",
+      "titlePreserved": true,
+      "before": {
+        "headings": 105,
+        "links": 215,
+        "controls": 395
+      },
+      "after": {
+        "headings": 105,
+        "links": 215,
+        "controls": 395
+      },
+      "missingLinkDestinations": [],
+      "missingLinkLabels": [],
+      "missingControlIdentities": [],
+      "missingHeadings": [
+        "{\"level\":\"H2\",\"text\":\"Pre-spend intelligence\"}"
+      ]
+    },
+    {
+      "name": "robinhood",
+      "titlePreserved": true,
+      "before": {
+        "headings": 29,
+        "links": 86,
+        "controls": 28
+      },
+      "after": {
+        "headings": 29,
+        "links": 86,
+        "controls": 28
+      },
+      "missingLinkDestinations": [],
+      "missingLinkLabels": [],
+      "missingControlIdentities": [],
+      "missingHeadings": []
+    }
+  ],
+  "interactionRegressions": [],
+  "accessibilityRegressions": [],
+  "nativeZoom": {
+    "phase": "after",
+    "sourceCommit": "7f44417fcad683a48397dad251f5d4245aa34643",
+    "base": "http://127.0.0.1:5173",
+    "method": "Changed actual Chrome Page zoom control at chrome://settings/appearance in a fresh isolated temporary browser profile. No viewport emulation, CSS zoom, or user-profile settings.",
+    "reports": [
+      {
+        "route": "/",
+        "zoomPercent": 200,
+        "metrics": {
+          "outerWidth": 1440,
+          "innerWidth": 720,
+          "devicePixelRatio": 2,
+          "documentWidth": 720,
+          "visualViewportScale": 1,
+          "reducedMotion": true
+        },
+        "interaction": {
+          "inputFocused": true
+        },
+        "pass": true
+      },
+      {
+        "route": "/solana",
+        "zoomPercent": 200,
+        "metrics": {
+          "outerWidth": 1440,
+          "innerWidth": 720,
+          "devicePixelRatio": 2,
+          "documentWidth": 720,
+          "visualViewportScale": 1,
+          "reducedMotion": true
+        },
+        "interaction": {
+          "terminalControlsOpen": true
+        },
+        "pass": true
+      },
+      {
+        "route": "/rh-chain-signal-desk",
+        "zoomPercent": 200,
+        "metrics": {
+          "outerWidth": 1440,
+          "innerWidth": 720,
+          "devicePixelRatio": 2,
+          "documentWidth": 720,
+          "visualViewportScale": 1,
+          "reducedMotion": true
+        },
+        "interaction": {
+          "invalidField": "true",
+          "errorVisible": true
+        },
+        "pass": true
+      },
+      {
+        "route": "/",
+        "zoomPercent": 400,
+        "metrics": {
+          "outerWidth": 1440,
+          "innerWidth": 360,
+          "devicePixelRatio": 4,
+          "documentWidth": 360,
+          "visualViewportScale": 1,
+          "reducedMotion": true
+        },
+        "interaction": {
+          "inputFocused": true
+        },
+        "pass": true
+      },
+      {
+        "route": "/solana",
+        "zoomPercent": 400,
+        "metrics": {
+          "outerWidth": 1440,
+          "innerWidth": 360,
+          "devicePixelRatio": 4,
+          "documentWidth": 360,
+          "visualViewportScale": 1,
+          "reducedMotion": true
+        },
+        "interaction": {
+          "terminalControlsOpen": true
+        },
+        "pass": true
+      },
+      {
+        "route": "/rh-chain-signal-desk",
+        "zoomPercent": 400,
+        "metrics": {
+          "outerWidth": 1440,
+          "innerWidth": 360,
+          "devicePixelRatio": 4,
+          "documentWidth": 360,
+          "visualViewportScale": 1,
+          "reducedMotion": true
+        },
+        "interaction": {
+          "invalidField": "true",
+          "errorVisible": true
+        },
+        "pass": true
+      }
+    ]
+  },
+  "automatedAccessibility": {
+    "audits": 12,
+    "violationNodes": 0
+  },
+  "homepageQualified": true,
+  "remainingLimitations": [
+    "No manual screen-reader testing performed.",
+    "Custom semantic, focus, and target checks are not a full automated WCAG audit."
+  ],
+  "initialRasterDifferences": null
+}

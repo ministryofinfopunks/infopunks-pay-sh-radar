@@ -1,0 +1,1967 @@
+{
+  "results": [
+    {
+      "name": "Solana terminal view disclosure keyboard",
+      "pass": true
+    },
+    {
+      "name": "Solana density control",
+      "pass": true,
+      "evidence": {
+        "comfortable": {
+          "statPadding": 16,
+          "endpointGap": 14,
+          "copyHeight": 44
+        },
+        "dense": {
+          "statPadding": 8,
+          "endpointGap": 6,
+          "copyHeight": 30
+        }
+      }
+    },
+    {
+      "name": "Solana Agent Mode control preserves terminal",
+      "pass": true
+    },
+    {
+      "name": "Solana command palette keyboard and dismiss",
+      "pass": true
+    },
+    {
+      "name": "Solana provider filter and sort",
+      "pass": true
+    },
+    {
+      "name": "Solana route registry filters",
+      "pass": true
+    },
+    {
+      "name": "Solana preflight validation and example input",
+      "pass": true
+    },
+    {
+      "name": "Solana evidence disclosure keyboard",
+      "pass": true
+    },
+    {
+      "name": "Solana semantic search input and form",
+      "pass": true,
+      "evidence": [
+        {
+          "method": "POST",
+          "path": "/v1/search",
+          "body": "{\"query\":\"providers with clear pricing\",\"limit\":6}"
+        }
+      ]
+    },
+    {
+      "name": "Solana mobile product navigation keyboard",
+      "pass": true
+    },
+    {
+      "name": "Robinhood Brief / Analyst keyboard modes",
+      "pass": true
+    },
+    {
+      "name": "Robinhood invalid contract validation and edit reset",
+      "pass": true
+    },
+    {
+      "name": "Robinhood valid exact-contract read-only request",
+      "pass": true,
+      "evidence": {
+        "request": {
+          "method": "GET",
+          "path": "/v1/rh-chain/live-snapshot/token/0x0000000000000000000000000000000000000000",
+          "body": null
+        },
+        "visible": "\nContract status\nExact market pair unavailable\nSOURCE REQUIRED\nChain verification\nChain verification unavailable\nSource timestamp\ntimestamp unavailable\nLiquidity context\nUnavailable\nDeployer context\nUnavailable\nContract verification\nUnavailable\nRisk classification\nsource required\nOpen evidence dossier\nLatest receipt\n\nExternal data gives context. Infopunks gives judgment. Receipts create memory. Live data never overrides human-reviewed receipts, manual verdicts, review states, or index decisions."
+      }
+    },
+    {
+      "name": "Robinhood receipt sharing URL copy and Escape focus",
+      "pass": true
+    },
+    {
+      "name": "Robinhood receipt sharing outside click dismiss",
+      "pass": true
+    },
+    {
+      "name": "Robinhood moving card share",
+      "pass": true
+    },
+    {
+      "name": "Robinhood Meme Pulse filters, search, cards / table",
+      "pass": true
+    },
+    {
+      "name": "Robinhood source policy disclosure keyboard",
+      "pass": true
+    },
+    {
+      "name": "Robinhood stale source state remains visible",
+      "pass": true
+    },
+    {
+      "name": "Robinhood mobile navigation keyboard",
+      "pass": true
+    },
+    {
+      "name": "/ 200% zoom-equivalent reflow",
+      "pass": true,
+      "evidence": {
+        "viewport": 720,
+        "document": 720
+      }
+    },
+    {
+      "name": "/ 400% zoom-equivalent reflow",
+      "pass": true,
+      "evidence": {
+        "viewport": 360,
+        "document": 360
+      }
+    },
+    {
+      "name": "/solana 200% zoom-equivalent reflow",
+      "pass": true,
+      "evidence": {
+        "viewport": 720,
+        "document": 720
+      }
+    },
+    {
+      "name": "/solana 400% zoom-equivalent reflow",
+      "pass": true,
+      "evidence": {
+        "viewport": 360,
+        "document": 360
+      }
+    },
+    {
+      "name": "/rh-chain-signal-desk 200% zoom-equivalent reflow",
+      "pass": true,
+      "evidence": {
+        "viewport": 720,
+        "document": 720
+      }
+    },
+    {
+      "name": "/rh-chain-signal-desk 400% zoom-equivalent reflow",
+      "pass": true,
+      "evidence": {
+        "viewport": 360,
+        "document": 360
+      }
+    }
+  ],
+  "audits": [
+    {
+      "route": "/",
+      "h1": 1,
+      "main": 1,
+      "unlabelledInputs": [],
+      "nonFocusableFormFields": [],
+      "unnamedControls": [],
+      "headingJumps": [],
+      "smallTargets": [
+        {
+          "label": "",
+          "height": 36
+        }
+      ],
+      "keyboardStartSequence": [
+        {
+          "tag": "A",
+          "label": "Skip to content",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "A",
+          "label": "Infopunks Radar home",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "BUTTON",
+          "label": "Open navigation",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "INPUT",
+          "label": "",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "BUTTON",
+          "label": "▶ Run Spend Check",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "A",
+          "label": "Inspect judgment format",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "SUMMARY",
+          "label": "Provider verificationNOT CHECKEDView ↗",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "SUMMARY",
+          "label": "Route historyNOT CHECKEDView ↗",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "SUMMARY",
+          "label": "Payment risk analysisNOT CHECKEDView ↗",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "SUMMARY",
+          "label": "Policy match (your rules)REQUIREDView ↗",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "A",
+          "label": "Learn more",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "A",
+          "label": "Check a Spend Route",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "A",
+          "label": "Inspect a Market",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "A",
+          "label": "Inspect receipt evidence",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "A",
+          "label": "Integration documentation",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "A",
+          "label": "INFOPUNKS RADAR // THE INTELLIGENCE TERMINAL",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "A",
+          "label": "API CONTRACT",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "BODY",
+          "label": "Skip to contentINFOPUNKSRADAR / INTELLIGENCE TERMI",
+          "focusVisible": false,
+          "outline": "none 3px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "A",
+          "label": "Skip to content",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "A",
+          "label": "Infopunks Radar home",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        }
+      ],
+      "reducedMotion": true
+    },
+    {
+      "route": "/solana",
+      "h1": 1,
+      "main": 1,
+      "unlabelledInputs": [],
+      "nonFocusableFormFields": [],
+      "unnamedControls": [],
+      "headingJumps": [],
+      "smallTargets": [
+        {
+          "label": "Explore Solana destinations",
+          "height": 38
+        },
+        {
+          "label": "Collapse",
+          "height": 34
+        },
+        {
+          "label": "all statescriticaldegradedwatchhealthyunknown",
+          "height": 42
+        },
+        {
+          "label": "severitylast observedprovider",
+          "height": 42
+        },
+        {
+          "label": "Collapse",
+          "height": 34
+        },
+        {
+          "label": "Collapse",
+          "height": 34
+        },
+        {
+          "label": "Collapse",
+          "height": 34
+        },
+        {
+          "label": "high trust finance APIs",
+          "height": 34
+        },
+        {
+          "label": "degraded OCR providers",
+          "height": 34
+        },
+        {
+          "label": "SOL price endpoints",
+          "height": 34
+        },
+        {
+          "label": "low-cost data endpoints",
+          "height": 34
+        },
+        {
+          "label": "providers with clear pricing",
+          "height": 34
+        },
+        {
+          "label": "route eligible endpoints",
+          "height": 34
+        },
+        {
+          "label": "machine media providers",
+          "height": 34
+        },
+        {
+          "label": "metadata incomplete providers",
+          "height": 34
+        },
+        {
+          "label": "Find SOL price route",
+          "height": 34
+        },
+        {
+          "label": "Find token price route",
+          "height": 34
+        },
+        {
+          "label": "Find OCR route",
+          "height": 34
+        },
+        {
+          "label": "Find low-cost data route",
+          "height": 34
+        },
+        {
+          "label": "Find high-trust provider",
+          "height": 34
+        },
+        {
+          "label": "Find route-eligible finance endpoint",
+          "height": 34
+        },
+        {
+          "label": "",
+          "height": 16
+        },
+        {
+          "label": "",
+          "height": 16
+        },
+        {
+          "label": "",
+          "height": 16
+        },
+        {
+          "label": "",
+          "height": 16
+        },
+        {
+          "label": "",
+          "height": 16
+        },
+        {
+          "label": "",
+          "height": 16
+        },
+        {
+          "label": "",
+          "height": 16
+        },
+        {
+          "label": "",
+          "height": 16
+        },
+        {
+          "label": "",
+          "height": 16
+        },
+        {
+          "label": "",
+          "height": 16
+        },
+        {
+          "label": "",
+          "height": 16
+        },
+        {
+          "label": "",
+          "height": 16
+        },
+        {
+          "label": "all",
+          "height": 34
+        },
+        {
+          "label": "AI/ML",
+          "height": 34
+        },
+        {
+          "label": "Data",
+          "height": 34
+        },
+        {
+          "label": "Media",
+          "height": 34
+        },
+        {
+          "label": "Messaging",
+          "height": 34
+        },
+        {
+          "label": "Other",
+          "height": 34
+        },
+        {
+          "label": "Search",
+          "height": 34
+        },
+        {
+          "label": "Storage",
+          "height": 34
+        },
+        {
+          "label": "Collapse",
+          "height": 30
+        },
+        {
+          "label": "Collapse",
+          "height": 30
+        },
+        {
+          "label": "Collapse",
+          "height": 30
+        },
+        {
+          "label": "Collapse",
+          "height": 30
+        },
+        {
+          "label": "Collapse",
+          "height": 30
+        },
+        {
+          "label": "Collapse",
+          "height": 30
+        },
+        {
+          "label": "Collapse",
+          "height": 30
+        },
+        {
+          "label": "Collapse",
+          "height": 30
+        },
+        {
+          "label": "Collapse",
+          "height": 30
+        },
+        {
+          "label": "Collapse",
+          "height": 30
+        },
+        {
+          "label": "Collapse",
+          "height": 30
+        },
+        {
+          "label": "all",
+          "height": 34
+        },
+        {
+          "label": "route eligible",
+          "height": 34
+        },
+        {
+          "label": "mapping incomplete",
+          "height": 34
+        },
+        {
+          "label": "degraded",
+          "height": 34
+        },
+        {
+          "label": "priced",
+          "height": 34
+        },
+        {
+          "label": "unknown pricing",
+          "height": 34
+        },
+        {
+          "label": "Show provider activity for 1h",
+          "height": 34
+        },
+        {
+          "label": "Show provider activity for 24h",
+          "height": 34
+        },
+        {
+          "label": "Show provider activity for 7d",
+          "height": 34
+        }
+      ],
+      "keyboardStartSequence": [
+        {
+          "tag": "A",
+          "label": "Skip to content",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Infopunks Radar home",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "BUTTON",
+          "label": "Open navigation",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "SUMMARY",
+          "label": "Solana / destinations and network context",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Radar",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Solana",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Skip to content",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "SUMMARY",
+          "label": "Terminal view controls",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Check a Spend Route",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Explore the Radar",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "none"
+        },
+        {
+          "tag": "A",
+          "label": "Signal HuntEmerging signals with evidence",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "NarrativesCultural intelligence desk",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Unicorn RadarEarly company and project watch",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Signal GraphClaims, receipts and relationships",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Explore intelligence →",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "CheckVerify a claim before action",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "LoopsRun and inspect proof loops",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Hermes DeskAgentic investigations before spend",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Agent BenchmarksBenchmark agent readiness",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Explore agent tools →",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        }
+      ],
+      "reducedMotion": true
+    },
+    {
+      "route": "/rh-chain-signal-desk",
+      "h1": 1,
+      "main": 1,
+      "unlabelledInputs": [],
+      "nonFocusableFormFields": [],
+      "unnamedControls": [],
+      "headingJumps": [],
+      "smallTargets": [
+        {
+          "label": "Explore Robinhood Chain destinations",
+          "height": 38
+        }
+      ],
+      "keyboardStartSequence": [
+        {
+          "tag": "A",
+          "label": "Skip to content",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Infopunks Radar home",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "BUTTON",
+          "label": "Open navigation",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "SUMMARY",
+          "label": "Robinhood Chain / destinations and network context",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Radar",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Robinhood Chain",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Skip to content",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "BUTTON",
+          "label": "brief",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "BUTTON",
+          "label": "analyst",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "INPUT",
+          "label": "",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgba(0, 238, 228, 0.08) 0px 0px 0px 4px"
+        },
+        {
+          "tag": "BUTTON",
+          "label": "Check 4663",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "SUMMARY",
+          "label": "View source policy",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Open Top Signal ↗",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Open Attention Shift ↗",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Open Risk Alert ↗",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Open Receipt Update ↗",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "BUTTON",
+          "label": "Share Receipt ⌄",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Read full receipt",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "View Full 4663 Index",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        },
+        {
+          "tag": "A",
+          "label": "Open index record",
+          "focusVisible": true,
+          "outline": "solid 2px",
+          "boxShadow": "rgb(0, 238, 228) 0px 0px 0px 2px"
+        }
+      ],
+      "reducedMotion": true
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/v1/pulse",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/providers",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/pulse/summary",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/providers/featured",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/benchmark-readiness",
+      "body": null
+    },
+    {
+      "method": "POST",
+      "path": "/v1/radar/bundles/morning-briefing/plan",
+      "body": "{\"topic\":\"AI, crypto, world news\",\"constraints\":{\"max_cost_usd\":0.05,\"allow_billing_unclear\":false,\"allow_scaffold_routes\":false}}"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/radar/bundles/market-research/plan",
+      "body": "{\"topic\":\"Circle Internet Group\",\"constraints\":{\"max_cost_usd\":0.1,\"allow_billing_unclear\":false,\"allow_billable_probe_observed\":false,\"allow_scaffold_routes\":false}}"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/radar/bundles/talent-market-scanner/plan",
+      "body": "{\"topic\":\"AI engineer\",\"constraints\":{\"max_cost_usd\":0.05,\"allow_billing_unclear\":false,\"allow_scaffold_routes\":false}}"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/bundles/morning-briefing/runs",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/narratives",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/graph",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/endpoints",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/providers/fal",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/providers/fal/intelligence",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/history/providers/fal",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/fal",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/superiority-readiness",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/benchmarks",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/mappings",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/mapping-targets",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/history/ecosystem",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/ecosystem",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-1/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-2/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-3/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-4/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-5/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-6/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-7/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-8/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-9/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-10/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-11/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-12/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-13/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-14/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-15/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-16/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-17/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-18/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-19/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-20/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-21/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-22/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-23/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-24/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-25/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-26/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-27/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-28/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-29/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-30/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-1",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-2",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-3",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-4",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-5",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-6",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-7",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-8",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-9",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-10",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-11",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-12",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-13",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-14",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-15",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-16",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-17",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-18",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-19",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-20",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-21",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-22",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-23",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-24",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-25",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-26",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-27",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-28",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-29",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-30",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/evidence-ledger",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/agent-readiness",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/stableenrich",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/stablestudio",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/fal",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/dtelecom",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/rentcast",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/factchecktools",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/gemini",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/speech",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/kgsearch",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/stableupload",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/stableemail",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/translate",
+      "body": null
+    },
+    {
+      "method": "POST",
+      "path": "/v1/search",
+      "body": "{\"query\":\"providers with clear pricing\",\"limit\":6}"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/review-queue",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/4663-index",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/daily-receipts",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/meme-pulse",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/today-on-4663",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/launch-surfaces",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/live-snapshot",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/market/provider-status",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/onchain/provider-status",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/live-snapshot/token/0x0000000000000000000000000000000000000000",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/receipt-relay",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/pulse",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/providers",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/pulse/summary",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/providers/featured",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/benchmark-readiness",
+      "body": null
+    },
+    {
+      "method": "POST",
+      "path": "/v1/radar/bundles/morning-briefing/plan",
+      "body": "{\"topic\":\"AI, crypto, world news\",\"constraints\":{\"max_cost_usd\":0.05,\"allow_billing_unclear\":false,\"allow_scaffold_routes\":false}}"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/radar/bundles/market-research/plan",
+      "body": "{\"topic\":\"Circle Internet Group\",\"constraints\":{\"max_cost_usd\":0.1,\"allow_billing_unclear\":false,\"allow_billable_probe_observed\":false,\"allow_scaffold_routes\":false}}"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/radar/bundles/talent-market-scanner/plan",
+      "body": "{\"topic\":\"AI engineer\",\"constraints\":{\"max_cost_usd\":0.05,\"allow_billing_unclear\":false,\"allow_scaffold_routes\":false}}"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/bundles/morning-briefing/runs",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/narratives",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/graph",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/endpoints",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/providers/fal",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/providers/fal/intelligence",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/history/providers/fal",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/fal",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/superiority-readiness",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/benchmarks",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/mappings",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/mapping-targets",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/history/ecosystem",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/ecosystem",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-1/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-2/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-3/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-4/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-5/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-6/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-7/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-8/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-9/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-10/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-11/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-12/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-13/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-14/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-15/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-16/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-17/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-18/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-19/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-20/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-21/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-22/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-23/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-24/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-25/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-26/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-27/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-28/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-29/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/endpoints/fal-endpoint-30/monitor",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-1",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-2",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-3",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-4",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-5",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-6",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-7",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-8",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-9",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-10",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-11",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-12",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-13",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-14",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-15",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-16",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-17",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-18",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-19",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-20",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-21",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-22",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-23",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-24",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-25",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-26",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-27",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-28",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-29",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/endpoints/fal-endpoint-30",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/evidence-ledger",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/agent-readiness",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/stableenrich",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/stablestudio",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/fal",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/dtelecom",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/rentcast",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/factchecktools",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/gemini",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/speech",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/kgsearch",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/stableupload",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/stableemail",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/radar/risk/providers/translate",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/review-queue",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/4663-index",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/daily-receipts",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/meme-pulse",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/today-on-4663",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/launch-surfaces",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/live-snapshot",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/market/provider-status",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "path": "/v1/rh-chain/onchain/provider-status",
+      "body": null
+    }
+  ],
+  "limitations": [
+    "No manual screen-reader testing performed.",
+    "Zoom checks use Chromium viewport reflow equivalents at 720px and 360px for a 1440px browser viewport; native browser UI zoom was not manually operated.",
+    "Custom semantic, focus, and target checks are not a full automated WCAG audit."
+  ]
+}

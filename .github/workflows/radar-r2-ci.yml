@@ -1,0 +1,162 @@
+name: Radar R2 release gates
+
+on:
+  pull_request:
+    branches: [codex/track-a-release-candidate, main]
+  push:
+    branches: [codex/radar-release-integration-r2]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: radar-r2-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qualification:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres@sha256:21f6013073bc6b92830a2129570e2f5ec42a6c734b5a985a41e83aa58f54c3c1
+        env:
+          POSTGRES_USER: radar
+          POSTGRES_PASSWORD: radar-local-only
+          POSTGRES_DB: radar_ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U radar -d radar_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      RADAR_CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: radar
+      PGPASSWORD: radar-local-only
+      CANONICAL_RECEIPT_TEST_URL: postgresql://radar:radar-local-only@localhost:5432/radar_ci
+      ECONOMIC_ENGINE_TEST_URL: postgresql://radar:radar-local-only@localhost:5432/radar_ci
+      POSTGRES_RESILIENCE_TEST_URL: postgresql://radar:radar-local-only@localhost:5432/radar_ci
+      RADAR_QUALIFICATION_DATABASE_URL: postgresql://radar:radar-local-only@localhost:5432
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.21.0
+      - run: npm ci
+      - name: Generate CycloneDX dependency SBOMs
+        run: |
+          mkdir -p output/ci-sbom
+          npm sbom --sbom-format=cyclonedx > output/ci-sbom/npm-full.cdx.json
+          npm sbom --sbom-format=cyclonedx --omit=dev > output/ci-sbom/npm-production.cdx.json
+      - name: Install matching PostgreSQL 16 client tools
+        run: sudo apt-get update && sudo apt-get install --yes postgresql-client-16
+      - name: Record source and runtime
+        run: |
+          echo "Source SHA: $(git rev-parse HEAD)" | tee -a "$GITHUB_STEP_SUMMARY"
+          node --version | tee -a "$GITHUB_STEP_SUMMARY"
+          npm --version | tee -a "$GITHUB_STEP_SUMMARY"
+          psql "$CANONICAL_RECEIPT_TEST_URL" -Atc 'show server_version' | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Full reproducible PostgreSQL qualification
+        run: python3 scripts/qualify-unified-radar-local.py
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: radar-system-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            docs/evidence/radar-r2/2026-10-12/r2-1/system/
+            output/ci-sbom/
+          if-no-files-found: ignore
+
+  browser-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres@sha256:21f6013073bc6b92830a2129570e2f5ec42a6c734b5a985a41e83aa58f54c3c1
+        env:
+          POSTGRES_USER: radar
+          POSTGRES_PASSWORD: radar-local-only
+          POSTGRES_DB: radar_ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U radar -d radar_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    permissions:
+      contents: read
+    env:
+      RADAR_CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      DATABASE_URL: postgresql://radar:radar-local-only@localhost:5432/radar_ci
+      CANONICAL_RECEIPT_TEST_URL: postgresql://radar:radar-local-only@localhost:5432/radar_ci
+      # Run the compiled production build in a deterministic development runtime.
+      # Production mode correctly refuses unsigned Judgment issuance; CI must not
+      # receive a signing key just to exercise tenant-authenticated browser flows.
+      NODE_ENV: development
+      PORT: 8799
+      PAYSH_CATALOG_SOURCE: fixture
+      PAYSH_ALLOW_FIXTURE_FALLBACK: "true"
+      PAYSH_BOOTSTRAP_ENABLED: "false"
+      INGESTION_ENABLED: "false"
+      JUDGMENT_PAYMENT_ENABLED: "false"
+      JUDGMENT_API_KEYS_JSON: >-
+        [{"tenant_id":"tenant-a","agent_id":"radar-browser","key_sha256":"ea4282280fc19c58e9b7eb4fec3ebe47ea1440c01b376688f5e0d0e52d9c4a3c"},{"tenant_id":"tenant-b","agent_id":"agent-b","key_sha256":"a56a699a89bbf7085f704b2816935c11730feacd05c2abda6f11b55a6ed6b982"},{"tenant_id":"tenant-a","agent_id":"agent-other","key_sha256":"71949874f03a4030527c0a3ac35d1b79830f32fc4b844c25f517f01ceac99763"},{"tenant_id":"tenant-expired","agent_id":"agent-expired","key_sha256":"a2abc2113a0a97bc7af15b5b7d5a69f21bd271f20e31acd44d43e86efd22cc1d","expires_at":"2000-01-01T00:00:00.000Z"}]
+      RADAR_QA_TENANT_KEY: radar-ci-tenant-a-static-not-secret
+      RADAR_QA_OTHER_TENANT_KEY: radar-ci-tenant-b-static-not-secret
+      RADAR_QA_WRONG_AGENT_KEY: radar-ci-tenant-a-wrong-agent-not-secret
+      RADAR_QA_EXPIRED_KEY: radar-ci-tenant-expired-static-not-secret
+      RADAR_QA_URL: http://127.0.0.1:8799
+      RADAR_QA_OUTPUT_DIR: output/ci-browser
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.21.0
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run migrations:run
+      - name: Linux Node 24 non-root container startup
+        run: |
+          mkdir -p output/ci-browser
+          docker build --tag radar-r2-browser:${RADAR_CANDIDATE_SHA} .
+          docker image inspect radar-r2-browser:${RADAR_CANDIDATE_SHA} --format 'os={{.Os}} architecture={{.Architecture}} configured_user={{.Config.User}}' | tee output/ci-browser/container-image.txt
+          docker run --rm --entrypoint /bin/sh radar-r2-browser:${RADAR_CANDIDATE_SHA} -c 'set -eu; . /etc/os-release; test "$ID" = debian; test "$VERSION_CODENAME" = bookworm; printf "os=%s version=%s codename=%s\\n" "$ID" "$VERSION_ID" "$VERSION_CODENAME"; node --version; test "$(id -u)" != 0; dpkg-query -W | sort' > output/ci-browser/container-os-packages.txt
+          docker run --detach --name radar-r2-container-smoke --add-host=host.docker.internal:host-gateway --publish 127.0.0.1:10000:10000 --env NODE_ENV=production --env PORT=10000 --env DATABASE_URL=postgresql://radar:radar-local-only@host.docker.internal:5432/radar_ci --env PAYSH_CATALOG_SOURCE=live --env PAY_SH_CATALOG_URL=https://catalog.invalid/providers --env PAYSH_ALLOW_FIXTURE_FALLBACK=false --env PAYSH_BOOTSTRAP_ENABLED=false --env INGESTION_ENABLED=false radar-r2-browser:${RADAR_CANDIDATE_SHA}
+          trap 'docker rm --force radar-r2-container-smoke >/dev/null 2>&1 || true' EXIT
+          test "$(docker exec radar-r2-container-smoke id -u)" != "0"
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:10000/healthz >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          docker logs radar-r2-container-smoke
+          exit 1
+      - name: Generate container OS and runtime SBOM
+        uses: anchore/sbom-action@0b8327a2637811e512362912957ffefab15470c6 # Syft image scan, pinned commit
+        with:
+          image: radar-r2-browser:${{ env.RADAR_CANDIDATE_SHA }}
+          format: cyclonedx-json
+          output-file: output/ci-browser/container-image-sbom.cdx.json
+          syft-version: v1.54.1
+          upload-artifact: false
+          upload-release-assets: false
+      - name: Start local compiled app
+        run: |
+          npm start > /tmp/radar-server.log 2>&1 & echo $! > /tmp/radar-server.pid
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:8799/healthz >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/radar-server.log
+          exit 1
+      - name: Desktop, tablet, mobile, overflow, a11y and async browser qualification
+        run: node scripts/qualify-unified-radar-browser.mjs
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: radar-browser-${{ github.event.pull_request.head.sha || github.sha }}
+          path: output/ci-browser/
+          if-no-files-found: ignore

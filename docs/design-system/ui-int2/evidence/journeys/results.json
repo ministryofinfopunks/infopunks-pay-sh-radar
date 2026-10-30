@@ -1,0 +1,79 @@
+{
+  "source_sha": "35f2e54a288311d1df0f8820dacb216c27175791",
+  "environment": "SYNTHETIC_LOCAL_AUTHORIZED_FIXTURE; real PostgreSQL/API; payments disabled",
+  "reports": [
+    {
+      "name": "anonymous_home_to_spend_deep_link",
+      "pass": true,
+      "evidence_expansion": true
+    },
+    {
+      "name": "real_pre_spend_insufficient_evidence",
+      "pass": true,
+      "no_receipt": true,
+      "no_execution": true
+    },
+    {
+      "name": "route_filter_and_sort",
+      "pass": true,
+      "sort": "risk"
+    },
+    {
+      "name": "service_route_search",
+      "pass": true,
+      "status": 200,
+      "actual_backend": true
+    },
+    {
+      "name": "authorized_judgment_inspection",
+      "pass": true,
+      "status": 200,
+      "display": "✓\nVerified evidence\n/ proceed\n\nIssuer signature and ancestry verified. Execution authorization remains separate.\n\nReceipt lifecycle · inspect each stage independently\n\n01 / OBSERVATION\n○\nMissing evidence\n\nNo stage record supplied.\n\n02 / JUDGMENT\n✓\nVerified evidence\n\nproceed\n\n03 / EXECUTION\n○\nMissing evidence\n\nNo stage record supplied.\n\n04 / EVALUATION\n○\nMissing evidence\n\nNo stage record supplied.\n\nInspect source receipt",
+      "credential_exposure": {
+        "url": false,
+        "storage": false,
+        "masked": true
+      }
+    },
+    {
+      "name": "private_receipt_cross_tenant_denial",
+      "pass": true,
+      "status": 404,
+      "previous_private_record_cleared": true,
+      "message": "Receipt unavailable for this authenticated identity."
+    },
+    {
+      "name": "authorized_execution_inspection",
+      "pass": true,
+      "status": 200,
+      "display": "○\nPending outcome\n/ pending\n\nReceipt lifecycle · inspect each stage independently\n\n01 / OBSERVATION\n○\nMissing evidence\n\nNo stage record supplied.\n\n02 / JUDGMENT\n○\nMissing evidence\n\nNo stage record supplied.\n\n03 / EXECUTION\n○\nPending outcome\n\npending\n\n04 / EVALUATION\n○\nMissing evidence\n\nNo stage record supplied.\n\nInspect source receipt",
+      "credential_exposure": {
+        "url": false,
+        "storage": false,
+        "masked": true
+      }
+    },
+    {
+      "name": "authorized_evaluation_inspection",
+      "pass": true,
+      "status": 200,
+      "display": "○\nRecord exists\n/ confirmed\n\nReceipt lifecycle · inspect each stage independently\n\n01 / OBSERVATION\n○\nMissing evidence\n\nNo stage record supplied.\n\n02 / JUDGMENT\n○\nMissing evidence\n\nNo stage record supplied.\n\n03 / EXECUTION\n○\nMissing evidence\n\nNo stage record supplied.\n\n04 / EVALUATION\n○\nRecord exists\n\nconfirmed\n\nInspect source receipt",
+      "credential_exposure": {
+        "url": false,
+        "storage": false,
+        "masked": true
+      }
+    },
+    {
+      "name": "anonymous_robinhood_read_only",
+      "pass": true,
+      "private_requests": [],
+      "heading": "Robinhood Chain,\nright now."
+    },
+    {
+      "name": "mobile_navigation_and_evidence",
+      "pass": true,
+      "escape_dismisses_menu": true
+    }
+  ]
+}

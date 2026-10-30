@@ -1,6 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { request } from 'node:http';
 import { describe, expect, it } from 'vitest';
 import { createApp } from '../src/api/app';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
@@ -15,6 +16,35 @@ function createClientDistFixture() {
 }
 
 describe('render-style SPA routing boundaries', () => {
+  it('rejects traversal into sibling directories sharing the client directory prefix', async () => {
+    const clientDistDir = createClientDistFixture();
+    const sibling = clientDistDir + '-private';
+    mkdirSync(sibling);
+    writeFileSync(join(sibling, 'secret.txt'), 'private deployment data');
+    const app = await createApp(emptyIntelligenceStore(), undefined, { clientDistDir });
+    try {
+      await app.listen({ host: '127.0.0.1', port: 0 });
+      const address = app.server.address();
+      if (!address || typeof address === 'string') throw new Error('missing_test_address');
+      // Send the literal path; URL-based clients normalize away dot segments.
+      const response = await new Promise<{ statusCode?: number; body: string }>((resolve, reject) => {
+        const req = request({ hostname: '127.0.0.1', port: address.port, path: '/../' + sibling.split('/').pop() + '/secret.txt' }, res => {
+          let body = '';
+          res.setEncoding('utf8');
+          res.on('data', chunk => { body += chunk; });
+          res.on('end', () => resolve({ statusCode: res.statusCode, body }));
+        });
+        req.on('error', reject);
+        req.end();
+      });
+      expect(response.body).not.toContain('private deployment data');
+      expect(response.statusCode).toBe(403);
+    } finally {
+      await app.close();
+      rmSync(clientDistDir, { recursive: true, force: true });
+      rmSync(sibling, { recursive: true, force: true });
+    }
+  });
   it('uses immutable caching for Vite assets and revalidates HTML', async () => {
     const clientDistDir = createClientDistFixture();
     const app = await createApp(emptyIntelligenceStore(), undefined, { clientDistDir });

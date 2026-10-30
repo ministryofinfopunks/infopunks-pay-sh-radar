@@ -15,7 +15,7 @@ afterEach(() => vi.unstubAllEnvs());
 describe('receipt spine API integration', () => {
   it('binds internal evaluation writes to EvaluationService, not ReceiptAuthorityService', () => {
     const source = readFileSync('src/api/app.ts', 'utf8');
-    expect(source).toContain("['evaluation', z.object(EvaluationReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, score_delta: true, parent_hash: true, receipt_hash: true, evaluator: true, request_hash: true }), evaluationService.createEvaluation]");
+    expect(source).toContain("['evaluation', z.object(EvaluationReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, score_delta: true, parent_hash: true, receipt_hash: true, evaluator: true, request_hash: true, classification: true, proposed_outcome: true }), evaluationService.createEvaluation]");
     expect(source).not.toContain('receiptAuthority.appendEvaluation');
   });
   it('authenticates canonical authority, appends the four levels, and retains legacy read APIs', async () => {
@@ -31,10 +31,10 @@ describe('receipt spine API integration', () => {
         expect(written.statusCode, written.body).toBe(200);
         expect(written.headers['cache-control']).toBe('private, no-store');
         const data = written.json().data;
-        const read = await app.inject({ method: 'GET', url: `/v1/receipt-spine/${kind}/${Object.values(inputs[kind])[0]}` });
+        const read = await app.inject({ method: 'GET', url: `/v1/receipt-spine/${kind}/${Object.values(inputs[kind])[0]}`, headers });
         expect(read.statusCode).toBe(200); expect(read.json().data).toEqual(data);
       }
-      expect((await app.inject('/v1/receipt-spine/scores/provider/provider_test')).json().data).toEqual({ subject_type: 'provider', subject_id: 'provider_test', score: 5, authority: 'EvaluationReceipt' });
+      expect((await app.inject({ url: '/v1/receipt-spine/scores/provider/provider_test', headers: { authorization: 'Bearer test-receipt-authority' } })).json().data).toEqual({ subject_type: 'provider', subject_id: 'provider_test', score: 0, authority: 'EvaluationReceipt' });
       expect((await app.inject('/v1/receipts')).statusCode).toBe(200);
       expect((await app.inject('/v1/claims')).statusCode).toBe(200);
       expect((await app.inject('/v1/checks')).statusCode).toBe(200);
@@ -60,7 +60,7 @@ describe('receipt spine API integration', () => {
         expect(response.statusCode, response.body).toBe(400);
         expect(response.json()).toEqual({ error: 'score_delta_authoring_forbidden' });
       }
-      expect((await app.inject('/v1/receipt-spine/scores/provider/provider_test')).json().data.score).toBe(0);
+      expect((await app.inject({ url: '/v1/receipt-spine/scores/provider/provider_test', headers: { authorization: 'Bearer test-receipt-authority' } })).json().data.score).toBe(0);
     } finally { await app.close(); }
   });
 });
@@ -71,7 +71,7 @@ describe.skipIf(!testUrl)('receipt spine PostgreSQL durability', () => {
   let database: Awaited<ReturnType<typeof createCanonicalTestDatabase>>;
   let pool: pg.Pool; let store: PostgresCanonicalReceiptStore;
   beforeEach(async () => {
-    database = await createCanonicalTestDatabase(testUrl!, 'receipt_test', ['20261007_011_canonical_receipt_spine', '20261007_014_derived_score_projection']);
+    database = await createCanonicalTestDatabase(testUrl!, 'receipt_test', ['20261007_011_canonical_receipt_spine', '20261007_014_derived_score_projection', '20261008_018_decision_context', '20261008_020_receipt_acceptance']);
     pool = database.pool; store = new PostgresCanonicalReceiptStore(pool);
   });
   afterEach(async () => { await database?.close(); });
@@ -83,7 +83,7 @@ describe.skipIf(!testUrl)('receipt spine PostgreSQL durability', () => {
     expect((await pool.query('select * from judgment_observations where judgment_id=$1', ['j1'])).rows).toHaveLength(2);
     const restarted = createReceiptAuthorityService(new PostgresCanonicalReceiptStore(pool));
     expect(await restarted.replayEvaluation('e1')).toBe(true);
-    expect((await restarted.projectScore('provider', 'provider_test')).score).toBe(5);
+    expect((await restarted.projectScore('provider', 'provider_test')).score).toBe(0);
     expect(await evaluations.createEvaluation(evaluationInput())).toEqual(await store.get('evaluation', 'e1'));
   });
   it('recognizes the migrated schema and enabled immutability guards in readiness', async () => {

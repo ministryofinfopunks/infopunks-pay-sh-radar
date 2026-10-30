@@ -16,6 +16,11 @@ export const ExecutionReceiptSchema = z.object({
       signer: z.string().regex(/^0x[a-fA-F0-9]{40}$/)
     }).strict(),
     payload_hashes: z.literal('externally_supplied_signed_claims'), status: z.literal('externally_supplied_signed_claim')
-  }).strict().optional()
+  }).strict().optional(),
+  /** Set only at the trusted proof-adapter boundary; inspectable receipts remain nonqualifying. */
+  score_eligibility: z.object({ state: z.enum(['qualifying', 'nonqualifying']),
+    intake: z.enum(['external_proof_gateway.v1', 'internal_review.v1', 'legacy_import.v1', 'synthetic_fixture.v1']),
+    proof_profile: z.enum(['base_usdc_external.v1', 'rh_usdg_external.v1']).nullable(),
+    reason: id }).strict().optional()
 }).strict();
 export type ExecutionReceipt = z.infer<typeof ExecutionReceiptSchema>;

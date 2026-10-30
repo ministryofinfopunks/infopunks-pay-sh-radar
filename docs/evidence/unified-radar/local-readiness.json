@@ -1,0 +1,1 @@
+{"ok":true,"status":"degraded","service":"infopunks-pay-sh-radar","persistence":"memory","db_status":"degraded","dbMode":"memory","dbCircuitState":"degraded","dbLastSuccessAt":null,"dbLastFailureAt":null,"databasePoolMax":null,"disabled_features":[],"reasons":[]}

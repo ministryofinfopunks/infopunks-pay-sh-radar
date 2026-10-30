@@ -1,0 +1,5 @@
+{
+  "status": "HOLD",
+  "scope": "Desktop WebKit trial, not iOS Safari",
+  "error": "Installed WebKit 2251 hung during startup/navigation despite 15-second limits; terminated only the trial process tree after 71 seconds. No Safari pass is claimed."
+}

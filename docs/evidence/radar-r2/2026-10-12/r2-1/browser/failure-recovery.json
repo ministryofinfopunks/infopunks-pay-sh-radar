@@ -1,0 +1,19 @@
+{
+  "source_sha": "095b3b43365fb0bf890568b891074eceaeff74fe",
+  "failureScenarios": [
+    {
+      "scenario": "server_failure",
+      "classification": "INJECTED_LOCAL_FAILURE_ONLY",
+      "message": "Tenant identity is unavailable. No Judgment was issued and your wallet was not used.",
+      "retry_available": true,
+      "deep_link_subject": "route_for_qualification"
+    },
+    {
+      "scenario": "timeout",
+      "classification": "INJECTED_LOCAL_FAILURE_ONLY",
+      "message": "The check timed out. Retry the same check safely; your wallet has not been used.",
+      "retry_available": true,
+      "deep_link_subject": "route_for_qualification"
+    }
+  ]
+}

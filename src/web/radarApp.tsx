@@ -1,5 +1,8 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { EvidenceScope } from './productPrimitives';
+import { RadarSectionHeader } from './radarDesignSystem';
 import { MethodologyDrawer } from './methodology';
+import { formatCatalogPrice } from './pricingDisplay';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import {
   canClaimBenchmarkRecorded,
@@ -46,6 +49,8 @@ import { formatAbsoluteUtc } from '../shared/timestamps';
 import { RADAR_NETWORK_LIST, RadarContextHeader, RadarHeaderIdentity, RadarProductNavigation, SolanaRadarDirectory } from './radarNetworks';
 import { BOOT_INITIALIZATION_DELAYED_LABEL, currentBootLoadingLabel } from './bootContext';
 import './styles.css';
+import './radarSubpages.css';
+import './rhChainTerminal.css';
 
 const LazyRhChainMemePulsePage = lazy(() => import('./rhChainMemePulsePage').then((module) => ({ default: module.RhChainMemePulsePage })));
 const LazyRhChainTokenDossierPage = lazy(() => import('./rhChainTokenDossierPage').then((module) => ({ default: module.RhChainTokenDossierPage })));
@@ -83,22 +88,35 @@ function UniversalRadarHomepageHero() {
   </section>;
 }
 
-function SolanaRadarHomepageHero() {
-  return <section className="panel radar-universal-hero" aria-labelledby="radar-home-title">
+function SolanaRadarHomepageHero({ pulse }: { pulse: Pulse }) {
+  return <section className="panel radar-universal-hero solana-terminal-hero" aria-labelledby="radar-home-title">
     <div className="radar-universal-copy">
       <p className="eyebrow">Solana Radar</p>
       <h1 id="radar-home-title">Proof before agent spend.</h1>
       <p className="radar-universal-lede">Route intelligence, provider evidence, narrative memory and machine-market infrastructure for the Solana economy.</p>
       <div className="panel-actions radar-universal-actions">
-        <a className="execute compact" href="#global-pulse">Open Radar</a>
-        <a className="execute compact secondary" href="#preflight">Run Preflight</a>
+        <a className="execute compact" href="/spend-terminal">Check a Spend Route</a>
+        <a className="execute compact secondary" href="#explore-solana-radar">Explore the Radar</a>
       </div>
-      <p className="radar-hero-supporting-line">Pay.sh is the spend rail. Radar is the evidence layer.</p>
+      <p className="radar-hero-supporting-line">Pay.sh is a spend rail. Radar is the evidence layer.</p><EvidenceScope kind="service" />
     </div>
-    <aside className="radar-system-note" aria-label="Solana Radar doctrine">
-      <span className="radar-system-mark" aria-hidden="true" />
-      <p className="section-kicker">Pre-spend intelligence</p>
-      <strong>Most see noise.<br />Infopunks finds signal.</strong>
+    <aside className="solana-hero-evidence terminal-panel" aria-label="Solana Radar coverage and evidence">
+      <div className="terminal-panel-heading"><h2>Radar coverage / source state</h2><span className="terminal-state">Safe metadata</span></div>
+      <div className="solana-hero-source-state" data-fixture-backed={pulse.data_source.mode !== 'live_pay_sh_catalog' || pulse.data_source.used_fixture}>
+        <span className="solana-hero-source-badge terminal-state" data-source-mode={pulse.data_source.mode}>{pulse.data_source.mode === 'live_pay_sh_catalog' && !pulse.data_source.used_fixture ? 'LIVE PAY.SH CATALOG' : 'FIXTURE-BACKED RADAR STATE'}</span>
+        <p>Catalog coverage. Check a route for a pre-spend judgment.</p>
+      </div>
+      <dl className="solana-hero-coverage">
+        <div><dt>Providers</dt><dd>{pulse.providerCount}</dd></div>
+        <div><dt>Endpoints</dt><dd>{pulse.endpointCount}</dd></div>
+        <div data-unavailable={pulse.averageTrust == null}><dt>Avg Trust</dt><dd>{pulse.averageTrust ?? 'unknown'}</dd></div>
+        <div data-unavailable={pulse.averageSignal == null}><dt>Avg Signal</dt><dd>{pulse.averageSignal ?? 'unknown'}</dd></div>
+      </dl>
+      <div className="solana-hero-provenance">
+        <p>{formatDataSource(pulse.data_source, pulse.providerCount, pulse.endpointCount)}</p>
+        <p>Freshness / {formatAbsoluteUtc(pulse.data_source.last_ingested_at ?? pulse.data_source.generated_at)}</p>
+      </div>
+      <p className="solana-hero-doctrine">Most see noise.<br /><strong>Infopunks finds signal.</strong></p>
     </aside>
   </section>;
 }
@@ -2687,7 +2705,7 @@ function BenchmarkProofContent({ benchmark, history, routeHistory }: { benchmark
         <p>Status: not evaluated.</p>
         <p>Next: {benchmark.next_step}.</p>
         <p>No artifact exists until benchmark evidence is recorded.</p>
-        {hasTokenSearchMappingTarget && <p><a href="/#mapping-targets">Mapping target: finance/data token search</a> is benchmark-ready with two proven routes; normalized benchmark evidence is still pending.</p>}
+        {hasTokenSearchMappingTarget && <p><a href="/solana#mapping-targets">Mapping target: finance/data token search</a> is benchmark-ready with two proven routes; normalized benchmark evidence is still pending.</p>}
       </div>}
     </section>
     <section className="panel">
@@ -5181,7 +5199,7 @@ function MachineRouteRiskMatrixPage() {
             </div>
             <small>Rows are derived from current registry metadata only. Missing route metadata is not fabricated into concrete callable paths.</small>
           </div>
-          <div className="machine-service-table" role="table" aria-label="Machine route risk matrix table">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine route risk matrix table">
             <div className="machine-service-row machine-route-risk-row head" role="row">
               {['service', 'route', 'method / path', 'risk', 'first-safe candidate', 'avoid-first', 'credential requirement', 'expected output', 'proof condition', 'execution status', 'CTA'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -5339,7 +5357,7 @@ function MachineRailCoveragePage() {
             </div>
             <small>Catalog presence is separated from callable rail readiness. No service is execution-ready on this page without a service-specific receipt.</small>
           </div>
-          <div className="machine-service-table" role="table" aria-label="Machine rail coverage table">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine rail coverage table">
             <div className="machine-service-row machine-rail-row head" role="row">
               {['service', 'category', 'access rail', 'route surface status', 'endpoints', 'pricing model', 'credential requirement', 'rail status', 'first safe route', 'execution status', 'source attribution'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -5488,7 +5506,7 @@ function MachineFirstSafeRoutesPage() {
             </div>
             <small>Rank means suggested planning order for future proof attempts. It is not a winner claim.</small>
           </div>
-          <div className="machine-service-table" role="table" aria-label="Machine first safe route queue table">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine first safe route queue table">
             <div className="machine-service-row machine-first-safe-route-row head" role="row">
               {['rank', 'service', 'first safe route', 'why safe first', 'blocked by', 'required evidence', 'execution status', 'proof plan'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -5669,7 +5687,7 @@ function MachineExecutionBlockersPage() {
             <div><p className="section-kicker">Blockers</p><h2>{rows.length} blockers recorded</h2></div>
             <small>Rows are derived from current registry and receipt metadata. Missing data is kept visible.</small>
           </div>
-          <div className="machine-service-table" role="table" aria-label="Machine execution blocker table">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine execution blocker table">
             <div className="machine-service-row machine-blocker-row head" role="row">
               {['service', 'blocker class', 'blocker', 'evidence needed', 'next safe action', 'source attribution', 'CTA'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -5783,7 +5801,7 @@ function MachineBenchmarkReadinessPage() {
         </section>
         <section className="panel machine-service-table-panel" aria-label="Benchmark readiness lanes">
           <div className="panel-head"><div><p className="section-kicker">Candidate lanes</p><h2>{report.lanes.length} benchmark readiness lanes</h2></div></div>
-          <div className="machine-service-table" role="table" aria-label="Machine benchmark readiness lane table">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine benchmark readiness lane table">
             <div className="machine-service-row machine-blocker-row head" role="row">
               {['lane_id', 'task class', 'candidate routes', 'comparable route count', 'repeatability state', 'missing requirements', 'readiness status', 'next action', 'caveats'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -5871,7 +5889,7 @@ function MachineComparableRoutesPage() {
         </section>
         <section className="panel machine-service-table-panel" aria-label="Machine comparable route lanes">
           <div className="panel-head"><div><p className="section-kicker">Methodology contracts</p><h2>{report.lanes.length} comparable-route lanes</h2></div></div>
-          <div className="machine-service-table" role="table" aria-label="Machine comparable route table">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine comparable route table">
             <div className="machine-service-row machine-blocker-row head" role="row">
               {['lane', 'current candidate route(s)', 'comparable second route exists', 'what is missing', 'methodology contract needed', 'next action'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -5972,7 +5990,7 @@ function MachineTranslationEvidencePage() {
         </section>
         <section className="panel machine-service-table-panel" aria-label="Machine translation evidence route table">
           <div className="panel-head"><div><p className="section-kicker">Candidate routes</p><h2>{plan.routes.length} route evidence tracks</h2></div></div>
-          <div className="machine-service-table" role="table" aria-label="Machine translation evidence routes">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine translation evidence routes">
             <div className="machine-service-row machine-blocker-row head" role="row">
               {['service', 'service identity', 'route surface', 'proof profile match', 'receipt', 'repeatability', 'comparable-route eligible', 'evidence state', 'missing evidence', 'next action'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -6132,7 +6150,7 @@ function MachineProofLadderPage() {
       {gate && <MachineBenchmarkGatePanel gate={gate} />}
       <section className="panel machine-service-table-panel" aria-label="Machine proof ladder stages">
         <div className="panel-head"><div><p className="section-kicker">Evidence progression</p><h2>8 ladder stages</h2></div></div>
-        <div className="machine-service-table" role="table" aria-label="Machine proof ladder stage table">
+        <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine proof ladder stage table">
           <div className="machine-service-row machine-blocker-row head" role="row">
             {['stage', 'what it means', 'current machine market state', 'what it proves', 'what it does not prove', 'surface'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
           </div>
@@ -6233,7 +6251,7 @@ function MachineBenchmarkMethodologyPage() {
         </section>
         <section className="panel machine-service-table-panel" aria-label="Lane methodology scaffolds">
           <div className="panel-head"><div><p className="section-kicker">Lane methodology scaffolds</p><h2>{report.methodology_artifacts.length} lane artifacts</h2></div></div>
-          <div className="machine-service-table" role="table" aria-label="Machine benchmark methodology artifact table">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine benchmark methodology artifact table">
             <div className="machine-service-row machine-blocker-row head" role="row">
               {['lane', 'task class', 'routes compared', 'comparable routes', 'methodology status', 'artifact status', 'missing requirements', 'benchmark allowed', 'claims', 'caveats'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -6340,7 +6358,7 @@ function MachineMarketChangelogPage() {
             <div><p className="section-kicker">Changelog</p><h2>{rows.length} market-memory entries</h2></div>
             <small>Changelog entries are product intelligence memory, not new live market data.</small>
           </div>
-          <div className="machine-service-table" role="table" aria-label="Machine market changelog table">
+          <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine market changelog table">
             <div className="machine-service-row machine-changelog-row head" role="row">
               {['date', 'change', 'scope', 'source', 'source type', 'claim boundary'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -6517,7 +6535,7 @@ function MachineReadinessMatrixPage() {
             <div><p className="section-kicker">Readiness Matrix</p><h2>{rows.length} robotic.sh-visible services</h2></div>
             <small>Execution and repeatability stay missing for services without a service-specific receipt.</small>
           </div>
-          <div className="machine-service-table machine-readiness-table" role="table" aria-label="Machine readiness matrix">
+          <div className="machine-service-table machine-readiness-table" tabIndex={0} role="table" aria-label="Machine readiness matrix">
             <div className="machine-service-row machine-readiness-row head" role="row">
               {['service', 'provider', 'policy', ...columns].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -7126,7 +7144,7 @@ function MachineServiceTable({ services, selectedId, onSelect }: { services: Mac
       <small>Agentic.Market/Base rows are source metadata from robotic.sh, not the Phase 2 build priority.</small>
     </div>
     {!services.length && <EmptyState title="No services match these filters." body="Adjust filters to view the robotic.sh service mirror." />}
-    {!!services.length && <div className="machine-service-table" role="table" aria-label="Machine Market service table">
+    {!!services.length && <div className="machine-service-table" tabIndex={0} role="table" aria-label="Machine Market service table">
       <div className="machine-service-row head" role="row">
         {['service', 'category', 'market', 'chain', 'status', 'evidence', 'risk', 'price', 'dossier'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
       </div>
@@ -7299,7 +7317,7 @@ function MachineExecutionShortlistPage() {
             <small>Sorted by deterministic candidate score, then service_id.</small>
           </div>
           {!candidates.length && <EmptyState title="No services found." body="The machine-market registry returned no visible robotic.sh services." />}
-          {!!candidates.length && <div className="machine-service-table machine-shortlist-table" role="table" aria-label="Robotic.sh execution candidate table">
+          {!!candidates.length && <div className="machine-service-table machine-shortlist-table" tabIndex={0} role="table" aria-label="Robotic.sh execution candidate table">
             <div className="machine-service-row machine-shortlist-row head" role="row">
               {['service', 'provider', 'category', 'market', 'chain', 'latest policy', 'evidence', 'execution', 'tier', 'score', 'recommendation', 'reasons', 'dossier'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
@@ -8197,7 +8215,7 @@ function normalizeTemplateId(policyId: string) {
 }
 
 function MachineMethodologyNote() {
-  return <p className="machine-methodology-note"><a href="/#methodology">Methodology: Machine Economy evidence ladder</a> Repeatability-recorded means the same route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark and does not compare providers. Benchmark-ready criteria define the minimum evidence required before a benchmark can be recorded. Criteria definition is not a benchmark.</p>;
+  return <p className="machine-methodology-note"><a href="/solana#methodology">Methodology: Machine Economy evidence ladder</a> Repeatability-recorded means the same route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark and does not compare providers. Benchmark-ready criteria define the minimum evidence required before a benchmark can be recorded. Criteria definition is not a benchmark.</p>;
 }
 
 function MachineEvidenceMethodologyDrawer() {
@@ -8769,10 +8787,10 @@ function PublicProviderPage({ providerId }: { providerId: string }) {
               {copyState === 'copied' ? 'Copied URL' : 'Copy Share URL'}
             </button>
             <a className="execute compact secondary" href={`/radar/cards/provider/${encodeURIComponent(providerId)}`}>Open Preflight Card</a>
-            <a className="execute compact secondary" href="/#terminal-content">Open Radar</a>
-            <a className="execute compact secondary" href="/#terminal-content" onClick={(event) => {
+            <a className="execute compact secondary" href="/solana#terminal-content">Open Radar</a>
+            <a className="execute compact secondary" href="/solana#terminal-content" onClick={(event) => {
               event.preventDefault();
-              window.location.href = '/#terminal-content';
+              window.location.href = '/solana#terminal-content';
             }}>Methodology</a>
           </div>
         </div>
@@ -8853,7 +8871,7 @@ function PublicProviderPage({ providerId }: { providerId: string }) {
         </DossierSection>
         <DossierSection title="Evidence Metadata">
           <EvidenceReceiptView evidence={providerIntel} title="Provider Intelligence Receipt" />
-          <p><a href="/#terminal-content">Methodology link</a></p>
+          <p><a href="/solana#terminal-content">Methodology link</a></p>
         </DossierSection>
       </section>
     </main>
@@ -9805,7 +9823,7 @@ function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universa
     : data.pulse.data_source.last_ingested_at
       ? { label: 'Last ingestion', value: formatAbsoluteUtc(data.pulse.data_source.last_ingested_at) }
       : { label: 'Catalog timing', value: 'Timestamp unavailable' };
-  return <div className={`shell ${agentMode ? 'agent-mode-shell' : ''} density-${densityMode}`}>
+  return <div className={`shell ${landingContext === 'solana' ? 'radar-terminal-page radar-solana-home' : ''} ${agentMode ? 'agent-mode-shell' : ''} density-${densityMode}`}>
     <a className="skip-link" href="#terminal-content">Skip to content</a>
     <header className="site-header">
       <RadarProductNavigation
@@ -9824,7 +9842,7 @@ function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universa
 
     <main id="terminal-content">
     {!agentMode && (landingContext === 'solana'
-      ? <><SolanaRadarHomepageHero /><SolanaRadarDirectory /></>
+      ? <><SolanaRadarHomepageHero pulse={data.pulse} /><SolanaRadarDirectory terminal /></>
       : <><UniversalRadarHomepageHero /><RadarNetworkEntrySection /></>)}
     {!agentMode && <section className="terminal-meta-strip" aria-label="Terminal session metadata">
       <span><b>{catalogTiming.label}</b>{catalogTiming.value}</span>
@@ -9867,7 +9885,7 @@ function RadarApp({ landingContext = 'universal' }: { landingContext?: 'universa
     {!agentMode && <section className="panel solana-evidence-brief" aria-labelledby="solana-evidence-title">
       <div className="solana-evidence-primary">
         <div className="solana-evidence-summary">
-          <p className="eyebrow">Solana Radar · Current evidence state</p>
+          {landingContext === 'solana' ? <RadarSectionHeader index="04" title="Solana Radar" subtitle="Current evidence state" level="label" /> : <p className="eyebrow">Solana Radar · Current evidence state</p>}
           <h2 id="solana-evidence-title">Proof before agent spend.</h2>
           <p className="mission-subtitle">Mapped Pay.sh routes, provider evidence and benchmark readiness—kept distinct from the Robinhood Chain signal desk.</p>
           <p className="copy">Pay.sh is the spend rail. Radar is the evidence ledger. Agents inspect evidence, request a non-executing plan, and record proof artifacts before trust compounds.</p>
@@ -10916,7 +10934,7 @@ export function ComparisonPanel({
       </select>
     </div>}
     {!result && <EmptyState title="No comparison selected." body="Select two or three providers or endpoints, then run Compare." />}
-    {result && <div className="endpoint-list has-rows comparison-results">{visibleRows.map((row) => {
+    {result && <div className="endpoint-list has-rows comparison-results" tabIndex={0} role="region" aria-label="Comparison results">{visibleRows.map((row) => {
       const routeState = comparisonRouteState(row);
       return <div className={`endpoint ${routeState.tone === 'degraded' ? 'degraded-card' : ''}`} key={row.id}>
       <strong>{row.name}</strong>
@@ -10996,7 +11014,7 @@ function CostPerformancePanel({
       <ScopeLabel scope="GLOBAL" />
       <h2>Cost / Performance Intelligence</h2>
     </div>
-    <div className="endpoint-list has-rows comparison-results">
+    <div className="endpoint-list has-rows comparison-results" tabIndex={0} role="region" aria-label="Comparison results">
       {rows.map(({ endpoint, est, conf, value, benchmark }) => <div key={endpoint.endpoint_id} className={`endpoint ${endpoint.route_eligibility ? '' : 'degraded-card'}`}>
         <strong>{endpoint.provider_name ?? endpoint.provider_id} / {endpoint.endpoint_name ?? endpoint.endpoint_id}</strong>
         <small>category {endpoint.category ?? 'unknown'} / trust {endpoint.provider_trust_score ?? 'unknown'} / signal {endpoint.provider_signal_score ?? 'unknown'}</small>
@@ -11047,14 +11065,15 @@ function EmptyState({ title, body }: { title: string; body: string }) {
 }
 
 function CompactChipList({ title, items, emptyLabel, limit = 10, wide = false }: { title: string; items: string[]; emptyLabel: string; limit?: number; wide?: boolean }) {
-  const visible = items.slice(0, limit);
-  const hiddenCount = Math.max(0, items.length - visible.length);
+  const uniqueItems = Array.from(new Set(items));
+  const visible = uniqueItems.slice(0, limit);
+  const hiddenCount = Math.max(0, uniqueItems.length - visible.length);
   return <section className={wide ? 'compact-chip-list wide' : 'compact-chip-list'}>
     <div className="compact-chip-list-head">
       <strong>{title}</strong>
-      <span>{items.length}</span>
+      <span>{uniqueItems.length}</span>
     </div>
-    {items.length === 0
+    {uniqueItems.length === 0
       ? <p>{emptyLabel}</p>
       : <div className="compact-chip-wrap">
         {visible.map((item) => <span key={item}>{item}</span>)}
@@ -11063,7 +11082,7 @@ function CompactChipList({ title, items, emptyLabel, limit = 10, wide = false }:
     {hiddenCount > 0 && <details className="compact-chip-details">
       <summary>View full list</summary>
       <div className="compact-chip-wrap full">
-        {items.map((item) => <span key={item}>{item}</span>)}
+        {uniqueItems.map((item) => <span key={item}>{item}</span>)}
       </div>
     </details>}
   </section>;
@@ -12352,7 +12371,7 @@ function RouteDecisionOutput({ routeResult, routePreference, selectedProvider }:
         <DossierStat label="Trust" value={routeResult.trustAssessment?.score ?? null} sub={routeResult.trustAssessment?.grade ?? 'grade unknown'} />
         <DossierStat label="Signal" value={routeResult.signalAssessment?.score ?? null} sub={routeResult.signalAssessment?.narratives[0] ?? 'narrative unknown'} />
         <DossierStat label="Endpoints" value={routeResult.bestProvider.endpointCount} sub="catalog count" />
-        <DossierStat label="Pricing" value={formatPrice(routeResult.estimatedCost ?? routeResult.bestProvider.pricing)} sub="catalog range" />
+        <DossierStat label="Pricing" value={formatPrice(routeResult.bestProvider.pricing)} sub="catalog range; route estimate is not a catalog quote" />
         <DossierStat label="Coord." value={routeResult.coordinationScore ?? null} sub="trust/signal weighted" />
       </div>
       {selectedMiss && <p className="route-state warn">Selected provider was not accepted because: {selectedMiss}</p>}
@@ -12974,19 +12993,7 @@ function openExportRoute(path: string) {
 }
 
 function formatPrice(price: unknown) {
-  if (!isRecord(price)) {
-    warnClientOnce('pricing-malformed-payload', '[radar-render:pricing] malformed pricing payload, using unknown');
-    return 'unknown';
-  }
-  const safeRange = getSafeRange(price, { min: -1, max: -1 });
-  const hasNumericRange = Number.isFinite(price.min) && Number.isFinite(price.max);
-  if (!hasNumericRange) {
-    if (typeof price.raw === 'string' && price.raw.trim()) return price.raw;
-    warnClientOnce('pricing-missing-range', '[radar-render:pricing] missing price range min/max, using unknown');
-    return 'unknown';
-  }
-  if (safeRange.min === 0 && safeRange.max === 0) return 'free';
-  return safeRange.min === safeRange.max ? `$${safeRange.min}` : `$${safeRange.min} - $${safeRange.max}`;
+  return formatCatalogPrice(price);
 }
 
 function moneyOrUnknown(value: number | null | undefined) {
@@ -14230,7 +14237,7 @@ function SignalGraphPage() {
             ? <p className="route-state">Loading graph memory...</p>
             : visibleNodes.length === 0
               ? <p className="route-state warn">No nodes match this cluster filter.</p>
-              : <svg className="signal-graph-svg" viewBox={`0 0 ${layout.width} ${layout.height}`} role="img" aria-label="Signal Graph cluster and node map">
+              : <svg className="signal-graph-svg" viewBox={`0 0 ${layout.width} ${layout.height}`} role="group" aria-label="Signal Graph cluster and node map">
                 <rect x="1" y="1" width={layout.width - 2} height={layout.height - 2} rx="26" className="signal-graph-svg-frame" />
                 {layout.clusterIds.map((clusterId) => {
                   const center = layout.clusterCenters.get(clusterId);

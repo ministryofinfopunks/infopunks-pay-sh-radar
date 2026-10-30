@@ -1,8 +1,8 @@
 import { EconomicNetworkSchema, ECONOMIC_RAILS } from '../../security/economicRails';
 import { z } from 'zod';
-import { ReceiptIdSchema as id, ReceiptHashSchema as hash, ReceiptTimeSchema as time, ReceiptMoneySchema, ReceiptVersionSchema } from './common';
+import { ReceiptIdSchema as id, ReceiptHashSchema as hash, ReceiptTimeSchema as time, ReceiptMoneySchema } from './common';
 export const JudgmentReceiptSchema = z.object({
-  schema_version: ReceiptVersionSchema,
+  schema_version: z.enum(['canonical-receipts.v1', 'canonical-receipts.v2']),
   judgment_id: id, subject_type: id, subject_id: id, intent_hash: hash,
   decision: z.enum(['proceed', 'test_spend_first', 'do_not_spend', 'insufficient_evidence']),
   proceed_confidence_threshold: z.number().finite().min(1).max(100),
@@ -12,8 +12,11 @@ export const JudgmentReceiptSchema = z.object({
   payment_receipt_ref: id.nullable(), charge: ReceiptMoneySchema,
   payment: z.object({ network: EconomicNetworkSchema, asset: z.enum(['USDC', 'USDG']), token: z.string().regex(/^0x[a-fA-F0-9]{40}$/), amount_atomic: z.string().regex(/^[1-9][0-9]*$/), pay_to: z.string().regex(/^0x[a-fA-F0-9]{40}$/), payer: z.string().regex(/^0x[a-fA-F0-9]{40}$/).nullable(), verification: z.literal('facilitator_attested') }).strict().optional(),
   issuer_signature: z.object({ issuer: id, key_id: z.string().min(1).max(128), algorithm: z.literal('Ed25519'), signature: z.string().regex(/^[A-Za-z0-9+/]{86}==$/) }).strict().optional(),
-  policy_version: id, parent_hashes: z.array(hash).min(1), receipt_hash: hash
+  policy_version: id, decision_context_hash: hash.optional(), parent_hashes: z.array(hash).min(1), receipt_hash: hash
 }).strict().superRefine((value, context) => {
+  if ((value.schema_version === 'canonical-receipts.v2') !== Boolean(value.decision_context_hash)) context.addIssue({ code: 'custom', message: 'judgment_context_version_mismatch' });
+  if (value.schema_version === 'canonical-receipts.v2' && value.policy_version !== 'receipt-authority.v2') context.addIssue({ code: 'custom', message: 'judgment_v2_policy_required' });
+  if (value.schema_version === 'canonical-receipts.v1' && value.policy_version !== 'receipt-authority.v1') context.addIssue({ code: 'custom', message: 'judgment_v1_policy_required' });
   if (Date.parse(value.valid_until) <= Date.parse(value.issued_at)) context.addIssue({ code: 'custom', message: 'invalid_judgment_window' });
   if (value.parent_hashes.length !== value.cited_observation_ids.length) context.addIssue({ code: 'custom', message: 'parent_hash_count_mismatch' });
   if (value.decision === 'insufficient_evidence' && (value.payment_required || value.payment_receipt_ref !== null || Number(value.charge) !== 0)) context.addIssue({ code: 'custom', message: 'insufficient_evidence_must_be_free' });

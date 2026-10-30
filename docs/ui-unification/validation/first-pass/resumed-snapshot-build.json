@@ -1,0 +1,12 @@
+{
+  "name": "resumed-snapshot-build",
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 10.479,
+  "runtime": "Node24.21.0",
+  "snapshot": "/private/tmp/radar-ui-cyan-final/repo"
+}

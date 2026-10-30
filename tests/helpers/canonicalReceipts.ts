@@ -18,6 +18,20 @@ export const executionInput = () => ({
   request_hash: hashCanonical({ request: 'quote' }), response_hash: hashCanonical({ price: '0.01' }), payload_signature: null,
   latency_ms: 10, status: 'succeeded', cost_amount: '0.01', cost_asset: 'USDC', artifact_refs: ['artifact://execution_1']
 });
+/** A persisted output of the external proof gateway, used only where score projection is under test. */
+export const qualifyingExecutionInput = () => ({ ...executionInput(), settlement_rail: 'base-usdc', settlement_ref: '0x' + 'a'.repeat(64),
+  verification: { profile: 'base_usdc_external.v1' as const, submission_hash: hashCanonical({ fixture: 'proof-gateway' }),
+    settlement: { verified: true as const, provenance: 'base_rpc_finalized_usdc_transfer' as const, network: 'eip155:8453' as const,
+      transaction_hash: '0x' + 'a'.repeat(64), block_hash: '0x' + 'b'.repeat(64), block_number: '1', signer: '0x' + 'c'.repeat(40) },
+    payload_hashes: 'externally_supplied_signed_claims' as const, status: 'externally_supplied_signed_claim' as const },
+  score_eligibility: { state: 'qualifying' as const, intake: 'external_proof_gateway.v1' as const,
+    proof_profile: 'base_usdc_external.v1' as const, reason: 'finalized_settlement_and_payload_verified' }
+});
+export const classifiedOutput = (success: boolean) => ({ task_id: 'provider_test', success, complete: success });
+export const classifiedArtifact = (success: boolean) => ({ encoding: 'base64' as const,
+  bytes: Buffer.from(JSON.stringify(classifiedOutput(success))).toString('base64'), source: 'signed_execution_response' as const });
+export const qualifyingClassifiedExecution = (success: boolean) => ({ ...qualifyingExecutionInput(),
+  response_hash: hashCanonical(classifiedOutput(success)), status: success ? 'succeeded' : 'failed' });
 export const evaluationInput = () => ({
   evaluation_id: 'e1', execution_id: 'x1', evaluated_at: '2026-10-07T00:00:04Z', outcome: 'confirmed' as const,
   reasons: ['output verified'], evidence_refs: ['artifact://evaluation_1']
@@ -27,7 +41,7 @@ export async function appendChain(store: ReceiptAppendStore) {
   const evaluations = createEvaluationService(store);
   const observation = await authority.appendObservation(observationInput());
   const judgment = await authority.appendJudgment(judgmentInput());
-  const execution = await authority.appendExecution(executionInput());
-  const evaluation = await evaluations.createEvaluation(evaluationInput());
+  const execution = await authority.appendExecution(qualifyingClassifiedExecution(true));
+  const evaluation = await evaluations.createEvaluation(evaluationInput(), classifiedArtifact(true));
   return { authority, observation, judgment, execution, evaluation };
 }
