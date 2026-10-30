@@ -768,10 +768,11 @@ export async function createApp(
     if (shuttingDown) return;
     void trackBackgroundWork(Promise.resolve().then(work));
   };
-  app.addHook('onClose', async () => {
+  const drainBackgroundWork = async () => {
     shuttingDown = true;
     while (activeBackgroundWork.size) await Promise.allSettled([...activeBackgroundWork]);
-  });
+  };
+  app.addHook('onClose', drainBackgroundWork);
   app.addHook('onRequest', async (req, reply) => {
     if (config.radarReadOnlyMode && !['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
       reply.header('Cache-Control', 'no-store');
@@ -1384,6 +1385,7 @@ export async function createApp(
   configureMachineDemoSeed(config.machineDemoSeed);
   const responseCache = createResponseCache();
   app.addHook('onClose', async () => {
+    await drainBackgroundWork();
     await rhChainSubmissionStore.close?.();
     await rhChainReviewedClassificationStore.close?.();
     await rhChainProjectClaimsStore.close?.();
