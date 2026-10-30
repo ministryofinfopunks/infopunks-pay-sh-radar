@@ -31,13 +31,13 @@ describe.skipIf(!databaseUrl)('RADAR_READ_ONLY_MODE PostgreSQL instrumentation',
       return originalQuery.apply(this, args as never);
     } as typeof pg.Client.prototype.query);
 
+    const start = statements.length;
     const app = await createApp(emptyIntelligenceStore());
     try {
       const pool = getDatabasePool({ connectionString: databaseUrl!, max: 4, readOnly: true });
       const mode = await pool.query<{ default_read_only: string }>("select current_setting('default_transaction_read_only') as default_read_only");
       expect(mode.rows[0]?.default_read_only).toBe('on');
 
-      const start = statements.length;
       expect((await app.inject({ method: 'GET', url: '/healthz' })).statusCode).toBe(200);
       expect((await app.inject({ method: 'GET', url: '/readyz' })).statusCode).not.toBe(503);
       expect((await app.inject({ method: 'GET', url: '/v1/radar/benchmark-summary' })).statusCode).toBe(200);

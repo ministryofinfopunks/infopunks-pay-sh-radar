@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { IntelligenceRepository, IntelligenceSnapshot } from '../src/persistence/repository';
+import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 
 const { closeDatabasePoolSpy } = vi.hoisted(() => ({ closeDatabasePoolSpy: vi.fn() }));
 
@@ -15,12 +16,14 @@ describe('read-only startup shutdown ordering', () => {
     vi.stubEnv('NODE_ENV', 'test');
     vi.stubEnv('DATABASE_URL', '');
     vi.stubEnv('RADAR_READ_ONLY_MODE', 'true');
+    vi.stubEnv('PAYSH_BOOTSTRAP_ENABLED', 'false');
     closeDatabasePoolSpy.mockClear();
   });
 
   afterEach(() => vi.unstubAllEnvs());
 
-  it('settles the startup snapshot read before closing dependent database resources', async () => {
+  it.each([true, false])('settles the startup repository read before closing dependent database resources (read-only=%s)', async (readOnly) => {
+    vi.stubEnv('RADAR_READ_ONLY_MODE', String(readOnly));
     let settleSnapshot!: (snapshot: IntelligenceSnapshot | null) => void;
     const pendingSnapshot = new Promise<IntelligenceSnapshot | null>((resolve) => {
       settleSnapshot = resolve;
@@ -41,12 +44,12 @@ describe('read-only startup shutdown ordering', () => {
       expect(closeSettled).toBe(false);
       expect(closeDatabasePoolSpy).not.toHaveBeenCalled();
 
-      settleSnapshot(null);
+      settleSnapshot(readOnly ? null : emptyIntelligenceStore());
       await closing;
       expect(closeSettled).toBe(true);
       expect(closeDatabasePoolSpy).toHaveBeenCalledOnce();
     } finally {
-      settleSnapshot(null);
+      settleSnapshot(readOnly ? null : emptyIntelligenceStore());
       await closing;
     }
   });

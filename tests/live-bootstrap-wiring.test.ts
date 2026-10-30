@@ -218,8 +218,9 @@ describe('live bootstrap wiring', () => {
     await app.close();
   });
 
-  it('returns fixture-backed pulse immediately when cold bootstrap never resolves', async () => {
-    vi.spyOn(intelligenceStoreModule, 'createIntelligenceStore').mockImplementation(async () => new Promise(() => {}));
+  it('returns fixture-backed pulse immediately while cold bootstrap is pending', async () => {
+    let finishStartup!: (snapshot: IntelligenceSnapshot) => void;
+    vi.spyOn(intelligenceStoreModule, 'createIntelligenceStore').mockImplementation(() => new Promise((resolve) => { finishStartup = resolve; }));
     const app = await createApp();
 
     const startedAt = Date.now();
@@ -238,6 +239,7 @@ describe('live bootstrap wiring', () => {
       radar: { state: 'fixture_backed' }
     });
 
+    finishStartup(emptyStore());
     await app.close();
   });
 });

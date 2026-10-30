@@ -1600,7 +1600,7 @@ export async function createApp(
       }));
   } else if (!preloadedStore) {
     const bootstrapStartMs = Date.now();
-    startupLoadPromise = createIntelligenceStore(repository)
+    startupLoadPromise = trackBackgroundWork(createIntelligenceStore(repository)
       .then((loadedStore) => {
         copyStoreInto(store, loadedStore);
         bootstrapped = Boolean(loadedStore.providers.length > 0);
@@ -1619,7 +1619,7 @@ export async function createApp(
           code: errorCode(error),
           message: errorMessage(error)
         }));
-      });
+      }));
     if (!config.radarReadOnlyMode) void ensureLiveBootstrap('startup');
   } else {
     refreshBackgroundAnalytics();
