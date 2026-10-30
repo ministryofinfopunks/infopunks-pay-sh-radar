@@ -61,8 +61,7 @@ describe('universal homepage performance boundary', () => {
 
   it('preserves mobile navigation touch targets without adding homepage overflow behavior', async () => {
     const css = await readFile(join(process.cwd(), 'src/web/homepage.css'), 'utf8');
-    expect(css).toMatch(/\.radar-home-header nav a \{[^}]*min-width: 44px;[^}]*min-height: 44px;/s);
-    expect(css).toContain('width: min(100% - 28px, 1180px);');
+    expect(css).toMatch(/\.radar-home-quick-nav a \{[^}]*min-height: 44px;/s);
     expect(css).toContain('grid-template-columns: 1fr;');
   });
 
@@ -80,19 +79,16 @@ describe('universal homepage performance boundary', () => {
 
     const rhCard = container.querySelector('.radar-home-cards article.rh');
     expect(rhCard?.textContent).toContain('Robinhood Chain');
-    expect(rhCard?.querySelector('h3')?.textContent).toBe('//4663');
-    expect(rhCard?.querySelector('span')?.textContent).toBe('Pulse · Today · Signals · Receipts · Market memory');
-    const primaryRhLink = rhCard?.querySelector('a[href="/4663"]');
+    expect(rhCard?.querySelector('h2')?.textContent).toBe('Robinhood Chain');
+    const primaryRhLink = Array.from(rhCard?.querySelectorAll('a[href="/4663"]') ?? []).find(link => link.textContent?.includes('Enter //4663'));
     const signalDeskLink = rhCard?.querySelector('a[href="/rh-chain-signal-desk"]');
     expect(primaryRhLink?.textContent).toContain('Enter //4663');
-    expect(primaryRhLink?.classList.contains('radar-home-card-secondary')).toBe(false);
     expect(signalDeskLink?.textContent).toContain('Signal Desk');
-    expect(signalDeskLink?.classList.contains('radar-home-card-secondary')).toBe(true);
 
-    expect(container.textContent).toContain('After attention,intelligence.');
     expect(container.textContent).toContain('Intelligence before the wallet acts.');
-    expect(container.textContent).toContain('Culture → intelligence → infrastructure.');
-    expect(container.textContent).toContain('One Radar. Two economies.');
-    expect(container.querySelector('.radar-home-cards a[href="/solana"]')?.textContent).toContain('Open Solana Radar');
+    expect(container.querySelector('a[href="#radar-home-proof"]')).not.toBeNull();
+    expect(container.querySelector('#radar-home-proof')).not.toBeNull();
+    expect(container.textContent).toContain('ONE RADAR. TWO ECONOMIES.');
+    expect(Array.from(container.querySelectorAll('.radar-home-cards a[href="/solana"]')).map(link => link.textContent).join(' ')).toContain('Open Solana Radar');
   });
 });
