@@ -1,4 +1,7 @@
-import React, { useEffect, useId, useRef, useState } from 'react';
+import { ProductWayfinding } from './productPrimitives';
+import { RadarSectionHeader } from './radarDesignSystem';
+import React, { useContext, useEffect, useId, useRef, useState } from 'react';
+import { RadarShellContext } from './radarShellContext';
 import { radarNetworkForPath, type RadarNavigationContext, type RadarNetworkId } from './bootContext';
 import {
   RADAR_NAVIGATION,
@@ -222,11 +225,11 @@ function SolanaExploreMenuIntro() {
   </div>;
 }
 
-export function SolanaRadarDirectory({ current = currentLocation() }: { current?: string }) {
+export function SolanaRadarDirectory({ current = currentLocation(), terminal = false }: { current?: string; terminal?: boolean }) {
   return <section className="radar-route-directory" id="explore-solana-radar" aria-labelledby="explore-solana-radar-title">
     <div className="radar-route-directory-head">
       <div>
-        <p className="section-kicker">Featured product surfaces</p>
+        {terminal ? <RadarSectionHeader index="03" title="Featured product surfaces" subtitle="Solana directory" level="label" /> : <p className="section-kicker">Featured product surfaces</p>}
         <h2 id="explore-solana-radar-title">Explore Solana Radar</h2>
       </div>
       <p>A map of the intelligence, evidence and execution surfaces available across the Solana environment.</p>
@@ -238,7 +241,7 @@ export function SolanaRadarDirectory({ current = currentLocation() }: { current?
         return <article className="radar-directory-card" key={group.id} aria-labelledby={groupTitleId} data-group-id={group.id}>
           <div className="radar-directory-card-head">
             <h3 id={groupTitleId}>{group.label}</h3>
-            <span>{featuredItems.length.toString().padStart(2, '0')}</span>
+            <span>{featuredItems.length.toString().padStart(2, '0')}{terminal && ' surfaces'}</span>
           </div>
           <p>{group.description}</p>
           <div className="radar-directory-featured-routes">
@@ -254,6 +257,8 @@ export function SolanaRadarDirectory({ current = currentLocation() }: { current?
 }
 
 export function RadarHeaderIdentity({ active, context = active ?? 'universal', homeHref = '/' }: { active?: RadarNetworkId; context?: RadarNavigationContext; homeHref?: string }) {
+  const inheritedShell = useContext(RadarShellContext);
+  if (inheritedShell) return null;
   const selectedNetwork = context === 'universal' ? null : context;
   return <div className="radar-network-identity">
     <a className="nav-brand" href={homeHref} aria-label="Infopunks Radar home">
@@ -276,14 +281,17 @@ export function RadarProductNavigation({
   current = currentLocation(),
   onOpenCommandPalette,
   viewSettings,
-  className = ''
+  className = '',
+  shellOwner = false
 }: {
   context: RadarNavigationContext;
   current?: string;
   onOpenCommandPalette?: () => void;
   viewSettings?: RadarViewSettings;
   className?: string;
+  shellOwner?: boolean;
 }) {
+  const inheritedShell = useContext(RadarShellContext);
   const navigation = RADAR_NAVIGATION[context];
   const contextLabel = context === 'universal' ? 'Radar' : context === 'solana' ? 'Solana' : 'Robinhood Chain';
   const overflowActive = navigation.overflowGroups.some((group) => group.items.some((item) => navigationItemIsActive(item, current)));
@@ -295,8 +303,12 @@ export function RadarProductNavigation({
     ...navigation.overflowGroups
   ];
 
-  return <nav className={`global-toolbar radar-product-navigation context-${context} ${className}`.trim()} aria-label={`${context === 'universal' ? 'Infopunks Radar' : RADAR_NETWORKS[context].contextLabel} navigation`}>
-    <RadarHeaderIdentity context={context} />
+  if (inheritedShell && !shellOwner) return (onOpenCommandPalette || viewSettings) ? <details className="radar-local-controls"><summary>Terminal view controls</summary><div>
+    {onOpenCommandPalette && <button className="execute secondary" onClick={onOpenCommandPalette} type="button">Commands ⌘K</button>}
+    {viewSettings && <><button className="execute secondary" type="button" aria-pressed={viewSettings.agentMode} onClick={viewSettings.onToggleAgentMode}>Agent mode</button><button className="execute secondary" type="button" aria-pressed={viewSettings.densityMode === 'dense'} onClick={viewSettings.onToggleDensity}>Dense view</button></>}
+  </div></details> : null;
+  return <><ProductWayfinding current={current.split('#')[0]} /><nav className={`global-toolbar radar-product-navigation context-${context} ${className}`.trim()} aria-label={`${context === 'universal' ? 'Infopunks Radar' : RADAR_NETWORKS[context].contextLabel} navigation`}>
+    <RadarShellContext.Provider value={false}><RadarHeaderIdentity context={context} /></RadarShellContext.Provider>
     <div className="terminal-nav radar-primary-navigation" aria-label="Primary destinations">
       {navigation.primaryItems.map((item) => <span className={item.compactPriority ? 'radar-primary-priority' : 'radar-primary-collapsible'} key={item.href}><NavigationLink item={item} current={current} /></span>)}
     </div>
@@ -362,10 +374,12 @@ export function RadarProductNavigation({
         </div>}
       </PopupMenu>}
     </div>}
-  </nav>;
+  </nav></>;
 }
 
 export function RadarContextHeader({ active = 'solana', current }: { active?: RadarNetworkId; current?: string }) {
+  const inheritedShell = useContext(RadarShellContext);
+  if (inheritedShell) return null;
   return <header className="site-header radar-context-header">
     <RadarProductNavigation context={active} current={current} />
   </header>;

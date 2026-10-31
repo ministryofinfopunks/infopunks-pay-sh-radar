@@ -93,4 +93,37 @@ describe('Infopunks //4663 mobile surface', () => {
     await act(async () => { root = createRoot(container); root.render(<Rh4663Page />); await Promise.resolve(); await Promise.resolve(); await Promise.resolve(); await Promise.resolve(); });
     expect(container.textContent).toContain('STATUSOBSERVATION WINDOW'); expect(container.textContent).not.toContain('CORRECT ✓'); expect(container.textContent).not.toContain('MISSED');
   });
+  it('requests wallet access and uses the granted account for the synthetic call payload', async () => {
+    window.history.replaceState({}, '', '/4663/pulse');
+    const wallet = '0x1111111111111111111111111111111111111111';
+    const request = vi.fn(async ({ method }: { method: string }) => method === 'eth_accounts' ? [] : [wallet]);
+    Object.defineProperty(window, 'ethereum', { configurable: true, value: { request } });
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
+      if (String(input).includes('/reputation/')) return json({ wallet, calls: 0, resolved_calls: 0, correct_calls: 0, accuracy: null, current_streak: 0, genesis_position: null, evidence: [] });
+      if (String(input).includes('/pulse/payload')) return Promise.resolve(new Response(JSON.stringify({ error: 'synthetic_payload_stop' }), { status: 400 }));
+      return json({ window: { window_id: 'rh4663:2026-08-13', opens_at: '2026-08-13T00:00:00.000Z', closes_at: '2026-08-14T00:00:00.000Z' }, consensus: { total_calls: 0, state: 'available' }, options: [] });
+    });
+    await act(async () => { root = createRoot(container); root.render(<Rh4663Page />); await Promise.resolve(); await Promise.resolve(); });
+    const button = Array.from(container.querySelectorAll('button')).find(node => node.textContent?.includes('SIGN + RECORD CALL'))!;
+    await act(async () => { button.click(); await Promise.resolve(); await Promise.resolve(); });
+    expect(request).toHaveBeenCalledWith({ method: 'eth_requestAccounts' });
+    const payload = fetchMock.mock.calls.find(([url]) => String(url).includes('/pulse/payload'));
+    expect(JSON.parse(String(payload?.[1]?.body))).toMatchObject({ wallet, rotation: 'MEMES', confidence: 70 });
+    expect(container.textContent).toContain('synthetic payload stop');
+    expect(request.mock.calls.some(([args]) => args.method === 'personal_sign')).toBe(false);
+  });
+
+  it('shows a denied wallet request without sending a call payload', async () => {
+    window.history.replaceState({}, '', '/4663/pulse');
+    const request = vi.fn(async ({ method }: { method: string }) => { if (method === 'eth_accounts') return []; throw new Error('Wallet access denied'); });
+    Object.defineProperty(window, 'ethereum', { configurable: true, value: { request } });
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(() => json({ window: { window_id: 'rh4663:2026-08-13', opens_at: '2026-08-13T00:00:00.000Z', closes_at: '2026-08-14T00:00:00.000Z' }, consensus: { total_calls: 0, state: 'available' }, options: [] }));
+    await act(async () => { root = createRoot(container); root.render(<Rh4663Page />); await Promise.resolve(); await Promise.resolve(); });
+    const button = Array.from(container.querySelectorAll('button')).find(node => node.textContent?.includes('SIGN + RECORD CALL'))!;
+    await act(async () => { button.click(); await Promise.resolve(); });
+    expect(request).toHaveBeenCalledWith({ method: 'eth_requestAccounts' });
+    expect(container.textContent).toContain('Wallet access denied');
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/pulse/payload'))).toBe(false);
+  });
+
 });

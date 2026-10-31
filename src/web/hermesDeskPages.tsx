@@ -588,7 +588,7 @@ function HermesPolicyReconciliationCard({
       {!reconciliation.findings.length && <span>no findings</span>}
     </div>
     {!compact && <>
-      <div className="hermes-flow-strip" aria-label="Policy reconciliation flow">
+      <div className="hermes-flow-strip" tabIndex={0} role="region" aria-label="Policy reconciliation flow">
         {['Policy Check', 'Policy Receipt', 'Wallet Outcome', 'Reconciliation', 'Feedback'].map((step, index) => (
           <React.Fragment key={step}>
             <span>{step}</span>
@@ -661,7 +661,7 @@ function HermesDecisionFeedbackCard({
       {feedback.reputation_feedback.reputation_notes.map((note) => <span key={`${feedback.decision_id}-${note}`}>{note}</span>)}
     </div>
     {!compact && <>
-      <div className="hermes-flow-strip" aria-label="Decision feedback flow">
+      <div className="hermes-flow-strip" tabIndex={0} role="region" aria-label="Decision feedback flow">
         {['Pre-Spend Decision', 'Decision Receipt', 'Spend Outcome', 'Reputation Feedback', 'Better Next Spend'].map((step, index) => (
           <React.Fragment key={step}>
             <span>{step}</span>
@@ -963,7 +963,7 @@ function HermesWalletSafetyPage() {
 
         <section className="panel hermes-skill-pack-detail" aria-label="Developer Response Shape">
           <div className="panel-head"><div><p className="section-kicker">Developer Response Shape</p><h2>One call before spend.</h2></div></div>
-          <pre className="safe-code-block" aria-label="Wallet Safety API code sample">{codeSample}</pre>
+          <pre className="safe-code-block" tabIndex={0} role="region" aria-label="Wallet Safety API code sample">{codeSample}</pre>
           <div className="machine-usage-list">
             {['pre_spend_decision', 'spend_policy_check', 'policy_receipt', 'reconciliation_preview', 'wallet_audit_trail', 'wallet_risk_score', 'final_recommendation'].map((field) => (
               <p key={field}><span>{field}</span><small>{field === 'final_recommendation' ? recommendation.decision : 'included'}</small></p>
@@ -1259,7 +1259,7 @@ function HermesWalletAuditTrailPage() {
               <h2>Eight deterministic wallet safety events.</h2>
             </div>
           </div>
-          <div className="hermes-flow-strip" aria-label="Wallet audit trail flow">
+          <div className="hermes-flow-strip" tabIndex={0} role="region" aria-label="Wallet audit trail flow">
             {orderedSteps.map((step, index) => (
               <React.Fragment key={step}>
                 <span>{step}</span>
@@ -1407,7 +1407,7 @@ function HermesMemoryLoopDashboardPage() {
             </div>
             <a className="execute compact secondary" href={`/v1/hermes/memory-loop/${encodeURIComponent(loop.id)}`}>GET loop</a>
           </div>
-          <div className="hermes-flow-strip hermes-memory-flow" aria-label="Agent memory loop flow">
+          <div className="hermes-flow-strip hermes-memory-flow" tabIndex={0} role="region" aria-label="Agent memory loop flow">
             {loop.stages.map((stage, index) => (
               <React.Fragment key={stage.id}>
                 <span>{stage.label}</span>
@@ -1810,7 +1810,7 @@ function HermesDeskSurface() {
           </div>
           <p className="copy">Agents do not need chat history.</p>
           <p className="copy">Agents need memory that changes future action.</p>
-          <div className="hermes-flow-strip" aria-label="Agent Memory Loop flow">
+          <div className="hermes-flow-strip" tabIndex={0} role="region" aria-label="Agent Memory Loop flow">
             {['Run', 'Receipt', 'Claim', 'Review', 'Reputation', 'Decision', 'Outcome', 'Feedback'].map((step, index) => (
               <React.Fragment key={step}>
                 <span>{step}</span>
@@ -1887,7 +1887,7 @@ function HermesDeskSurface() {
             </div>
             <a className="execute compact secondary" href={`/v1/hermes/runs/${encodeURIComponent(summary.runs[0]?.id ?? 'hermes_pay_sh_route_pre_spend_check')}/claim/promotion-preview`}>GET promotion preview</a>
           </div>
-          <div className="hermes-flow-strip" aria-label="Hermes claim promotion flow">
+          <div className="hermes-flow-strip" tabIndex={0} role="region" aria-label="Hermes claim promotion flow">
             {['Hermes Run', 'Agent Run Receipt', 'Claim Candidate', 'Reviewed Claim', 'Reputation Impact'].map((step, index) => (
               <React.Fragment key={step}>
                 <span>{step}</span>
@@ -2405,7 +2405,7 @@ function HermesSpendPolicyPage() {
         </div>
         <p className="copy">A policy decision should not disappear after the wallet acts.</p>
         <p className="copy">It should become an audit receipt.</p>
-        <div className="hermes-flow-strip" aria-label="Policy receipt flow">
+        <div className="hermes-flow-strip" tabIndex={0} role="region" aria-label="Policy receipt flow">
           {['Spend Intent', 'Pre-Spend Decision', 'Policy Check', 'Policy Receipt', 'Audit Trail', 'Future Feedback'].map((step, index) => (
             <React.Fragment key={step}>
               <span>{step}</span>
@@ -2452,7 +2452,7 @@ function HermesSpendPolicyPage() {
           <a className="execute compact secondary" href={`/v1/hermes/spend-policy/check/${encodeURIComponent(reconciliationPreview.check_id)}/reconciliation-preview`}>GET reconciliation preview</a>
         </div>
         <p className="copy">A reconciliation proves what actually happened.</p>
-        <div className="hermes-flow-strip" aria-label="Policy outcome reconciliation flow">
+        <div className="hermes-flow-strip" tabIndex={0} role="region" aria-label="Policy outcome reconciliation flow">
           {['Policy Check', 'Policy Receipt', 'Wallet Outcome', 'Reconciliation', 'Feedback'].map((step, index) => (
             <React.Fragment key={step}>
               <span>{step}</span>
