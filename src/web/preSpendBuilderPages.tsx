@@ -719,17 +719,13 @@ Content-Type: application/json
 }`;
 
   const apiResponse = `{
-  "data": {
-    "intent": "buy_market_research",
-    "decision": "approved_with_warning",
-    "recommended_route": "route_pay_sh_market_research_01",
-    "confidence_score": 82,
-    "risk_level": "medium",
-    "estimated_cost": "0.25 USDC",
-    "requires_human_approval": false,
-    "receipt_references": ["receipt_001"],
-    "known_blockers": ["occasional timeout under high load"]
-  }
+  "judgment_id": "judgment_<synthetic-id>",
+  "decision": "insufficient_evidence",
+  "confidence": 0,
+  "reasons": ["Required fresh, scoped, live evidence is missing."],
+  "cost": { "amount": "0", "asset": "USDC" },
+  "payment_required": false,
+  "receipt": null
 }`;
 
   const decisionStates: Array<{ state: DecisionState; copy: string }> = [
@@ -747,7 +743,7 @@ Content-Type: application/json
       copy: 'Ask once before spend. Get decision, policy, audit trail, risk score, final recommendation, and copy-paste SDK snippets.',
       cta: 'Open quickstart + snippets'
     },
-    { href: '/spend-terminal', title: 'Spend Terminal', copy: 'Run the receipt-backed pre-spend check UI.' },
+    { href: '/spend-terminal', title: 'Spend Terminal', copy: 'Run a pre-spend check and inspect a judgment receipt when one is issued.' },
     { href: '/check', title: 'Check', copy: 'Turn claims, routes, providers, wallets, and links into public receipt checks.' },
     { href: '/loops', title: 'Loops', copy: 'Inspect autonomous loops as proof-linked public memory objects.' },
     { href: '/routes', title: 'Routes', copy: 'Inspect route-level intelligence before autonomous spend.' },
@@ -766,12 +762,12 @@ Content-Type: application/json
         <div>
           <p className="eyebrow">Developer Surface</p>
           <h1>Before your agent pays, it checks Infopunks.</h1>
-          <p className="copy">Infopunks is the pre-spend intelligence layer before payment. It returns receipt-backed route intelligence, known blockers, safer alternatives, and validation context before economic action.</p>
+          <p className="copy">Infopunks is the pre-spend intelligence layer before payment. Canonical outcome, charge, and receipt fields govern each check; route assessments and historical receipts provide supporting context. Insufficient evidence returns a free judgment with no receipt. A sufficient judgment may require x402 payment and never executes the subject payment.</p>
           <p className="copy">Infopunks is not executing payment. The SDK calls POST /v1/pre-spend/check against https://radar.infopunks.fun.</p>
         </div>
         <div className="ticker" aria-label="Developer page signals">
           <span>pre-spend intelligence</span>
-          <span>receipt-backed decisions</span>
+          <span>canonical pre-spend judgments</span>
           <span>not payment execution</span>
           <span>before your agent pays, it checks Infopunks</span>
         </div>
@@ -793,13 +789,13 @@ Content-Type: application/json
           <article className="panel builder-card">
             <p className="section-kicker">Step 2</p>
             <h2>Infopunks checks the route.</h2>
-            <p className="panel-caption">Route intelligence, provider reliability, receipts, blockers, validation, risk, and confidence are evaluated before spend.</p>
+            <p className="panel-caption">The API returns a canonical outcome from available evidence. Missing evidence returns a free result with no judgment receipt; payment challenges apply only when the contract requires them.</p>
           </article>
           <article className="panel builder-card">
             <p className="section-kicker">Step 3</p>
             <h2>Agent receives a decision.</h2>
             <div className="builder-chip-row" aria-label="Pre-spend decision states">
-              {decisionStates.map((item) => <span className={`builder-decision-chip ${decisionTone(item.state)}`} key={item.state}>{item.state}</span>)}
+              {(['proceed', 'test_spend_first', 'do_not_spend', 'insufficient_evidence'] as const).map((state) => <span className="builder-decision-chip warn" key={state}>{state}</span>)}
             </div>
           </article>
         </div>
@@ -824,7 +820,7 @@ Content-Type: application/json
               <h2 id="api-heading">POST /v1/pre-spend/check</h2>
             </div>
           </div>
-          <p className="panel-caption">Builders can call the HTTP endpoint directly when they do not want the SDK wrapper. The public contract is the intelligence layer before payment, not the payment client itself.</p>
+          <p className="panel-caption">The request below is schema-valid and directly executable. The response is an abbreviated synthetic example of insufficient evidence: zero charge and no judgment receipt. Legacy route assessments and historical receipt references in data are supporting context only. A sufficient judgment may require an x402 payment challenge; the endpoint never executes the subject payment.</p>
           <pre className="builder-code-block"><code>{apiRequest}</code></pre>
           <pre className="builder-code-block"><code>{apiResponse}</code></pre>
         </section>
@@ -833,8 +829,8 @@ Content-Type: application/json
       <section className="panel builder-detail-panel" aria-label="Decision states">
         <div className="panel-head">
           <div>
-            <p className="section-kicker">Decision States</p>
-            <h2>Crisp outcomes for builders</h2>
+            <p className="section-kicker">Legacy Route Assessment</p>
+            <h2>Supporting route assessment states</h2>
           </div>
         </div>
         <div className="builder-detail-grid">
@@ -845,17 +841,16 @@ Content-Type: application/json
         </div>
       </section>
 
-      <section className="panel builder-detail-panel" aria-label="Receipt-backed trust">
+      <section className="panel builder-detail-panel" aria-label="Judgment evidence and receipts">
         <div className="panel-head">
           <div>
-            <p className="section-kicker">Receipt-Backed Trust</p>
-            <h2>No receipt, no trust.</h2>
+            <p className="section-kicker">Judgment Evidence</p>
+            <h2>Inspect the evidence behind each judgment.</h2>
           </div>
         </div>
         <div className="builder-note-stack">
-          <p className="builder-note-row">No receipt, no trust.</p>
-          <p className="builder-note-row">Every decision should point back to receipts.</p>
-          <p className="builder-note-row">Receipts capture route runs, cost, latency, status, validation, confidence delta, and evidence artifacts.</p>
+          <p className="builder-note-row">A judgment receipt is issued only when the canonical check response includes one. Insufficient evidence is free and has no receipt.</p>
+          <p className="builder-note-row">When issued, receipts record the check outcome and supporting route evidence.</p>
           <p className="builder-note-row">Evidence graph pages connect routes, providers, services, receipts, and human validation.</p>
         </div>
       </section>
