@@ -3,6 +3,7 @@
 export class StoreJobCoordinator {
   private tail: Promise<unknown> = Promise.resolve();
   private closed = false;
+  private closePromise: Promise<void> | null = null;
   private scheduled = new Map<string, { pending: boolean }>();
 
   run<T>(work: () => Promise<T>): Promise<T> {
@@ -38,8 +39,15 @@ export class StoreJobCoordinator {
     void drain();
   }
 
-  async close(): Promise<void> {
+  close(): Promise<void> {
+    if (this.closePromise) return this.closePromise;
+
     this.closed = true;
     for (const state of this.scheduled.values()) state.pending = false;
+    // `tail` absorbs job failures for queue progress. The caller's `run()`
+    // promise still reports its own failure, while shutdown only waits for the
+    // queue to settle and never inherits that failure.
+    this.closePromise = this.tail.then(() => undefined);
+    return this.closePromise;
   }
 }

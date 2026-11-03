@@ -17,6 +17,8 @@ function emptySnapshot(): IntelligenceSnapshot {
   };
 }
 
+async function flushMicrotasks() { for (let i = 0; i < 12; i++) await Promise.resolve(); }
+
 class FailingRepository implements IntelligenceRepository {
   async loadSnapshot(): Promise<IntelligenceSnapshot | null> {
     const error = new Error('connect ECONNREFUSED 127.0.0.1:5432') as Error & { code?: string };
@@ -81,6 +83,40 @@ describe('postgres resilience', () => {
         dbCircuitState: 'degraded'
       });
     } finally { await app.close(); }
+  });
+
+  it('drains active startup persistence before closing the shared database pool', async () => {
+    process.env.DATABASE_URL = 'postgres://example:test@localhost:5432/test';
+    process.env.PAYSH_BOOTSTRAP_ENABLED = 'false';
+    let finishPersistence!: () => void;
+    const persistenceGate = new Promise<void>((resolve) => { finishPersistence = resolve; });
+    let signalPersistenceStarted!: () => void;
+    const persistenceStarted = new Promise<void>((resolve) => { signalPersistenceStarted = resolve; });
+    const order: string[] = [];
+    const repository: IntelligenceRepository = {
+      async loadSnapshot() {
+        signalPersistenceStarted();
+        await persistenceGate;
+        order.push('persistence_ended');
+        return emptySnapshot();
+      },
+      async saveSnapshot() { return; }
+    };
+    const app = await createApp(undefined, repository);
+    await persistenceStarted;
+    const pool = getDatabasePool({ connectionString: process.env.DATABASE_URL, max: 10 });
+    const originalEnd = pool.end.bind(pool);
+    vi.spyOn(pool, 'end').mockImplementation(async () => {
+      order.push('database_closed');
+      await originalEnd();
+    });
+
+    const closing = app.close();
+    await flushMicrotasks();
+    expect(order).toEqual([]);
+    finishPersistence();
+    await closing;
+    expect(order).toEqual(['persistence_ended', 'database_closed']);
   });
 
   it('initializes one shared pool and honors DATABASE_POOL_MAX', async () => {
