@@ -215,7 +215,7 @@ import {
 import { endpointHistory, findEndpoint, findProvider, providerHistory, providerIntelligence } from '../services/providerIntelligenceService';
 import { endpointMonitorSummary, isMonitorEnabled, monitorIntervalMs, monitorMaxProviders, monitorTimeoutMs, providerMonitorSummary, runMonitor } from '../services/endpointMonitorService';
 import { loadRuntimeConfig, productionConfigurationIssues } from '../config/env';
-import { dataSourceState, PULSE_CAPS, pulseSummary } from '../services/pulseService';
+import { dataSourceState, invalidatePulseSummaryCache, PULSE_CAPS, pulseSummary } from '../services/pulseService';
 import { recomputeAssessments } from '../services/intelligenceStore';
 import { featuredProviderRotation } from '../services/featuredProviderService';
 import { classifyEventSeverity, classifyGraphSeverity, classifyNarrativeClusterSeverity, classifyProviderDossierSeverity } from '../engines/severityEngine';
@@ -4968,6 +4968,7 @@ export async function createApp(
   }
 
   function refreshBackgroundAnalytics() {
+    invalidatePulseSummaryCache(store);
     setTimeout(() => {
       try {
         const generatedAt = new Date().toISOString();

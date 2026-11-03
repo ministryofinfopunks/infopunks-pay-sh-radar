@@ -70,6 +70,64 @@ export function classifyEventSeverity(event: InfopunksEvent, relatedEvents: Info
   return { severity: 'unknown', severity_reason: 'No deterministic severity rule matched this event.', severity_score: 0 };
 }
 
+/** Classifies a snapshot with one indexed pass for repeated degradations (rather than one full scan per event). */
+export function classifyEventSeverities(events: InfopunksEvent[]): Map<InfopunksEvent, SeverityMetadata> {
+  const degradationGroups = new Map<string, number[]>();
+  const isDegradation = (event: InfopunksEvent) => event.type === 'provider.degraded' || event.type === 'endpoint.degraded';
+  const groupKey = (event: InfopunksEvent) => JSON.stringify([event.entityType, event.entityId, event.type]);
+  for (const event of events) {
+    if (!isDegradation(event)) continue;
+    const observedAt = resolveEventObservedAt(event, event.observedAt);
+    const timestamp = observedAt ? Date.parse(observedAt) : Number.NaN;
+    if (!Number.isFinite(timestamp)) continue;
+    const key = groupKey(event);
+    const group = degradationGroups.get(key) ?? [];
+    group.push(timestamp);
+    degradationGroups.set(key, group);
+  }
+  for (const timestamps of degradationGroups.values()) timestamps.sort((a, b) => a - b);
+
+  const result = new Map<InfopunksEvent, SeverityMetadata>();
+  for (const event of events) {
+    if (!isDegradation(event)) {
+      result.set(event, classifyEventSeverity(event));
+      continue;
+    }
+    const observedAt = resolveEventObservedAt(event, event.observedAt);
+    const timestamp = observedAt ? Date.parse(observedAt) : Number.NaN;
+    const timestamps = degradationGroups.get(groupKey(event)) ?? [];
+    const count = Number.isFinite(timestamp)
+      ? upperBound(timestamps, timestamp) - lowerBound(timestamps, timestamp - DEGRADED_WINDOW_MS)
+      : 0;
+    if (count >= CRITICAL_DEGRADATION_COUNT) result.set(event, { severity: 'critical', severity_reason: `${count} repeated degradations detected in the severity window.`, severity_score: 90, severity_window: '1h' });
+    else if (count >= WARNING_DEGRADATION_COUNT) result.set(event, { severity: 'warning', severity_reason: `${count} repeated degradations detected in the severity window.`, severity_score: 70, severity_window: '1h' });
+    else result.set(event, classifyEventSeverity(event));
+  }
+  return result;
+}
+
+function lowerBound(values: number[], target: number) {
+  let low = 0;
+  let high = values.length;
+  while (low < high) {
+    const middle = (low + high) >>> 1;
+    if (values[middle] < target) low = middle + 1;
+    else high = middle;
+  }
+  return low;
+}
+
+function upperBound(values: number[], target: number) {
+  let low = 0;
+  let high = values.length;
+  while (low < high) {
+    const middle = (low + high) >>> 1;
+    if (values[middle] <= target) low = middle + 1;
+    else high = middle;
+  }
+  return low;
+}
+
 export function classifyScoreChangeSeverity(entityType: InfopunksEvent['entityType'], delta: number | null, unknowns = 0): SeverityMetadata {
   if (entityType === 'trust_assessment') {
     if (delta !== null && delta <= RAPID_TRUST_COLLAPSE_DELTA) {
