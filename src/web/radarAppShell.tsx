@@ -9,7 +9,7 @@ import { AppErrorBoundary } from './appErrorBoundary';
 
 export function RadarAppShell({ children, path = typeof window === 'undefined' ? '/' : window.location.pathname }: { children: React.ReactNode; path?: string }) {
   const identity = radarPageIdentity(path);
-  const context = path.startsWith('/4663') ? 'robinhood-chain' : radarNetworkForPath(path);
+  const context = path.startsWith('/economic-os/') ? null : path.startsWith('/4663') ? 'robinhood-chain' : radarNetworkForPath(path);
   const home = path === '/';
   useEffect(() => { document.title = `${identity.title} / ${radarPageLabel(path)} · Infopunks Radar`; }, [identity.title, path]);
   return <RadarShellContext.Provider value={true}><div className="radar-app-shell" data-radar-family={identity.index} data-radar-home={home ? '' : undefined}>

@@ -1,0 +1,23 @@
+.economic-os-overview { display: grid; gap: 14px; color: var(--text); font-family: var(--font-mono); }
+.economic-os-intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; padding: 24px; }
+.economic-os-intro > *, .economic-os-request { min-width: 0; }
+.economic-os-overview h1 { margin: 10px 0; font-size: clamp(2rem, 4vw, 3.2rem); letter-spacing: -.045em; }
+.economic-os-overview h2 { margin: 10px 0 4px; font-size: 1.5rem; }
+.economic-os-overview h3 { margin: 0 0 12px; font-size: 1rem; color: var(--muted); }
+.economic-os-overview p { line-height: 1.65; }
+.economic-os-kicker { color: var(--signal-action); font-size: .8rem; letter-spacing: .05em; }
+.economic-os-lede { font-size: 1.15rem; color: var(--muted); }
+.economic-os-request > p { margin-top: 0; color: var(--signal-action); }
+.economic-os-request pre { box-sizing: border-box; max-width: 100%; overflow: auto; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--bg); line-height: 1.7; }
+.economic-os-request small { display: block; color: var(--muted); line-height: 1.6; }
+.economic-os-economies { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.economic-os-card { padding: 18px; }
+.economic-os-scope { color: var(--muted); }
+.economic-os-link { display: inline-flex; align-items: center; gap: 10px; color: var(--signal-action); text-decoration: none; padding: 8px 0; }
+.economic-os-link:focus-visible, .economic-os-related a:focus-visible { outline: 2px solid var(--signal-action); outline-offset: 3px; }
+.economic-os-protocol { padding: 18px; }
+.economic-os-protocol-heading { display: flex; justify-content: space-between; gap: 18px; align-items: start; }
+.economic-os-protocol-heading > span { color: var(--muted); }
+.economic-os-related { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 16px; border: 1px solid var(--line); }
+.economic-os-related a { color: var(--signal-action); }
+@media (max-width: 680px) { .economic-os-intro, .economic-os-economies { grid-template-columns: 1fr; } .economic-os-intro { padding: 16px; } .economic-os-protocol-heading { display: block; } }
