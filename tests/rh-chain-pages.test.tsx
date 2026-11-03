@@ -317,6 +317,29 @@ describe('RH Chain Signal Desk pages', () => {
     expect(container.querySelector('.rh-v2-table')).not.toBeNull();
   });
 
+  it('applies Meme Pulse search and filters in global Analyst mode', async () => {
+    root = await renderPath(container, '/rh-chain-signal-desk');
+    const analyst = Array.from(container.querySelectorAll<HTMLButtonElement>('.rh-v2-mode-control button')).find((button) => button.textContent === 'analyst');
+    await act(async () => analyst?.click());
+
+    const memeSection = container.querySelector('.rh-v2-memes')!;
+    const search = memeSection.querySelector<HTMLInputElement>('input')!;
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(search, 'HOOD');
+      search.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    const rows = Array.from(memeSection.querySelectorAll('.rh-v2-table tbody tr'));
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.textContent).toContain('HOOD');
+    expect(rows[0]?.textContent).not.toContain('RAILS');
+
+    const reviewed = Array.from(memeSection.querySelectorAll<HTMLButtonElement>('[aria-label="Filter Meme Pulse"] button')).find((button) => button.textContent === 'reviewed');
+    await act(async () => reviewed?.click());
+    expect(memeSection.querySelectorAll('.rh-v2-table tbody tr')).toHaveLength(1);
+    expect(memeSection.textContent).toContain('No dossier matches this view. No fallback token has been substituted.');
+  });
+
   it('opens the Daily Receipt share menu, copies a permanent URL, and restores focus on Escape', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });

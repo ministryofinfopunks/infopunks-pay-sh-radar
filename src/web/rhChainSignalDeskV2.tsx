@@ -545,6 +545,15 @@ function MemePulseBrief({ items, allItems, mode }: { items: BriefMemeSelection[]
     return stateMatch && (!needle || `${item.ticker} ${item.name} ${item.contract ?? ''} ${item.verdict}`.toLowerCase().includes(needle));
   });
   const tableMode = mode === 'analyst' || view === 'table';
+  const analystItems = allItems.map((item) => ({
+    ticker: item.ticker, name: item.name, contract: isRhChainContractAddress(item.contract) ? item.contract : null,
+    verdict: item.infopunks_verdict, riskState: item.risk_state, observedState: 'auto-observed' as const,
+    source: item.source, sourceAge: 'unknown' as const, signalScore: null
+  }));
+  const tableItems = (mode === 'analyst' ? analystItems : visible).filter((item) => {
+    const stateMatch = filter === 'all' || filter === item.observedState || (filter === 'risk' && ['high_risk', 'do_not_touch_yet', 'source_required'].includes(item.riskState));
+    return stateMatch && (!needle || `${item.ticker} ${item.name} ${item.contract ?? ''} ${item.verdict}`.toLowerCase().includes(needle));
+  });
   return <section className="rh-v2-section rh-v2-memes" aria-labelledby="rh-v2-meme-title">
     <SectionHeading titleId="rh-v2-meme-title" kicker="Meme pulse" title="Attention, with identity attached" copy="Compact dossiers first. Raw fields remain one deliberate step away." action={<a href="/rh-chain-signal-desk/meme-pulse">Open Meme Pulse</a>} />
     <div className="rh-v2-meme-controls">
@@ -557,11 +566,7 @@ function MemePulseBrief({ items, allItems, mode }: { items: BriefMemeSelection[]
         <button type="button" aria-pressed={tableMode} onClick={() => setView('table')}>Analyst Table</button>
       </div>
     </div>
-    {tableMode ? <MemePulseAnalystTable items={mode === 'analyst' ? allItems.map((item) => ({
-      ticker: item.ticker, name: item.name, contract: isRhChainContractAddress(item.contract) ? item.contract : null,
-      verdict: item.infopunks_verdict, riskState: item.risk_state, observedState: 'auto-observed' as const,
-      source: item.source, sourceAge: 'unknown' as const, signalScore: null
-    })) : visible} /> : <div className="rh-v2-meme-grid">
+    {tableMode ? <MemePulseAnalystTable items={tableItems} /> : <div className="rh-v2-meme-grid">
       {visible.map((item) => <MemeDossierCard key={`${item.contract ?? item.ticker}-${item.observedState}`} item={item} />)}
       {!visible.length && <p className="rh-v2-empty">No dossier matches this view. No fallback token has been substituted.</p>}
     </div>}
@@ -590,7 +595,7 @@ function MemePulseAnalystTable({ items }: { items: BriefMemeSelection[] }) {
   return <div className="rh-v2-table-wrap" role="region" aria-label="Meme Pulse analyst fields; scroll horizontally for all columns" tabIndex={0}><table className="rh-v2-table">
     <caption>RH Chain Meme Pulse analyst fields</caption>
     <thead><tr><th>Ticker</th><th>State</th><th>Contract</th><th>Risk</th><th>Signal</th><th>Source / observed</th><th>Verdict</th></tr></thead>
-    <tbody>{items.map((item, index) => <tr key={`${item.contract ?? item.ticker}-${index}`}><th scope="row">{item.ticker}<small>{item.name}</small></th><td>{item.observedState}</td><td>{item.contract ?? 'source required'}</td><td>{formatLabel(item.riskState)}</td><td>{item.signalScore ?? 'unavailable'}</td><td>{item.source.source_name}<small>{formatTimestamp(item.source.observed_at)}</small></td><td>{item.verdict}</td></tr>)}</tbody>
+    <tbody>{items.map((item, index) => <tr key={`${item.contract ?? item.ticker}-${index}`}><th scope="row">{item.ticker}<small>{item.name}</small></th><td>{item.observedState}</td><td>{item.contract ?? 'source required'}</td><td>{formatLabel(item.riskState)}</td><td>{item.signalScore ?? 'unavailable'}</td><td>{item.source.source_name}<small>{formatTimestamp(item.source.observed_at)}</small></td><td>{item.verdict}</td></tr>)}{!items.length && <tr><td colSpan={7}>No dossier matches this view. No fallback token has been substituted.</td></tr>}</tbody>
   </table></div>;
 }
 
