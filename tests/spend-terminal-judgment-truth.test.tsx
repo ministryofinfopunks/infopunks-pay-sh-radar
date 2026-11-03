@@ -22,6 +22,8 @@ it('shows the canonical free outcome and clears it when the next request fails',
   expect(node.textContent).toContain('Judgment: insufficient_evidence');
   expect(node.textContent).toContain('Judgment charge: 0 USDC');
   expect(node.textContent).toContain('Judgment receipt: not issued');
+  expect(node.textContent).toContain('The canonical response states whether a judgment receipt was issued.');
+  expect(node.textContent).not.toContain('No receipt, no trust');
   expect(node.textContent).toContain('historical evidence receipts');
   expect(node.textContent).not.toContain('canonical judgmentDEGRADE');
   await act(async () => { form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });

@@ -339,7 +339,7 @@ function terminalCopy(decision: DecisionState) {
     case 'approved_with_warning': return 'Receipt-backed route intelligence';
     case 'use_with_caution': return 'Known blockers';
     case 'requires_human_approval': return 'Should this agent spend?';
-    default: return 'No receipt, no trust';
+    default: return 'Canonical outcome unavailable';
   }
 }
 
@@ -614,14 +614,14 @@ export function SpendTerminalPage() {
           <span>Should this agent spend?</span>
           <span>Receipt-backed route intelligence</span>
           <span>Verified Pre-Spend Decisions</span>
-          <span>No receipt, no trust</span>
+          <span>Judgment receipts when issued</span>
         </div>
       </section>}
       {!isMonitorSurface && <MetricsBand metrics={metrics} />}
       <section className={`grid two builder-terminal-grid ${isMonitorSurface ? 'monitor-terminal-grid' : ''}`}>
         <form className="panel builder-form-panel" onSubmit={runCheck}>
           <div className="panel-head"><div><p className="section-kicker">Agent Intent</p><h2>Pre-spend input flow</h2></div></div>
-          <p className="panel-caption">Run a receipt-backed preflight before any paid route call. No receipt, no trust.</p>
+          <p className="panel-caption">Run a pre-spend check before any paid route call. The canonical response states whether a judgment receipt was issued.</p>
           <label><span>intent</span><input aria-label="intent" value={form.intent} onChange={(event) => setForm({ ...form, intent: event.target.value })} /></label>
           <label><span>budget</span><input aria-label="budget" type="number" value={form.budget} onChange={(event) => setForm({ ...form, budget: Number(event.target.value) })} /></label>
           <label><span>risk tolerance</span><select aria-label="risk tolerance" value={form.risk_tolerance} onChange={(event) => setForm({ ...form, risk_tolerance: event.target.value as RiskLevel })}><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="critical">critical</option></select></label>
@@ -658,7 +658,7 @@ export function SpendTerminalPage() {
                 <span>route analysis human approval {result.requires_human_approval ? 'required' : 'not required'}</span>
               </div>
             </div>
-            {!hasReceipts && <p className="route-state error">No receipt, no trust. No recent successful receipt is attached to this recommendation.</p>}
+            {!hasReceipts && <p className="route-state error">No judgment receipt was issued for this check. Historical receipts, when present, are supporting evidence only.</p>}
             {hasWarnings && <p className={`route-state ${resultTone === 'error' ? 'error' : 'warn'}`}>
               {result.requires_human_approval
                 ? 'Human approval is required before spend.'
