@@ -38,6 +38,18 @@ describe('universal homepage performance boundary', () => {
     expect(performance.getEntriesByName('radar_live_status_started')).toHaveLength(1);
   });
 
+  it('labels the judgment preview as static and points visitors to the working check', async () => {
+    vi.spyOn(globalThis, 'fetch').mockReturnValue(new Promise(() => {}));
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<UniversalHomepage />);
+    });
+
+    expect(container.querySelector('#judgment-preview')?.textContent).toContain('NO CHECK RUN');
+    expect(container.querySelector('#judgment-preview')?.textContent).toContain('Static illustration only; this preview has not run a check.');
+    expect(container.querySelector('a[href="/spend-terminal"]')?.textContent).toContain('Open Spend Terminal');
+  });
+
   it('keeps the homepage visible and reports a local degraded status on pulse failure', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 500 }));
     await act(async () => {
