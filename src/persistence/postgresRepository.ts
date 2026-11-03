@@ -1,6 +1,8 @@
+import { randomUUID } from 'node:crypto';
+import { classifyPostgresFailure } from './postgresErrors';
 import pg from 'pg';
 import { IntelligenceRepository, IntelligenceSnapshot } from './repository';
-import { logPostgres22P02, safeJsonbParam } from './jsonb';
+import { safeJsonbParam } from './jsonb';
 import { getDatabaseCircuitDiagnostics, getDatabasePool, parseDatabasePoolMax } from './databasePool';
 
 type JsonContext = {
@@ -26,7 +28,7 @@ export class PostgresRepository implements IntelligenceRepository {
         event: 'db_connection_error',
         status: this.dbStatus,
         code: pgErrorCode(error),
-        message: pgErrorMessage(error)
+        message: classifyPostgresFailure(error)
       }));
     });
   }
@@ -44,6 +46,23 @@ export class PostgresRepository implements IntelligenceRepository {
   }
 
   async saveSnapshot(snapshot: IntelligenceSnapshot): Promise<void> {
+    const operationId = randomUUID();
+    const started = Date.now();
+    let bytes: number | null = null;
+    let outcome: 'success' | 'failure' = 'failure';
+    let failureCategory: string | null = null;
+    try {
+      await this.saveSnapshotInner(snapshot, (size) => { bytes = size; });
+      outcome = 'success';
+    } catch (error) {
+      failureCategory = classifyPostgresFailure(error);
+      throw error;
+    } finally {
+      console.log(JSON.stringify({ event: 'snapshot_persistence', operation_id: operationId, parameter_bytes: bytes, elapsed_ms: Date.now() - started, outcome, failure_category: failureCategory }));
+    }
+  }
+
+  private async saveSnapshotInner(snapshot: IntelligenceSnapshot, recordBytes: (size: number) => void): Promise<void> {
     try {
       await this.ensureSchema();
     } catch (error) {
@@ -118,7 +137,9 @@ export class PostgresRepository implements IntelligenceRepository {
       }
       const snapshotContext: JsonContext = { operation: 'insert', table: 'intelligence_snapshots', column: 'snapshot', value: snapshot };
       try {
-      await client.query('insert into intelligence_snapshots (snapshot) values ($1::jsonb)', [safeJsonbParam(snapshot, { operation: 'insert', table: 'intelligence_snapshots', column: 'snapshot' })]);
+        const parameter = safeJsonbParam(snapshot, { operation: 'insert', table: 'intelligence_snapshots', column: 'snapshot' });
+        recordBytes(Buffer.byteLength(parameter, 'utf8'));
+        await client.query('insert into intelligence_snapshots (snapshot) values ($1::jsonb)', [parameter]);
       } catch (error) {
         this.log22p02(error, [snapshotContext]);
         throw error;
@@ -134,7 +155,7 @@ export class PostgresRepository implements IntelligenceRepository {
           console.log(JSON.stringify({
             event: 'postgres_rollback_failed',
             code: pgErrorCode(rollbackError),
-            message: pgErrorMessage(rollbackError)
+            failure_category: classifyPostgresFailure(rollbackError)
           }));
         }
       }
@@ -166,8 +187,12 @@ export class PostgresRepository implements IntelligenceRepository {
   private log22p02(error: unknown, contexts: JsonContext[]) {
     const code = error && typeof error === 'object' && 'code' in error ? String((error as { code?: unknown }).code ?? '') : '';
     if (code !== '22P02') return;
+    const seen = new Set<string>();
     for (const context of contexts) {
-      logPostgres22P02({ operation: context.operation, table: context.table, column: context.column }, context.value);
+      const key = `${context.operation}:${context.table}:${context.column}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      console.error('[jsonb-22P02]', { operation: context.operation, table: context.table, column: context.column });
     }
   }
 
@@ -243,7 +268,7 @@ export class PostgresRepository implements IntelligenceRepository {
         previous_status: previousStatus,
         status: nextStatus,
         code: pgErrorCode(error),
-        message: pgErrorMessage(error)
+        message: stage.startsWith('save_snapshot') ? classifyPostgresFailure(error) : pgErrorMessage(error)
       }));
     }
   }
