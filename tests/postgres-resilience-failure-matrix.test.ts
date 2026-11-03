@@ -190,6 +190,38 @@ async function flush() {
 }
 
 describe('PostgreSQL resilience failure matrix', () => {
+  it('does not open shared availability circuit for a feature schema error', async () => {
+    const pool = new MatrixPool();
+    await installDatabasePoolForTests(pool as unknown as import('pg').Pool, { connectionString: TEST_URL, max: 2 });
+    pool.queryError = operationalError('relation "judgment_requests" does not exist', '42P01');
+    await expect(getDatabasePool({ connectionString: TEST_URL, max: 2 }).query('select record from judgment_requests'))
+      .rejects.toMatchObject({ code: '42P01' });
+    expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'degraded', consecutiveFailures: 0 });
+    pool.queryError = null;
+    await expect(getDatabasePool({ connectionString: TEST_URL, max: 2 }).query('select rh_storage'))
+      .resolves.toMatchObject({ rowCount: 1 });
+    expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'healthy' });
+  });
+
+  it('recovers from connection loss on a bounded timer without a health request', async () => {
+    vi.useFakeTimers();
+    const originalNodeEnv = process.env.NODE_ENV;
+    const pool = new MatrixPool();
+    await installDatabasePoolForTests(pool as unknown as import('pg').Pool, { connectionString: TEST_URL, max: 2 });
+    process.env.NODE_ENV = 'development';
+    const connectionError = operationalError('Connection terminated unexpectedly', 'ECONNRESET');
+    pool.emit('error', connectionError);
+    pool.emit('error', connectionError);
+    pool.emit('error', connectionError);
+    expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'circuit_open' });
+    vi.advanceTimersByTime(1_500);
+    await vi.runOnlyPendingTimersAsync();
+    expect(pool.queryCount).toBe(1);
+    expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'healthy', consecutiveFailures: 0 });
+    if (originalNodeEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = originalNodeEnv;
+  });
+
   it('covers startup modes: no DATABASE_URL, invalid URL, unreachable host, and healthy DB', async () => {
     delete process.env.DATABASE_URL;
     let app = await createApp(emptySnapshot());
@@ -428,7 +460,7 @@ describe('PostgreSQL resilience failure matrix', () => {
       const probeResultsPromise = Promise.all(Array.from({ length: 50 }, () => probeDatabaseRecovery(pool as unknown as import('pg').Pool)));
       await vi.advanceTimersByTimeAsync(25);
       const probeResults = await probeResultsPromise;
-      expect(probeResults.filter(Boolean)).toHaveLength(1);
+      expect(probeResults.every(Boolean)).toBe(true);
       expect(pool.queryCount).toBe(initialQueries + 1);
       expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'healthy', dbStatus: 'ok', consecutiveFailures: 0 });
       expect((await app.inject({ method: 'GET', url: '/readyz' })).json()).toMatchObject({ status: 'healthy', dbCircuitState: 'healthy' });
