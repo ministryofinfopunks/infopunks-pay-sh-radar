@@ -210,6 +210,10 @@ export async function loadPayShCatalog(
   const liveUrl = url ?? DEFAULT_LIVE_CATALOG_URL;
   if (sourceMode === 'fixture') return fixtureResult(url ?? null, 'bootstrap_not_called');
 
+  const operationId = randomUUID();
+  const started = Date.now();
+  let upstreamStatus: number | null = null;
+  let stage: 'fetch' | 'body' | 'validation' = 'fetch';
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), LIVE_CATALOG_FETCH_TIMEOUT_MS);
@@ -218,8 +222,11 @@ export async function loadPayShCatalog(
         headers: { accept: 'application/json' },
         signal: controller.signal
       });
+      upstreamStatus = response.status;
       if (!response.ok) throw new Error(`Pay.sh catalog returned ${response.status}`);
+      stage = 'body';
       const body = await response.json();
+      stage = 'validation';
       const normalized = normalizePayShCatalog(body);
       if (process.env.NODE_ENV === 'production' && normalized.generatedAt !== null
         && (!Number.isFinite(Date.parse(normalized.generatedAt)) || Date.now() - Date.parse(normalized.generatedAt) > 10 * 60_000)) throw new Error('live_catalog_stale');
@@ -243,6 +250,7 @@ export async function loadPayShCatalog(
     }
   } catch (error) {
     const message = normalizeCatalogErrorCode(error);
+    console.log(JSON.stringify({ event: 'catalog_fetch_failure', operation_id: operationId, elapsed_ms: Date.now() - started, upstream_status: upstreamStatus, failure_category: message, timeout_stage: message === 'live_catalog_timeout' ? stage : null }));
     if (!allowFixtureFallback) {
       return {
         items: [],

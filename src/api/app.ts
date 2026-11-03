@@ -1,3 +1,4 @@
+import { StoreJobCoordinator } from '../services/storeJobCoordinator';
 import { registerIpxLaunchRoutes } from './ipxLaunchRoutes';
 import { MemoryEconomicAccountingStore, PostgresEconomicAccountingStore } from '../persistence/economicAccountingStore';
 import { createEconomicAccountingService } from '../services/economicAccountingService';
@@ -1481,6 +1482,9 @@ export async function createApp(
       databasePoolMax: config.databasePoolMax
     };
   };
+  // Bootstrap, manual jobs and timers all mutate the same store.
+  const storeJobs = new StoreJobCoordinator();
+  app.addHook('onClose', async () => { await storeJobs.close(); });
   let bootstrapped = Boolean(preloadedStore);
   const liveBootstrapEnabled = process.env.PAYSH_BOOTSTRAP_ENABLED === 'true'
     || (process.env.PAYSH_BOOTSTRAP_ENABLED !== 'false' && process.env.NODE_ENV !== 'test');
@@ -1507,16 +1511,16 @@ export async function createApp(
 
   if (!preloadedStore) {
     const bootstrapStartMs = Date.now();
-    startupLoadPromise = createIntelligenceStore(repository)
-      .then((loadedStore) => {
-        copyStoreInto(store, loadedStore);
-        bootstrapped = Boolean(loadedStore.providers.length > 0);
-        liveBootstrapStatus = bootstrapped ? 'ready' : 'failed';
-        liveBootstrapError = bootstrapped ? null : 'bootstrap_not_called';
-        logTiming('database_connect', bootstrapStartMs);
-        logTiming('catalog_load', bootstrapStartMs);
-        refreshBackgroundAnalytics();
-      })
+    startupLoadPromise = storeJobs.run(async () => {
+      const loadedStore = await createIntelligenceStore(repository);
+      copyStoreInto(store, loadedStore);
+      bootstrapped = Boolean(loadedStore.providers.length > 0);
+      liveBootstrapStatus = bootstrapped ? 'ready' : 'failed';
+      liveBootstrapError = bootstrapped ? null : 'bootstrap_not_called';
+      logTiming('database_connect', bootstrapStartMs);
+      logTiming('catalog_load', bootstrapStartMs);
+      refreshBackgroundAnalytics();
+    })
       .catch((error) => {
         logDbDegraded('startup_load', classifyBootstrapFailure(error), error);
         liveBootstrapStatus = 'failed';
@@ -1524,7 +1528,7 @@ export async function createApp(
         console.log(JSON.stringify({
           event: 'startup_load_failed',
           code: errorCode(error),
-          message: errorMessage(error)
+          message: classifyBootstrapFailure(error)
         }));
       });
     void ensureLiveBootstrap('startup');
@@ -4753,14 +4757,14 @@ export async function createApp(
   app.post('/v1/ingest/pay-sh', async (req, reply) => {
     if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'admin_token_required' });
     return handleParsed(req.body, IngestRequestSchema, async (input) => {
-      const result = await runPayShIngestion(store, repository, input?.catalogUrl);
+      const result = await storeJobs.run(() => runPayShIngestion(store, repository, input?.catalogUrl));
       refreshBackgroundAnalytics();
       return { data: { run: result.run, emittedEvents: result.events.length, usedFixture: result.usedFixture, liveFetchFailed: result.liveFetchFailed } };
     }, reply);
   });
   app.post('/v1/monitor/run', async (req, reply) => {
     if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'admin_token_required' });
-    const result = await runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() });
+    const result = await storeJobs.run(() => runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() }));
     refreshBackgroundAnalytics();
     return { data: { run: result.run, emittedEvents: result.events.length } };
   });
@@ -4856,21 +4860,22 @@ export async function createApp(
   const intervalMs = config.ingestionEnabled ? (config.payShIngestIntervalMs ?? 0) : 0;
   if (intervalMs > 0) {
     const timer = setInterval(() => {
-      void runPayShIngestion(store, repository)
-        .then(() => refreshBackgroundAnalytics())
-        .catch((error) => {
+      storeJobs.schedule('ingestion', async () => {
+        await runPayShIngestion(store, repository);
+        refreshBackgroundAnalytics();
+      }, (error) => {
           logDbDegraded('ingestion_scheduler', classifyBootstrapFailure(error), error);
           console.log(JSON.stringify({
             event: 'ingestion_db_write_failed',
             stage: 'ingestion_scheduler',
             reason: classifyBootstrapFailure(error),
             code: errorCode(error),
-            message: errorMessage(error)
+            message: classifyBootstrapFailure(error)
           }));
           console.log(JSON.stringify({
             event: 'ingestion_job_failed',
             code: errorCode(error),
-            message: errorMessage(error)
+            message: classifyBootstrapFailure(error)
           }));
         });
     }, intervalMs);
@@ -4883,14 +4888,15 @@ export async function createApp(
   }
   if (isMonitorEnabled() && monitorIntervalMs() > 0) {
     const timer = setInterval(() => {
-      void runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() })
-        .then(() => refreshBackgroundAnalytics())
-        .catch((error) => {
+      storeJobs.schedule('monitor', async () => {
+        await runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() });
+        refreshBackgroundAnalytics();
+      }, (error) => {
           logDbDegraded('monitor_scheduler', classifyBootstrapFailure(error), error);
           console.log(JSON.stringify({
             event: 'monitor_job_failed',
             code: errorCode(error),
-            message: errorMessage(error)
+            message: classifyBootstrapFailure(error)
           }));
         });
     }, monitorIntervalMs());
@@ -5031,11 +5037,11 @@ export async function createApp(
       console.log('[radar-bootstrap] starting live Pay.sh catalog bootstrap');
       let result: Awaited<ReturnType<typeof runPayShIngestionWithOptions>>;
       try {
-        result = await runPayShIngestionWithOptions(store, repository, {
+        result = await storeJobs.run(() => runPayShIngestionWithOptions(store, repository, {
           catalogUrl: liveCatalogUrl,
           catalogSource: 'live',
           allowFixtureFallback: false
-        });
+        }));
       } catch (error) {
         const reason = classifyBootstrapFailure(error);
         logDbDegraded('live_bootstrap', reason, error);
@@ -5043,7 +5049,7 @@ export async function createApp(
           event: 'live_bootstrap_db_failure',
           reason,
           code: errorCode(error),
-          message: errorMessage(error)
+          message: classifyBootstrapFailure(error)
         }));
         throw new Error(reason);
       }
@@ -5066,11 +5072,11 @@ export async function createApp(
         liveBootstrapError = reasonLabel;
         if (!config.isProduction && config.allowFixtureFallback && !store.providers.length) {
           try {
-            await runPayShIngestionWithOptions(store, repository, {
+            await storeJobs.run(() => runPayShIngestionWithOptions(store, repository, {
               catalogSource: 'fixture',
               catalogUrl: liveCatalogUrl,
               allowFixtureFallback: true
-            });
+            }));
             if (store.dataSource) {
               store.dataSource = {
                 ...store.dataSource,
@@ -5276,7 +5282,7 @@ function logDbDegraded(stage: string, reason: string, error: unknown) {
     stage,
     reason,
     code: errorCode(error),
-    message: errorMessage(error)
+    message: reason
   }));
 }
 
