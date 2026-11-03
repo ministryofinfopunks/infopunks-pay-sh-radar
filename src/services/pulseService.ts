@@ -4,7 +4,7 @@ import { DataSourceState } from '../persistence/repository';
 import { providerReachabilitySummary, providerRootHealthSummary } from './eventSummaryHelpers';
 import { EcosystemInterpretation, interpretEcosystem } from './interpretationService';
 import { analyzePropagation, PropagationAnalysis } from './propagationService';
-import { classifyEventSeverity, classifyScoreChangeSeverity, compareSeverity, Severity } from '../engines/severityEngine';
+import { classifyEventSeverities, classifyScoreChangeSeverity, compareSeverity, Severity, SeverityMetadata } from '../engines/severityEngine';
 import { resolveEventCatalogGeneratedAt, resolveEventIngestedAt, resolveEventObservedAt } from './eventTimestamp';
 
 const safeString = (value: unknown, fallback = '') =>
@@ -144,6 +144,25 @@ export type AuditReceipt = {
   severity_window?: string;
 };
 
+type PulseAnalytics = Pick<PulseSummary,
+  'latest_event_at' | 'latest_batch_event_count' | 'eventGroups' | 'timeline' | 'trustDeltas' |
+  'signalDeltas' | 'recentDegradations' | 'signalSpikes'> & { pulseEvents: PulseEvent[]; unknownTelemetry: number };
+
+type PulseAnalyticsEntry = {
+  events: IntelligenceStore['events'];
+  providers: IntelligenceStore['providers'];
+  trustAssessments: IntelligenceStore['trustAssessments'];
+  signalAssessments: IntelligenceStore['signalAssessments'];
+  sourceFingerprint: string | null;
+  analytics: PulseAnalytics;
+};
+const pulseAnalyticsByStore = new WeakMap<IntelligenceStore, PulseAnalyticsEntry>();
+
+/** Invalidates event-derived analytics after a source mutation. Time based fields are always recomputed. */
+export function invalidatePulseSummaryCache(store: IntelligenceStore) {
+  pulseAnalyticsByStore.delete(store);
+}
+
 const categories: EventCategory[] = ['discovery', 'trust', 'monitoring', 'pricing', 'schema', 'signal'];
 export const PULSE_CAPS = {
   maxPulseRows: 50,
@@ -168,27 +187,14 @@ export function pulseSummary(
 ): PulseSummary {
   const includePropagation = options.includePropagation ?? true;
   const includeInterpretations = options.includeInterpretations ?? true;
-  const orderedEvents = [...store.events].sort((a, b) => Date.parse(resolveEventObservedAt(b, b.observedAt) ?? b.observedAt) - Date.parse(resolveEventObservedAt(a, a.observedAt) ?? a.observedAt));
-  const providerNames = new Map(store.providers.map((provider) => [provider.id, provider.name]));
-  const pulseEvents = orderedEvents.map((event) => toPulseEvent(event, providerNames, store.events));
-  const eventGroups = Object.fromEntries(categories.map((category) => [category, { count: 0, recent: [] as PulseEvent[] }])) as PulseSummary['eventGroups'];
-  const latestEventAt = pulseEvents[0]?.observedAt ?? null;
+  const analytics = pulseAnalyticsFor(store);
+  // The cache owns its objects. Never expose mutable cached values to callers.
+  const { pulseEvents, eventGroups, trustDeltas, signalDeltas, recentDegradations, signalSpikes } = structuredClone(analytics);
   const dataSource = dataSourceState(store, generatedAt);
   const latestRun = latestIngestionRun(store, dataSource);
-
-  for (const event of pulseEvents) {
-    const group = eventGroups[event.category];
-    group.count += 1;
-    if (group.recent.length < PULSE_CAPS.maxPulseRows) group.recent.push(event);
-  }
-
-  const trustDeltas = scoreDeltas(pulseEvents, 'trust_assessment', providerNames).slice(0, PULSE_CAPS.maxTrustChanges);
-  const signalDeltas = scoreDeltas(pulseEvents, 'signal_assessment', providerNames).slice(0, PULSE_CAPS.maxSignalChanges);
-  const recentDegradations = pulseEvents.filter((event) => event.type === 'endpoint.degraded' || event.type === 'endpoint.failed' || event.type === 'provider.degraded' || event.type === 'provider.failed').sort(compareSeverity).slice(0, PULSE_CAPS.maxDegradationRows);
-  const signalSpikes = signalDeltas.filter((delta) => (delta.delta ?? 0) > 0).sort((a, b) => (b.delta ?? 0) - (a.delta ?? 0)).slice(0, PULSE_CAPS.maxSignalChanges);
-  const propagation = includePropagation
+  const propagation: PropagationAnalysis = includePropagation
     ? analyzePropagation(store, generatedAt)
-    : options.propagationFallback ?? {
+    : options.propagationFallback ? structuredClone(options.propagationFallback) : {
       cluster_id: 'prop-unknown',
       clusterId: 'prop-unknown',
       propagation_state: 'unknown',
@@ -205,8 +211,8 @@ export function pulseSummary(
 
   return {
     generatedAt,
-    latest_event_at: latestEventAt,
-    latest_batch_event_count: latestEventAt ? pulseEvents.filter((event) => event.observedAt === latestEventAt).length : 0,
+    latest_event_at: analytics.latest_event_at,
+    latest_batch_event_count: analytics.latest_batch_event_count,
     ingest_interval_ms: ingestIntervalMs,
     latest_ingestion_run: latestRun,
     counters: {
@@ -214,7 +220,7 @@ export function pulseSummary(
       endpoints: providerEndpointCount(store),
       events: store.events.length,
       narratives: store.narratives.length,
-      unknownTelemetry: unknownTelemetryCount(store)
+      unknownTelemetry: analytics.unknownTelemetry
     },
     eventGroups,
     timeline: pulseEvents.slice(0, PULSE_CAPS.maxPulseRows),
@@ -226,9 +232,57 @@ export function pulseSummary(
     signalSpikes,
     interpretations: includeInterpretations
       ? interpretEcosystem({ store, events: pulseEvents, trustDeltas, signalDeltas, recentDegradations, generatedAt })
-      : (options.interpretationsFallback ?? []),
+      : structuredClone(options.interpretationsFallback ?? []),
     data_source: dataSource
   };
+}
+
+function pulseAnalyticsFor(store: IntelligenceStore): PulseAnalytics {
+  // The store is intentionally mutable and some consumers update rows in place.
+  // References alone therefore cannot establish that cached event-derived data is current.
+  let sourceFingerprint: string | null = null;
+  try {
+    sourceFingerprint = JSON.stringify([store.events, store.providers, store.trustAssessments, store.signalAssessments]);
+  } catch {
+    // A non-serializable source still follows the existing analytics/error path;
+    // it simply cannot use the memoized result.
+  }
+  const cached = pulseAnalyticsByStore.get(store);
+  if (cached && cached.events === store.events && cached.providers === store.providers
+    && cached.trustAssessments === store.trustAssessments && cached.signalAssessments === store.signalAssessments
+    && sourceFingerprint !== null && cached.sourceFingerprint === sourceFingerprint) return cached.analytics;
+
+  // Build fully before publishing to the cache. A thrown computation leaves the next read free to recover.
+  const orderedEvents = [...store.events].sort((a, b) => Date.parse(resolveEventObservedAt(b, b.observedAt) ?? b.observedAt) - Date.parse(resolveEventObservedAt(a, a.observedAt) ?? a.observedAt));
+  const providerNames = new Map(store.providers.map((provider) => [provider.id, provider.name]));
+  const severities = classifyEventSeverities(store.events);
+  const pulseEvents = orderedEvents.map((event) => toPulseEvent(event, providerNames, severities.get(event)!));
+  const eventGroups = Object.fromEntries(categories.map((category) => [category, { count: 0, recent: [] as PulseEvent[] }])) as PulseSummary['eventGroups'];
+  for (const event of pulseEvents) {
+    const group = eventGroups[event.category];
+    group.count += 1;
+    if (group.recent.length < PULSE_CAPS.maxPulseRows) group.recent.push(event);
+  }
+  const trustDeltas = scoreDeltas(pulseEvents, 'trust_assessment', providerNames).slice(0, PULSE_CAPS.maxTrustChanges);
+  const signalDeltas = scoreDeltas(pulseEvents, 'signal_assessment', providerNames).slice(0, PULSE_CAPS.maxSignalChanges);
+  const recentDegradations = pulseEvents.filter((event) => event.type === 'endpoint.degraded' || event.type === 'endpoint.failed' || event.type === 'provider.degraded' || event.type === 'provider.failed').sort(compareSeverity).slice(0, PULSE_CAPS.maxDegradationRows);
+  const signalSpikes = signalDeltas.filter((delta) => (delta.delta ?? 0) > 0).sort((a, b) => (b.delta ?? 0) - (a.delta ?? 0)).slice(0, PULSE_CAPS.maxSignalChanges);
+  const latestEventAt = pulseEvents[0]?.observedAt ?? null;
+  const analytics: PulseAnalytics = {
+    latest_event_at: latestEventAt,
+    latest_batch_event_count: latestEventAt ? pulseEvents.filter((event) => event.observedAt === latestEventAt).length : 0,
+    eventGroups, timeline: pulseEvents.slice(0, PULSE_CAPS.maxPulseRows), trustDeltas, signalDeltas,
+    recentDegradations, signalSpikes, pulseEvents, unknownTelemetry: unknownTelemetryCount(store)
+  };
+  pulseAnalyticsByStore.set(store, {
+    events: store.events,
+    providers: store.providers,
+    trustAssessments: store.trustAssessments,
+    signalAssessments: store.signalAssessments,
+    sourceFingerprint,
+    analytics
+  });
+  return analytics;
 }
 
 function providerEndpointCount(store: IntelligenceStore) {
@@ -308,13 +362,12 @@ function safeStringTimestamp(value: unknown) {
   return Number.isFinite(Date.parse(value)) ? value : null;
 }
 
-function toPulseEvent(event: InfopunksEvent, providerNames: Map<string, string>, relatedEvents: InfopunksEvent[]): PulseEvent {
+function toPulseEvent(event: InfopunksEvent, providerNames: Map<string, string>, severity: SeverityMetadata): PulseEvent {
   const observedAt = resolveEventObservedAt(event, null) ?? event.observedAt;
   const providerId = providerIdForEvent(event);
   const endpointId = endpointIdForEvent(event);
   const summary = summaryForEvent(event);
   const evidence = receiptFromEvent(event, providerId, endpointId, summary);
-  const severity = classifyEventSeverity(event, relatedEvents);
   return {
     id: event.id,
     event_id: event.id,
