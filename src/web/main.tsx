@@ -9,9 +9,11 @@ import './homepage.css';
 import { RadarAppShell } from './radarAppShell';
 
 const LazyRadarApp = lazy(() => import('./radarApp'));
+const LazyEconomicOsOverview = lazy(() => import('./economicOsOverviewPage').then(module => ({ default: module.EconomicOsOverviewPage })));
 
 export function App() {
   if (typeof window !== 'undefined' && /^\/$/.test(window.location.pathname)) return <RadarAppShell><UniversalHomepage /></RadarAppShell>;
+  if (typeof window !== 'undefined' && /^\/economic-os\/overview\/?$/.test(window.location.pathname)) return <RadarAppShell><Suspense fallback={<main role="status">Opening Economic OS…</main>}><LazyEconomicOsOverview /></Suspense></RadarAppShell>;
   return <RadarAppShell><Suspense fallback={<main className="radar-route-loading" role="status" aria-live="polite">Opening Radar surface…</main>}><LazyRadarApp /></Suspense></RadarAppShell>;
 }
 
