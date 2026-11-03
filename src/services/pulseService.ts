@@ -153,6 +153,7 @@ type PulseAnalyticsEntry = {
   providers: IntelligenceStore['providers'];
   trustAssessments: IntelligenceStore['trustAssessments'];
   signalAssessments: IntelligenceStore['signalAssessments'];
+  sourceFingerprint: string | null;
   analytics: PulseAnalytics;
 };
 const pulseAnalyticsByStore = new WeakMap<IntelligenceStore, PulseAnalyticsEntry>();
@@ -237,9 +238,19 @@ export function pulseSummary(
 }
 
 function pulseAnalyticsFor(store: IntelligenceStore): PulseAnalytics {
+  // The store is intentionally mutable and some consumers update rows in place.
+  // References alone therefore cannot establish that cached event-derived data is current.
+  let sourceFingerprint: string | null = null;
+  try {
+    sourceFingerprint = JSON.stringify([store.events, store.providers, store.trustAssessments, store.signalAssessments]);
+  } catch {
+    // A non-serializable source still follows the existing analytics/error path;
+    // it simply cannot use the memoized result.
+  }
   const cached = pulseAnalyticsByStore.get(store);
   if (cached && cached.events === store.events && cached.providers === store.providers
-    && cached.trustAssessments === store.trustAssessments && cached.signalAssessments === store.signalAssessments) return cached.analytics;
+    && cached.trustAssessments === store.trustAssessments && cached.signalAssessments === store.signalAssessments
+    && sourceFingerprint !== null && cached.sourceFingerprint === sourceFingerprint) return cached.analytics;
 
   // Build fully before publishing to the cache. A thrown computation leaves the next read free to recover.
   const orderedEvents = [...store.events].sort((a, b) => Date.parse(resolveEventObservedAt(b, b.observedAt) ?? b.observedAt) - Date.parse(resolveEventObservedAt(a, a.observedAt) ?? a.observedAt));
@@ -268,6 +279,7 @@ function pulseAnalyticsFor(store: IntelligenceStore): PulseAnalytics {
     providers: store.providers,
     trustAssessments: store.trustAssessments,
     signalAssessments: store.signalAssessments,
+    sourceFingerprint,
     analytics
   });
   return analytics;

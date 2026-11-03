@@ -42,6 +42,21 @@ describe('pulse summary reliability', () => {
     expect(result.timeline[0]).toMatchObject({ id: 'd3', severity: 'critical', severity_reason: '4 repeated degradations detected in the severity window.' });
   });
 
+  it('preserves inclusive severity-window boundaries and excludes events one millisecond outside', () => {
+    const atBoundary = [0, 60_000, 120_000, 3_600_000].map((offset, index) =>
+      event(`inside-${index}`, 'provider.degraded', new Date(Date.parse('2026-11-03T01:00:00.000Z') - offset).toISOString()));
+    const outsideBoundary = atBoundary.map((candidate, index) => index === 3
+      ? { ...candidate, observedAt: '2026-11-02T23:59:59.999Z' }
+      : candidate);
+
+    for (const events of [atBoundary, outsideBoundary]) {
+      const indexed = severityEngine.classifyEventSeverities(events);
+      for (const candidate of events) expect(indexed.get(candidate)).toEqual(severityEngine.classifyEventSeverity(candidate, events));
+    }
+    expect(severityEngine.classifyEventSeverities(atBoundary).get(atBoundary[0])?.severity).toBe('critical');
+    expect(severityEngine.classifyEventSeverities(outsideBoundary).get(outsideBoundary[0])?.severity).toBe('warning');
+  });
+
   it('reuses event analytics across reads while recalculating freshness windows', () => {
     const classify = vi.spyOn(severityEngine, 'classifyEventSeverities');
     const snapshot = store([event('recent', 'provider.degraded', '2026-11-03T00:00:00.000Z')]);
@@ -65,6 +80,24 @@ describe('pulse summary reliability', () => {
     expect(updated.counters.events).toBe(2);
     expect(updated.timeline.map((item) => item.id)).toEqual(['second', 'first']);
     expect(updated.timeline[1].payload.providerId).toBe('provider-1');
+  });
+
+  it('detects in-place event, provider, and assessment mutations', () => {
+    const classify = vi.spyOn(severityEngine, 'classifyEventSeverities');
+    const snapshot = store([event('same-row', 'provider.degraded', '2026-11-03T00:00:00.000Z')]);
+    const first = pulseSummary(snapshot, '2026-11-03T00:01:00.000Z', 450_000, { includePropagation: false, includeInterpretations: false });
+    expect(first.timeline[0].providerName).toBe('Provider One');
+
+    // Keep each source array and row identity stable, as some existing consumers do.
+    snapshot.events[0].payload.response_time_ms = 2200;
+    snapshot.providers[0].name = 'Provider Mutated';
+    snapshot.trustAssessments.push({ unknowns: ['trust-gap'] } as IntelligenceSnapshot['trustAssessments'][number]);
+    snapshot.signalAssessments.push({ unknowns: ['signal-gap'] } as IntelligenceSnapshot['signalAssessments'][number]);
+    const updated = pulseSummary(snapshot, '2026-11-03T00:02:00.000Z', 450_000, { includePropagation: false, includeInterpretations: false });
+
+    expect(classify).toHaveBeenCalledTimes(2);
+    expect(updated.timeline[0]).toMatchObject({ providerId: 'provider-1', providerName: 'Provider Mutated', payload: { response_time_ms: 2200 } });
+    expect(updated.counters.unknownTelemetry).toBe(2);
   });
 
   it('handles concurrent reads and retries analytics after a failed build', async () => {

@@ -39,18 +39,19 @@ async function main() {
     let heartbeatDelayMs = 0;
     setImmediate(() => { heartbeatDelayMs = performance.now() - startedAt; });
     const readsMs: number[] = [];
-    for (let read = 0; read < 3; read += 1) {
+    for (let read = 0; read < 4; read += 1) {
       const readStartedAt = performance.now();
       pulseSummary(snapshot, generatedAt, 450_000, { includePropagation: false, includeInterpretations: false });
       readsMs.push(performance.now() - readStartedAt);
     }
     await new Promise<void>((resolve) => setImmediate(resolve));
-    readsMs.sort((left, right) => left - right);
+    const warmReadsMs = readsMs.slice(1).sort((left, right) => left - right);
     console.log(JSON.stringify({
       events: eventCount,
       reads: readsMs.length,
-      median_read_ms: Number(readsMs[1].toFixed(2)),
-      max_read_ms: Number(readsMs[2].toFixed(2)),
+      cold_read_ms: Number(readsMs[0].toFixed(2)),
+      warm_median_read_ms: Number(warmReadsMs[1].toFixed(2)),
+      warm_max_read_ms: Number(warmReadsMs[2].toFixed(2)),
       event_loop_heartbeat_delay_ms: Number(heartbeatDelayMs.toFixed(2))
     }));
   }
