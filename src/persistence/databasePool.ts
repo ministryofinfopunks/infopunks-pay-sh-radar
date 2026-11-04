@@ -44,6 +44,8 @@ const MAX_PROBE_DELAY_MS = 30_000;
 const JITTER_MS = 250;
 
 let sharedPool: SharedPoolState | null = null;
+let recoveryProbeTimer: ReturnType<typeof setTimeout> | null = null;
+let recoveryProbeInFlight: Promise<boolean> | null = null;
 const rawPoolQueries = new WeakMap<pg.Pool, pg.Pool['query']>();
 const rawPoolConnects = new WeakMap<pg.Pool, pg.Pool['connect']>();
 
@@ -97,6 +99,17 @@ class DatabaseCircuit {
   }
 
   recordFailure(error: unknown, operation: string, elapsedMs?: number) {
+    const failureKind = classifyPostgresFailure(error);
+    if (failureKind !== 'connectivity') {
+      logDatabaseEvent('database_operation_error', {
+        operation,
+        failure_kind: failureKind,
+        error_code: postgresErrorCode(error),
+        error: safeOperationalErrorMessage(error),
+        circuit_state: this.state
+      });
+      return;
+    }
     this.lastFailureAt = new Date().toISOString();
     this.consecutiveFailures += 1;
     this.lastErrorCode = postgresErrorCode(error);
@@ -124,6 +137,7 @@ class DatabaseCircuit {
         next_probe_at: this.nextProbeAt
       });
     }
+    if (this.state === 'circuit_open') scheduleRecoveryProbe();
   }
 
   diagnostics(poolMax: number | null): DatabaseCircuitDiagnostics {
@@ -192,6 +206,9 @@ export async function closeDatabasePool() {
 }
 
 export async function resetDatabasePoolForTests() {
+  if (recoveryProbeTimer) clearTimeout(recoveryProbeTimer);
+  recoveryProbeTimer = null;
+  recoveryProbeInFlight = null;
   await closeDatabasePool();
   circuit.state = 'degraded';
   circuit.lastSuccessAt = null;
@@ -219,15 +236,35 @@ export function getDatabaseCircuitDiagnostics(): DatabaseCircuitDiagnostics {
 }
 
 export async function probeDatabaseRecovery(pool = sharedPool?.pool): Promise<boolean> {
+  if (recoveryProbeInFlight) return recoveryProbeInFlight;
   if (!pool) return false;
   const state = getDatabaseCircuitDiagnostics();
   if (state.dbCircuitState !== 'circuit_open' && state.dbCircuitState !== 'degraded') return state.dbCircuitState === 'healthy';
-  try {
-    await queryWithCircuit(pool, 'select 1', [], 'recovery_probe');
-    return true;
-  } catch {
-    return false;
-  }
+  recoveryProbeInFlight = (async () => {
+    try {
+      await queryWithCircuit(pool, 'select 1', [], 'recovery_probe');
+      if (recoveryProbeTimer) clearTimeout(recoveryProbeTimer);
+      recoveryProbeTimer = null;
+      return true;
+    } catch {
+      return false;
+    } finally {
+      recoveryProbeInFlight = null;
+    }
+  })();
+  return recoveryProbeInFlight;
+}
+
+function scheduleRecoveryProbe() {
+  if (process.env.NODE_ENV === 'test' || recoveryProbeTimer || recoveryProbeInFlight || !sharedPool) return;
+  const nextProbeMs = circuit.nextProbeAt ? Math.max(0, Date.parse(circuit.nextProbeAt) - Date.now()) : BASE_PROBE_DELAY_MS;
+  recoveryProbeTimer = setTimeout(() => {
+    recoveryProbeTimer = null;
+    void probeDatabaseRecovery(sharedPool?.pool).then(() => {
+      if (circuit.state === 'circuit_open') scheduleRecoveryProbe();
+    });
+  }, nextProbeMs);
+  recoveryProbeTimer.unref?.();
 }
 
 export function recordDatabasePoolError(error: unknown) {
