@@ -27,7 +27,7 @@ it('shows the canonical free outcome and clears it when the next request fails',
   expect(node.textContent).toContain('historical evidence receipts');
   expect(node.textContent).not.toContain('canonical judgmentDEGRADE');
   await act(async () => { form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
-  expect(node.textContent).toContain('/v1/pre-spend/check 400');
+  expect(node.textContent).toContain('HTTP 400. No payment was authorized.');
   expect(node.textContent).not.toContain('Judgment: insufficient_evidence');
   await act(async () => root.unmount());
 });
