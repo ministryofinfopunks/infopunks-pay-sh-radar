@@ -190,36 +190,48 @@ async function flush() {
 }
 
 describe('PostgreSQL resilience failure matrix', () => {
-  it('does not open shared availability circuit for a feature schema error', async () => {
+  it('keeps a missing journal relation local and preserves RH desk reads', async () => {
     const pool = new MatrixPool();
-    await installDatabasePoolForTests(pool as unknown as import('pg').Pool, { connectionString: TEST_URL, max: 2 });
-    pool.queryError = operationalError('relation "judgment_requests" does not exist', '42P01');
-    await expect(getDatabasePool({ connectionString: TEST_URL, max: 2 }).query('select record from judgment_requests'))
-      .rejects.toMatchObject({ code: '42P01' });
-    expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'degraded', consecutiveFailures: 0 });
+    const app = await createPoolBackedApp(pool);
+    const schemaError = operationalError('relation "judgment_requests" does not exist', '42P01');
+    pool.queryError = schemaError;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      await expect(getDatabasePool({ connectionString: TEST_URL, max: 2 }).query('select record from judgment_requests'))
+        .rejects.toMatchObject({ code: '42P01', message: schemaError.message });
+    }
+    expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'healthy', consecutiveFailures: 0, lastErrorCode: null });
     pool.queryError = null;
-    await expect(getDatabasePool({ connectionString: TEST_URL, max: 2 }).query('select rh_storage'))
-      .resolves.toMatchObject({ rowCount: 1 });
-    expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'healthy' });
+    const rhRead = await app.inject({ method: 'GET', url: '/v1/rh-chain' });
+    expect(rhRead.statusCode).toBe(200);
+    expect(rhRead.json()).toMatchObject({ data: expect.any(Object) });
+    await app.close();
   });
 
   it('recovers from connection loss on a bounded timer without a health request', async () => {
     vi.useFakeTimers();
     const originalNodeEnv = process.env.NODE_ENV;
     const pool = new MatrixPool();
-    await installDatabasePoolForTests(pool as unknown as import('pg').Pool, { connectionString: TEST_URL, max: 2 });
-    process.env.NODE_ENV = 'development';
-    const connectionError = operationalError('Connection terminated unexpectedly', 'ECONNRESET');
-    pool.emit('error', connectionError);
-    pool.emit('error', connectionError);
-    pool.emit('error', connectionError);
-    expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'circuit_open' });
-    vi.advanceTimersByTime(1_500);
-    await vi.runOnlyPendingTimersAsync();
-    expect(pool.queryCount).toBe(1);
-    expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'healthy', consecutiveFailures: 0 });
-    if (originalNodeEnv === undefined) delete process.env.NODE_ENV;
-    else process.env.NODE_ENV = originalNodeEnv;
+    const app = await createPoolBackedApp(pool);
+    const queriesBeforeFailure = pool.queryCount;
+    try {
+      process.env.NODE_ENV = 'development';
+      const connectionError = operationalError('Connection terminated unexpectedly', 'ECONNRESET');
+      pool.emit('error', connectionError);
+      pool.emit('error', connectionError);
+      pool.emit('error', connectionError);
+      expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'circuit_open' });
+      expect((await app.inject({ method: 'GET', url: '/v1/rh-chain' })).statusCode).toBe(503);
+      vi.advanceTimersByTime(1_500);
+      await vi.runOnlyPendingTimersAsync();
+      expect(pool.queryCount).toBe(queriesBeforeFailure + 1);
+      expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'healthy', consecutiveFailures: 0 });
+      const recoveredRhRead = await app.inject({ method: 'GET', url: '/v1/rh-chain' });
+      expect(recoveredRhRead.statusCode).toBe(200);
+    } finally {
+      await app.close();
+      if (originalNodeEnv === undefined) delete process.env.NODE_ENV;
+      else process.env.NODE_ENV = originalNodeEnv;
+    }
   });
 
   it('covers startup modes: no DATABASE_URL, invalid URL, unreachable host, and healthy DB', async () => {
