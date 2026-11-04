@@ -7,6 +7,22 @@ const metrics = { tvl_usd: 1000, dex_volume_24h_usd: 200, stablecoin_market_cap_
 const category = { market_cap_usd: 900, volume_24h_usd: 80, top_assets: [{ name: 'Example', symbol: 'EX', market_cap_usd: 900, volume_24h_usd: 80 }], source_timestamp: '2026-07-11T00:00:00.000Z' };
 
 describe('RH Chain Live Snapshot Layer', () => {
+  it('reads RH stablecoin market cap from the upstream chain aggregate', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = String(input);
+      const body = url.includes('/v2/chains') ? [{ name: 'Robinhood Chain', tvl: 10 }]
+        : url.includes('/stablecoinchains') ? [{ name: 'Ethereum', totalCirculatingUSD: { peggedUSD: 900 } }, { name: 'Robinhood Chain', totalCirculatingUSD: { peggedUSD: 99 } }]
+        : url.includes('/overview/fees/') ? { total24h: 1 } : [];
+      return new Response(JSON.stringify(body), { status: 200 });
+    });
+    try {
+      const service = new RhChainLiveSnapshotService({ enabled: true, timeoutMs: 1000 });
+      const result = await service.getLiveSnapshot();
+      expect(result.chain_metrics.stablecoin_market_cap_usd).toBe(99);
+      expect(result.chain_metrics.source_timestamp).toBeNull();
+    } finally { fetchMock.mockRestore(); }
+  });
+
   it('returns disabled provider statuses without calling providers', async () => {
     const chainMetrics = vi.fn(async () => metrics);
     const service = new RhChainLiveSnapshotService({ enabled: false, timeoutMs: 10, providers: { chainMetrics } });
