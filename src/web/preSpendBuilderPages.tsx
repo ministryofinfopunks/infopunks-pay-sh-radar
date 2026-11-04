@@ -1,8 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { SignalGraphContextPanel, type SignalGraphContextNode } from './signalGraphContextPanel';
 import type { WalletSafetyIntegrationProfile } from '../data/walletSafetyIntegrations';
 import { RadarContextHeader } from './radarNetworks';
+import { CanonicalJudgmentResponseSchema, type CanonicalJudgmentResponse } from '../schemas/preSpend';
+import { createBrowserPaymentSignature, decodePaymentResponseHeader, parseJudgmentPaymentQuote, type JudgmentPaymentQuote } from './judgmentPayment';
 import {
   buildWalletSafetyIntegrationReadinessReport,
   buildWalletSafetyIntegrationRegistry,
@@ -125,15 +127,7 @@ type PreSpendCheckResponse = {
   safer_alternatives: string[];
   do_not_use: Array<{ provider: string; reason: string }>;
   rationale: string[];
-  canonical_judgment?: {
-    judgment_id: string;
-    decision: 'proceed' | 'test_spend_first' | 'do_not_spend' | 'insufficient_evidence';
-    confidence: number;
-    reasons: string[];
-    cost: { amount: string; asset: string };
-    payment_required: boolean;
-    receipt: { judgment_id: string } | null;
-  };
+  canonical_judgment?: CanonicalJudgmentResponse;
   judgment?: {
     receipt_id: string;
     decision: 'ALLOW' | 'DEGRADE' | 'BLOCK';
@@ -549,6 +543,15 @@ export function SpendTerminalPage() {
   const [result, setResult] = useState<PreSpendCheckResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [paymentQuote, setPaymentQuote] = useState<(JudgmentPaymentQuote & {
+    idempotencyKey: string;
+    formFingerprint: string;
+    signature?: string;
+    state: 'quoted' | 'signing' | 'submitting' | 'uncertain' | 'reconciling';
+  }) | null>(null);
+  const attempt = useRef<{ fingerprint: string; key: string } | null>(null);
+  const paymentAttempt = useRef(0);
+  const requestGeneration = useRef(0);
   const [form, setForm] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     const subject = params.get('subject') || undefined;
@@ -569,22 +572,158 @@ export function SpendTerminalPage() {
     api<{ data: { metrics: Metrics } }>('/v1/routes').then((response) => setMetrics(response.data.metrics)).catch(() => undefined);
   }, []);
 
+  function requestFingerprint(input = form) {
+    return JSON.stringify(input);
+  }
+
+  function idempotencyKey(input = form) {
+    const fingerprint = requestFingerprint(input);
+    if (!attempt.current || attempt.current.fingerprint !== fingerprint) {
+      attempt.current = { fingerprint, key: crypto.randomUUID() };
+    }
+    return attempt.current.key;
+  }
+
+  function canonicalFromBody(body: Record<string, unknown>) {
+    const candidate = body.canonical_judgment ?? (body.data && typeof body.data === 'object'
+      ? (body.data as Record<string, unknown>).canonical_judgment
+      : undefined) ?? body;
+    const parsed = CanonicalJudgmentResponseSchema.safeParse(candidate);
+    return parsed.success ? parsed.data : null;
+  }
+
   async function requestDecision() {
+    const input = structuredClone(form);
+    const generation = ++requestGeneration.current;
+    const key = idempotencyKey(input);
+    const fingerprint = requestFingerprint(input);
     setLoading(true);
     setError(null);
     setResult(null);
+    setPaymentQuote(null);
     try {
-      const response = await api<{ data: PreSpendCheckResponse }>('/v1/pre-spend/check', {
+      const response = await fetch(toApiUrl(API_BASE_URL, '/v1/pre-spend/check'), {
         method: 'POST',
-        body: JSON.stringify(form)
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'Idempotency-Key': key },
+        body: JSON.stringify(input)
       });
-      setResult(response.data);
+      const body = await response.json().catch(() => ({})) as Record<string, unknown>;
+      if (requestGeneration.current !== generation) return;
+      const data = body.data && typeof body.data === 'object' ? body.data as PreSpendCheckResponse : null;
+      if (response.status === 402) {
+        const canonical = canonicalFromBody(body);
+        if (!canonical) throw new Error('The payment quote did not include a valid canonical judgment. No payment was sent.');
+        const expectedResourceUrl = new URL(toApiUrl(API_BASE_URL, '/v1/pre-spend/check'), window.location.origin).toString();
+        const quote = parseJudgmentPaymentQuote(response.headers.get('payment-required'), canonical, expectedResourceUrl);
+        if (!data) throw new Error('The payment quote did not include route context. No payment was sent.');
+        setResult({ ...data, canonical_judgment: canonical });
+        setPaymentQuote({ ...quote, idempotencyKey: key, formFingerprint: fingerprint, state: 'quoted' });
+      } else if (!response.ok) {
+        const code = typeof body.error === 'string' ? body.error : `HTTP ${response.status}`;
+        throw new Error(`${code}. No payment was authorized.`);
+      } else if (data) {
+        const canonical = canonicalFromBody(body);
+        setResult({ ...data, ...(canonical ? { canonical_judgment: canonical } : {}) });
+      } else {
+        throw new Error('The check returned an invalid response. No payment was authorized.');
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'pre-spend check failed');
+      if (requestGeneration.current === generation) setError(err instanceof Error ? err.message : 'pre-spend check failed');
     } finally {
-      setLoading(false);
+      if (requestGeneration.current === generation) setLoading(false);
     }
   }
+
+  async function submitPayment(quote: NonNullable<typeof paymentQuote>) {
+    const input = structuredClone(form);
+    const fingerprint = requestFingerprint(input);
+    if (fingerprint !== quote.formFingerprint) {
+      setPaymentQuote(null);
+      setResult(null);
+      setError('The check changed after this quote. Run a new check before authorizing payment.');
+      return;
+    }
+    const attemptNumber = ++paymentAttempt.current;
+    let signature = quote.signature;
+    if (!signature) {
+      setPaymentQuote({ ...quote, state: 'signing' });
+      setError(null);
+      try {
+        signature = await createBrowserPaymentSignature(quote);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'wallet_authorization_failed';
+        const text = message === 'wallet_unavailable' ? 'No injected EVM wallet was found. Connect a wallet, then retry. No payment was sent.'
+          : message === 'wallet_network_mismatch' ? `Switch your wallet to ${quote.requirement.network}, then retry. No payment was sent.`
+            : message === 'wallet_signature_invalid' || message === 'wallet_account_unavailable' ? 'The wallet did not provide a usable authorization. No payment was sent.'
+              : 'Wallet authorization was declined or cancelled. No payment was sent. You can retry or cancel this quote.';
+        if (paymentAttempt.current === attemptNumber) {
+          setPaymentQuote({ ...quote, state: 'quoted' });
+          setError(text);
+        }
+        return;
+      }
+      if (paymentAttempt.current !== attemptNumber) return;
+    }
+
+    const signedQuote = { ...quote, signature, state: 'submitting' as const };
+    setPaymentQuote(signedQuote);
+    setError(null);
+    try {
+      const response = await fetch(toApiUrl(API_BASE_URL, '/v1/pre-spend/check'), {
+        method: 'POST',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'Idempotency-Key': quote.idempotencyKey, 'PAYMENT-SIGNATURE': signature },
+        body: JSON.stringify(input)
+      });
+      const body = await response.json().catch(() => ({})) as Record<string, unknown>;
+      if (response.ok) {
+        const canonical = canonicalFromBody(body);
+        if (!canonical?.receipt) throw new Error('The paid response did not contain a canonical receipt. Do not submit another payment.');
+        const paymentResponse = decodePaymentResponseHeader(response.headers.get('payment-response'));
+        if (paymentResponse.network !== quote.requirement.network ||
+          paymentResponse.transaction !== canonical.receipt.payment_receipt_ref ||
+          canonical.receipt.payment?.network !== quote.requirement.network ||
+          canonical.receipt.payment?.pay_to.toLowerCase() !== quote.requirement.payTo.toLowerCase() ||
+          canonical.receipt.payment?.amount_atomic !== quote.requirement.amount) {
+          throw new Error('The settlement response did not match this quote. Do not submit another payment.');
+        }
+        const data = body.data && typeof body.data === 'object' ? body.data as PreSpendCheckResponse : null;
+        if (!data) throw new Error('The paid response did not include route context. Do not submit another payment.');
+        setResult({ ...data, canonical_judgment: canonical });
+        setPaymentQuote(null);
+        return;
+      }
+
+      const code = typeof body.error === 'string' ? body.error : `HTTP ${response.status}`;
+      if (response.status === 400 && ['invalid_payment_signature', 'payment_verification_failed', 'invalid_payment_signature_length'].includes(code)) {
+        setPaymentQuote({ ...quote, state: 'quoted' });
+        setError('The facilitator rejected this authorization. No payment was settled. Review the quote and retry or cancel.');
+        return;
+      }
+      if (response.status === 409 && code === 'judgment_quote_expired') {
+        attempt.current = null;
+        setPaymentQuote(null);
+        setError('This quote expired before payment. Run a new check to request a fresh quote.');
+        return;
+      }
+      const state = response.status === 409 || response.status === 402 ? 'reconciling' : 'uncertain';
+      setPaymentQuote({ ...signedQuote, state });
+      setError('Payment status is not confirmed. Retry only this same signed request; do not authorize a second payment.');
+    } catch (err) {
+      setPaymentQuote({ ...signedQuote, state: 'uncertain' });
+      setError(err instanceof Error && err.message.includes('Do not submit another payment')
+        ? err.message
+        : 'Payment status is not confirmed. Retry only this same signed request; do not authorize a second payment.');
+    }
+  }
+
+  function cancelPaymentQuote() {
+    paymentAttempt.current += 1;
+    setPaymentQuote(null);
+    setResult(null);
+    setError('Payment cancelled. No signed payment request was submitted.');
+  }
+
+  const formLocked = loading || ['signing', 'submitting', 'uncertain', 'reconciling'].includes(paymentQuote?.state ?? '');
 
   useEffect(() => {
     if (form.subject_id !== 'monitor') return;
@@ -619,15 +758,15 @@ export function SpendTerminalPage() {
       </section>}
       {!isMonitorSurface && <MetricsBand metrics={metrics} />}
       <section className={`grid two builder-terminal-grid ${isMonitorSurface ? 'monitor-terminal-grid' : ''}`}>
-        <form className="panel builder-form-panel" onSubmit={runCheck}>
+        <form className="panel builder-form-panel" onSubmit={runCheck} onChange={() => { requestGeneration.current += 1; paymentAttempt.current += 1; setResult(null); setPaymentQuote(null); setError(null); }}>
           <div className="panel-head"><div><p className="section-kicker">Agent Intent</p><h2>Pre-spend input flow</h2></div></div>
           <p className="panel-caption">Run a pre-spend check before any paid route call. The canonical response states whether a judgment receipt was issued.</p>
-          <label><span>intent</span><input aria-label="intent" value={form.intent} onChange={(event) => setForm({ ...form, intent: event.target.value })} /></label>
-          <label><span>budget</span><input aria-label="budget" type="number" value={form.budget} onChange={(event) => setForm({ ...form, budget: Number(event.target.value) })} /></label>
-          <label><span>risk tolerance</span><select aria-label="risk tolerance" value={form.risk_tolerance} onChange={(event) => setForm({ ...form, risk_tolerance: event.target.value as RiskLevel })}><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="critical">critical</option></select></label>
-          <label><span>preferred settlement</span><input aria-label="preferred settlement" value={form.preferred_settlement} onChange={(event) => setForm({ ...form, preferred_settlement: event.target.value })} /></label>
-          <label><span>required confidence</span><input aria-label="required confidence" type="number" value={form.required_confidence} onChange={(event) => setForm({ ...form, required_confidence: Number(event.target.value) })} /></label>
-          <button className="execute compact" type="submit" disabled={loading}>{loading ? 'Checking route' : 'Run pre-spend check'}</button>
+          <label><span>intent</span><input aria-label="intent" disabled={formLocked} value={form.intent} onChange={(event) => setForm({ ...form, intent: event.target.value })} /></label>
+          <label><span>budget</span><input aria-label="budget" disabled={formLocked} type="number" value={form.budget} onChange={(event) => setForm({ ...form, budget: Number(event.target.value) })} /></label>
+          <label><span>risk tolerance</span><select aria-label="risk tolerance" disabled={formLocked} value={form.risk_tolerance} onChange={(event) => setForm({ ...form, risk_tolerance: event.target.value as RiskLevel })}><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="critical">critical</option></select></label>
+          <label><span>preferred settlement</span><input aria-label="preferred settlement" disabled={formLocked} value={form.preferred_settlement} onChange={(event) => setForm({ ...form, preferred_settlement: event.target.value })} /></label>
+          <label><span>required confidence</span><input aria-label="required confidence" disabled={formLocked} type="number" value={form.required_confidence} onChange={(event) => setForm({ ...form, required_confidence: Number(event.target.value) })} /></label>
+          <button className="execute compact" type="submit" disabled={loading || formLocked}>{loading ? 'Checking route' : 'Run pre-spend check'}</button>
           {error && <p className="route-state error" role="alert">{error}</p>}
         </form>
         <section className="panel builder-result-panel" aria-label="Decision result">
@@ -641,8 +780,35 @@ export function SpendTerminalPage() {
             <div className="route-state warn" role="status">
               <strong>Judgment: {result.canonical_judgment?.decision ?? 'unavailable'}</strong>
               <p>{result.canonical_judgment?.reasons.join(' ') ?? 'The canonical judgment was not supplied.'}</p>
-              <p>Judgment charge: {result.canonical_judgment ? `${result.canonical_judgment.cost.amount} ${result.canonical_judgment.cost.asset}` : 'unavailable'} · Judgment receipt: {result.canonical_judgment ? result.canonical_judgment.receipt?.judgment_id ?? 'not issued' : 'unavailable'}</p>
+              <p>Judgment charge: {result.canonical_judgment ? `${result.canonical_judgment.cost.amount} ${result.canonical_judgment.cost.asset}` : 'unavailable'} · Judgment receipt: {result.canonical_judgment ? result.canonical_judgment.receipt
+                ? <><BuilderLink href={toApiUrl(API_BASE_URL, `/v1/receipt-spine/judgment/${encodeURIComponent(result.canonical_judgment.receipt.judgment_id)}`)}>{result.canonical_judgment.receipt.judgment_id}</BuilderLink> · <BuilderLink href={toApiUrl(API_BASE_URL, `/v1/receipt-spine/judgment/${encodeURIComponent(result.canonical_judgment.receipt.judgment_id)}/verify`)}>Verify receipt</BuilderLink></>
+                : 'not issued' : 'unavailable'}</p>
             </div>
+            {paymentQuote && <section className="panel judgment-payment-approval" aria-label="Payment approval" aria-live="polite">
+              <div className="panel-head"><div><p className="section-kicker">Explicit payment approval</p><h3>Judgment receipt not issued yet</h3></div></div>
+              <p className="panel-caption">Review the x402 quote. The wallet is used only after you choose to authorize; Radar does not submit any other transaction.</p>
+              <dl className="builder-result-grid">
+                <article><span>amount</span><strong>{paymentQuote.judgment.cost.amount} {paymentQuote.judgment.cost.asset}</strong></article>
+                <article><span>network</span><strong>{paymentQuote.requirement.network}</strong></article>
+                <article><span>recipient</span><strong>{paymentQuote.requirement.payTo}</strong></article>
+                <article><span>token</span><strong>{paymentQuote.requirement.asset}</strong></article>
+                <article><span>authorization expires</span><strong>{paymentQuote.requirement.maxTimeoutSeconds} seconds</strong></article>
+                <article><span>receipt state</span><strong>Not issued</strong></article>
+              </dl>
+              {paymentQuote.state === 'uncertain' || paymentQuote.state === 'reconciling'
+                ? <p className="route-state warn" role="status">Payment status is not confirmed. Repeating this same signed request is idempotent; do not approve a second payment.</p>
+                : paymentQuote.state === 'signing'
+                  ? <p className="route-state warn" role="status">Waiting for explicit wallet authorization. Cancel here to prevent a returned signature from being submitted.</p>
+                  : paymentQuote.state === 'submitting'
+                    ? <p className="route-state warn" role="status">Submitting the approved x402 payment request. No new wallet authorization will be requested for a retry.</p>
+                    : null}
+              <div className="panel-actions">
+                <button className="execute compact" type="button" disabled={loading || paymentQuote.state === 'signing' || paymentQuote.state === 'submitting'} onClick={() => void submitPayment(paymentQuote)}>
+                  {paymentQuote.signature ? 'Retry same signed request' : paymentQuote.state === 'signing' ? 'Waiting for wallet…' : 'Review and authorize payment'}
+                </button>
+                <button className="execute compact secondary" type="button" disabled={paymentQuote.state === 'submitting' || paymentQuote.state === 'uncertain' || paymentQuote.state === 'reconciling'} onClick={cancelPaymentQuote}>Cancel payment</button>
+              </div>
+            </section>}
             <p className="panel-caption">Route analysis and historical receipts below are supporting evidence, not the current judgment or a new execution.</p>
             <div className={`builder-decision-banner ${resultTone}`}>
               <div>
