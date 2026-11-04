@@ -1333,7 +1333,13 @@ export async function createApp(
   );
   configureMachineDemoSeed(config.machineDemoSeed);
   const responseCache = createResponseCache();
+  const rhAutomationTimers: Array<ReturnType<typeof setInterval>> = [];
+  app.addHook('preClose', async () => {
+    for (const timer of rhAutomationTimers) clearInterval(timer);
+    await rhChainAutomation.close();
+  });
   app.addHook('onClose', async () => {
+    await rhChainAutomation.close();
     await rhChainSubmissionStore.close?.();
     await rhChainReviewedClassificationStore.close?.();
     await rhChainProjectClaimsStore.close?.();
@@ -4912,7 +4918,7 @@ export async function createApp(
     const schedule = (jobName: import('../services/rhChainAutomationService').RhChainAutomationJobName, intervalMs: number) => {
       const timer = setInterval(() => { void runRhChainAutomationJob(jobName); }, intervalMs);
       timer.unref();
-      app.addHook('onClose', async () => clearInterval(timer));
+      rhAutomationTimers.push(timer);
     };
     // Context refreshes are independently scheduled. A provider or job failure is
     // recorded on that run and cannot prevent the next job from executing.
@@ -4934,7 +4940,7 @@ export async function createApp(
         }
       }, 30_000);
       timer.unref();
-      app.addHook('onClose', async () => clearInterval(timer));
+      rhAutomationTimers.push(timer);
     }
   }
   const ipxPltrShadowObservationEnabled = options.ipxPltrShadowObservation?.enabled ?? config.ipxPltrShadowObservationEnabled;
