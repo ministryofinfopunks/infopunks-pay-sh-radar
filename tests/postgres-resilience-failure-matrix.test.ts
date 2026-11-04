@@ -190,6 +190,50 @@ async function flush() {
 }
 
 describe('PostgreSQL resilience failure matrix', () => {
+  it('keeps a missing journal relation local and preserves RH desk reads', async () => {
+    const pool = new MatrixPool();
+    const app = await createPoolBackedApp(pool);
+    const schemaError = operationalError('relation "judgment_requests" does not exist', '42P01');
+    pool.queryError = schemaError;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      await expect(getDatabasePool({ connectionString: TEST_URL, max: 2 }).query('select record from judgment_requests'))
+        .rejects.toMatchObject({ code: '42P01', message: schemaError.message });
+    }
+    expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'healthy', consecutiveFailures: 0, lastErrorCode: null });
+    pool.queryError = null;
+    const rhRead = await app.inject({ method: 'GET', url: '/v1/rh-chain' });
+    expect(rhRead.statusCode).toBe(200);
+    expect(rhRead.json()).toMatchObject({ data: expect.any(Object) });
+    await app.close();
+  });
+
+  it('recovers from connection loss on a bounded timer without a health request', async () => {
+    vi.useFakeTimers();
+    const originalNodeEnv = process.env.NODE_ENV;
+    const pool = new MatrixPool();
+    const app = await createPoolBackedApp(pool);
+    const queriesBeforeFailure = pool.queryCount;
+    try {
+      process.env.NODE_ENV = 'development';
+      const connectionError = operationalError('Connection terminated unexpectedly', 'ECONNRESET');
+      pool.emit('error', connectionError);
+      pool.emit('error', connectionError);
+      pool.emit('error', connectionError);
+      expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'circuit_open' });
+      expect((await app.inject({ method: 'GET', url: '/v1/rh-chain' })).statusCode).toBe(503);
+      vi.advanceTimersByTime(1_500);
+      await vi.runOnlyPendingTimersAsync();
+      expect(pool.queryCount).toBe(queriesBeforeFailure + 1);
+      expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'healthy', consecutiveFailures: 0 });
+      const recoveredRhRead = await app.inject({ method: 'GET', url: '/v1/rh-chain' });
+      expect(recoveredRhRead.statusCode).toBe(200);
+    } finally {
+      await app.close();
+      if (originalNodeEnv === undefined) delete process.env.NODE_ENV;
+      else process.env.NODE_ENV = originalNodeEnv;
+    }
+  });
+
   it('covers startup modes: no DATABASE_URL, invalid URL, unreachable host, and healthy DB', async () => {
     delete process.env.DATABASE_URL;
     let app = await createApp(emptySnapshot());
@@ -428,7 +472,7 @@ describe('PostgreSQL resilience failure matrix', () => {
       const probeResultsPromise = Promise.all(Array.from({ length: 50 }, () => probeDatabaseRecovery(pool as unknown as import('pg').Pool)));
       await vi.advanceTimersByTimeAsync(25);
       const probeResults = await probeResultsPromise;
-      expect(probeResults.filter(Boolean)).toHaveLength(1);
+      expect(probeResults.every(Boolean)).toBe(true);
       expect(pool.queryCount).toBe(initialQueries + 1);
       expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'healthy', dbStatus: 'ok', consecutiveFailures: 0 });
       expect((await app.inject({ method: 'GET', url: '/readyz' })).json()).toMatchObject({ status: 'healthy', dbCircuitState: 'healthy' });
