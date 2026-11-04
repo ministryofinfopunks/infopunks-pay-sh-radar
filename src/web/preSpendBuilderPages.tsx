@@ -125,6 +125,15 @@ type PreSpendCheckResponse = {
   safer_alternatives: string[];
   do_not_use: Array<{ provider: string; reason: string }>;
   rationale: string[];
+  canonical_judgment?: {
+    judgment_id: string;
+    decision: 'proceed' | 'test_spend_first' | 'do_not_spend' | 'insufficient_evidence';
+    confidence: number;
+    reasons: string[];
+    cost: { amount: string; asset: string };
+    payment_required: boolean;
+    receipt: { judgment_id: string } | null;
+  };
   judgment?: {
     receipt_id: string;
     decision: 'ALLOW' | 'DEGRADE' | 'BLOCK';
@@ -330,7 +339,7 @@ function terminalCopy(decision: DecisionState) {
     case 'approved_with_warning': return 'Receipt-backed route intelligence';
     case 'use_with_caution': return 'Known blockers';
     case 'requires_human_approval': return 'Should this agent spend?';
-    default: return 'No receipt, no trust';
+    default: return 'Canonical outcome unavailable';
   }
 }
 
@@ -563,6 +572,7 @@ export function SpendTerminalPage() {
   async function requestDecision() {
     setLoading(true);
     setError(null);
+    setResult(null);
     try {
       const response = await api<{ data: PreSpendCheckResponse }>('/v1/pre-spend/check', {
         method: 'POST',
@@ -604,45 +614,51 @@ export function SpendTerminalPage() {
           <span>Should this agent spend?</span>
           <span>Receipt-backed route intelligence</span>
           <span>Verified Pre-Spend Decisions</span>
-          <span>No receipt, no trust</span>
+          <span>Judgment receipts when issued</span>
         </div>
       </section>}
       {!isMonitorSurface && <MetricsBand metrics={metrics} />}
       <section className={`grid two builder-terminal-grid ${isMonitorSurface ? 'monitor-terminal-grid' : ''}`}>
         <form className="panel builder-form-panel" onSubmit={runCheck}>
           <div className="panel-head"><div><p className="section-kicker">Agent Intent</p><h2>Pre-spend input flow</h2></div></div>
-          <p className="panel-caption">Run a receipt-backed preflight before any paid route call. No receipt, no trust.</p>
+          <p className="panel-caption">Run a pre-spend check before any paid route call. The canonical response states whether a judgment receipt was issued.</p>
           <label><span>intent</span><input aria-label="intent" value={form.intent} onChange={(event) => setForm({ ...form, intent: event.target.value })} /></label>
           <label><span>budget</span><input aria-label="budget" type="number" value={form.budget} onChange={(event) => setForm({ ...form, budget: Number(event.target.value) })} /></label>
           <label><span>risk tolerance</span><select aria-label="risk tolerance" value={form.risk_tolerance} onChange={(event) => setForm({ ...form, risk_tolerance: event.target.value as RiskLevel })}><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="critical">critical</option></select></label>
           <label><span>preferred settlement</span><input aria-label="preferred settlement" value={form.preferred_settlement} onChange={(event) => setForm({ ...form, preferred_settlement: event.target.value })} /></label>
           <label><span>required confidence</span><input aria-label="required confidence" type="number" value={form.required_confidence} onChange={(event) => setForm({ ...form, required_confidence: Number(event.target.value) })} /></label>
           <button className="execute compact" type="submit" disabled={loading}>{loading ? 'Checking route' : 'Run pre-spend check'}</button>
-          {error && <p className="route-state error">{error}</p>}
+          {error && <p className="route-state error" role="alert">{error}</p>}
         </form>
         <section className="panel builder-result-panel" aria-label="Decision result">
-          <div className="panel-head"><div><p className="section-kicker">Decision Output</p><h2>{result ? terminalCopy(result.decision) : 'Should this agent spend?'}</h2></div></div>
+          <div className="panel-head"><div><p className="section-kicker">Decision Output</p><h2>{result ? 'Judgment result' : 'Should this agent spend?'}</h2></div></div>
           {!result && <div className="empty-state polished-empty builder-terminal-empty">
             <strong>Awaiting pre-spend decision.</strong>
             <span>Set agent intent, risk tolerance, settlement preference, and required confidence, then interrogate the route before any economic action.</span>
             <small>Should this agent spend? The terminal will not answer without route evidence, receipt references, and explicit rationale.</small>
           </div>}
           {result && <>
+            <div className="route-state warn" role="status">
+              <strong>Judgment: {result.canonical_judgment?.decision ?? 'unavailable'}</strong>
+              <p>{result.canonical_judgment?.reasons.join(' ') ?? 'The canonical judgment was not supplied.'}</p>
+              <p>Judgment charge: {result.canonical_judgment ? `${result.canonical_judgment.cost.amount} ${result.canonical_judgment.cost.asset}` : 'unavailable'} · Judgment receipt: {result.canonical_judgment ? result.canonical_judgment.receipt?.judgment_id ?? 'not issued' : 'unavailable'}</p>
+            </div>
+            <p className="panel-caption">Route analysis and historical receipts below are supporting evidence, not the current judgment or a new execution.</p>
             <div className={`builder-decision-banner ${resultTone}`}>
               <div>
-                <span className="section-kicker">Decision state</span>
+                <span className="section-kicker">Supporting route analysis</span>
                 <strong>{decisionLabel(result.decision)}</strong>
                 <p>{result.recommended_route
-                  ? <>Recommended route: <BuilderLink href={routeHref(result.recommended_route)}>{result.recommended_route}</BuilderLink></>
+                  ? <>Route context: <BuilderLink href={routeHref(result.recommended_route)}>{result.recommended_route}</BuilderLink></>
                   : 'No route cleared for spend.'}</p>
               </div>
               <div className="builder-banner-meta">
                 <span>confidence {result.confidence_score}</span>
                 <span>risk {result.risk_level}</span>
-                <span>human approval {result.requires_human_approval ? 'required' : 'not required'}</span>
+                <span>route analysis human approval {result.requires_human_approval ? 'required' : 'not required'}</span>
               </div>
             </div>
-            {!hasReceipts && <p className="route-state error">No receipt, no trust. No recent successful receipt is attached to this recommendation.</p>}
+            {!hasReceipts && <p className="route-state error">No judgment receipt was issued for this check. Historical receipts, when present, are supporting evidence only.</p>}
             {hasWarnings && <p className={`route-state ${resultTone === 'error' ? 'error' : 'warn'}`}>
               {result.requires_human_approval
                 ? 'Human approval is required before spend.'
@@ -657,17 +673,17 @@ export function SpendTerminalPage() {
               <article><span>intent</span><strong>{result.intent}</strong></article>
               <article><span>settlement</span><strong>{result.preferred_settlement ?? form.preferred_settlement}</strong></article>
               <article><span>required confidence</span><strong>{result.required_confidence ?? form.required_confidence}</strong></article>
-              <article><span>decision</span><strong>{result.decision}</strong></article>
-              <article><span>canonical judgment</span><strong>{result.judgment?.decision ?? 'unavailable'}</strong></article>
-              <article><span>recommended route</span><strong>{result.recommended_route ? <BuilderLink href={routeHref(result.recommended_route)}>{result.recommended_route}</BuilderLink> : 'none'}</strong></article>
+              <article><span>supporting route decision</span><strong>{result.decision}</strong></article>
+              <article><span>legacy assessment</span><strong>{result.judgment?.decision ?? 'unavailable'}</strong></article>
+              <article><span>route context</span><strong>{result.recommended_route ? <BuilderLink href={routeHref(result.recommended_route)}>{result.recommended_route}</BuilderLink> : 'none'}</strong></article>
               <article><span>confidence score</span><strong>{result.confidence_score}</strong></article>
-              <article><span>judgment receipt</span><strong>{result.judgment?.receipt_id ?? 'unavailable'}</strong></article>
+              <article><span>legacy assessment reference</span><strong>{result.judgment?.receipt_id ?? 'unavailable'}</strong></article>
               <article><span>outcome status</span><strong>{result.judgment?.outcome_status ?? 'unavailable'}</strong></article>
               <article><span>risk level</span><strong>{result.risk_level}</strong></article>
-              <article><span>estimated cost</span><strong>{result.estimated_cost ?? 'n/a'}</strong></article>
+              <article><span>route estimated cost</span><strong>{result.estimated_cost ?? 'n/a'}</strong></article>
               <article><span>last successful run</span><strong>{formatDate(result.last_successful_run)}</strong></article>
-              <article><span>human approval</span><strong>{result.requires_human_approval ? 'required' : 'not required'}</strong></article>
-              <article><span>receipts</span><strong><LinkedIds items={result.receipt_references} buildHref={receiptHref} /></strong></article>
+              <article><span>route analysis human approval</span><strong>{result.requires_human_approval ? 'required' : 'not required'}</strong></article>
+              <article><span>historical evidence receipts</span><strong><LinkedIds items={result.receipt_references} buildHref={receiptHref} /></strong></article>
               <article className="wide"><span>linked Proof Check</span><strong>{result.proof_check_reference
                 ? <BuilderLink href={result.proof_check_reference}>{result.linked_check_id ?? result.proof_check_reference}</BuilderLink>
                 : result.linked_check_id ?? 'none'}</strong></article>
