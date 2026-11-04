@@ -23,6 +23,23 @@ describe('RH Chain Live Snapshot Layer', () => {
     } finally { fetchMock.mockRestore(); }
   });
 
+  it('requests CoinGecko’s global Meme category by its supported ID', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.includes('coingecko.com')) {
+        expect(new URL(url).searchParams.get('category')).toBe('meme-token');
+        return new Response(JSON.stringify([{ name: 'Example', symbol: 'ex', market_cap: 90, total_volume: 8 }]), { status: 200 });
+      }
+      return new Response(JSON.stringify([]), { status: 200 });
+    });
+    try {
+      const service = new RhChainLiveSnapshotService({ enabled: true, timeoutMs: 1000 });
+      const result = await service.getLiveSnapshot();
+      expect(result.meme_category).toEqual(expect.objectContaining({ market_cap_usd: 90, volume_24h_usd: 8, source_timestamp: null }));
+      expect(fetchMock.mock.calls.some(([input]) => String(input).includes('coingecko.com'))).toBe(true);
+    } finally { fetchMock.mockRestore(); }
+  });
+
   it('returns disabled provider statuses without calling providers', async () => {
     const chainMetrics = vi.fn(async () => metrics);
     const service = new RhChainLiveSnapshotService({ enabled: false, timeoutMs: 10, providers: { chainMetrics } });
