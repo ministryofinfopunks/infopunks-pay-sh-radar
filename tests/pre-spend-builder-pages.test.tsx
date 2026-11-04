@@ -201,7 +201,7 @@ describe('pre-spend builder pages', () => {
     root.unmount();
   });
 
-  it('renders developers page with SDK, API, decision states, trust copy, and public links', async () => {
+  it('renders developers page with SDK, canonical outcomes, receipt conditions, and public links', async () => {
     const { root, container } = await render('/developers');
     const text = container.textContent ?? '';
     expect(text).toContain('Before your agent pays, it checks Infopunks.');
@@ -213,9 +213,10 @@ describe('pre-spend builder pages', () => {
     expect(text).toContain('use_with_caution');
     expect(text).toContain('requires_human_approval');
     expect(text).toContain('do_not_use');
-    expect(text).toContain('No receipt, no trust.');
-    expect(text).toContain('Every decision should point back to receipts.');
-    expect(text).toContain('Receipts capture route runs, cost, latency, status, validation, confidence delta, and evidence artifacts.');
+    expect(text).toContain('Insufficient evidence returns a free judgment with no receipt.');
+    expect(text).toContain('A judgment receipt is issued only when the canonical check response includes one.');
+    expect(text).toContain('When issued, receipts record the check outcome and supporting route evidence.');
+    expect(text).not.toContain('Every decision should point back to receipts.');
     expect(text).toContain('Wallet Safety API');
     expect(text).toContain('Ask once before spend. Get decision, policy, audit trail, risk score, final recommendation, and copy-paste SDK snippets.');
     expect(text).toContain('Integration Registry');
