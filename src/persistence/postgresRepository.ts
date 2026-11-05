@@ -212,9 +212,8 @@ export class PostgresRepository implements IntelligenceRepository {
         const parameter = safeJsonbParam(persistedSnapshot, { operation: 'insert', table: 'intelligence_snapshots', column: 'snapshot' });
         recordBytes(Buffer.byteLength(parameter, 'utf8'));
         const inserted = await client.query<{ id: string }>('insert into intelligence_snapshots (snapshot) values ($1::jsonb) returning id', [parameter]);
-        const foldedLatestRun = pendingDeltas[pendingDeltas.length - 1]?.run;
-        if (foldedLatestRun) {
-          await client.query('update monitor_runs set snapshot_id = $1 where id = $2', [inserted.rows[0]?.id ?? null, foldedLatestRun.id]);
+        if (pendingDeltas.length) {
+          await client.query('update monitor_runs set snapshot_id = $1 where id = any($2::text[])', [inserted.rows[0]?.id ?? null, pendingDeltas.map((delta) => delta.run.id)]);
         }
       } catch (error) {
         this.log22p02(error, [snapshotContext]);

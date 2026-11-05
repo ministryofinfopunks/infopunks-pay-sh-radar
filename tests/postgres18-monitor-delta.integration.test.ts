@@ -98,6 +98,60 @@ describeWithLocalPostgres18('isolated PostgreSQL 18 monitor delta persistence', 
     expect(restored.providers[0]?.evidence.filter((item) => item.eventId === delta.events[0]?.id)).toHaveLength(1);
   });
 
+  it('folds newer deltas over stale in-memory snapshots and remains restart-equivalent across repeated checkpoints', async () => {
+    const baseline = makeAcceptedSnapshot();
+    await repository.saveSnapshot(baseline);
+    const firstStaleCopy = structuredClone(baseline);
+    const first = sampleDelta(baseline.providers[0]!.id);
+    await repository.saveMonitorDelta(first);
+
+    // This represents a full snapshot already held in memory before the monitor run.
+    await repository.saveSnapshot(firstStaleCopy);
+    let restored = await createIntelligenceStore(repository);
+    expectMonitorEvidence(restored, [first]);
+
+    const secondStaleCopy = structuredClone(baseline);
+    const second = sampleDelta(baseline.providers[0]!.id, '2026-01-02T00:01:00.000Z');
+    const third = sampleDelta(baseline.providers[0]!.id, '2026-01-02T00:02:00.000Z');
+    await repository.saveMonitorDelta(second);
+    await repository.saveMonitorDelta(third);
+
+    // A second stale checkpoint folds both deltas exactly once; reloading simulates restart.
+    await repository.saveSnapshot(secondStaleCopy);
+    restored = await createIntelligenceStore(repository);
+    expectMonitorEvidence(restored, [first, second, third]);
+    expect(restored.providers[0]?.evidence.filter((item) => [first, second, third].some((delta) => item.eventId === delta.events[0]?.id))).toHaveLength(3);
+    expect(await countWhere('monitor_runs', `id in ('${first.run.id}', '${second.run.id}', '${third.run.id}')`)).toBe(3);
+    expect(await countWhere('infopunks_events', `id in ('${first.events[0]!.id}', '${second.events[0]!.id}', '${third.events[0]!.id}')`)).toBe(3);
+  });
+
+  it('shows that the previous full-snapshot loader ignores committed but uncheckpointed monitor deltas', async () => {
+    const baseline = makeAcceptedSnapshot();
+    await repository.saveSnapshot(baseline);
+    const delta = sampleDelta(baseline.providers[0]!.id);
+    await repository.saveMonitorDelta(delta);
+
+    // This is the previous PostgresRepository.loadSnapshot query and result contract.
+    const previousLoader = await pool.query<{ snapshot: IntelligenceSnapshot }>(
+      'select snapshot from intelligence_snapshots order by created_at desc limit 1'
+    );
+    const previousState = previousLoader.rows[0]?.snapshot;
+    const currentState = await createIntelligenceStore(repository);
+
+    expect(previousState?.events.some((event) => event.id === delta.events[0]?.id)).toBe(false);
+    expect(previousState?.monitorRuns.some((run) => run.id === delta.run.id)).toBe(false);
+    expect(currentState.events.some((event) => event.id === delta.events[0]?.id)).toBe(true);
+    expect(currentState.monitorRuns.some((run) => run.id === delta.run.id)).toBe(true);
+
+    // Once a normal full checkpoint folds the delta, the previous loader can see it.
+    await repository.saveSnapshot(currentState);
+    const checkpointedPreviousState = await pool.query<{ snapshot: IntelligenceSnapshot }>(
+      'select snapshot from intelligence_snapshots order by created_at desc limit 1'
+    );
+    expect(checkpointedPreviousState.rows[0]?.snapshot.events.some((event) => event.id === delta.events[0]?.id)).toBe(true);
+    expect(checkpointedPreviousState.rows[0]?.snapshot.monitorRuns.some((run) => run.id === delta.run.id)).toBe(true);
+  });
+
   it('keeps a representative monitor payload bounded relative to the full snapshot', async () => {
     let snapshot = makeAcceptedSnapshot();
     const beforeSnapshots = await countRows('intelligence_snapshots');
@@ -149,14 +203,21 @@ function makeAcceptedSnapshot(): IntelligenceSnapshot {
   return recomputeAssessments(accepted);
 }
 
-function sampleDelta(providerId = 'synthetic-provider'): MonitorDelta {
-  const observedAt = '2026-01-02T00:00:00.000Z';
+function sampleDelta(providerId = 'synthetic-provider', observedAt = '2026-01-02T00:00:00.000Z'): MonitorDelta {
   const eventId = `monitor-event-${randomUUID()}`;
   return {
     run: { id: `monitor-run-${randomUUID()}`, startedAt: observedAt, finishedAt: observedAt, source: 'synthetic:monitor', status: 'succeeded', checkedCount: 1, successCount: 1, failedCount: 0, skippedCount: 0, errorCount: 0, error: null, mode: 'safe_metadata', reachableCount: 1, degradedCount: 0, skippedReasons: [] },
     events: [{ id: eventId, type: 'provider.checked', source: 'synthetic:monitor', entityType: 'provider', entityId: providerId, observedAt, payload: { providerId, success: true, checked_at: observedAt } }],
     state: { providerEvidence: [{ providerId, evidence: [{ eventId, event_id: eventId, eventType: 'provider.checked', event_type: 'provider.checked', providerId, provider_id: providerId, endpointId: null, endpoint_id: null, source: 'synthetic:monitor', observedAt, observed_at: observedAt, summary: 'synthetic', value: { success: true } }] }], endpointUpdates: [] }
   };
+}
+
+function expectMonitorEvidence(snapshot: IntelligenceSnapshot, deltas: MonitorDelta[]) {
+  for (const delta of deltas) {
+    expect(snapshot.events.filter((event) => event.id === delta.events[0]?.id)).toHaveLength(1);
+    expect(snapshot.monitorRuns.filter((run) => run.id === delta.run.id)).toHaveLength(1);
+    expect(snapshot.providers[0]?.evidence.filter((item) => item.eventId === delta.events[0]?.id)).toHaveLength(1);
+  }
 }
 
 function isLoopbackDatabase(value: string) {

@@ -199,6 +199,21 @@ describe('endpoint monitor', () => {
 });
 
 describe('safe metadata monitor', () => {
+  it('assesses freshness at monitor completion without changing the catalog observation time', async () => {
+    const store = monitorStore();
+    const times = ['2026-01-10T00:00:00.000Z', '2026-01-10T00:00:02.000Z'];
+    const result = await runMonitor(store, new MemoryRepository(), {
+      mode: 'safe_metadata',
+      now: () => new Date(times.shift() ?? '2026-01-10T00:00:02.000Z'),
+      fetchImpl: async () => new Response(null, { status: 204 })
+    });
+
+    expect(result.run.finishedAt).toBe('2026-01-10T00:00:02.000Z');
+    expect(store.trustAssessments[0]?.assessedAt).toBe(result.run.finishedAt);
+    expect(store.trustAssessments[0]?.components.freshness).toBe(28);
+    expect(store.providers[0]?.lastSeenAt).toBe('2026-01-01T00:00:00.000Z');
+  });
+
   it('checks provider service_url only and never appends endpoint paths or sends payment/auth headers', async () => {
     const store = monitorStore();
     const requests: { url: string; init?: RequestInit }[] = [];
