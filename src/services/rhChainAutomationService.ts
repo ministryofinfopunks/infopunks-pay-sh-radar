@@ -62,14 +62,14 @@ export interface RhChainAutomationStore {
 export class InMemoryRhChainAutomationStore implements RhChainAutomationStore {
   readonly adapter = 'memory' as const;
   readonly durable = false;
-  private readonly locks = new Map<string, { instanceId: string; expiresAt: number }>();
+  private readonly locks = new Map<string, { instanceId: string }>();
   private readonly runs = new Map<string, RhChainAutomationRun>();
   private readonly drafts = new Map<string, RhChainAutomationDraft>();
 
-  async tryAcquireLock(jobName: RhChainAutomationJobName, instanceId: string, ttlMs: number) {
+  async tryAcquireLock(jobName: RhChainAutomationJobName, instanceId: string, _ttlMs: number) {
     const existing = this.locks.get(jobName);
-    if (existing && existing.expiresAt > Date.now()) return false;
-    this.locks.set(jobName, { instanceId, expiresAt: Date.now() + ttlMs });
+    if (existing) return false;
+    this.locks.set(jobName, { instanceId });
     return true;
   }
   async releaseLock(jobName: RhChainAutomationJobName, instanceId: string) {
@@ -80,7 +80,7 @@ export class InMemoryRhChainAutomationStore implements RhChainAutomationStore {
   async saveDraft(draft: RhChainAutomationDraft) { this.drafts.set(draft.draft_id, structuredClone(draft)); }
 }
 
-/** Durable job locks and immutable run/draft records. No review, index, or receipt tables are writable here. */
+/** Non-expiring, fail-closed job locks and immutable run/draft records. No review, index, or receipt tables are writable here. */
 export class PostgresRhChainAutomationStore implements RhChainAutomationStore {
   readonly adapter = 'postgres' as const;
   readonly durable = true;
@@ -89,16 +89,17 @@ export class PostgresRhChainAutomationStore implements RhChainAutomationStore {
   private readonly schema = new RetryablePostgresSchema('rh_chain_automation_store');
   constructor(source: PostgresPoolSource) { const resolved = resolvePostgresPool(source); this.pool = resolved.pool; this.ownsPool = resolved.ownsPool; }
 
-  async tryAcquireLock(jobName: RhChainAutomationJobName, instanceId: string, ttlMs: number) {
+  async tryAcquireLock(jobName: RhChainAutomationJobName, instanceId: string, _ttlMs: number) {
     await this.ensureSchema();
-    await this.pool.query("delete from rh_chain_automation_locks where locked_until < now() - interval '12 hours'");
+    // Expiry and renewal cannot fence writes made by the downstream services.
+    // Never steal even an expired legacy row. A dead owner's row requires
+    // operator recovery after every possible owner has been stopped.
     const result = await this.pool.query(
       `insert into rh_chain_automation_locks (job_name, locked_by, locked_until)
-       values ($1, $2, now() + ($3 * interval '1 millisecond'))
-       on conflict (job_name) do update set locked_by = excluded.locked_by, locked_until = excluded.locked_until
-       where rh_chain_automation_locks.locked_until <= now()
+       values ($1, $2, 'infinity'::timestamptz)
+       on conflict (job_name) do nothing
        returning job_name`,
-      [jobName, instanceId, ttlMs]
+      [jobName, instanceId]
     );
     return result.rowCount === 1;
   }
@@ -160,6 +161,9 @@ export type RhChainAutomationServiceOptions = {
  * has no reference to review update, receipt publication, or 4663 index mutation APIs.
  */
 export class RhChainAutomationService {
+  private readonly active = new Set<Promise<RhChainAutomationRun>>();
+  private stopped = false;
+  private closePromise: Promise<void> | null = null;
   private readonly now: () => Date;
   private readonly chainPulseSnapshots: RhChainChainPulseService;
   private readonly memePulseSnapshots: RhChainMemePulseSnapshotService;
@@ -178,22 +182,37 @@ export class RhChainAutomationService {
   get enabled() { return this.options.enabled; }
   async listRuns() { return this.options.store.listRuns(); }
 
-  async run(jobName: RhChainAutomationJobName): Promise<RhChainAutomationRun> {
+  run(jobName: RhChainAutomationJobName): Promise<RhChainAutomationRun> {
+    if (this.stopped) return Promise.reject(new Error('rh_chain_automation_stopped'));
+    const promise = this.runTracked(jobName);
+    this.active.add(promise);
+    void promise.then(() => this.active.delete(promise), () => this.active.delete(promise));
+    return promise;
+  }
+
+  close(): Promise<void> {
+    if (this.closePromise) return this.closePromise;
+    this.stopped = true;
+    this.closePromise = Promise.allSettled([...this.active]).then(() => undefined);
+    return this.closePromise;
+  }
+
+  private async runTracked(jobName: RhChainAutomationJobName): Promise<RhChainAutomationRun> {
     const startedAt = this.now().toISOString();
     const jobId = randomUUID();
-    if (!this.options.enabled) return this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'skipped', error_summary: 'rh_chain_automation_disabled', records_observed: 0, records_updated: 0, data_mode: 'unavailable', sources: [] });
-    if (this.options.enabledJobs && !this.options.enabledJobs.includes(jobName)) return this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'skipped', error_summary: 'automation_job_disabled', records_observed: 0, records_updated: 0, data_mode: 'unavailable', sources: [] });
-    if (this.options.isProduction && !this.options.store.durable) return this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'skipped', error_summary: 'durable_lock_required_in_production', records_observed: 0, records_updated: 0, data_mode: 'unavailable', sources: [] });
+    if (!this.options.enabled) return await this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'skipped', error_summary: 'rh_chain_automation_disabled', records_observed: 0, records_updated: 0, data_mode: 'unavailable', sources: [] });
+    if (this.options.enabledJobs && !this.options.enabledJobs.includes(jobName)) return await this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'skipped', error_summary: 'automation_job_disabled', records_observed: 0, records_updated: 0, data_mode: 'unavailable', sources: [] });
+    if (this.options.isProduction && !this.options.store.durable) return await this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'skipped', error_summary: 'durable_lock_required_in_production', records_observed: 0, records_updated: 0, data_mode: 'unavailable', sources: [] });
     let locked = false;
     try {
-      locked = await this.options.store.tryAcquireLock(jobName, this.options.instanceId, this.options.lockTtlMs);
-      if (!locked) return this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'locked', error_summary: 'job_lock_held', records_observed: 0, records_updated: 0, data_mode: 'unavailable', sources: [] });
+      locked = await this.options.store.tryAcquireLock(jobName, jobId, this.options.lockTtlMs);
+      if (!locked) return await this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'locked', error_summary: 'job_lock_held', records_observed: 0, records_updated: 0, data_mode: 'unavailable', sources: [] });
       const result = await this.execute(jobName, jobId);
-      return this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'success', error_summary: null, records_observed: result.recordsObserved, records_updated: result.recordsUpdated, data_mode: result.dataMode, sources: result.sources });
+      return await this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'success', error_summary: null, records_observed: result.recordsObserved, records_updated: result.recordsUpdated, data_mode: result.dataMode, sources: result.sources });
     } catch (error) {
-      return this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'failed', error_summary: errorMessage(error), records_observed: 0, records_updated: 0, data_mode: 'unavailable', sources: [] });
+      return await this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'failed', error_summary: errorMessage(error), records_observed: 0, records_updated: 0, data_mode: 'unavailable', sources: [] });
     } finally {
-      if (locked) await this.options.store.releaseLock(jobName, this.options.instanceId).catch(() => undefined);
+      if (locked) await this.options.store.releaseLock(jobName, jobId).catch(() => undefined);
     }
   }
 
