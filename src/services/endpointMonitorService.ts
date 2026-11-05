@@ -3,6 +3,7 @@ import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
 import { Endpoint, Evidence, InfopunksEvent, MonitorRun, Provider } from '../schemas/entities';
 import { IntelligenceRepository } from '../persistence/repository';
+import type { MonitorDelta, MonitorStateDelta } from '../persistence/repository';
 import { IntelligenceStore, recomputeAssessments } from './intelligenceStore';
 import { providerReachabilitySummary, providerRootHealthSummary } from './eventSummaryHelpers';
 import { classifyEventSeverity } from '../engines/severityEngine';
@@ -54,6 +55,7 @@ export async function runMonitor(store: IntelligenceStore, repository: Intellige
 export async function runSafeMetadataMonitor(store: IntelligenceStore, repository: IntelligenceRepository, options: MonitorOptions = {}) {
   const now = options.now ?? (() => new Date());
   const startedAt = now().toISOString();
+  const priorEventIds = new Set(store.events.map((event) => event.id));
   const run: MonitorRun = {
     id: randomUUID(),
     startedAt,
@@ -110,9 +112,9 @@ export async function runSafeMetadataMonitor(store: IntelligenceStore, repositor
     run.finishedAt = now().toISOString();
     store.events = [...store.events, ...emittedEvents];
     store.monitorRuns = [run, ...(store.monitorRuns ?? [])].slice(0, 100);
-    const recomputed = recomputeAssessments(store);
+    const recomputed = recomputeAssessments(store, run.finishedAt ?? startedAt);
     replaceStore(store, recomputed);
-    await repository.saveSnapshot(store);
+    await persistMonitorDelta(repository, store, run, store.events.filter((event) => !priorEventIds.has(event.id)));
   }
 
   return { run, events: emittedEvents };
@@ -138,13 +140,14 @@ async function runDisabledMonitor(store: IntelligenceStore, repository: Intellig
     skippedReasons: store.providers.map((provider) => ({ providerId: provider.id, serviceUrl: provider.serviceUrl ?? null, reason: 'monitor_mode_disabled' }))
   };
   store.monitorRuns = [run, ...(store.monitorRuns ?? [])].slice(0, 100);
-  await repository.saveSnapshot(store);
+  await persistMonitorDelta(repository, store, run, []);
   return { run, events: [] as InfopunksEvent[] };
 }
 
 export async function runEndpointMonitor(store: IntelligenceStore, repository: IntelligenceRepository, options: MonitorOptions = {}) {
   const now = options.now ?? (() => new Date());
   const startedAt = now().toISOString();
+  const priorEventIds = new Set(store.events.map((event) => event.id));
   const run: MonitorRun = {
     id: randomUUID(),
     startedAt,
@@ -187,9 +190,9 @@ export async function runEndpointMonitor(store: IntelligenceStore, repository: I
     run.finishedAt = now().toISOString();
     store.events = [...store.events, ...emittedEvents];
     store.monitorRuns = [run, ...(store.monitorRuns ?? [])].slice(0, 100);
-    const recomputed = recomputeAssessments(store);
+    const recomputed = recomputeAssessments(store, run.finishedAt ?? startedAt);
     replaceStore(store, recomputed);
-    await repository.saveSnapshot(store);
+    await persistMonitorDelta(repository, store, run, store.events.filter((event) => !priorEventIds.has(event.id)));
   }
 
   return { run, events: emittedEvents };
@@ -564,6 +567,31 @@ function replaceStore(target: IntelligenceStore, source: IntelligenceStore) {
   target.narratives = source.narratives;
   target.ingestionRuns = source.ingestionRuns;
   target.monitorRuns = source.monitorRuns;
+}
+
+async function persistMonitorDelta(repository: IntelligenceRepository, store: IntelligenceStore, run: MonitorRun, events: InfopunksEvent[]) {
+  if (!repository.saveMonitorDelta) {
+    await repository.saveSnapshot(store);
+    return;
+  }
+  const eventIds = new Set(events.map((event) => event.id));
+  const providerIds = new Set(events.filter((event) => event.entityType === 'provider').map((event) => event.entityId));
+  const endpointIds = new Set(events.filter((event) => event.entityType === 'endpoint').map((event) => event.entityId));
+  const state: MonitorStateDelta = {
+    providerEvidence: store.providers
+      .filter((provider) => providerIds.has(provider.id))
+      .map((provider) => ({ providerId: provider.id, evidence: provider.evidence.filter((item) => eventIds.has(item.eventId)) })),
+    endpointUpdates: store.endpoints
+      .filter((endpoint) => endpointIds.has(endpoint.id))
+      .map((endpoint) => ({
+        id: endpoint.id,
+        status: endpoint.status,
+        latencyMsP50: endpoint.latencyMsP50,
+        evidence: endpoint.evidence.filter((item) => eventIds.has(item.eventId))
+      }))
+  };
+  const delta: MonitorDelta = { run, events, state };
+  await repository.saveMonitorDelta(delta);
 }
 
 function stringValue(value: unknown) {
