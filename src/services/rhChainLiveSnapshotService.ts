@@ -288,12 +288,12 @@ function createPublicClients(options: RhChainLiveSnapshotOptions): RhChainLivePr
     async chainMetrics() {
       const [chains, stablecoins, fees, protocols] = await Promise.all([
         request<Array<{ name?: string; tvl?: number; gecko_id?: string }>>('https://api.llama.fi/v2/chains'),
-        request<{ peggedAssets?: Array<{ chainCirculating?: Record<string, unknown> }> }>('https://stablecoins.llama.fi/stablecoins?includePrices=true').catch(() => null),
+        request<Array<{ name?: string; totalCirculatingUSD?: { peggedUSD?: number } }>>('https://stablecoins.llama.fi/stablecoinchains').catch(() => null),
         request<{ total24h?: number }>('https://api.llama.fi/overview/fees/Robinhood?excludeTotalDataChart=true&excludeTotalDataChartBreakdown=true').catch(() => null),
         request<Array<{ name?: string; category?: string; tvl?: number; chainTvls?: Record<string, number> }>>('https://api.llama.fi/protocols').catch(() => null)
       ]);
       const chain = chains.find((row) => /robinhood/i.test(row.name ?? ''));
-      const stablecoin_market_cap_usd = stablecoins?.peggedAssets?.reduce((total, asset) => total + stablecoinValueForRobinhood(asset.chainCirculating), 0) ?? null;
+      const stablecoin_market_cap_usd = finiteNumber(stablecoins?.find((row) => /^(robinhood|robinhood chain)$/i.test((row.name ?? '').trim()))?.totalCirculatingUSD?.peggedUSD);
       const top_protocols = (protocols ?? []).map((protocol) => {
         const chainEntry = Object.entries(protocol.chainTvls ?? {}).find(([name]) => /^(robinhood|robinhood chain)$/i.test(name.trim()));
         const chainTvl = finiteNumber(chainEntry?.[1]);
@@ -303,7 +303,7 @@ function createPublicClients(options: RhChainLiveSnapshotOptions): RhChainLivePr
       // Keep it null so the pulse labels the fetch timestamp rather than inventing one.
       return { tvl_usd: finiteNumber(chain?.tvl), dex_volume_24h_usd: null, stablecoin_market_cap_usd: stablecoin_market_cap_usd && stablecoin_market_cap_usd > 0 ? stablecoin_market_cap_usd : null, fees_24h_usd: finiteNumber(fees?.total24h), top_protocols, protocol_count: top_protocols.length || null, source_timestamp: null };
     },
-    async memeCategory() { const assets = await request<Array<{ name: string; symbol: string; market_cap?: number; total_volume?: number; last_updated?: string }>>('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&category=memes&order=market_cap_desc&per_page=10&page=1'); return { market_cap_usd: assets.reduce((sum, asset) => sum + (asset.market_cap ?? 0), 0), volume_24h_usd: assets.reduce((sum, asset) => sum + (asset.total_volume ?? 0), 0), top_assets: assets.map((asset) => ({ name: asset.name, symbol: asset.symbol.toUpperCase(), market_cap_usd: asset.market_cap ?? null, volume_24h_usd: asset.total_volume ?? null })), source_timestamp: assets[0]?.last_updated ?? new Date().toISOString() }; },
+    async memeCategory() { const assets = await request<Array<{ name: string; symbol: string; market_cap?: number; total_volume?: number; last_updated?: string }>>('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&category=meme-token&order=market_cap_desc&per_page=10&page=1'); return { market_cap_usd: assets.reduce((sum, asset) => sum + (asset.market_cap ?? 0), 0), volume_24h_usd: assets.reduce((sum, asset) => sum + (asset.total_volume ?? 0), 0), top_assets: assets.map((asset) => ({ name: asset.name, symbol: asset.symbol.toUpperCase(), market_cap_usd: asset.market_cap ?? null, volume_24h_usd: asset.total_volume ?? null })), source_timestamp: assets[0]?.last_updated ?? null }; },
     async memePairs() {
       const pairs = await request<Array<{ chainId?: string; pairAddress?: string; baseToken?: { address?: string; symbol?: string; name?: string }; liquidity?: { usd?: number }; volume?: { h24?: number } }>>('https://api.dexscreener.com/latest/dex/search?q=robinhood');
       return pairs.filter((pair) => /^(robinhood|rhchain|rh-chain|rhc)$/i.test(pair.chainId ?? '')).slice(0, 10).map((pair) => ({ contract: pair.baseToken?.address ?? null, chain_id: pair.chainId ?? null, ticker: pair.baseToken?.symbol?.toUpperCase() ?? 'UNKNOWN', name: pair.baseToken?.name ?? pair.baseToken?.symbol ?? 'Unknown asset', pair_address: pair.pairAddress ?? null, liquidity_usd: finiteNumber(pair.liquidity?.usd), volume_24h_usd: finiteNumber(pair.volume?.h24), source_timestamp: null }));
@@ -311,13 +311,6 @@ function createPublicClients(options: RhChainLiveSnapshotOptions): RhChainLivePr
     async tokenPair(contract, context) { const payload = await request<unknown>(`https://api.dexscreener.com/latest/dex/tokens/${encodeURIComponent(contract)}`, context); const pairs = DexScreenerTokenPairsSchema.nullable().parse(payload) ?? []; const pair = pairs.find((item) => isExactRhChainContractMatch(contract, item.baseToken?.address) || isExactRhChainContractMatch(contract, item.quoteToken?.address)); if (!pair) throw new Error('provider_contract_mismatch'); const observed_contract = isExactRhChainContractMatch(contract, pair.baseToken?.address) ? pair.baseToken?.address : pair.quoteToken?.address; return { observed_contract, observed_chain_id: pair.chainId ?? null, pair_address: pair.pairAddress ?? null, dex_url: pair.url ?? null, liquidity_usd: pair.liquidity?.usd ?? null, volume_24h_usd: pair.volume?.h24 ?? null, fdv_usd: pair.fdv ?? null, market_cap_usd: pair.marketCap ?? null, pair_created_at: pair.pairCreatedAt ? new Date(pair.pairCreatedAt).toISOString() : null, source_timestamp: new Date().toISOString() }; },
     async explorer(contract, context) { if (!options.blockscoutUrl) throw new Error('blockscout_endpoint_not_configured'); const base = options.blockscoutUrl.replace(/\/$/, ''); const explorer_url = `${base}/address/${encodeURIComponent(contract)}`; const payload = BlockscoutAddressSchema.parse(await request<unknown>(`${base}/api/v2/addresses/${encodeURIComponent(contract)}`, context)); const creator = typeof payload.creator_address === 'string' ? payload.creator_address : payload.creator_address?.hash ?? null; return { observed_contract: payload.address ?? payload.hash ?? null, explorer_url, contract_exists: true, contract_verified: payload.smart_contract?.is_verified ?? payload.is_verified ?? null, deployer_address: creator, contract_type: payload.smart_contract?.contract_type ?? (payload.is_contract ? 'contract' : null), source_timestamp: new Date().toISOString() }; }
   };
-}
-function stablecoinValueForRobinhood(chainCirculating: Record<string, unknown> | undefined) {
-  if (!chainCirculating) return 0;
-  const match = Object.entries(chainCirculating).find(([chain]) => /robinhood/i.test(chain))?.[1];
-  if (typeof match === 'number') return match;
-  if (match && typeof match === 'object' && 'current' in match && typeof (match as { current?: unknown }).current === 'number') return (match as { current: number }).current;
-  return 0;
 }
 const TokenPairProviderValueSchema = z.object({
   observed_contract: z.string().nullable().optional(), observed_chain_id: z.string().nullable().optional(), pair_address: z.string().nullable(), dex_url: z.string().nullable(),
