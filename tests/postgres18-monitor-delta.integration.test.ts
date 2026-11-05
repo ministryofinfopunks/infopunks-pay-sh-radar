@@ -152,6 +152,27 @@ describeWithLocalPostgres18('isolated PostgreSQL 18 monitor delta persistence', 
     expect(checkpointedPreviousState.rows[0]?.snapshot.monitorRuns.some((run) => run.id === delta.run.id)).toBe(true);
   });
 
+  it('keeps schema lock and statement timeouts transaction-scoped on pooled connections', async () => {
+    const timeoutPool = new pg.Pool({ connectionString: databaseUrl, max: 1, options: `-c search_path=${schema}` });
+    try {
+      const before = await timeoutPool.query<{ pid: number; lock_timeout: string; statement_timeout: string; transaction_timeout: string }>(
+        'select pg_backend_pid() as pid, current_setting(\'lock_timeout\') as lock_timeout, current_setting(\'statement_timeout\') as statement_timeout, current_setting(\'transaction_timeout\') as transaction_timeout'
+      );
+      const repositoryWithSingleConnection = new PostgresRepository(timeoutPool);
+      await repositoryWithSingleConnection.loadSnapshotState();
+      const after = await timeoutPool.query<{ pid: number; lock_timeout: string; statement_timeout: string; transaction_timeout: string }>(
+        'select pg_backend_pid() as pid, current_setting(\'lock_timeout\') as lock_timeout, current_setting(\'statement_timeout\') as statement_timeout, current_setting(\'transaction_timeout\') as transaction_timeout'
+      );
+
+      expect(after.rows[0]?.pid).toBe(before.rows[0]?.pid);
+      expect(after.rows[0]?.lock_timeout).toBe(before.rows[0]?.lock_timeout);
+      expect(after.rows[0]?.statement_timeout).toBe(before.rows[0]?.statement_timeout);
+      expect(after.rows[0]?.transaction_timeout).toBe(before.rows[0]?.transaction_timeout);
+    } finally {
+      await timeoutPool.end();
+    }
+  });
+
   it('keeps a representative monitor payload bounded relative to the full snapshot', async () => {
     let snapshot = makeAcceptedSnapshot();
     const beforeSnapshots = await countRows('intelligence_snapshots');

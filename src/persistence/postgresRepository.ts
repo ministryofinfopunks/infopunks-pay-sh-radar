@@ -349,7 +349,14 @@ export class PostgresRepository implements IntelligenceRepository {
   }
 
   private async ensureSchema() {
-    await this.pool.query(`
+    let client: pg.PoolClient | null = null;
+    try {
+      client = await this.pool.connect();
+      await client.query('begin');
+      await client.query("set local lock_timeout = '30s'");
+      await client.query("set local statement_timeout = '5min'");
+      await client.query("set local transaction_timeout = '15min'");
+      await client.query(`
       create table if not exists infopunks_events (
         id text primary key,
         type text not null,
@@ -407,7 +414,16 @@ export class PostgresRepository implements IntelligenceRepository {
         created_at timestamptz not null default now(),
         snapshot jsonb not null
       );
-    `);
+      `);
+      await client.query('commit');
+    } catch (error) {
+      if (client) {
+        try { await client.query('rollback'); } catch { /* Preserve the original schema error. */ }
+      }
+      throw error;
+    } finally {
+      client?.release();
+    }
   }
 
   private markDbStatus(nextStatus: 'ok' | 'degraded' | 'unavailable', stage: string, error?: unknown) {
