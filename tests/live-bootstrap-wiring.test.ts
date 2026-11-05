@@ -196,48 +196,61 @@ describe('live bootstrap wiring', () => {
 
   it('returns fixture-backed pulse immediately when live catalog ingestion hangs', async () => {
     const store = emptyStore();
-    vi.spyOn(intelligenceStoreModule, 'runPayShIngestionWithOptions').mockImplementation(async () => new Promise(() => {}));
+    let releaseIngestion!: () => void;
+    const pendingIngestion = new Promise<void>((resolve) => { releaseIngestion = resolve; });
+    vi.spyOn(intelligenceStoreModule, 'runPayShIngestionWithOptions').mockImplementation(async (targetStore) => {
+      await pendingIngestion;
+      return hydrateLiveIntoStore(targetStore);
+    });
     const app = await createApp(store);
 
-    const startedAt = Date.now();
-    const response = await app.inject({ method: 'GET', url: '/v1/pulse' });
-    const durationMs = Date.now() - startedAt;
+    try {
+      const startedAt = Date.now();
+      const response = await app.inject({ method: 'GET', url: '/v1/pulse' });
+      const durationMs = Date.now() - startedAt;
 
-    expect(response.statusCode).toBe(200);
-    expect(durationMs).toBeLessThan(1_000);
-    expect(response.json().data.providerCount).toBeGreaterThan(0);
-    expect(response.json().data.endpointCount).toBeGreaterThanOrEqual(0);
-    expect(response.json().data.data_source.used_fixture).toBe(true);
-    expect(response.json().data.bootstrap_state).toBe('pending');
-    expect(response.json().data.fallback_reason).toBe('bootstrap_pending');
-    expect(response.json().data.status).toMatchObject({
-      backend: 'healthy',
-      radar: { state: 'fixture_backed' }
-    });
-
-    await app.close();
+      expect(response.statusCode).toBe(200);
+      expect(durationMs).toBeLessThan(1_000);
+      expect(response.json().data.providerCount).toBeGreaterThan(0);
+      expect(response.json().data.endpointCount).toBeGreaterThanOrEqual(0);
+      expect(response.json().data.data_source.used_fixture).toBe(true);
+      expect(response.json().data.bootstrap_state).toBe('pending');
+      expect(response.json().data.fallback_reason).toBe('bootstrap_pending');
+      expect(response.json().data.status).toMatchObject({
+        backend: 'healthy',
+        radar: { state: 'fixture_backed' }
+      });
+    } finally {
+      releaseIngestion();
+      await app.close();
+    }
   });
 
   it('returns fixture-backed pulse immediately when cold bootstrap never resolves', async () => {
-    vi.spyOn(intelligenceStoreModule, 'createIntelligenceStore').mockImplementation(async () => new Promise(() => {}));
+    let releaseStoreLoad!: () => void;
+    const pendingStoreLoad = new Promise<IntelligenceSnapshot>((resolve) => { releaseStoreLoad = () => resolve(emptyStore()); });
+    vi.spyOn(intelligenceStoreModule, 'createIntelligenceStore').mockReturnValue(pendingStoreLoad);
     const app = await createApp();
 
-    const startedAt = Date.now();
-    const response = await app.inject({ method: 'GET', url: '/v1/pulse' });
-    const durationMs = Date.now() - startedAt;
+    try {
+      const startedAt = Date.now();
+      const response = await app.inject({ method: 'GET', url: '/v1/pulse' });
+      const durationMs = Date.now() - startedAt;
 
-    expect(response.statusCode).toBe(200);
-    expect(durationMs).toBeLessThan(1_000);
-    expect(response.json().data.providerCount).toBeGreaterThan(0);
-    expect(response.json().data.data_source.used_fixture).toBe(true);
-    expect(response.json().data.bootstrap_state).toBe('pending');
-    expect(response.json().data.fallback_reason).toBe('bootstrap_pending');
-    expect(response.json().data.status).toMatchObject({
-      backend: 'healthy',
-      upstream: expect.objectContaining({ state: expect.any(String) }),
-      radar: { state: 'fixture_backed' }
-    });
-
-    await app.close();
+      expect(response.statusCode).toBe(200);
+      expect(durationMs).toBeLessThan(1_000);
+      expect(response.json().data.providerCount).toBeGreaterThan(0);
+      expect(response.json().data.data_source.used_fixture).toBe(true);
+      expect(response.json().data.bootstrap_state).toBe('pending');
+      expect(response.json().data.fallback_reason).toBe('bootstrap_pending');
+      expect(response.json().data.status).toMatchObject({
+        backend: 'healthy',
+        upstream: expect.objectContaining({ state: expect.any(String) }),
+        radar: { state: 'fixture_backed' }
+      });
+    } finally {
+      releaseStoreLoad();
+      await app.close();
+    }
   });
 });

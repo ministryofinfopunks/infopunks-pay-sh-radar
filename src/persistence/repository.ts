@@ -25,16 +25,33 @@ export type IntelligenceSnapshot = {
 export interface IntelligenceRepository {
   loadSnapshot(): Promise<IntelligenceSnapshot | null>;
   saveSnapshot(snapshot: IntelligenceSnapshot): Promise<void>;
+  loadIngestionRuns(): Promise<IngestionRun[]>;
+  saveIngestionRun(run: IngestionRun): Promise<void>;
 }
 
 export class MemoryRepository implements IntelligenceRepository {
   private snapshot: IntelligenceSnapshot | null = null;
+  private ingestionRuns: IngestionRun[] = [];
 
   async loadSnapshot() {
     return this.snapshot;
   }
 
+  async loadIngestionRuns() {
+    return this.ingestionRuns;
+  }
+
+  async saveIngestionRun(run: IngestionRun) {
+    this.ingestionRuns = [run, ...this.ingestionRuns.filter((existing) => existing.id !== run.id)]
+      .sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt))
+      .slice(0, 100);
+  }
+
   async saveSnapshot(snapshot: IntelligenceSnapshot) {
     this.snapshot = snapshot;
+    this.ingestionRuns = [...snapshot.ingestionRuns, ...this.ingestionRuns]
+      .filter((run, index, runs) => runs.findIndex((candidate) => candidate.id === run.id) === index)
+      .sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt))
+      .slice(0, 100);
   }
 }

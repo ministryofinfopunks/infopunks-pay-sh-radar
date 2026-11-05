@@ -112,6 +112,8 @@ class PersistentlyFailingRepository implements IntelligenceRepository {
   async saveSnapshot() {
     throw new PersistenceUnavailableError();
   }
+  async loadIngestionRuns() { return []; }
+  async saveIngestionRun() { return; }
 }
 
 class FailingAutomationStore implements RhChainAutomationStore {

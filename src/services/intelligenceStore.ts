@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { applyPayShCatalogIngestion, loadPayShCatalog } from '../ingestion/payShCatalogAdapter';
 import { computeSignalAssessment, buildNarrativeClusters } from '../engines/signalEngine';
 import { computeTrustAssessment } from '../engines/trustEngine';
@@ -22,7 +22,14 @@ export function hasFixtureCatalogEvidence(snapshot: IntelligenceSnapshot): boole
 
 export async function createIntelligenceStore(repository: IntelligenceRepository = defaultRepository()): Promise<IntelligenceStore> {
   const existing = await repository.loadSnapshot();
-  if (existing && !(process.env.NODE_ENV === 'production' && (existing.dataSource?.used_fixture || existing.dataSource?.mode !== 'live_pay_sh_catalog' || hasFixtureCatalogEvidence(existing)))) return normalizeSnapshot(existing);
+  const persistedIngestionRuns = await repository.loadIngestionRuns();
+  if (existing && !(process.env.NODE_ENV === 'production' && (existing.dataSource?.used_fixture || existing.dataSource?.mode !== 'live_pay_sh_catalog' || hasFixtureCatalogEvidence(existing)))) {
+    return restoreIngestionDiagnostics(existing, persistedIngestionRuns);
+  }
+
+  const baseSnapshot = emptyIntelligenceStore();
+  baseSnapshot.ingestionRuns = persistedIngestionRuns;
+  const attemptStartedAt = new Date().toISOString();
 
   const { items, source, dataSource } = await loadPayShCatalog(undefined, {
     catalogSource: process.env.PAYSH_CATALOG_SOURCE === 'live' ? 'live' : 'fixture',
@@ -33,7 +40,7 @@ export async function createIntelligenceStore(repository: IntelligenceRepository
       catalogSource: 'fixture',
       allowFixtureFallback: true
     });
-    const { snapshot: ingestedFallback } = applyPayShCatalogIngestion(emptySnapshot(), fixture.items, {
+    const { snapshot: ingestedFallback } = applyPayShCatalogIngestion(baseSnapshot, fixture.items, {
       source: fixture.source,
       dataSource: {
         ...fixture.dataSource,
@@ -47,7 +54,12 @@ export async function createIntelligenceStore(repository: IntelligenceRepository
     await repository.saveSnapshot(fallbackSnapshot);
     return fallbackSnapshot;
   }
-  const { snapshot: ingested } = applyPayShCatalogIngestion(emptySnapshot(), items, { source, dataSource });
+  if (process.env.NODE_ENV === 'production' && items.length === 0 && dataSource.mode === 'live_pay_sh_catalog' && dataSource.error) {
+    await recordCatalogFailure(baseSnapshot, repository, source, dataSource, attemptStartedAt);
+    return baseSnapshot;
+  }
+
+  const { snapshot: ingested } = applyPayShCatalogIngestion(baseSnapshot, items, { source, dataSource });
   const snapshot = recomputeAssessments(ingested);
   await repository.saveSnapshot(snapshot);
   return snapshot;
@@ -67,17 +79,13 @@ export async function runPayShIngestionWithOptions(
   } = {}
 ) {
   if (process.env.NODE_ENV === 'production' && hasFixtureCatalogEvidence(store)) replaceStore(store, emptyIntelligenceStore());
+  const attemptStartedAt = new Date().toISOString();
   const { items, source, usedFixture, dataSource } = await loadPayShCatalog(options.catalogUrl, {
     catalogSource: options.catalogSource ?? (process.env.PAYSH_CATALOG_SOURCE === 'live' ? 'live' : 'fixture'),
     allowFixtureFallback: options.allowFixtureFallback ?? (process.env.PAYSH_ALLOW_FIXTURE_FALLBACK === 'true' || process.env.NODE_ENV !== 'production')
   });
   if (items.length === 0 && dataSource.mode === 'live_pay_sh_catalog' && dataSource.error) {
-    store.dataSource = {
-      ...dataSource,
-      error: dataSource.error,
-      last_ingested_at: new Date().toISOString()
-    };
-    await repository.saveSnapshot(store);
+    await recordCatalogFailure(store, repository, source, dataSource, attemptStartedAt);
     return { run: null, events: [], usedFixture: false, liveFetchFailed: true };
   }
   const { snapshot, run, events } = applyPayShCatalogIngestion(store, items, { source, dataSource });
@@ -85,6 +93,58 @@ export async function runPayShIngestionWithOptions(
   replaceStore(store, recomputed);
   await repository.saveSnapshot(store);
   return { run, events, usedFixture, liveFetchFailed: false };
+}
+
+async function recordCatalogFailure(
+  store: IntelligenceStore,
+  repository: IntelligenceRepository,
+  source: string,
+  failedDataSource: NonNullable<IntelligenceStore['dataSource']>,
+  startedAt: string
+) {
+  // Rejected source data cannot change accepted intelligence; persist only this run record.
+  const finishedAt = new Date().toISOString();
+  const run = {
+    id: randomUUID(),
+    startedAt,
+    finishedAt,
+    source,
+    status: 'failed' as const,
+    discoveredCount: 0,
+    changedCount: 0,
+    errorCount: 1,
+    error: failedDataSource.error ?? 'live_catalog_fetch_failed'
+  };
+  const acceptedSource = store.dataSource?.mode === 'live_pay_sh_catalog' && !store.dataSource.used_fixture
+    ? store.dataSource
+    : null;
+  store.dataSource = {
+    ...failedDataSource,
+    generated_at: acceptedSource?.generated_at ?? failedDataSource.generated_at,
+    provider_count: acceptedSource?.provider_count ?? (acceptedSource ? store.providers.length : failedDataSource.provider_count),
+    last_ingested_at: acceptedSource?.last_ingested_at ?? null,
+    used_fixture: false,
+    error: failedDataSource.error ?? 'live_catalog_fetch_failed'
+  };
+  store.ingestionRuns = [run, ...(store.ingestionRuns ?? []).filter((existing) => existing.id !== run.id)].slice(0, 100);
+  await repository.saveIngestionRun(run);
+}
+
+function restoreIngestionDiagnostics(snapshot: IntelligenceSnapshot, persistedRuns: IntelligenceStore['ingestionRuns']) {
+  const normalized = normalizeSnapshot(snapshot);
+  const runsById = new Map([...normalized.ingestionRuns, ...persistedRuns].map((run) => [run.id, run]));
+  normalized.ingestionRuns = [...runsById.values()]
+    .sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt))
+    .slice(0, 100);
+
+  const latestRun = normalized.ingestionRuns[0];
+  const attemptAt = latestRun?.finishedAt ?? latestRun?.startedAt;
+  const lastAcceptedAt = normalized.dataSource?.last_ingested_at;
+  if (latestRun?.status === 'failed' && latestRun.error && attemptAt && normalized.dataSource
+    && (!lastAcceptedAt || Date.parse(attemptAt) > Date.parse(lastAcceptedAt))) {
+    normalized.dataSource = { ...normalized.dataSource, error: latestRun.error };
+  }
+  return normalized;
 }
 
 export function recomputeAssessments(snapshot: IntelligenceSnapshot): IntelligenceSnapshot {

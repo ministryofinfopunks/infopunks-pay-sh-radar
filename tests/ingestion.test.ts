@@ -266,3 +266,143 @@ describe('production catalog isolation', () => {
     expect(result.items.length).toBeGreaterThan(0);
   });
 });
+
+describe('failed catalog attempt persistence boundary', () => {
+  afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
+
+  class CountingMemoryRepository extends MemoryRepository {
+    snapshotWrites = 0;
+    async saveSnapshot(snapshot: IntelligenceSnapshot) {
+      this.snapshotWrites += 1;
+      await super.saveSnapshot(snapshot);
+    }
+  }
+
+  function production() {
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.stubEnv('PAYSH_CATALOG_SOURCE', 'live');
+    vi.stubEnv('PAY_SH_CATALOG_URL', 'https://pay.sh/api/catalog');
+    vi.stubEnv('PAYSH_ALLOW_FIXTURE_FALLBACK', 'false');
+  }
+
+  function acceptedSnapshot() {
+    return applyPayShCatalogIngestion(emptySnapshot, baseCatalog, {
+      observedAt: '2026-01-01T00:05:00.000Z',
+      source: 'pay.sh:live-catalog:https://pay.sh/api/catalog',
+      dataSource: {
+        mode: 'live_pay_sh_catalog',
+        url: 'https://pay.sh/api/catalog',
+        generated_at: '2026-01-01T00:00:00.000Z',
+        provider_count: 1,
+        last_ingested_at: '2026-01-01T00:05:00.000Z',
+        used_fixture: false,
+        error: null
+      }
+    }).snapshot;
+  }
+
+  it('does not persist a rejected cold-start response as a successful catalog', async () => {
+    production();
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({
+      generated_at: '2020-01-01T00:00:00Z',
+      providers: [{ fqn: 'stale/api', title: 'Stale', category: 'Data' }]
+    }), { status: 200 })));
+    const repository = new CountingMemoryRepository();
+
+    const store = await createIntelligenceStore(repository);
+
+    expect(store.providers).toHaveLength(0);
+    expect(store.dataSource).toMatchObject({ last_ingested_at: null, error: 'live_catalog_stale', used_fixture: false });
+    expect(repository.snapshotWrites).toBe(0);
+    expect(await repository.loadIngestionRuns()).toMatchObject([{ status: 'failed', error: 'live_catalog_stale' }]);
+  });
+
+  it.each([
+    ['stale', { generated_at: '2020-01-01T00:00:00Z', providers: [{ fqn: 'other/api', title: 'Other', category: 'Data' }] }, 'live_catalog_stale'],
+    ['invalid', { providers: 'not-an-array' }, 'live_catalog_empty_provider_array']
+  ])('records %s rejection without rewriting accepted intelligence and restores its diagnostic', async (_name, body, expectedError) => {
+    production();
+    const repository = new CountingMemoryRepository();
+    const accepted = acceptedSnapshot();
+    await repository.saveSnapshot(accepted);
+    repository.snapshotWrites = 0;
+    const store = await createIntelligenceStore(repository);
+    const businessStateBefore = JSON.stringify({
+      events: store.events,
+      providers: store.providers,
+      endpoints: store.endpoints,
+      trustAssessments: store.trustAssessments,
+      signalAssessments: store.signalAssessments,
+      narratives: store.narratives
+    });
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(body), { status: 200 })));
+
+    const result = await runPayShIngestionWithOptions(store, repository, {
+      catalogSource: 'live',
+      allowFixtureFallback: false
+    });
+
+    expect(result).toMatchObject({ run: null, liveFetchFailed: true, usedFixture: false });
+    expect(repository.snapshotWrites).toBe(0);
+    expect(JSON.stringify({
+      events: store.events,
+      providers: store.providers,
+      endpoints: store.endpoints,
+      trustAssessments: store.trustAssessments,
+      signalAssessments: store.signalAssessments,
+      narratives: store.narratives
+    })).toBe(businessStateBefore);
+    expect(store.dataSource).toMatchObject({
+      generated_at: '2026-01-01T00:00:00.000Z',
+      provider_count: 1,
+      last_ingested_at: '2026-01-01T00:05:00.000Z',
+      error: expectedError
+    });
+    expect(store.ingestionRuns[0]).toMatchObject({ status: 'failed', error: expectedError, changedCount: 0, discoveredCount: 0 });
+
+    const restarted = await createIntelligenceStore(repository);
+    expect(restarted.providers).toEqual(accepted.providers);
+    expect(restarted.dataSource).toMatchObject({
+      generated_at: '2026-01-01T00:00:00.000Z',
+      last_ingested_at: '2026-01-01T00:05:00.000Z',
+      error: expectedError
+    });
+    expect(restarted.ingestionRuns[0]).toMatchObject({ status: 'failed', error: expectedError });
+  });
+
+  it('persists and restores an accepted catalog update after a prior rejection', async () => {
+    production();
+    const repository = new CountingMemoryRepository();
+    await repository.saveSnapshot(acceptedSnapshot());
+    repository.snapshotWrites = 0;
+    const store = await createIntelligenceStore(repository);
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ generated_at: '2020-01-01T00:00:00Z', providers: [{ fqn: 'stale/api', title: 'Stale', category: 'Data' }] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        generated_at: new Date().toISOString(),
+        provider_count: 1,
+        providers: [{ fqn: 'alpha', title: 'Alpha API Updated', category: 'Data', description: 'Updated accepted catalog.' }]
+      }), { status: 200 })));
+
+    const failed = await runPayShIngestionWithOptions(store, repository, {
+      catalogSource: 'live',
+      allowFixtureFallback: false
+    });
+    expect(failed.liveFetchFailed).toBe(true);
+    expect(repository.snapshotWrites).toBe(0);
+
+    const result = await runPayShIngestionWithOptions(store, repository, {
+      catalogSource: 'live',
+      allowFixtureFallback: false
+    });
+
+    expect(result.liveFetchFailed).toBe(false);
+    expect(result.run?.status).toBe('succeeded');
+    expect(repository.snapshotWrites).toBe(1);
+    const acceptedLastIngestedAt = store.dataSource?.last_ingested_at;
+    const restored = await createIntelligenceStore(repository);
+    expect(restored.providers[0]?.name).toBe('Alpha API Updated');
+    expect(restored.dataSource?.error).toBeNull();
+    expect(restored.dataSource?.last_ingested_at).toBe(acceptedLastIngestedAt);
+  });
+});

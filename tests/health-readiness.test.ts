@@ -9,6 +9,8 @@ import type { IntelligenceRepository } from '../src/persistence/repository';
 const repositoryWithStatus = (status: 'ok' | 'degraded' | 'unavailable'): IntelligenceRepository => ({
   loadSnapshot: async () => null,
   saveSnapshot: async () => undefined,
+  loadIngestionRuns: async () => [],
+  saveIngestionRun: async () => undefined,
   getDbStatus: () => status
 } as IntelligenceRepository);
 
