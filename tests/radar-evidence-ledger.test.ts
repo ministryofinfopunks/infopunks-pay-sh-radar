@@ -13,6 +13,8 @@ class DegradedRepository implements IntelligenceRepository {
   async saveSnapshot(): Promise<void> {
     return;
   }
+  async loadIngestionRuns() { return []; }
+  async saveIngestionRun() { return; }
 }
 
 describe('radar evidence ledger', () => {

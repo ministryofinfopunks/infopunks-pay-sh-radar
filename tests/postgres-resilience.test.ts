@@ -30,6 +30,9 @@ class FailingRepository implements IntelligenceRepository {
     const error = new Error('Connection terminated unexpectedly');
     throw error;
   }
+
+  async loadIngestionRuns() { return []; }
+  async saveIngestionRun() { return; }
 }
 
 class UndefinedDiagnosticsRepository implements IntelligenceRepository {
@@ -41,6 +44,9 @@ class UndefinedDiagnosticsRepository implements IntelligenceRepository {
     return;
   }
 
+  async loadIngestionRuns() { return []; }
+  async saveIngestionRun() { return; }
+
   getDbStatus(): 'ok' | 'degraded' | 'unavailable' {
     throw new Error('db diagnostics missing');
   }
@@ -50,6 +56,8 @@ class BoundDiagnosticsRepository implements IntelligenceRepository {
   private readonly status = 'ok' as const;
   async loadSnapshot(): Promise<IntelligenceSnapshot | null> { return emptySnapshot(); }
   async saveSnapshot(): Promise<void> { return; }
+  async loadIngestionRuns() { return []; }
+  async saveIngestionRun() { return; }
   getDbStatus() { return this.status; }
 }
 
@@ -100,7 +108,9 @@ describe('postgres resilience', () => {
         order.push('persistence_ended');
         return emptySnapshot();
       },
-      async saveSnapshot() { return; }
+      async saveSnapshot() { return; },
+      async loadIngestionRuns() { return []; },
+      async saveIngestionRun() { return; }
     };
     const app = await createApp(undefined, repository);
     await persistenceStarted;

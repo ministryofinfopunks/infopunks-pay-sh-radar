@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { classifyPostgresFailure } from './postgresErrors';
 import pg from 'pg';
 import { IntelligenceRepository, IntelligenceSnapshot } from './repository';
+import { IngestionRun } from '../schemas/entities';
 import { safeJsonbParam } from './jsonb';
 import { getDatabaseCircuitDiagnostics, getDatabasePool, parseDatabasePoolMax } from './databasePool';
 
@@ -42,6 +43,53 @@ export class PostgresRepository implements IntelligenceRepository {
     } catch (error) {
       this.markDbStatus(connectionErrorStatus(error), 'load_snapshot', error);
       throw error;
+    }
+  }
+
+  async loadIngestionRuns(): Promise<IngestionRun[]> {
+    try {
+      await this.ensureSchema();
+      const result = await this.pool.query(`select id, started_at, finished_at, source, status,
+        discovered_count, changed_count, error_count, error
+        from ingestion_runs order by started_at desc limit 100`);
+      this.markDbStatus('ok', 'load_ingestion_runs');
+      return result.rows.map((row): IngestionRun => ({
+        id: row.id,
+        startedAt: toIsoString(row.started_at),
+        finishedAt: row.finished_at === null ? null : toIsoString(row.finished_at),
+        source: row.source,
+        status: row.status,
+        discoveredCount: row.discovered_count,
+        changedCount: row.changed_count,
+        errorCount: row.error_count,
+        error: row.error
+      }));
+    } catch (error) {
+      this.markDbStatus(connectionErrorStatus(error), 'load_ingestion_runs', error);
+      throw error;
+    }
+  }
+
+  async saveIngestionRun(run: IngestionRun): Promise<void> {
+    const started = Date.now();
+    let outcome: 'success' | 'failure' = 'failure';
+    try {
+      await this.ensureSchema();
+      await this.pool.query(
+        `insert into ingestion_runs (id, started_at, finished_at, source, status, discovered_count, changed_count, error_count, error)
+         values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         on conflict (id) do update set finished_at = excluded.finished_at, status = excluded.status,
+         discovered_count = excluded.discovered_count, changed_count = excluded.changed_count,
+         error_count = excluded.error_count, error = excluded.error`,
+        [run.id, run.startedAt, run.finishedAt, run.source, run.status, run.discoveredCount, run.changedCount, run.errorCount, run.error]
+      );
+      this.markDbStatus('ok', 'save_ingestion_run');
+      outcome = 'success';
+    } catch (error) {
+      this.markDbStatus(connectionErrorStatus(error), 'save_ingestion_run', error);
+      throw error;
+    } finally {
+      console.log(JSON.stringify({ event: 'ingestion_run_persistence', run_id: run.id, elapsed_ms: Date.now() - started, outcome }));
     }
   }
 
@@ -292,6 +340,10 @@ function pgErrorMessage(error: unknown): string {
   if (!error || typeof error !== 'object' || !('message' in error)) return String(error ?? '');
   const message = (error as { message?: unknown }).message;
   return typeof message === 'string' ? message : String(message ?? '');
+}
+
+function toIsoString(value: string | Date): string {
+  return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
 }
 
 function classifyDbReason(error: unknown): string {
