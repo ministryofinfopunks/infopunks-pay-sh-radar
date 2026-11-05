@@ -145,10 +145,14 @@ describeWithLocalPostgres('isolated PostgreSQL catalog persistence', () => {
   });
 
   it('records the isolated database server version', async () => {
-    const orderBase = '2099-11-05T07:00:00.000Z';
-    await repository.saveIngestionRun({ id: 'order-older', startedAt: orderBase, finishedAt: '2099-11-05T07:00:01.000Z', source: 'synthetic', status: 'failed', discoveredCount: 0, changedCount: 0, errorCount: 1, error: 'older_failure' });
-    await repository.saveIngestionRun({ id: 'order-newer', startedAt: '2099-11-05T07:00:02.000Z', finishedAt: '2099-11-05T07:00:03.000Z', source: 'synthetic', status: 'succeeded', discoveredCount: 1, changedCount: 1, errorCount: 0, error: null });
-    expect((await repository.loadIngestionRuns()).slice(0, 2).map((run) => run.id)).toEqual(['order-newer', 'order-older']);
+    const orderBase = '2000-01-01T00:00:00.000Z';
+    await repository.saveIngestionRun({ id: 'order-older', startedAt: orderBase, finishedAt: '2000-01-01T00:00:01.000Z', source: 'synthetic', status: 'failed', discoveredCount: 0, changedCount: 0, errorCount: 1, error: 'older_failure' });
+    await repository.saveIngestionRun({ id: 'order-newer', startedAt: '2000-01-01T00:00:02.000Z', finishedAt: '2000-01-01T00:00:03.000Z', source: 'synthetic', status: 'succeeded', discoveredCount: 1, changedCount: 1, errorCount: 0, error: null });
+    const orderedRuns = await repository.loadIngestionRuns();
+    const newerIndex = orderedRuns.findIndex((run) => run.id === 'order-newer');
+    const olderIndex = orderedRuns.findIndex((run) => run.id === 'order-older');
+    expect(newerIndex).toBeGreaterThanOrEqual(0);
+    expect(olderIndex).toBeGreaterThan(newerIndex);
     const result = await pool.query<{ version: string; version_num: string }>(`select current_setting('server_version') as version, current_setting('server_version_num') as version_num`);
     expect(Number(result.rows[0]?.version_num)).toBeGreaterThanOrEqual(180000);
     console.log(`RADAR_ISOLATED_POSTGRES_VERSION=${result.rows[0]?.version}`);

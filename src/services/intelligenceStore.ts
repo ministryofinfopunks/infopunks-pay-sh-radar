@@ -2,7 +2,8 @@ import { createHash, randomUUID } from 'node:crypto';
 import { applyPayShCatalogIngestion, loadPayShCatalog } from '../ingestion/payShCatalogAdapter';
 import { computeSignalAssessment, buildNarrativeClusters } from '../engines/signalEngine';
 import { computeTrustAssessment } from '../engines/trustEngine';
-import { IntelligenceRepository, IntelligenceSnapshot, MemoryRepository } from '../persistence/repository';
+import { IntelligenceRepository, IntelligenceSnapshot, MemoryRepository, mergeMonitorDeltas } from '../persistence/repository';
+import type { LoadedSnapshotState, MonitorDelta } from '../persistence/repository';
 import { PostgresRepository } from '../persistence/postgresRepository';
 import type pg from 'pg';
 import { InfopunksEvent, SignalAssessment, TrustAssessment } from '../schemas/entities';
@@ -21,14 +22,30 @@ export function hasFixtureCatalogEvidence(snapshot: IntelligenceSnapshot): boole
 }
 
 export async function createIntelligenceStore(repository: IntelligenceRepository = defaultRepository()): Promise<IntelligenceStore> {
-  const existing = await repository.loadSnapshot();
+  const loaded = repository.loadSnapshotState
+    ? await repository.loadSnapshotState()
+    : { snapshot: await repository.loadSnapshot(), monitorDeltas: [] } satisfies LoadedSnapshotState;
+  const existing = loaded.snapshot ? restoreMonitorDeltas(loaded.snapshot, loaded.monitorDeltas) : null;
   const persistedIngestionRuns = await repository.loadIngestionRuns();
   if (existing && !(process.env.NODE_ENV === 'production' && (existing.dataSource?.used_fixture || existing.dataSource?.mode !== 'live_pay_sh_catalog' || hasFixtureCatalogEvidence(existing)))) {
-    return restoreIngestionDiagnostics(existing, persistedIngestionRuns);
+    const restored = restoreIngestionDiagnostics(existing, persistedIngestionRuns);
+    if (loaded.monitorDeltas.length) {
+      const latestDelta = loaded.monitorDeltas[loaded.monitorDeltas.length - 1]!;
+      if (latestDelta.run.mode !== 'disabled') {
+        return recomputeAssessments(restored, latestDelta.run.finishedAt ?? latestDelta.run.startedAt);
+      }
+      return restored;
+    }
+    return restored;
   }
 
   const baseSnapshot = emptyIntelligenceStore();
   baseSnapshot.ingestionRuns = persistedIngestionRuns;
+  Object.assign(baseSnapshot, mergeMonitorDeltas(baseSnapshot, loaded.monitorDeltas));
+  if (loaded.monitorDeltas.length && loaded.monitorDeltas[loaded.monitorDeltas.length - 1]!.run.mode !== 'disabled') {
+    const latestDelta = loaded.monitorDeltas[loaded.monitorDeltas.length - 1]!;
+    Object.assign(baseSnapshot, recomputeAssessments(baseSnapshot, latestDelta.run.finishedAt ?? latestDelta.run.startedAt));
+  }
   const attemptStartedAt = new Date().toISOString();
 
   const { items, source, dataSource } = await loadPayShCatalog(undefined, {
@@ -63,6 +80,10 @@ export async function createIntelligenceStore(repository: IntelligenceRepository
   const snapshot = recomputeAssessments(ingested);
   await repository.saveSnapshot(snapshot);
   return snapshot;
+}
+
+function restoreMonitorDeltas(snapshot: IntelligenceSnapshot, deltas: MonitorDelta[]) {
+  return mergeMonitorDeltas(snapshot, deltas);
 }
 
 export async function runPayShIngestion(store: IntelligenceStore, repository: IntelligenceRepository, catalogUrl?: string) {
@@ -134,7 +155,9 @@ function restoreIngestionDiagnostics(snapshot: IntelligenceSnapshot, persistedRu
   const normalized = normalizeSnapshot(snapshot);
   const runsById = new Map([...normalized.ingestionRuns, ...persistedRuns].map((run) => [run.id, run]));
   normalized.ingestionRuns = [...runsById.values()]
-    .sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt))
+    .sort((a, b) => Date.parse(b.finishedAt ?? b.startedAt) - Date.parse(a.finishedAt ?? a.startedAt)
+      || Date.parse(b.startedAt) - Date.parse(a.startedAt)
+      || b.id.localeCompare(a.id))
     .slice(0, 100);
 
   const latestRun = normalized.ingestionRuns[0];
@@ -147,10 +170,10 @@ function restoreIngestionDiagnostics(snapshot: IntelligenceSnapshot, persistedRu
   return normalized;
 }
 
-export function recomputeAssessments(snapshot: IntelligenceSnapshot): IntelligenceSnapshot {
+export function recomputeAssessments(snapshot: IntelligenceSnapshot, assessedAt = new Date().toISOString()): IntelligenceSnapshot {
   const normalizedEvents = normalizeScoreEventTimestamps(snapshot.events);
-  const trustAssessments = snapshot.providers.map((provider) => computeTrustAssessment(provider, snapshot.endpoints.filter((endpoint) => endpoint.providerId === provider.id), normalizedEvents));
-  const signalAssessments = snapshot.providers.map((provider) => computeSignalAssessment(provider, snapshot.providers));
+  const trustAssessments = snapshot.providers.map((provider) => computeTrustAssessment(provider, snapshot.endpoints.filter((endpoint) => endpoint.providerId === provider.id), normalizedEvents, assessedAt));
+  const signalAssessments = snapshot.providers.map((provider) => computeSignalAssessment(provider, snapshot.providers, assessedAt));
   const narratives = buildNarrativeClusters(snapshot.providers, signalAssessments);
   const events = appendScoreAssessmentEvents(normalizedEvents, trustAssessments, signalAssessments);
   return { ...snapshot, events, trustAssessments, signalAssessments, narratives };

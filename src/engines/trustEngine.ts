@@ -13,8 +13,8 @@ function pricingClarity(provider: Provider) {
   return provider.pricing.clarity === 'clear' || provider.pricing.clarity === 'free' ? 96 : provider.pricing.clarity === 'range' ? 78 : provider.pricing.clarity === 'dynamic' ? 62 : 30;
 }
 
-function freshness(provider: Provider) {
-  const ageMs = Date.now() - Date.parse(provider.lastSeenAt);
+function freshness(provider: Provider, assessedAt: string) {
+  const ageMs = Date.parse(assessedAt) - Date.parse(provider.lastSeenAt);
   return clamp(100 - ageMs / 86_400_000 * 8);
 }
 
@@ -120,7 +120,7 @@ export function computeTrustAssessment(provider: Provider, endpoints: Endpoint[]
     pricingClarity: pricingClarity(provider),
     latency: latencyScore(monitorEvents) ?? latencyScore(serviceMonitorEvents),
     receiptReliability: null,
-    freshness: freshness(provider)
+    freshness: freshness(provider, assessedAt)
   };
 
   const unknowns = Object.entries(components).filter(([, value]) => value === null).map(([key]) => key);
