@@ -27,7 +27,7 @@ describe('Economic OS route and product navigation', () => {
 
   it('dispatches /economic-os/overview to the Economic OS page inside the shared shell', async () => {
     window.history.replaceState({}, '', '/economic-os/overview');
-    await import('../src/web/economicOsOverviewPage');
+    await import('../src/web/economicOSPage');
     await act(async () => {
       root = createRoot(container);
       root.render(<App />);
@@ -35,9 +35,10 @@ describe('Economic OS route and product navigation', () => {
     });
 
     expect(container.querySelector('.radar-app-shell')).not.toBeNull();
-    expect(container.querySelector('.economic-os-overview h1')?.textContent).toBe('One Standard of Proof.');
+    expect(container.querySelector('.economic-os')).not.toBeNull();
+    expect(container.querySelector('.economic-proof h1')?.textContent).toBeTruthy();
     expect(container.querySelector('.radar-specialized-nav')).toBeNull();
-    expect(container.textContent).toContain('This request does not execute or pay.');
+    expect(container.textContent).toContain('READ-ONLY / RELEASE HOLD');
   });
 
   it('keeps existing product destinations and exposes Economic OS in desktop and opened mobile navigation', () => {
@@ -45,7 +46,7 @@ describe('Economic OS route and product navigation', () => {
       ['/', 'Radar'],
       ['/solana', 'Solana'],
       ['/rh-chain-signal-desk', 'Robinhood Chain'],
-      ['/economic-os/overview', 'Economic OS'],
+      ['/economic-os/overview', 'ECONOMIC OS'],
       ['/receipts', 'Proof'],
       ['/developers', 'Developers']
     ] as const;

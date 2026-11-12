@@ -6,6 +6,7 @@ import { createReceiptAttributionService } from '../services/receiptAttributionS
 import { rhProofClient, verifyUsdGMetadata, createRhSettlementProofVerifier } from '../security/settlementProofVerifier';
 import { pltrRegularSession } from '../services/pltrExchangeCalendar';
 import { registerEconomicEngineRoutes, type EconomicEngineOverrides } from './economicEngineRoutes';
+import { isCuratedReadPagePath, isCuratedReadPath, registerCuratedReadRoutes } from './curatedReadRoutes';
 import { judgmentIssuerFromEnv } from '../security/judgmentIssuer';
 import { verifyReceiptChain } from '../services/receiptAuthorityService';
 import { createReceiptAuthorityService, ReceiptAuthorityError } from '../services/receiptAuthorityService';
@@ -24,7 +25,7 @@ import cors from '@fastify/cors';
 import Fastify, { FastifyReply, FastifyRequest } from 'fastify';
 import { createReadStream, existsSync } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
-import { extname, join, normalize, resolve } from 'node:path';
+import { extname, join, normalize, resolve, sep } from 'node:path';
 import { z } from 'zod';
 import { payShCatalogFixture } from '../data/payShCatalogFixture';
 import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, listSignalSurfaces } from '../data/narrativeIntel';
@@ -742,6 +743,82 @@ export async function createApp(
 ) {
   const config = loadRuntimeConfig();
   const app = Fastify({ logger: config.isProduction, disableRequestLogging: true });
+  if (config.frontdoorOnly) {
+    const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);
+    if (config.frontendOrigin) allowedOrigins.add(config.frontendOrigin);
+    app.addHook('onRequest', async (req, reply) => {
+      const path = safeRequestPath(req.url);
+      const safeMethod = req.method === 'GET' || req.method === 'HEAD';
+      const economicRoute = /^\/economic-os(?:\/(?:overview|launch|constitution|research|radar|orders|delivery|receipts|activity))?\/?$/.test(path);
+      if (safeMethod && (path === '/' || economicRoute || isCuratedReadPagePath(path) || isCuratedReadPath(path) || path === '/healthz' || path === '/readyz' || path === '/status' || path === '/version' || isFrontdoorStaticAssetPath(path))) return;
+      reply.header('Retry-After', '300');
+      return reply.code(503).send({ error: 'frontdoor_only', reason: 'data_services_unavailable', retry_after_seconds: 300 });
+    });
+    await app.register(cors, {
+      origin: (origin, callback) => callback(null, !origin || allowedOrigins.has(origin)),
+      methods: CORS_METHODS,
+      allowedHeaders: CORS_ALLOWED_HEADERS,
+      exposedHeaders: ['PAYMENT-REQUIRED', 'PAYMENT-RESPONSE', 'Idempotency-Key', 'Server-Timing'],
+      maxAge: CORS_MAX_AGE_SECONDS,
+      optionsSuccessStatus: 204,
+      preflight: true,
+      strictPreflight: true
+    });
+    app.addHook('onSend', async (req, reply, payload) => {
+      reply.header('X-Content-Type-Options', 'nosniff');
+      reply.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+      reply.header('X-Frame-Options', 'SAMEORIGIN');
+      reply.header('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+      if (config.isProduction) reply.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+      return payload;
+    });
+    registerCuratedReadRoutes(app);
+    app.get('/healthz', async () => ({ ok: true, status: 'live', service: 'infopunks-pay-sh-radar' }));
+    app.get('/readyz', async (_req, reply) => reply.code(503).send({
+      ok: false, status: 'degraded', service: 'infopunks-pay-sh-radar', persistence: 'unavailable',
+      db_status: 'unavailable', reasons: [{ code: 'frontdoor_only' }]
+    }));
+    app.get('/version', async () => ({ service: 'infopunks-pay-sh-radar', version: config.version }));
+    app.get('/status', async () => ({
+      ok: true,
+      service: 'infopunks-pay-sh-radar',
+      mode: 'frontdoor_only',
+      catalogSource: 'not_started',
+      catalog_status: 'not_started',
+      ingestionEnabled: false,
+      dbStatus: 'unavailable',
+      dbMode: 'not_initialized',
+      persistence: 'not_initialized',
+      lastIngestedAt: null,
+      providerCount: null,
+      endpointCount: null,
+      live_market_data: 'unavailable',
+      reason: 'advanced services and database initialization are dormant'
+    }));
+    const distDir = resolve(options.clientDistDir === undefined ? join(process.cwd(), 'dist/client') : options.clientDistDir ?? '');
+    const indexPath = join(distDir, 'index.html');
+    app.get('/*', async (req, reply) => {
+      if (req.method !== 'GET' && req.method !== 'HEAD') return reply.code(404).send({ error: 'not_found' });
+      const urlPath = (req.raw.url ?? '/').split('?')[0] ?? '/';
+      const economicRoute = /^\/economic-os(?:\/(?:overview|launch|constitution|research|radar|orders|delivery|receipts|activity))?\/?$/.test(urlPath);
+      const relative = urlPath === '/' || economicRoute || isCuratedReadPagePath(urlPath) ? 'index.html' : urlPath.replace(/^\/+/, '');
+      if (!relative.startsWith('assets/') && relative !== 'index.html' && !['artwork/economic-signal-punk.webp', 'artwork/signal-punk.webp', 'favicon.ico', 'favicon.svg', 'apple-touch-icon.png', 'site.webmanifest', 'og-radar.png', 'icon-192.png', 'icon-512.png'].includes(relative)) return reply.code(404).send({ error: 'not_found' });
+      if (!existsSync(indexPath)) return reply.code(503).send({ error: 'frontend_unavailable' });
+      const target = normalize(join(distDir, relative));
+      if (target !== distDir && !target.startsWith(distDir + sep)) return reply.code(404).send({ error: 'not_found' });
+      try {
+        const file = await stat(target);
+        if (!file.isFile()) return reply.code(404).send({ error: 'not_found' });
+        reply.header('Cache-Control', relative === 'index.html' ? 'no-cache' : 'public, max-age=31536000, immutable');
+        if (relative === 'index.html') {
+          const html = await readFile(target, 'utf8');
+          return reply.type('text/html; charset=utf-8').send(html.replace('name="radar-operating-profile" content="full-stack"', 'name="radar-operating-profile" content="frontdoor-only"'));
+        }
+        return reply.type(contentTypeFor(target)).send(createReadStream(target));
+      } catch { return reply.code(404).send({ error: 'not_found' }); }
+    });
+    return app;
+  }
   const rh4663CampaignTelemetry = new Rh4663CampaignTelemetry();
   const rh4663FrontdoorTelemetry = new Rh4663FrontdoorTelemetry();
   const rhChainPostgresPool = config.databaseUrl
@@ -5172,12 +5249,21 @@ function contentTypeFor(path: string) {
   if (ext === '.css') return 'text/css; charset=utf-8';
   if (ext === '.html') return 'text/html; charset=utf-8';
   if (ext === '.json') return 'application/json; charset=utf-8';
+  if (ext === '.webmanifest') return 'application/manifest+json; charset=utf-8';
   if (ext === '.svg') return 'image/svg+xml';
   if (ext === '.png') return 'image/png';
   if (ext === '.jpg' || ext === '.jpeg') return 'image/jpeg';
+  if (ext === '.webp') return 'image/webp';
   if (ext === '.ico') return 'image/x-icon';
   if (ext === '.woff2') return 'font/woff2';
   return 'application/octet-stream';
+}
+
+function isFrontdoorStaticAssetPath(path: string) {
+  return /^\/assets\/[A-Za-z0-9._-]+$/.test(path) || [
+    '/artwork/economic-signal-punk.webp', '/artwork/signal-punk.webp', '/favicon.ico', '/favicon.svg',
+    '/apple-touch-icon.png', '/site.webmanifest', '/og-radar.png', '/icon-192.png', '/icon-512.png'
+  ].includes(path);
 }
 
 function isAdmin(adminToken: string | null, authorization: string | undefined) {
