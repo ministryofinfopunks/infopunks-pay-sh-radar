@@ -1,6 +1,14 @@
 import * as databasePool from '../src/persistence/databasePool';
 import * as intelligenceStore from '../src/services/intelligenceStore';
 import * as endpointMonitor from '../src/services/endpointMonitorService';
+import * as dexScreenerProvider from '../src/providers/dexscreenerProvider';
+import * as blockscoutProvider from '../src/providers/blockscoutProvider';
+import * as rhChainAutomation from '../src/services/rhChainAutomationService';
+import * as rhChainReceiptDrafts from '../src/services/rhChainDailyReceiptDraftService';
+import * as ipxShadowObservation from '../src/services/ipxPltrShadowObservationService';
+import * as rh4663UtcDayProviders from '../src/services/rh4663UtcDayObservationService';
+import * as reflexiveRadar from '../src/services/rhChainReflexiveRadarService';
+import * as crossVenueAudit from '../src/services/rhChainCrossVenueAuditService';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/api/app';
 import { loadRuntimeConfig, verifyRuntimeConfiguration } from '../src/config/env';
@@ -29,16 +37,40 @@ describe('RADAR_FRONTDOOR_ONLY qualification', () => {
     expect(verifyRuntimeConfiguration().requirements).toContainEqual({ name: 'RADAR_FRONTDOOR_ONLY', state: 'configured' });
     const pool = vi.spyOn(databasePool, 'getDatabasePool');
     const hydrate = vi.spyOn(intelligenceStore, 'createIntelligenceStore');
+    const repository = vi.spyOn(intelligenceStore, 'defaultRepository');
     const ingest = vi.spyOn(intelligenceStore, 'runPayShIngestion');
+    const bootstrap = vi.spyOn(intelligenceStore, 'runPayShIngestionWithOptions');
     const monitor = vi.spyOn(endpointMonitor, 'runMonitor');
+    const dexProvider = vi.spyOn(dexScreenerProvider, 'DexScreenerProvider');
+    const blockscout = vi.spyOn(blockscoutProvider, 'BlockscoutProvider');
+    const rhAutomation = vi.spyOn(rhChainAutomation, 'RhChainAutomationService');
+    const rhReceiptDrafts = vi.spyOn(rhChainReceiptDrafts, 'RhChainDailyReceiptDraftService');
+    const ipxShadow = vi.spyOn(ipxShadowObservation, 'IpxPltrShadowObservationService');
+    const utcDayProviderFactory = vi.spyOn(rh4663UtcDayProviders, 'createRh4663UtcDayProviders');
+    const pairV5Verifier = vi.spyOn(reflexiveRadar, 'PairV5OnchainVerifier');
+    const longDopplerVerifier = vi.spyOn(crossVenueAudit, 'LongDopplerVerifier');
+    const stockSupplyIndexer = vi.spyOn(crossVenueAudit, 'StockTokenSupplyIndexer');
+    const pairV5Discovery = vi.spyOn(reflexiveRadar, 'PairV5DiscoveryAdapter');
     const interval = vi.spyOn(globalThis, 'setInterval');
     const fetch = vi.spyOn(globalThis, 'fetch');
     const app = await createApp();
     try {
       expect(pool).not.toHaveBeenCalled();
       expect(hydrate).not.toHaveBeenCalled();
+      expect(repository).not.toHaveBeenCalled();
       expect(ingest).not.toHaveBeenCalled();
+      expect(bootstrap).not.toHaveBeenCalled();
       expect(monitor).not.toHaveBeenCalled();
+      expect(dexProvider).not.toHaveBeenCalled();
+      expect(blockscout).not.toHaveBeenCalled();
+      expect(rhAutomation).not.toHaveBeenCalled();
+      expect(rhReceiptDrafts).not.toHaveBeenCalled();
+      expect(ipxShadow).not.toHaveBeenCalled();
+      expect(utcDayProviderFactory).not.toHaveBeenCalled();
+      expect(pairV5Verifier).not.toHaveBeenCalled();
+      expect(longDopplerVerifier).not.toHaveBeenCalled();
+      expect(stockSupplyIndexer).not.toHaveBeenCalled();
+      expect(pairV5Discovery).not.toHaveBeenCalled();
       expect(interval).not.toHaveBeenCalled();
       expect(fetch).not.toHaveBeenCalled();
       expect((await app.inject('/healthz')).statusCode).toBe(200);
@@ -48,6 +80,8 @@ describe('RADAR_FRONTDOOR_ONLY qualification', () => {
       expect((await app.inject('/version')).statusCode).toBe(200);
       expect((await app.inject('/status')).json()).toMatchObject({ mode: 'frontdoor_only', dbMode: 'not_initialized', persistence: 'not_initialized', providerCount: null, endpointCount: null, catalog_status: 'not_started' });
       expect((await app.inject('/economic-os/overview/')).statusCode).toBe(200);
+      expect((await app.inject('/developers')).statusCode).toBe(200);
+      expect((await app.inject('/developers/')).statusCode).toBe(200);
     } finally { await app.close(); }
   });
 
@@ -148,6 +182,70 @@ describe('RADAR_FRONTDOOR_ONLY qualification', () => {
     } finally { await browser.close(); await app.close(); }
   }, 60_000);
 
+  it('serves the static Developers guide directly, through homepage navigation, and with external requests blocked', async () => {
+    configureFrontdoor();
+    const app = await createApp();
+    await app.listen({ port: 0, host: '127.0.0.1' });
+    const address = app.server.address();
+    if (!address || typeof address === 'string') throw new Error('test_server_address_unavailable');
+    const origin = `http://127.0.0.1:${address.port}`;
+    const browser = await chromium.launch({ headless: true });
+    try {
+      for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+        const context = await browser.newContext({ viewport });
+        const page = await context.newPage();
+        const requests: string[] = [];
+        const externalRequests: string[] = [];
+        const failures: string[] = [];
+        const pageErrors: string[] = [];
+        const consoleErrors: string[] = [];
+        page.on('request', (request) => {
+          requests.push(request.url());
+          if (new URL(request.url()).origin !== origin) externalRequests.push(request.url());
+        });
+        page.on('requestfailed', (request) => failures.push(`${request.url()}: ${request.failure()?.errorText ?? 'unknown'}`));
+        page.on('pageerror', (error) => pageErrors.push(error.message));
+        page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()); });
+        await context.route('**/*', async (route) => {
+          if (new URL(route.request().url()).origin !== origin) return route.abort('internetdisconnected');
+          return route.continue();
+        });
+
+        const direct = await page.goto(`${origin}/developers`, { waitUntil: 'networkidle' });
+        expect(direct?.status(), `${viewport.width}px direct route`).toBe(200);
+        await page.getByRole('heading', { name: /Before an agent spends/ }).waitFor({ state: 'visible' });
+        for (const section of ['operating-loop', 'receipt-spine', 'architecture', 'integration']) {
+          expect(await page.locator(`#${section}`).count(), section).toBe(1);
+        }
+        for (const name of ['Observation', 'Judgment', 'Execution', 'Evaluation']) {
+          expect(await page.getByRole('heading', { name, exact: true }).count(), name).toBe(1);
+        }
+        expect(await page.getByRole('note', { name: 'Service availability' }).innerText()).toContain('Live API access, OpenAPI, live checks and protected operational endpoints are unavailable');
+        await page.reload({ waitUntil: 'networkidle' });
+        expect(await page.getByRole('heading', { name: /Before an agent spends/ }).count()).toBe(1);
+        expect(await page.locator('.developers-static').count()).toBe(1);
+        expect(await page.locator('h1').innerText()).toContain('Before an agent spends');
+        const guideRequests = [...requests];
+        expect(guideRequests.some((url) => new URL(url).pathname.endsWith('.css'))).toBe(true);
+        expect(guideRequests.some((url) => /\/assets\/.*\.js/.test(new URL(url).pathname))).toBe(true);
+        expect(guideRequests.some((url) => /\/assets\/.*radarApp.*\.js/.test(new URL(url).pathname))).toBe(false);
+        expect(guideRequests.some((url) => new URL(url).pathname === '/openapi.json' || new URL(url).pathname.startsWith('/v1/'))).toBe(false);
+
+        await page.goto(origin, { waitUntil: 'networkidle' });
+        await page.getByRole('link', { name: 'Integration documentation' }).click();
+        await page.getByRole('heading', { name: /Before an agent spends/ }).waitFor({ state: 'visible' });
+        await page.reload({ waitUntil: 'networkidle' });
+        expect(await page.locator('.developers-static').count()).toBe(1);
+        expect(externalRequests).toEqual([]);
+        expect(failures).toEqual([]);
+        expect(pageErrors).toEqual([]);
+        expect(consoleErrors).toEqual([]);
+        await page.screenshot({ path: `/tmp/radar-developers-static-${viewport.width}.png`, fullPage: true });
+        await context.close();
+      }
+    } finally { await browser.close(); await app.close(); }
+  }, 60_000);
+
   it('renders the approved homepage and all nine Economic OS deep links on desktop and mobile without backend calls', async () => {
     configureFrontdoor();
     const app = await createApp();
@@ -204,6 +302,8 @@ describe('RADAR_FRONTDOOR_ONLY qualification', () => {
     app.route({ method: ['GET', 'POST', 'DELETE'], url: '/v1/__frontdoor_probe', handler });
     try {
       const cases: Array<[string, string]> = [
+        ['GET', '/developers/wallet-safety'], ['GET', '/developers/unapproved'], ['POST', '/developers'],
+        ['GET', '/openapi.json'], ['GET', '/v1/pre-spend/check'],
         ['GET', '/v1/pulse'], ['GET', '/v1/pulse?cache=1'], ['GET', '/v1/unknown'],
         ['POST', '/v1/__frontdoor_probe'], ['DELETE', '/v1/__frontdoor_probe'], ['HEAD', '/v1/__frontdoor_probe'], ['OPTIONS', '/v1/__frontdoor_probe'],
         ['GET', '/v1/__frontdoor_probe/'], ['GET', '/v1/%70ulse'], ['GET', '/v1/%2e%2e/admin'],

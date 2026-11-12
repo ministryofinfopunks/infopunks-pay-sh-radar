@@ -750,7 +750,8 @@ export async function createApp(
       const path = safeRequestPath(req.url);
       const safeMethod = req.method === 'GET' || req.method === 'HEAD';
       const economicRoute = /^\/economic-os(?:\/(?:overview|launch|constitution|research|radar|orders|delivery|receipts|activity))?\/?$/.test(path);
-      if (safeMethod && (path === '/' || economicRoute || isCuratedReadPagePath(path) || isCuratedReadPath(path) || path === '/healthz' || path === '/readyz' || path === '/status' || path === '/version' || isFrontdoorStaticAssetPath(path))) return;
+      const developersRoute = /^\/developers\/?$/.test(path);
+      if (safeMethod && (path === '/' || economicRoute || developersRoute || isCuratedReadPagePath(path) || isCuratedReadPath(path) || path === '/healthz' || path === '/readyz' || path === '/status' || path === '/version' || isFrontdoorStaticAssetPath(path))) return;
       reply.header('Retry-After', '300');
       return reply.code(503).send({ error: 'frontdoor_only', reason: 'data_services_unavailable', retry_after_seconds: 300 });
     });
@@ -801,7 +802,8 @@ export async function createApp(
       if (req.method !== 'GET' && req.method !== 'HEAD') return reply.code(404).send({ error: 'not_found' });
       const urlPath = (req.raw.url ?? '/').split('?')[0] ?? '/';
       const economicRoute = /^\/economic-os(?:\/(?:overview|launch|constitution|research|radar|orders|delivery|receipts|activity))?\/?$/.test(urlPath);
-      const relative = urlPath === '/' || economicRoute || isCuratedReadPagePath(urlPath) ? 'index.html' : urlPath.replace(/^\/+/, '');
+      const developersRoute = /^\/developers\/?$/.test(urlPath);
+      const relative = urlPath === '/' || economicRoute || developersRoute || isCuratedReadPagePath(urlPath) ? 'index.html' : urlPath.replace(/^\/+/, '');
       if (!relative.startsWith('assets/') && relative !== 'index.html' && !['artwork/economic-signal-punk.webp', 'artwork/signal-punk.webp', 'favicon.ico', 'favicon.svg', 'apple-touch-icon.png', 'site.webmanifest', 'og-radar.png', 'icon-192.png', 'icon-512.png'].includes(relative)) return reply.code(404).send({ error: 'not_found' });
       if (!existsSync(indexPath)) return reply.code(503).send({ error: 'frontend_unavailable' });
       const target = normalize(join(distDir, relative));
