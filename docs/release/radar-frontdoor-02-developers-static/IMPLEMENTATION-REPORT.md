@@ -122,10 +122,10 @@ After the initial review, `tests/frontdoor-import-side-effects.test.ts` added se
 
 ## Git state
 
-- Final implementation SHA: pending commit.
+- Final implementation SHA: `9d6108a61d494647dc18645d09897e2c119215e3`.
 - Branch: `codex/radar-frontdoor-02-developers-static`, created from the verified remote `main` SHA above.
 - Changed files: `src/api/app.ts`, `src/web/main.tsx`, `tests/frontdoor-only-qualification.test.ts`, `tests/developers-profile-routing.test.tsx`, `tests/frontdoor-import-side-effects.test.ts`, `src/web/developersStaticPage.tsx`, `src/web/developersStatic.css`, this report, review packet, and six screenshot artifacts.
-- Worktree cleanliness: implementation changes and report are currently uncommitted; final state will be recorded after review.
+- Worktree cleanliness: clean after implementation commit and this report closeout.
 - Branch pushed: no.
 
 ## Production boundary
