@@ -296,7 +296,7 @@ export const PRODUCT_LINKS = [
   { href: '/', label: 'Radar' },
   { href: '/solana', label: 'Solana' },
   { href: '/rh-chain-signal-desk', label: 'Robinhood Chain' },
-  { href: '/economic-os/overview', label: 'Economic OS' },
+  { href: '/economic-os/overview', label: 'ECONOMIC OS' },
   { href: '/receipts', label: 'Proof' },
   { href: '/developers', label: 'Developers' }
 ] as const;

@@ -351,6 +351,14 @@ const BLACK_BULL_SHARE_LINES = [
 
 const API_BASE_URL = getApiBaseUrl();
 
+function frontdoorArchiveMode() {
+  return typeof document !== 'undefined' && document.querySelector<HTMLMetaElement>('meta[name="radar-operating-profile"]')?.content === 'frontdoor-only';
+}
+
+function liveWatchLabel() {
+  return frontdoorArchiveMode() ? 'Archived Watch' : 'Live Watch';
+}
+
 async function api<T>(path: string) {
   const response = await fetch(toApiUrl(API_BASE_URL, path), {
     headers: { Accept: 'application/json', 'Content-Type': 'application/json' }
@@ -466,6 +474,7 @@ function formatDate(value: string) {
 }
 
 function formatDeskStatus(value: SignalDeskStatus) {
+  if (value === 'live_watch' && frontdoorArchiveMode()) return 'Archived Watch';
   return value.split('_').map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`).join(' ');
 }
 
@@ -500,6 +509,7 @@ function formatEvolutionStage(value: NarrativeEvolutionStage) {
 }
 
 function formatRiskFacet(value: SignalRiskFacet) {
+  if (value === 'live_watch' && frontdoorArchiveMode()) return 'Archived Watch';
   return value.split('_').map((part) => {
     if (part.toLowerCase() === 'kol') return 'KOL';
     return `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`;
@@ -541,7 +551,7 @@ function signalDelta(update: SignalEvidenceUpdate) {
 }
 
 function deskStatus(signal: NarrativeSignalSurface, updateCount: number) {
-  if (updateCount > 0) return 'Live Watch';
+  if (updateCount > 0) return liveWatchLabel();
   if (signal.type === 'signal_report') return 'Seeded Report';
   return 'Needs Review';
 }
@@ -851,7 +861,7 @@ function DeskStatusStrip({ desk }: { desk: SignalDeskIndex }) {
     <div className="narrative-desk-status-head">
       <div>
         <p className="section-kicker">Desk status</p>
-        <h2>Live Watch</h2>
+        <h2>{liveWatchLabel()}</h2>
       </div>
       <span className="source-badge">{formatDate(desk.generated_at)}</span>
     </div>
@@ -888,7 +898,7 @@ function NarrativeControlStrip({
       <div>
         <p className="section-kicker">Desk filters</p>
         <h2>Analyst Control Strip</h2>
-        <p>Filter live desk outputs without changing the underlying report or dispatch routes.</p>
+        <p>{frontdoorArchiveMode() ? 'Filter archived desk records without changing their source history.' : 'Filter live desk outputs without changing the underlying report or dispatch routes.'}</p>
       </div>
     </div>
     <div className="narrative-control-grid">
@@ -913,14 +923,14 @@ function NarrativeControlStrip({
           <option value="kol_dependency">KOL Dependency</option>
           <option value="thin_evidence">Thin Evidence</option>
           <option value="narrative_fatigue">Narrative Fatigue</option>
-          <option value="live_watch">Live Watch</option>
+          <option value="live_watch">{liveWatchLabel()}</option>
         </select>
       </label>
       <label className="narrative-control-field">
         <span>Signal Status</span>
         <select aria-label="Signal Status Filter" value={status} onChange={(event) => onStatusChange(event.target.value as NarrativeFilterStatus)}>
           <option value="all">All</option>
-          <option value="live_watch">Live Watch</option>
+          <option value="live_watch">{liveWatchLabel()}</option>
           <option value="seeded_report">Seeded Report</option>
           <option value="needs_review">Needs Review</option>
         </select>
@@ -1965,7 +1975,7 @@ export function NarrativesIndexPage() {
         </div>
         <div className="panel narrative-hero-rail">
           <p className="section-kicker">Desk stance</p>
-          <p>Bloomberg-style cultural intelligence for memetic markets, compact enough for live watch and dispatch review.</p>
+          <p>{frontdoorArchiveMode() ? 'Cultural intelligence records for memetic markets, preserved for archive review.' : 'Bloomberg-style cultural intelligence for memetic markets, compact enough for live watch and dispatch review.'}</p>
           <p>Personas can become liquidity. Memes can become coordination rails. Sovereignty checks still decide whether signal has durable shape.</p>
         </div>
       </section>
@@ -2006,7 +2016,7 @@ export function NarrativesIndexPage() {
             <div>
               <p className="section-kicker">Report catalog</p>
               <h2>Reports Catalog</h2>
-              <p>Every live report card on the desk, structured to scale beyond Black Bull.</p>
+              <p>{frontdoorArchiveMode() ? 'Archived report cards from the desk, preserved with their source dates.' : 'Every live report card on the desk, structured to scale beyond Black Bull.'}</p>
             </div>
           </div>
           <div className="narrative-grid">
@@ -2132,7 +2142,7 @@ export function AttentionMarketWatchProfilePage({ slug }: { slug: string }) {
     ? 'ANSEM is the first Attention Market Watch case where persona attention appears to be evolving into a coordination market through redistribution, holder growth, and community participation.'
     : signal && (signal.receipt_layer.score <= 24 || signal.evolution_verdict === 'attention_arbitrage')
       ? 'Monitored derivative signal. Evidence-light profile. This attention-market object is not an endorsement.'
-      : 'Profile under active watch.';
+      : frontdoorArchiveMode() ? 'Profile retained in the archive; current activity is unavailable.' : 'Profile under active watch.';
 
   return <div className="shell narrative-shell">
     <a className="skip-link" href="#attention-watch-profile-content">Skip to content</a>

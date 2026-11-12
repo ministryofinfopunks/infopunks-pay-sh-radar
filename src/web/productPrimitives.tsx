@@ -8,7 +8,7 @@ export function ProductWayfinding({ current = '/', id, shellOwner = false }: { c
   const inheritedShell = useContext(RadarShellContext);
   if (inheritedShell && !shellOwner) return null;
   return <nav id={id} className="product-wayfinding" aria-label="Infopunks product navigation">
-    {PRODUCT_LINKS.map(link => <a key={link.href} href={link.href} aria-current={(link.href === '/' ? current === '/' : link.href === '/rh-chain-signal-desk' ? /^(\/4663|\/rh-chain|\/internal\/rh-chain|\/narratives\/robinhood-chain)/.test(current) : link.href === '/receipts' ? /^(\/receipts|\/proof|\/revenue-receipts)/.test(current) : link.href === '/solana' ? radarNetworkForPath(current) === 'solana' && !/^(\/receipts|\/proof|\/revenue-receipts|\/developers)/.test(current) : current.startsWith(link.href)) ? 'page' : undefined}>{link.label}</a>)}
+    {PRODUCT_LINKS.map(link => <a key={link.href} href={link.href} aria-current={(link.href === '/' ? current === '/' : link.href === '/rh-chain-signal-desk' ? /^(\/4663|\/rh-chain|\/internal\/rh-chain|\/narratives\/robinhood-chain)/.test(current) : link.href === '/receipts' ? /^(\/receipts|\/proof|\/revenue-receipts)/.test(current) : link.href === '/economic-os/overview' ? current.startsWith('/economic-os/') : link.href === '/solana' ? radarNetworkForPath(current) === 'solana' && !/^(\/receipts|\/proof|\/revenue-receipts|\/developers)/.test(current) : current.startsWith(link.href)) ? 'page' : undefined}>{link.label}</a>)}
   </nav>;
 }
 export function ProductHeader({ current = '/', embedded = false }: { current?: string; embedded?: boolean }) {

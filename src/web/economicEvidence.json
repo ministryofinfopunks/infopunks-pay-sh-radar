@@ -1,0 +1,1303 @@
+{
+  "version": "infopunks-local-proof-projection.v1",
+  "inspection": "VISUAL INSPECTION 001",
+  "local_only": true,
+  "read_only": true,
+  "release": "HOLD",
+  "publication_authorized": false,
+  "projection_grants_authority": false,
+  "labels": {
+    "latest_engineering": "Track A qualified local candidate; independent acceptance pending",
+    "scenarios": "R2 synthetic v2 historical transactions",
+    "research": "Genuine source bytes; unaccepted AI-assisted Classic draft",
+    "commercial": "USD250 proposed service; no approved offer, buyer or payment",
+    "legacy": "v1 audit packets retained with weaker verification"
+  },
+  "qualification": {
+    "candidate_source_id": "sha256:b781e1fd1ad74384240f4503d63173ba42d516d30583262c956417ff061a4948",
+    "source_inventory_sha256": "4e00b08b65efd017976f7b9223c6c050fddecc20d5ec27faa7948bd40b5ca8a7",
+    "source_files_verified_now": 816,
+    "source_mismatches": [],
+    "full_suite": {
+      "numTotalTests": 2335,
+      "numPassedTests": 2335,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTotalTestSuites": 604,
+      "numPassedTestSuites": 604,
+      "numFailedTestSuites": 0
+    },
+    "original_skips_reconciled": {
+      "passed": 67
+    },
+    "typecheck": "PASS",
+    "server_build": "PASS",
+    "client_build": "PASS",
+    "independent_technical_acceptance": null,
+    "native_AMD64_qualified": false,
+    "research_human_acceptance": null,
+    "production_authorized": false,
+    "real_revenue_verified": false,
+    "reference": "infopunks-pilot-001-track-a-20261022/STATUS.json",
+    "scope": "Recorded native ARM64 local mock qualification; not refreshed full test execution in this visual inspection"
+  },
+  "agents": [
+    {
+      "role": "Research Agent",
+      "output_ref": "infopunks-pilot-001-autonomous-local/research/research-freeze.json",
+      "artifact_sha256": "208dfd60b3b0ef4bbef78f5b821fa2b17477e90cc182b5d875f3b8dcefd76cac",
+      "execution_kind": "recorded Codex agent context; same provider",
+      "independent_human_review": false,
+      "state": "historical preparation artifact; not a live worker status"
+    },
+    {
+      "role": "Challenge Agent",
+      "output_ref": "infopunks-pilot-001-autonomous-local/challenge/final-freeze.json",
+      "artifact_sha256": "d8b5f0cd479b706a11eb6c9c98897af4d06eac739a9b7365f931b48c0cd47dd8",
+      "execution_kind": "recorded Codex agent context; same provider",
+      "independent_human_review": false,
+      "state": "historical preparation artifact; not a live worker status"
+    },
+    {
+      "role": "Commercial Agent",
+      "output_ref": "infopunks-pilot-001-autonomous-local/commercial/manifest.json",
+      "artifact_sha256": "ba50d65c6d2d5dd6bb64f6fce86f6b21285b3650a56b8d735eb64f55bf074087",
+      "execution_kind": "recorded Codex agent context; same provider",
+      "independent_human_review": false,
+      "state": "historical preparation artifact; not a live worker status"
+    },
+    {
+      "role": "Audit Agent",
+      "output_ref": "infopunks-pilot-001-autonomous-local/audit/output-inventory.json",
+      "artifact_sha256": "4a4220bf44a8aecf36b3fd043d3d8322eae2659c6ab3fae496def714ae019386",
+      "execution_kind": "recorded Codex agent context; same provider",
+      "independent_human_review": false,
+      "state": "historical preparation artifact; not a live worker status"
+    }
+  ],
+  "agent_costs": {
+    "additional_paid_provider_or_model_API_calls": 0,
+    "external_spend_committed_usd": "0.00",
+    "existing_Codex_session_and_agent_cost_usd": null,
+    "note": "Existing session/agent usage not metered here; zero new purchases is not a claim of free model compute"
+  },
+  "research": {
+    "product_scope": "Robinhood Europe Classic Stock Tokens only",
+    "state": "AI_ASSISTED_DRAFT_NOT_HUMAN_ACCEPTED",
+    "origin": "ai_assisted_research",
+    "source_ref": "infopunks-pilot-001-autonomous-local/research/claim-sheet.json",
+    "report_bytes_sha256": "0c9fb60eb1dc2c9e379815ada8cbac15d88cb50959074043a35ce5e96adebbb1",
+    "claim_count": 5,
+    "claims": [
+      {
+        "id": "C001",
+        "statement": "Robinhood describes Classic Stock Tokens as derivative exposure to stock/ETF prices, without ownership of or rights to the underlying securities.",
+        "limits": "Not an independent legal-rights analysis or instrument-specific final-terms review.",
+        "draft_disposition": "SUPPORTED_AS_ATTRIBUTED_DOCUMENTARY_CLAIM",
+        "source_ids": [
+          "RH-BUY-001",
+          "RH-ABOUT-001"
+        ],
+        "evidence_ids": [
+          "E01",
+          "E02"
+        ],
+        "human_disposition": null
+      },
+      {
+        "id": "C002",
+        "statement": "Robinhood describes a 0.10% foreign-exchange conversion fee for Classic Stock Token trading.",
+        "limits": "Does not establish every transaction cost, a current exchange rate, or a measured spread.",
+        "draft_disposition": "SUPPORTED_AS_ATTRIBUTED_DOCUMENTARY_CLAIM",
+        "source_ids": [
+          "RH-BUY-001",
+          "RH-ABOUT-001"
+        ],
+        "evidence_ids": [
+          "E03",
+          "E04"
+        ],
+        "human_disposition": null
+      },
+      {
+        "id": "C003",
+        "statement": "The documents distinguish USD market information from EUR position/order contexts, while the About introduction also describes buying, selling and display in USD. Exact screen and execution denominations remain unresolved.",
+        "limits": "Do not infer a universal screen unit or reconcile contradictory wording by assumption.",
+        "draft_disposition": "DOCUMENTARY_INCONSISTENCY_REQUIRES_CLARIFICATION",
+        "source_ids": [
+          "RH-BUY-001",
+          "RH-ABOUT-001"
+        ],
+        "evidence_ids": [
+          "E04",
+          "E05",
+          "E06",
+          "E07"
+        ],
+        "human_disposition": null
+      },
+      {
+        "id": "C004",
+        "statement": "The buy estimate includes a EUR-converted token amount, the FX fee and an unspecified volatility buffer. The Costs section separately describes directional 0.5% stock-price and EUR/USD reference thresholds for buys and sells.",
+        "limits": "No actual execution price, buffer percentage, combined 1% threshold, or customer-specific guarantee is established.",
+        "draft_disposition": "SUPPORTED_AS_ATTRIBUTED_DOCUMENTARY_CLAIM",
+        "source_ids": [
+          "RH-BUY-001"
+        ],
+        "evidence_ids": [
+          "E08",
+          "E09"
+        ],
+        "human_disposition": null
+      },
+      {
+        "id": "C005",
+        "statement": "This two-document packet does not establish a token-specific current executable quote or spread.",
+        "limits": "A bounded negative about inspected material; not proof that live data are unavailable elsewhere.",
+        "draft_disposition": "PACKET_COVERAGE_LIMITATION",
+        "source_ids": [
+          "RH-BUY-001",
+          "RH-ABOUT-001"
+        ],
+        "evidence_ids": [],
+        "human_disposition": null
+      }
+    ],
+    "sources": [
+      {
+        "source_id": "RH-BUY-001",
+        "url": "https://robinhood.com/eu/en/support/articles/buy-and-sell-stock-tokens/",
+        "body_bytes": 155178,
+        "body_sha256": "sha256:d55a704cff26da710423873ec0341f38e150d3293f934564d99a83221c352823",
+        "fetched_at": "2026-10-21T16:37:29.900550+00:00",
+        "clock": "local observation; not independently trusted",
+        "publication_date": null
+      },
+      {
+        "source_id": "RH-ABOUT-001",
+        "url": "https://robinhood.com/eu/en/support/articles/about-stock-tokens/",
+        "body_bytes": 148179,
+        "body_sha256": "sha256:93ed22103c94df2dc6a9199c4d4a909f63a089fb4880b993be0c1114913ffdcd",
+        "fetched_at": "2026-10-21T16:37:32.146171+00:00",
+        "clock": "local observation; not independently trusted",
+        "publication_date": null
+      }
+    ],
+    "gaps": [
+      {
+        "id": "G01",
+        "claim": "C003",
+        "topic": "currency denomination",
+        "required": "Qualified review plus separately scoped product-surface confirmation; preserve conflicting text."
+      },
+      {
+        "id": "G02",
+        "claim": "C002",
+        "topic": "cost completeness",
+        "required": "If needed, authorize governing fee/terms review; no blanket all-in fee assurance."
+      },
+      {
+        "id": "G03",
+        "claim": "C004",
+        "topic": "execution interpretation",
+        "required": "Clarify conditional reference wording without inventing a guarantee or buffer percentage."
+      },
+      {
+        "id": "G04",
+        "claim": "C005",
+        "topic": "live evidence",
+        "required": "No current quote captured; remains outside deliverable scope."
+      },
+      {
+        "id": "G05",
+        "topic": "time and freshness",
+        "required": "Independent trusted time absent. Owner-approved admission criteria and human review required."
+      },
+      {
+        "id": "G06",
+        "claim": "C001",
+        "topic": "rights",
+        "required": "Publisher attribution only; governing legal instrument review outside two-page scope."
+      }
+    ],
+    "rejected_inferences": [
+      "Classic terms apply to Robinhood Chain REST bid",
+      "USD/EUR wording proves every screen field unit",
+      "0.10% covers all economic costs",
+      "0.5% thresholds guarantee an executable quote",
+      "Two references simply sum into 1%",
+      "Copyright/HTTP Date proves publication date",
+      "Hash proves authority or human acceptance"
+    ],
+    "approved_freshness_policy": null,
+    "human_acceptance": null,
+    "intended_buyer": null,
+    "owner_approval": null,
+    "runtime_admission_performed": false,
+    "draft_adaptation_hash": "sha256:942b47c5cd3f7944aee47e461aa7aa6c787de9f9dfd4f583297620dfe06a4a8b",
+    "raw_bytes_unchanged": true,
+    "portable_source_quote_words": 0
+  },
+  "commercial": {
+    "quote_id": "P001-CLASSIC-QUOTE-DRAFT-001",
+    "status": "UNAPPROVED_DRAFT",
+    "scope": "Robinhood Europe Classic Stock Token pricing disclosures, not Robinhood Chain REST bid",
+    "source_ref": "infopunks-pilot-001-autonomous-local/commercial/commercial.json",
+    "proposed_price": {
+      "currency": "USD",
+      "fixed_client_total": "250.00",
+      "extra_surcharge": "0.00",
+      "approved": false
+    },
+    "terms": {
+      "delivery": "one business day after all preconditions; exact absolute deadline required",
+      "buyer_review_hours": 24,
+      "correction_cycles": 1,
+      "acknowledgement_business_days": 1,
+      "replacement_business_days": 2,
+      "payment_due_calendar_days_after_explicit_acceptance": 7,
+      "prepayment_requested": false,
+      "automatic_refund_authority": false,
+      "offer_max_age_hours_after_issuance": 1,
+      "active_issued_at": null,
+      "active_expires_at": null,
+      "source_admission_max_age_hours_proposed": 1,
+      "effective_classic_source_freshness_policy": null,
+      "freshness_policy_approval": null
+    },
+    "proposal_is_synthetic_order_price": false,
+    "seller_organization": "Ministry of Infopunks",
+    "seller_legal_identity": null,
+    "owner_approval": null,
+    "human_research_disposition": null,
+    "buyer": null,
+    "payer": null,
+    "buyer_commitment": null,
+    "payment_requested": false,
+    "payment_received": false,
+    "verified_revenue": false,
+    "outreach": {
+      "status": "UNSENT",
+      "sender_assigned": false,
+      "exact_text_send_authorization": null,
+      "messages_sent": 0
+    },
+    "publication_consent": null,
+    "release": "HOLD"
+  },
+  "scenarios": [
+    {
+      "id": "accepted",
+      "label": "R2 synthetic accepted delivery",
+      "simulation": true,
+      "dataset": "retained_R2_v2_fixture",
+      "is_Classic_v3_order": false,
+      "source_ref": "infopunks-pilot-001-remediation/evidence/successor-mock-run/accepted/audit.json",
+      "source_byte_sha256": "a540dc2a601ce9351406c7ab81bc206cc4338817608fd6252a86669b82cd999d",
+      "checkpoint_packet_hash": "sha256:cc00cf4414c713493df642c842971e0646f2ca303a3506a545c86518e45069b0",
+      "audit_version": "service-order-audit.mock.v2",
+      "contract": {
+        "version": "service-order-contract.mock.v2",
+        "evidence_kind": "existing_human_reviewed",
+        "order_id": "order1",
+        "buyer": "buyer-fixture",
+        "seller": "expert-fixture",
+        "buyer_mandate_id": "buyer-fixture-v1",
+        "buyer_mandate_hash": "sha256:5e4939308b967d500eee91eb28f414e398b6a2251c01e4c21e684eda2db83cb8",
+        "seller_mandate_hash": "sha256:78ad6f19d071e45c47277ada5b858f69dd278f4f525e4947230848b24af11f15",
+        "artifact_hash": "sha256:9474474119f9fe1641e6c1c112d59af8b703ca62da1b2e378e95f15c0e6fa551",
+        "review_hash": "sha256:e341334433f3c294c3a57de3a00b6339e4b1ff904b3abef6a59165a15e058157",
+        "artifact_packet_hash": "sha256:b55ee3cb3465536eefbc22bed52005c72cb66898f2ca97d24d514bfa958d4900"
+      },
+      "contract_hash": "sha256:3521f55160332e7574482e4d4bcea9ff502f97842c8d771eeac58d3f457eed87",
+      "service": {
+        "service_id": "rwa-v1",
+        "service_hash": "sha256:5264f503311b7ef382fcff82a326039c560f470bb39aa88b4eb4e42c62b813d5",
+        "amount_atomic": "10000",
+        "platform_fee_bps": 1000,
+        "recipient": "expert-fixture",
+        "acceptance_hash": "sha256:16251e196e502dbbc9d640eb0a6ede648ca184cd2d205d84eedb8df742cdd34f"
+      },
+      "terms": {
+        "version": "service-order-terms.mock.v2",
+        "offer_version": "rwa-v1",
+        "scope": "Check documented token rights and price basis",
+        "source_ids": [
+          "stock-tokens",
+          "stock-token-apis"
+        ],
+        "artifact_origin": "synthetic_fixture",
+        "artifact_review_hash": "sha256:e341334433f3c294c3a57de3a00b6339e4b1ff904b3abef6a59165a15e058157",
+        "review_sla_hours": 24,
+        "refund_policy": "unresolved_obligation_separate_authority_required",
+        "acceptance_criteria": [
+          "Exact approved report",
+          "Claim dispositions and source references",
+          "Coverage gaps visible"
+        ],
+        "correction_terms": "Review linked corrections; changed commercial scope requires a new offer."
+      },
+      "settlement": {
+        "chain_id": "simulation:local",
+        "asset_id": "simulation:local/MOCK",
+        "decimals": 6,
+        "payer": "buyer-fixture",
+        "recipient": "expert-fixture",
+        "amount_atomic": "10000",
+        "amount_decimal_mock": "0.010000",
+        "asset_label": "MOCK; not USD or real revenue",
+        "commercial_250_offer_applies": false
+      },
+      "status": {
+        "technical": "confirmed",
+        "delivery": "delivered",
+        "payment_state": "settled",
+        "customer": "accepted",
+        "real_payment_verified": false,
+        "real_revenue_verified": false,
+        "release": "HOLD"
+      },
+      "mandates": [
+        {
+          "role": "buyer",
+          "mandate_id": "buyer-fixture-v1",
+          "owner_id": "buyer-fixture",
+          "agent_id": "buyer-fixture",
+          "revision": 1,
+          "issued_at": "2026-10-21T11:41:52.665Z",
+          "expires_at": "2026-10-21T11:46:52.665Z",
+          "actions": [
+            "research",
+            "purchase",
+            "delegate"
+          ],
+          "acceptance_hash": "sha256:16251e196e502dbbc9d640eb0a6ede648ca184cd2d205d84eedb8df742cdd34f",
+          "budget_atomic": "10000",
+          "per_action_atomic": "10000",
+          "max_fee_atomic": "0",
+          "recipients": [
+            "expert-fixture"
+          ],
+          "max_workers": 3,
+          "max_attempts": 3,
+          "mandate_hash": "sha256:5e4939308b967d500eee91eb28f414e398b6a2251c01e4c21e684eda2db83cb8",
+          "approved_at": "2026-10-21T11:41:52.688Z",
+          "version_note": "MandateSchema revision field; packet provides no independent human identity attestation",
+          "historical_authority": "active checked by local host at recorded event; expires_at is historical, not current permission",
+          "current_live_authority": false,
+          "revocation_event_in_this_packet": null,
+          "revocation_state_now": "not queried; no live backend connected"
+        },
+        {
+          "role": "seller",
+          "mandate_id": "expert-fixture-v1",
+          "owner_id": "expert-fixture",
+          "agent_id": "expert-fixture",
+          "revision": 1,
+          "issued_at": "2026-10-21T11:41:52.665Z",
+          "expires_at": "2026-10-21T11:46:52.665Z",
+          "actions": [
+            "research",
+            "publish",
+            "delegate",
+            "disclose"
+          ],
+          "acceptance_hash": "sha256:16251e196e502dbbc9d640eb0a6ede648ca184cd2d205d84eedb8df742cdd34f",
+          "budget_atomic": "10000",
+          "per_action_atomic": "10000",
+          "max_fee_atomic": "0",
+          "recipients": [
+            "expert-fixture"
+          ],
+          "max_workers": 3,
+          "max_attempts": 3,
+          "mandate_hash": "sha256:78ad6f19d071e45c47277ada5b858f69dd278f4f525e4947230848b24af11f15",
+          "approved_at": "2026-10-21T11:41:52.683Z",
+          "version_note": "MandateSchema revision field; packet provides no independent human identity attestation",
+          "historical_authority": "active checked by local host at recorded event; expires_at is historical, not current permission",
+          "current_live_authority": false,
+          "revocation_event_in_this_packet": null,
+          "revocation_state_now": "not queried; no live backend connected"
+        }
+      ],
+      "source_references": [
+        {
+          "source_id": "stock-tokens",
+          "url": "https://docs.robinhood.com/chain/stock-tokens/",
+          "fetched_at": "2026-10-21T11:41:52.665Z",
+          "body_sha256": "310644991005a513031cb9b319428f2aec5f93035c7c3f7ac30b534a7fca5077",
+          "classification": "synthetic_body_at_real_document_URL; not a genuine issuer capture"
+        },
+        {
+          "source_id": "stock-token-apis",
+          "url": "https://docs.robinhood.com/chain/stock-token-apis/",
+          "fetched_at": "2026-10-21T11:41:52.665Z",
+          "body_sha256": "8e5540798f50336275b548e7f806fcd0009b22087ed1b2a4495aa6ba483e01a1",
+          "classification": "synthetic_body_at_real_document_URL; not a genuine issuer capture"
+        }
+      ],
+      "research_review": {
+        "origin": "synthetic_fixture",
+        "review_version": "rwa-existing-claim-review.v1",
+        "approval_mode": "synthetic_fixture_review",
+        "classification": "synthetic reviewer fixture; no real researcher acceptance"
+      },
+      "radar": {
+        "decision": "proceed",
+        "confidence": 100,
+        "reasons": [
+          "simulation_only",
+          "all_deterministic_gates_passed"
+        ],
+        "payment_required": false,
+        "charge": "0",
+        "proceed_confidence_threshold": 80,
+        "confidence_meaning": "deterministic synthetic scenario only; not research accuracy or market confidence",
+        "judgment_is_execution_capability": false
+      },
+      "execution_capability": {
+        "version": "infopunks.execution-authorization.v1",
+        "authorization_id": "authorization_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+        "judgment_id": "economic_judgment_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+        "judgment_hash": "sha256:e0e66457c3566c3f9e8fcd913002726c7c1ec9dd7622f841e4e2464dc7327285",
+        "envelope_hash": "sha256:8cfb80cd7a8822b8e43313f6a2640da8d99b6b5050e561d483c80e90a078556c",
+        "witness_hash": "sha256:1c471f953116b30666cd2cdab628abf3c95ceca7f0b417ba77cc3d1743badd3c",
+        "principal_id": "buyer-fixture",
+        "delegate_id": "purchaser",
+        "audience": "mock/rwa-service.v1",
+        "candidate_id": "mock-rwa-route",
+        "policy_hash": "sha256:ce25be60be73642066925e97b9d6de1b6e973000c1b19c586f2ace0b9e7f2393",
+        "reservation_id": "reservation_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+        "issued_at": "2026-10-21T11:41:52.791Z",
+        "valid_until": "2026-10-21T11:42:52.665Z",
+        "payload_hash": "sha256:8ab3f69660310a53d4a58c517df70f84a71ef683d25335d8dbab5072536b634f",
+        "signature_omitted": true,
+        "usable_capability_exposed": false,
+        "currently_authorizes_execution": false
+      },
+      "receipts": [
+        {
+          "kind": "observation",
+          "node_key": "accepted:sha256:9ce8de80aa881c3499b309003b37a144df53172f367a6ba632812e943334132d",
+          "id": "obs_b7663e491f44351ebe207af76c279b244dc90bf5f5589c87072ac938ced02f19",
+          "observation_id": "obs_b7663e491f44351ebe207af76c279b244dc90bf5f5589c87072ac938ced02f19",
+          "schema_version": "canonical-receipts.v1",
+          "receipt_hash": "sha256:9ce8de80aa881c3499b309003b37a144df53172f367a6ba632812e943334132d",
+          "observed_at": "2026-10-21T11:41:52.774Z",
+          "ingested_at": "2026-10-21T11:41:52.774Z",
+          "freshness_expires_at": "2026-10-21T11:42:52.665Z",
+          "evidence_state": "sufficient",
+          "source_type": "reviewed_economic_facts",
+          "source_id": "mock-quote/order1",
+          "evidence_refs": [
+            "fixture://service/sha256:5264f503311b7ef382fcff82a326039c560f470bb39aa88b4eb4e42c62b813d5"
+          ],
+          "classification": "synthetic_fixture_receipt_not_live_market_evidence"
+        },
+        {
+          "kind": "judgment",
+          "node_key": "accepted:sha256:e0e66457c3566c3f9e8fcd913002726c7c1ec9dd7622f841e4e2464dc7327285",
+          "id": "economic_judgment_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "judgment_id": "economic_judgment_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "schema_version": "canonical-receipts.v1",
+          "receipt_hash": "sha256:e0e66457c3566c3f9e8fcd913002726c7c1ec9dd7622f841e4e2464dc7327285",
+          "decision": "proceed",
+          "confidence": 100,
+          "reasons": [
+            "simulation_only",
+            "all_deterministic_gates_passed"
+          ],
+          "cited_observation_ids": [
+            "obs_b7663e491f44351ebe207af76c279b244dc90bf5f5589c87072ac938ced02f19"
+          ],
+          "issued_at": "2026-10-21T11:41:52.791Z",
+          "valid_until": "2026-10-21T11:42:52.665Z",
+          "payment_required": false,
+          "charge": "0",
+          "parent_hashes": [
+            "sha256:9ce8de80aa881c3499b309003b37a144df53172f367a6ba632812e943334132d"
+          ],
+          "proceed_confidence_threshold": 80,
+          "classification": "synthetic_fixture_receipt_not_live_market_evidence"
+        },
+        {
+          "kind": "execution",
+          "node_key": "accepted:sha256:0fdca245478ac171b1a95023d0f04cf4fcb0abebb2688eafa4712420541ed818",
+          "id": "economic_execution_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "execution_id": "economic_execution_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "schema_version": "canonical-receipts.v1",
+          "receipt_hash": "sha256:0fdca245478ac171b1a95023d0f04cf4fcb0abebb2688eafa4712420541ed818",
+          "judgment_id": "economic_judgment_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "executed_at": "2026-10-21T11:41:52.887Z",
+          "settlement_rail": "mock/rwa-service.v1",
+          "request_hash": "sha256:ef7cb329e424fe9a1ca9412d22b5acb2fb3eadf2d429a482d82ec19b028ae312",
+          "response_hash": "sha256:1971d4c66ad243afb113cf531d79d90a5f170613cc5a212ae67215b3844291de",
+          "status": "succeeded",
+          "execution_authorization": {
+            "version": "infopunks.execution-authorization.v1",
+            "authorization_id": "authorization_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+            "payload_hash": "sha256:8ab3f69660310a53d4a58c517df70f84a71ef683d25335d8dbab5072536b634f"
+          },
+          "cost_amount": "0.010000",
+          "cost_asset": "simulation:local/MOCK",
+          "parent_hash": "sha256:e0e66457c3566c3f9e8fcd913002726c7c1ec9dd7622f841e4e2464dc7327285",
+          "classification": "synthetic_fixture_receipt_not_live_market_evidence"
+        },
+        {
+          "kind": "evaluation",
+          "node_key": "accepted:sha256:964de2c07d3a744480e16f3520b53ef5004663b01c54f2eb613b7a19d3abc591",
+          "id": "evaluation_economic_execution_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "evaluation_id": "evaluation_economic_execution_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "schema_version": "canonical-receipts.v1",
+          "receipt_hash": "sha256:964de2c07d3a744480e16f3520b53ef5004663b01c54f2eb613b7a19d3abc591",
+          "execution_id": "economic_execution_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "evaluated_at": "2026-10-21T11:41:52.940Z",
+          "outcome": "confirmed",
+          "reasons": [
+            "simulation_acceptance_check_only"
+          ],
+          "policy_version": "score-policy.v1",
+          "score_delta": 5,
+          "parent_hash": "sha256:0fdca245478ac171b1a95023d0f04cf4fcb0abebb2688eafa4712420541ed818",
+          "classification": "synthetic_fixture_receipt_not_live_market_evidence"
+        }
+      ],
+      "receipt_graph": {
+        "namespace": "accepted",
+        "edges": [
+          {
+            "from": "sha256:9ce8de80aa881c3499b309003b37a144df53172f367a6ba632812e943334132d",
+            "to": "sha256:e0e66457c3566c3f9e8fcd913002726c7c1ec9dd7622f841e4e2464dc7327285",
+            "binding": "cited_observation_ids + parent_hashes"
+          },
+          {
+            "from": "sha256:e0e66457c3566c3f9e8fcd913002726c7c1ec9dd7622f841e4e2464dc7327285",
+            "to": "sha256:0fdca245478ac171b1a95023d0f04cf4fcb0abebb2688eafa4712420541ed818",
+            "binding": "judgment_id + parent_hash + separate capability"
+          },
+          {
+            "from": "sha256:0fdca245478ac171b1a95023d0f04cf4fcb0abebb2688eafa4712420541ed818",
+            "to": "sha256:964de2c07d3a744480e16f3520b53ef5004663b01c54f2eb613b7a19d3abc591",
+            "binding": "execution_id + parent_hash"
+          }
+        ]
+      },
+      "history": [
+        {
+          "version": "service-order-event.mock.v2",
+          "seq": 1,
+          "previous": null,
+          "at": "2026-10-21T11:41:52.762Z",
+          "recorded_at": "2026-10-21T11:41:52.762Z",
+          "type": "buyer_approval",
+          "hash": "sha256:533d8e1d9916e4939dcbd69faebfe47d7acca32625cf6b56de6d97fcf313b7c6",
+          "data": {
+            "owner": "buyer-fixture",
+            "contract_hash": "sha256:3521f55160332e7574482e4d4bcea9ff502f97842c8d771eeac58d3f457eed87",
+            "authority_check": {
+              "version": "service-order-authority-check.mock.v1",
+              "action": "purchase",
+              "checked_at": "2026-10-21T11:41:52.762Z",
+              "active_under_journal_lock": true,
+              "proof": "local_host_attestation_not_human_identity",
+              "mandate_hash": "sha256:5e4939308b967d500eee91eb28f414e398b6a2251c01e4c21e684eda2db83cb8"
+            }
+          }
+        },
+        {
+          "version": "service-order-event.mock.v2",
+          "seq": 2,
+          "previous": "sha256:533d8e1d9916e4939dcbd69faebfe47d7acca32625cf6b56de6d97fcf313b7c6",
+          "at": "2026-10-21T11:41:52.837Z",
+          "recorded_at": "2026-10-21T11:41:52.837Z",
+          "type": "execution_authorization",
+          "hash": "sha256:9bd94f8a16aff1830ab522b8232abed421ae98dbcca040829d7de84d3795d372",
+          "data": {
+            "payload_hash": "sha256:8ab3f69660310a53d4a58c517df70f84a71ef683d25335d8dbab5072536b634f"
+          }
+        },
+        {
+          "version": "service-order-event.mock.v2",
+          "seq": 3,
+          "previous": "sha256:9bd94f8a16aff1830ab522b8232abed421ae98dbcca040829d7de84d3795d372",
+          "at": "2026-10-21T11:41:52.844Z",
+          "recorded_at": "2026-10-21T11:41:52.844Z",
+          "type": "execution_requested",
+          "hash": "sha256:28aeb2610ca34cb2a8c52d10b92377556c460693246bf01e7b03086eef97519e",
+          "data": {
+            "authorization": "sha256:8ab3f69660310a53d4a58c517df70f84a71ef683d25335d8dbab5072536b634f"
+          }
+        },
+        {
+          "version": "service-order-event.mock.v2",
+          "seq": 4,
+          "previous": "sha256:28aeb2610ca34cb2a8c52d10b92377556c460693246bf01e7b03086eef97519e",
+          "at": "2026-10-21T11:41:52.897Z",
+          "recorded_at": "2026-10-21T11:41:52.970Z",
+          "type": "economic_reconciliation",
+          "hash": "sha256:f2b7936bdedc5648fb0ebc6f2d4a3431f3dde6c78d6dd2262028fadbc6bc074b",
+          "data": {
+            "execution_id": "economic_execution_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+            "technical": "confirmed",
+            "delivery": "delivered"
+          }
+        },
+        {
+          "version": "service-order-event.mock.v2",
+          "seq": 5,
+          "previous": "sha256:f2b7936bdedc5648fb0ebc6f2d4a3431f3dde6c78d6dd2262028fadbc6bc074b",
+          "at": "2026-10-21T11:41:52.996Z",
+          "recorded_at": "2026-10-21T11:41:52.996Z",
+          "type": "customer_disposition",
+          "hash": "sha256:895c0221f7ceb5f12d25eb7929a7400e2c10c6aeeda30b52c9fce8a852dce6c0",
+          "data": {
+            "owner": "buyer-fixture",
+            "state": "accepted",
+            "artifact_hash": "sha256:9474474119f9fe1641e6c1c112d59af8b703ca62da1b2e378e95f15c0e6fa551",
+            "reason": "Synthetic buyer accepts exact report.",
+            "approval_hash": "sha256:1ba8af2be15e74cd99fbc5f059f556ba97d367284446edf455fb5aa0996ec30a",
+            "authority_check": {
+              "version": "service-order-authority-check.mock.v1",
+              "action": "purchase",
+              "checked_at": "2026-10-21T11:41:52.996Z",
+              "active_under_journal_lock": true,
+              "proof": "local_host_attestation_not_human_identity",
+              "mandate_hash": "sha256:5e4939308b967d500eee91eb28f414e398b6a2251c01e4c21e684eda2db83cb8"
+            },
+            "approval": {
+              "version": "service-order-decision.mock.v1",
+              "order_id": "order1",
+              "contract_hash": "sha256:3521f55160332e7574482e4d4bcea9ff502f97842c8d771eeac58d3f457eed87",
+              "contract_version": "service-order-contract.mock.v2",
+              "service_hash": "sha256:5264f503311b7ef382fcff82a326039c560f470bb39aa88b4eb4e42c62b813d5",
+              "offer_version": "rwa-v1",
+              "approved_terms_hash": "sha256:ac5ed17ba015b58cdb1d5a57c61950396f2cbbb4e3e75347567fd6578dad81ce",
+              "buyer_mandate_hash": "sha256:5e4939308b967d500eee91eb28f414e398b6a2251c01e4c21e684eda2db83cb8",
+              "delivered_artifact_hash": "sha256:9474474119f9fe1641e6c1c112d59af8b703ca62da1b2e378e95f15c0e6fa551",
+              "artifact_packet_hash": "sha256:b55ee3cb3465536eefbc22bed52005c72cb66898f2ca97d24d514bfa958d4900",
+              "state": "accepted",
+              "reason": "Synthetic buyer accepts exact report."
+            }
+          }
+        }
+      ],
+      "corrections": [],
+      "correction_history_state": "No correction event in retained scenario; do not fabricate an example",
+      "accounting": {
+        "asset_id": "simulation:local/MOCK",
+        "decimals": 6,
+        "postings": [
+          {
+            "account": "buyer-fixture",
+            "amount_atomic": "-10000",
+            "amount_decimal_mock": "-0.010000"
+          },
+          {
+            "account": "expert-fixture",
+            "amount_atomic": "9000",
+            "amount_decimal_mock": "0.009000"
+          },
+          {
+            "account": "mock-platform",
+            "amount_atomic": "1000",
+            "amount_decimal_mock": "0.001000"
+          }
+        ],
+        "balanced_atomic": true,
+        "execution_cost_amount": "0.010000",
+        "judgment_charge": "0",
+        "refund_ref": null,
+        "automatic_refund_authorized": false,
+        "real_owner_revenue": null
+      },
+      "obligations": [],
+      "replay_validation": {
+        "economics": {
+          "valid": true,
+          "simulation": true,
+          "receipt_kinds": [
+            "observation",
+            "judgment",
+            "execution",
+            "evaluation"
+          ],
+          "payment": "settled",
+          "delivery": "delivered",
+          "evaluation": "confirmed",
+          "reputation_score": 0,
+          "live_settlement_verified": false,
+          "independent_security_acceptance": false
+        },
+        "customer": "accepted",
+        "payment": {
+          "mode": "simulated",
+          "state": "settled",
+          "settlement_ref": "mock:authorization_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "refund_ref": null
+        },
+        "unresolved_obligations": 0,
+        "inference_reexecuted": false,
+        "release": "HOLD",
+        "independent_acceptance": false,
+        "authority_verification": "exact_contract_mandate_local_host_attestation",
+        "chronology_verification": "effective_and_recorded_times_bound_to_signed_economics",
+        "trusted_wall_time_verified": false,
+        "historical_human_identity_verified": false,
+        "execution_authorized": false,
+        "checkpoint_verified": true,
+        "source_verified": true,
+        "read_only": true,
+        "verification_performed_for_this_projection": true,
+        "report_path": "infopunks-visual-inspection-001/evidence/r2-accepted-readonly-replay.json",
+        "pinned_candidate_source_hash": "sha256:95ea761aa6c831ebde043d40ebea6a7a57f3df449cb3f8e09dd668d341c2cff9",
+        "checkpoint_provenance": "author_pinned_fixture_requires_independent_trusted_channel",
+        "scope": "read-only fixture signature/integrity/causality/economic replay, not independent human acceptance"
+      }
+    },
+    {
+      "id": "paid-delivery-failure",
+      "label": "R2 synthetic paid delivery failure",
+      "simulation": true,
+      "dataset": "retained_R2_v2_fixture",
+      "is_Classic_v3_order": false,
+      "source_ref": "infopunks-pilot-001-remediation/evidence/successor-mock-run/paid-delivery-failure/audit.json",
+      "source_byte_sha256": "1df541567b3010fdf9586d9a994ed83068572f9b849b11a632d0ed001a243124",
+      "checkpoint_packet_hash": "sha256:42178cd264321ea49512397b2f9df60742607453de35160d0561adbbab687d98",
+      "audit_version": "service-order-audit.mock.v2",
+      "contract": {
+        "version": "service-order-contract.mock.v2",
+        "evidence_kind": "existing_human_reviewed",
+        "order_id": "order1",
+        "buyer": "buyer-fixture",
+        "seller": "expert-fixture",
+        "buyer_mandate_id": "buyer-fixture-v1",
+        "buyer_mandate_hash": "sha256:7239b4e1fa62f722905f8292a1595ad51e897d637f92e94855340b0364175420",
+        "seller_mandate_hash": "sha256:5b91933b5e8d2ba6b5435e538ef3ee7aa0262101f490ddbf6105e866b1230a19",
+        "artifact_hash": "sha256:9474474119f9fe1641e6c1c112d59af8b703ca62da1b2e378e95f15c0e6fa551",
+        "review_hash": "sha256:d209deccd9d07b9edbdea29e8793dcaa525c23762505910f084e936de9d42485",
+        "artifact_packet_hash": "sha256:e8bd7e7e3a1563e8634ee0be12654c6d5cf4a54c81f128eaf70d9a7616d204f3"
+      },
+      "contract_hash": "sha256:b3e4af73a888222de01746e296fceec15bfbc72f3ff819640315df5d561c19a5",
+      "service": {
+        "service_id": "rwa-v1",
+        "service_hash": "sha256:b7dc2b6d1911672b21d5348cd273c10e8b97e8ba555865fdfa3798af4fe67072",
+        "amount_atomic": "10000",
+        "platform_fee_bps": 1000,
+        "recipient": "expert-fixture",
+        "acceptance_hash": "sha256:16251e196e502dbbc9d640eb0a6ede648ca184cd2d205d84eedb8df742cdd34f"
+      },
+      "terms": {
+        "version": "service-order-terms.mock.v2",
+        "offer_version": "rwa-v1",
+        "scope": "Check documented token rights and price basis",
+        "source_ids": [
+          "stock-tokens",
+          "stock-token-apis"
+        ],
+        "artifact_origin": "synthetic_fixture",
+        "artifact_review_hash": "sha256:d209deccd9d07b9edbdea29e8793dcaa525c23762505910f084e936de9d42485",
+        "review_sla_hours": 24,
+        "refund_policy": "unresolved_obligation_separate_authority_required",
+        "acceptance_criteria": [
+          "Exact approved report",
+          "Claim dispositions and source references",
+          "Coverage gaps visible"
+        ],
+        "correction_terms": "Review linked corrections; changed commercial scope requires a new offer."
+      },
+      "settlement": {
+        "chain_id": "simulation:local",
+        "asset_id": "simulation:local/MOCK",
+        "decimals": 6,
+        "payer": "buyer-fixture",
+        "recipient": "expert-fixture",
+        "amount_atomic": "10000",
+        "amount_decimal_mock": "0.010000",
+        "asset_label": "MOCK; not USD or real revenue",
+        "commercial_250_offer_applies": false
+      },
+      "status": {
+        "technical": "contradicted",
+        "delivery": "failed",
+        "payment_state": "settled",
+        "customer": "disputed",
+        "real_payment_verified": false,
+        "real_revenue_verified": false,
+        "release": "HOLD"
+      },
+      "mandates": [
+        {
+          "role": "buyer",
+          "mandate_id": "buyer-fixture-v1",
+          "owner_id": "buyer-fixture",
+          "agent_id": "buyer-fixture",
+          "revision": 1,
+          "issued_at": "2026-10-21T11:41:53.080Z",
+          "expires_at": "2026-10-21T11:46:53.080Z",
+          "actions": [
+            "research",
+            "purchase",
+            "delegate"
+          ],
+          "acceptance_hash": "sha256:16251e196e502dbbc9d640eb0a6ede648ca184cd2d205d84eedb8df742cdd34f",
+          "budget_atomic": "10000",
+          "per_action_atomic": "10000",
+          "max_fee_atomic": "0",
+          "recipients": [
+            "expert-fixture"
+          ],
+          "max_workers": 3,
+          "max_attempts": 3,
+          "mandate_hash": "sha256:7239b4e1fa62f722905f8292a1595ad51e897d637f92e94855340b0364175420",
+          "approved_at": "2026-10-21T11:41:53.100Z",
+          "version_note": "MandateSchema revision field; packet provides no independent human identity attestation",
+          "historical_authority": "active checked by local host at recorded event; expires_at is historical, not current permission",
+          "current_live_authority": false,
+          "revocation_event_in_this_packet": null,
+          "revocation_state_now": "not queried; no live backend connected"
+        },
+        {
+          "role": "seller",
+          "mandate_id": "expert-fixture-v1",
+          "owner_id": "expert-fixture",
+          "agent_id": "expert-fixture",
+          "revision": 1,
+          "issued_at": "2026-10-21T11:41:53.080Z",
+          "expires_at": "2026-10-21T11:46:53.080Z",
+          "actions": [
+            "research",
+            "publish",
+            "delegate",
+            "disclose"
+          ],
+          "acceptance_hash": "sha256:16251e196e502dbbc9d640eb0a6ede648ca184cd2d205d84eedb8df742cdd34f",
+          "budget_atomic": "10000",
+          "per_action_atomic": "10000",
+          "max_fee_atomic": "0",
+          "recipients": [
+            "expert-fixture"
+          ],
+          "max_workers": 3,
+          "max_attempts": 3,
+          "mandate_hash": "sha256:5b91933b5e8d2ba6b5435e538ef3ee7aa0262101f490ddbf6105e866b1230a19",
+          "approved_at": "2026-10-21T11:41:53.095Z",
+          "version_note": "MandateSchema revision field; packet provides no independent human identity attestation",
+          "historical_authority": "active checked by local host at recorded event; expires_at is historical, not current permission",
+          "current_live_authority": false,
+          "revocation_event_in_this_packet": null,
+          "revocation_state_now": "not queried; no live backend connected"
+        }
+      ],
+      "source_references": [
+        {
+          "source_id": "stock-tokens",
+          "url": "https://docs.robinhood.com/chain/stock-tokens/",
+          "fetched_at": "2026-10-21T11:41:53.080Z",
+          "body_sha256": "310644991005a513031cb9b319428f2aec5f93035c7c3f7ac30b534a7fca5077",
+          "classification": "synthetic_body_at_real_document_URL; not a genuine issuer capture"
+        },
+        {
+          "source_id": "stock-token-apis",
+          "url": "https://docs.robinhood.com/chain/stock-token-apis/",
+          "fetched_at": "2026-10-21T11:41:53.080Z",
+          "body_sha256": "8e5540798f50336275b548e7f806fcd0009b22087ed1b2a4495aa6ba483e01a1",
+          "classification": "synthetic_body_at_real_document_URL; not a genuine issuer capture"
+        }
+      ],
+      "research_review": {
+        "origin": "synthetic_fixture",
+        "review_version": "rwa-existing-claim-review.v1",
+        "approval_mode": "synthetic_fixture_review",
+        "classification": "synthetic reviewer fixture; no real researcher acceptance"
+      },
+      "radar": {
+        "decision": "proceed",
+        "confidence": 100,
+        "reasons": [
+          "simulation_only",
+          "all_deterministic_gates_passed"
+        ],
+        "payment_required": false,
+        "charge": "0",
+        "proceed_confidence_threshold": 80,
+        "confidence_meaning": "deterministic synthetic scenario only; not research accuracy or market confidence",
+        "judgment_is_execution_capability": false
+      },
+      "execution_capability": {
+        "version": "infopunks.execution-authorization.v1",
+        "authorization_id": "authorization_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+        "judgment_id": "economic_judgment_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+        "judgment_hash": "sha256:90e2d8cdeaa0f8b4294a97de9778615a28a7048a3743cd14fb8a0a64872a5d1b",
+        "envelope_hash": "sha256:b56297a035c063778cda8800020fa74b08a769f7641e2791974adc9ec2de2818",
+        "witness_hash": "sha256:f35f394e010d7ca518debba94e0e3fd9d84bad31a56881b85ec19858c0d754c7",
+        "principal_id": "buyer-fixture",
+        "delegate_id": "purchaser",
+        "audience": "mock/rwa-service.v1",
+        "candidate_id": "mock-rwa-route",
+        "policy_hash": "sha256:8114674870dd3b06778113c0785e70cb74a59d5f2dc18e6c2d30b2aea038dcb5",
+        "reservation_id": "reservation_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+        "issued_at": "2026-10-21T11:41:53.199Z",
+        "valid_until": "2026-10-21T11:42:53.080Z",
+        "payload_hash": "sha256:029b39d3916074e3c1e395d25ea9a711d93a89796b6063281600c5fa66dc5bdb",
+        "signature_omitted": true,
+        "usable_capability_exposed": false,
+        "currently_authorizes_execution": false
+      },
+      "receipts": [
+        {
+          "kind": "observation",
+          "node_key": "paid-delivery-failure:sha256:2f29fb7adc3261e5bc1bbc5ec26d9b88280a35606798da5d892951d87db5aaec",
+          "id": "obs_b7663e491f44351ebe207af76c279b244dc90bf5f5589c87072ac938ced02f19",
+          "observation_id": "obs_b7663e491f44351ebe207af76c279b244dc90bf5f5589c87072ac938ced02f19",
+          "schema_version": "canonical-receipts.v1",
+          "receipt_hash": "sha256:2f29fb7adc3261e5bc1bbc5ec26d9b88280a35606798da5d892951d87db5aaec",
+          "observed_at": "2026-10-21T11:41:53.186Z",
+          "ingested_at": "2026-10-21T11:41:53.186Z",
+          "freshness_expires_at": "2026-10-21T11:42:53.080Z",
+          "evidence_state": "sufficient",
+          "source_type": "reviewed_economic_facts",
+          "source_id": "mock-quote/order1",
+          "evidence_refs": [
+            "fixture://service/sha256:b7dc2b6d1911672b21d5348cd273c10e8b97e8ba555865fdfa3798af4fe67072"
+          ],
+          "classification": "synthetic_fixture_receipt_not_live_market_evidence"
+        },
+        {
+          "kind": "judgment",
+          "node_key": "paid-delivery-failure:sha256:90e2d8cdeaa0f8b4294a97de9778615a28a7048a3743cd14fb8a0a64872a5d1b",
+          "id": "economic_judgment_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "judgment_id": "economic_judgment_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "schema_version": "canonical-receipts.v1",
+          "receipt_hash": "sha256:90e2d8cdeaa0f8b4294a97de9778615a28a7048a3743cd14fb8a0a64872a5d1b",
+          "decision": "proceed",
+          "confidence": 100,
+          "reasons": [
+            "simulation_only",
+            "all_deterministic_gates_passed"
+          ],
+          "cited_observation_ids": [
+            "obs_b7663e491f44351ebe207af76c279b244dc90bf5f5589c87072ac938ced02f19"
+          ],
+          "issued_at": "2026-10-21T11:41:53.199Z",
+          "valid_until": "2026-10-21T11:42:53.080Z",
+          "payment_required": false,
+          "charge": "0",
+          "parent_hashes": [
+            "sha256:2f29fb7adc3261e5bc1bbc5ec26d9b88280a35606798da5d892951d87db5aaec"
+          ],
+          "proceed_confidence_threshold": 80,
+          "classification": "synthetic_fixture_receipt_not_live_market_evidence"
+        },
+        {
+          "kind": "execution",
+          "node_key": "paid-delivery-failure:sha256:6aebbb0714292f7daa3b96c680379ce06383ad5a19f690679c1b1b932de9789c",
+          "id": "economic_execution_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "execution_id": "economic_execution_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "schema_version": "canonical-receipts.v1",
+          "receipt_hash": "sha256:6aebbb0714292f7daa3b96c680379ce06383ad5a19f690679c1b1b932de9789c",
+          "judgment_id": "economic_judgment_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "executed_at": "2026-10-21T11:41:53.261Z",
+          "settlement_rail": "mock/rwa-service.v1",
+          "request_hash": "sha256:4f4c5893eced1da521b77dda04336028f2d57bb1ff0003c58112f3be89e4acef",
+          "response_hash": "sha256:09a53a4c35b4073d47acfe34c5b5d7764c010867564481e34dd9582f695f199b",
+          "status": "failed",
+          "execution_authorization": {
+            "version": "infopunks.execution-authorization.v1",
+            "authorization_id": "authorization_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+            "payload_hash": "sha256:029b39d3916074e3c1e395d25ea9a711d93a89796b6063281600c5fa66dc5bdb"
+          },
+          "cost_amount": "0.010000",
+          "cost_asset": "simulation:local/MOCK",
+          "parent_hash": "sha256:90e2d8cdeaa0f8b4294a97de9778615a28a7048a3743cd14fb8a0a64872a5d1b",
+          "classification": "synthetic_fixture_receipt_not_live_market_evidence"
+        },
+        {
+          "kind": "evaluation",
+          "node_key": "paid-delivery-failure:sha256:3bf08106ef3c48c8ced0aaa9a31891a41e87d3a0b99b822f0ae19cb655d79966",
+          "id": "evaluation_economic_execution_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "evaluation_id": "evaluation_economic_execution_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "schema_version": "canonical-receipts.v1",
+          "receipt_hash": "sha256:3bf08106ef3c48c8ced0aaa9a31891a41e87d3a0b99b822f0ae19cb655d79966",
+          "execution_id": "economic_execution_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "evaluated_at": "2026-10-21T11:41:53.308Z",
+          "outcome": "contradicted",
+          "reasons": [
+            "simulation_acceptance_check_only"
+          ],
+          "policy_version": "score-policy.v1",
+          "score_delta": -15,
+          "parent_hash": "sha256:6aebbb0714292f7daa3b96c680379ce06383ad5a19f690679c1b1b932de9789c",
+          "classification": "synthetic_fixture_receipt_not_live_market_evidence"
+        }
+      ],
+      "receipt_graph": {
+        "namespace": "paid-delivery-failure",
+        "edges": [
+          {
+            "from": "sha256:2f29fb7adc3261e5bc1bbc5ec26d9b88280a35606798da5d892951d87db5aaec",
+            "to": "sha256:90e2d8cdeaa0f8b4294a97de9778615a28a7048a3743cd14fb8a0a64872a5d1b",
+            "binding": "cited_observation_ids + parent_hashes"
+          },
+          {
+            "from": "sha256:90e2d8cdeaa0f8b4294a97de9778615a28a7048a3743cd14fb8a0a64872a5d1b",
+            "to": "sha256:6aebbb0714292f7daa3b96c680379ce06383ad5a19f690679c1b1b932de9789c",
+            "binding": "judgment_id + parent_hash + separate capability"
+          },
+          {
+            "from": "sha256:6aebbb0714292f7daa3b96c680379ce06383ad5a19f690679c1b1b932de9789c",
+            "to": "sha256:3bf08106ef3c48c8ced0aaa9a31891a41e87d3a0b99b822f0ae19cb655d79966",
+            "binding": "execution_id + parent_hash"
+          }
+        ]
+      },
+      "history": [
+        {
+          "version": "service-order-event.mock.v2",
+          "seq": 1,
+          "previous": null,
+          "at": "2026-10-21T11:41:53.175Z",
+          "recorded_at": "2026-10-21T11:41:53.175Z",
+          "type": "buyer_approval",
+          "hash": "sha256:5326403dfb6e8071dbec92c46cd2f9de92aa45407e515aa9edd0fd6112e84d18",
+          "data": {
+            "owner": "buyer-fixture",
+            "contract_hash": "sha256:b3e4af73a888222de01746e296fceec15bfbc72f3ff819640315df5d561c19a5",
+            "authority_check": {
+              "version": "service-order-authority-check.mock.v1",
+              "action": "purchase",
+              "checked_at": "2026-10-21T11:41:53.175Z",
+              "active_under_journal_lock": true,
+              "proof": "local_host_attestation_not_human_identity",
+              "mandate_hash": "sha256:7239b4e1fa62f722905f8292a1595ad51e897d637f92e94855340b0364175420"
+            }
+          }
+        },
+        {
+          "version": "service-order-event.mock.v2",
+          "seq": 2,
+          "previous": "sha256:5326403dfb6e8071dbec92c46cd2f9de92aa45407e515aa9edd0fd6112e84d18",
+          "at": "2026-10-21T11:41:53.223Z",
+          "recorded_at": "2026-10-21T11:41:53.223Z",
+          "type": "execution_authorization",
+          "hash": "sha256:8b08a7b8c16fc0d43f174fd796dfb55843ca8e3500330f96d85a71e230dd79eb",
+          "data": {
+            "payload_hash": "sha256:029b39d3916074e3c1e395d25ea9a711d93a89796b6063281600c5fa66dc5bdb"
+          }
+        },
+        {
+          "version": "service-order-event.mock.v2",
+          "seq": 3,
+          "previous": "sha256:8b08a7b8c16fc0d43f174fd796dfb55843ca8e3500330f96d85a71e230dd79eb",
+          "at": "2026-10-21T11:41:53.229Z",
+          "recorded_at": "2026-10-21T11:41:53.229Z",
+          "type": "execution_requested",
+          "hash": "sha256:535bc8ce2341ab40c2568a2706334f3a75b5ec72e7f61bb3e9707e8672d34c0e",
+          "data": {
+            "authorization": "sha256:029b39d3916074e3c1e395d25ea9a711d93a89796b6063281600c5fa66dc5bdb"
+          }
+        },
+        {
+          "version": "service-order-event.mock.v2",
+          "seq": 4,
+          "previous": "sha256:535bc8ce2341ab40c2568a2706334f3a75b5ec72e7f61bb3e9707e8672d34c0e",
+          "at": "2026-10-21T11:41:53.270Z",
+          "recorded_at": "2026-10-21T11:41:53.340Z",
+          "type": "economic_reconciliation",
+          "hash": "sha256:1b8b9fad61242fceba14803f370b0ed2516828f5d1b7ad3bd5c5a41e1f751dcd",
+          "data": {
+            "execution_id": "economic_execution_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+            "technical": "contradicted",
+            "delivery": "failed"
+          }
+        },
+        {
+          "version": "service-order-event.mock.v2",
+          "seq": 5,
+          "previous": "sha256:1b8b9fad61242fceba14803f370b0ed2516828f5d1b7ad3bd5c5a41e1f751dcd",
+          "at": "2026-10-21T11:41:53.376Z",
+          "recorded_at": "2026-10-21T11:41:53.376Z",
+          "type": "customer_disposition",
+          "hash": "sha256:d6bf7dae4b17eaf15104dbe3ea53e58d7936aad81202e57a35b84a39a8dc2bf4",
+          "data": {
+            "owner": "buyer-fixture",
+            "state": "disputed",
+            "artifact_hash": "sha256:9474474119f9fe1641e6c1c112d59af8b703ca62da1b2e378e95f15c0e6fa551",
+            "reason": "Synthetic buyer disputes failed delivery.",
+            "approval_hash": "sha256:119057456c0dcbec59589b36cacf67d1e5f06401e6102fdb60f50db3afd36876",
+            "authority_check": {
+              "version": "service-order-authority-check.mock.v1",
+              "action": "purchase",
+              "checked_at": "2026-10-21T11:41:53.376Z",
+              "active_under_journal_lock": true,
+              "proof": "local_host_attestation_not_human_identity",
+              "mandate_hash": "sha256:7239b4e1fa62f722905f8292a1595ad51e897d637f92e94855340b0364175420"
+            },
+            "approval": {
+              "version": "service-order-decision.mock.v1",
+              "order_id": "order1",
+              "contract_hash": "sha256:b3e4af73a888222de01746e296fceec15bfbc72f3ff819640315df5d561c19a5",
+              "contract_version": "service-order-contract.mock.v2",
+              "service_hash": "sha256:b7dc2b6d1911672b21d5348cd273c10e8b97e8ba555865fdfa3798af4fe67072",
+              "offer_version": "rwa-v1",
+              "approved_terms_hash": "sha256:bae27190f9ffac510ae02633a69b52e696d314e2792c022e574cb44e2cb9bf34",
+              "buyer_mandate_hash": "sha256:7239b4e1fa62f722905f8292a1595ad51e897d637f92e94855340b0364175420",
+              "delivered_artifact_hash": "sha256:9474474119f9fe1641e6c1c112d59af8b703ca62da1b2e378e95f15c0e6fa551",
+              "artifact_packet_hash": "sha256:e8bd7e7e3a1563e8634ee0be12654c6d5cf4a54c81f128eaf70d9a7616d204f3",
+              "state": "disputed",
+              "reason": "Synthetic buyer disputes failed delivery."
+            }
+          }
+        }
+      ],
+      "corrections": [],
+      "correction_history_state": "No correction event in retained scenario; do not fabricate an example",
+      "accounting": {
+        "asset_id": "simulation:local/MOCK",
+        "decimals": 6,
+        "postings": [
+          {
+            "account": "buyer-fixture",
+            "amount_atomic": "-10000",
+            "amount_decimal_mock": "-0.010000"
+          },
+          {
+            "account": "expert-fixture",
+            "amount_atomic": "9000",
+            "amount_decimal_mock": "0.009000"
+          },
+          {
+            "account": "mock-platform",
+            "amount_atomic": "1000",
+            "amount_decimal_mock": "0.001000"
+          }
+        ],
+        "balanced_atomic": true,
+        "execution_cost_amount": "0.010000",
+        "judgment_charge": "0",
+        "refund_ref": null,
+        "automatic_refund_authorized": false,
+        "real_owner_revenue": null
+      },
+      "obligations": [
+        {
+          "reason": "paid_delivery_failure",
+          "status": "unresolved",
+          "reference": "economic_execution_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8"
+        },
+        {
+          "reason": "disputed",
+          "status": "unresolved",
+          "reference": "sha256:9474474119f9fe1641e6c1c112d59af8b703ca62da1b2e378e95f15c0e6fa551"
+        }
+      ],
+      "replay_validation": {
+        "economics": {
+          "valid": true,
+          "simulation": true,
+          "receipt_kinds": [
+            "observation",
+            "judgment",
+            "execution",
+            "evaluation"
+          ],
+          "payment": "settled",
+          "delivery": "failed",
+          "evaluation": "contradicted",
+          "reputation_score": 0,
+          "live_settlement_verified": false,
+          "independent_security_acceptance": false
+        },
+        "customer": "disputed",
+        "payment": {
+          "mode": "simulated",
+          "state": "settled",
+          "settlement_ref": "mock:authorization_52104210750eb9811af5c8d189e0f53a7a9cc8de96da67da44df23ce9bdbd0e8",
+          "refund_ref": null
+        },
+        "unresolved_obligations": 2,
+        "inference_reexecuted": false,
+        "release": "HOLD",
+        "independent_acceptance": false,
+        "authority_verification": "exact_contract_mandate_local_host_attestation",
+        "chronology_verification": "effective_and_recorded_times_bound_to_signed_economics",
+        "trusted_wall_time_verified": false,
+        "historical_human_identity_verified": false,
+        "execution_authorized": false,
+        "checkpoint_verified": true,
+        "source_verified": true,
+        "read_only": true,
+        "verification_performed_for_this_projection": true,
+        "report_path": "infopunks-visual-inspection-001/evidence/r2-paid-delivery-failure-readonly-replay.json",
+        "pinned_candidate_source_hash": "sha256:95ea761aa6c831ebde043d40ebea6a7a57f3df449cb3f8e09dd668d341c2cff9",
+        "checkpoint_provenance": "author_pinned_fixture_requires_independent_trusted_channel",
+        "scope": "read-only fixture signature/integrity/causality/economic replay, not independent human acceptance"
+      }
+    }
+  ],
+  "legacy_fixtures": [
+    {
+      "scenario": "accepted",
+      "audit_version": "service-order-audit.mock.v1",
+      "order_audit_version": null,
+      "contract_version": "service-order-contract.mock.v2",
+      "selected_for_receipt_ui": false,
+      "label": "Preserved legacy v1 audit with weaker historical verification; not upgraded by R2/v3 qualification",
+      "source_ref": "infopunks-pilot-001-track-a-20261022/inputs/legacy/accepted/audit.json"
+    },
+    {
+      "scenario": "paid-delivery-failure",
+      "audit_version": "service-order-audit.mock.v1",
+      "order_audit_version": null,
+      "contract_version": "service-order-contract.mock.v2",
+      "selected_for_receipt_ui": false,
+      "label": "Preserved legacy v1 audit with weaker historical verification; not upgraded by R2/v3 qualification",
+      "source_ref": "infopunks-pilot-001-track-a-20261022/inputs/legacy/paid-delivery-failure/audit.json"
+    }
+  ],
+  "missing_evidence": [
+    {
+      "id": "classic-v3-audited-order",
+      "state": "NOT_PERSISTED",
+      "note": "Track A test suite covers synthetic Classic v3 e2e; no persisted Classic v3 audit packet was located in selected retained evidence. No demonstration transaction was generated."
+    },
+    {
+      "id": "revoked-mandate-scenario",
+      "state": "NOT_IN_SELECTED_PACKETS",
+      "note": "Revocation is code/test covered; these two retained transactions contain no revoked-mandate event."
+    },
+    {
+      "id": "correction-delivered-scenario",
+      "state": "NOT_IN_SELECTED_PACKETS",
+      "note": "Both retained order.corrections arrays are empty; correction test coverage is separate."
+    },
+    {
+      "id": "insufficient-evidence-judgment",
+      "state": "NOT_IN_SELECTED_PACKETS",
+      "note": "Both retained judgment decisions are proceed with zero charge. Do not fabricate a refusal receipt."
+    },
+    {
+      "id": "human-independent-decisions",
+      "state": "PENDING",
+      "note": "Independent engineering acceptance, human claim review, authorized seller, actual buyer, verified payment and publication consent remain absent."
+    }
+  ],
+  "graph_integrity": {
+    "receipt_count": 8,
+    "scenarios": 2,
+    "receipts_per_scenario": 4,
+    "validated_causal_edges": 6,
+    "duplicate_ids_across_scenarios_expected": true,
+    "node_identity": "scenario ID plus receipt hash, never receipt ID alone"
+  },
+  "safety": {
+    "full_source_bodies_in_projection": false,
+    "private_context_in_projection": false,
+    "keys_credentials_signatures_in_projection": false,
+    "live_API_actions": false,
+    "source_quoted_words": 0,
+    "outbound_messages_sent": 0,
+    "economic_transactions_created": 0,
+    "models_invoked_for_transaction": 0,
+    "parent_Codex_usage_cost_not_metered": true
+  }
+}

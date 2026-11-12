@@ -3,7 +3,7 @@ export type RadarPageIdentity = { index: string; title: string; subtitle: string
 const families: [RegExp, RadarPageIdentity][] = [
   [/^\/$/, { index: '01', title: 'INFOPUNKS RADAR', subtitle: 'TWO ECONOMIES' }],
   [/^\/solana/, { index: '02', title: 'SOLANA RADAR', subtitle: 'PRE-SPEND INTELLIGENCE' }],
-  [/^\/economic-os\/overview\/?$/, { index: '06', title: 'ECONOMIC OS', subtitle: 'ONE RADAR. TWO ECONOMIES. ONE STANDARD OF PROOF.' }],
+  [/^\/economic-os/, { index: '17', title: 'ECONOMIC OS', subtitle: 'READ-ONLY EVIDENCE EXPLORER' }],
   [/^\/routes/, { index: '03', title: 'ROUTES', subtitle: 'SERVICE INTELLIGENCE' }],
   [/^\/(receipts|revenue-receipts|proof)/, { index: '04', title: 'RECEIPTS', subtitle: 'PROOF ARCHIVE' }],
   [/^\/providers/, { index: '05', title: 'PROVIDERS', subtitle: 'PROVIDER EVIDENCE' }],
