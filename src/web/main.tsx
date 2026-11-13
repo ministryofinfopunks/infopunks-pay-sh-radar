@@ -11,6 +11,7 @@ import { RadarAppShell } from './radarAppShell';
 const LazyRadarApp = lazy(() => import('./radarApp'));
 const LazyEconomicOS = lazy(() => import('./economicOSPage').then(module => ({ default: module.EconomicOSPage })));
 const LazyFrontdoorBasicPage = lazy(() => import('./frontdoorBasicPages').then(module => ({ default: module.FrontdoorBasicPage })));
+const LazyStaticDevelopersPage = lazy(() => import('./developersStaticPage').then(module => ({ default: module.DevelopersStaticPage })));
 
 const frontdoorBasicPagePath = (path: string) => /^\/(?:narratives|abundance|narratives\/(?:abundance-desk|attention-markets|attention-market-watch)|attention-market-watch(?:\/(?:ansem|tjr|luke|superman))?|signals\/(?:ansem|black-bull|troll))\/?$/.test(path);
 
@@ -19,6 +20,7 @@ export function App() {
   const profile = typeof document === 'undefined' ? 'full-stack' : document.querySelector<HTMLMetaElement>('meta[name="radar-operating-profile"]')?.content ?? 'full-stack';
   if (path === '/') return <RadarAppShell><UniversalHomepage /></RadarAppShell>;
   if (/^\/economic-os(?:\/|$)/.test(path)) return <RadarAppShell><Suspense fallback={<main role="status">Opening Economic OS…</main>}><LazyEconomicOS /></Suspense></RadarAppShell>;
+  if (profile === 'frontdoor-only' && /^\/developers\/?$/.test(path)) return <Suspense fallback={<main className="developers-static-loading" role="status">Opening architecture guide…</main>}><LazyStaticDevelopersPage /></Suspense>;
   if (profile === 'frontdoor-only' && frontdoorBasicPagePath(path)) return <RadarAppShell><Suspense fallback={<main className="radar-route-loading" role="status" aria-live="polite">Opening Radar archive…</main>}><LazyFrontdoorBasicPage path={path} /></Suspense></RadarAppShell>;
   return <RadarAppShell><Suspense fallback={<main className="radar-route-loading" role="status" aria-live="polite">Opening Radar surface…</main>}><LazyRadarApp /></Suspense></RadarAppShell>;
 }
